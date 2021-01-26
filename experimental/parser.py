@@ -1,4 +1,4 @@
-kmer = "GAATCCAATCAGATT"
+ex_kmer = "GAATCCAATCAGATT"
 
 def fqformat(lines=None):
     format = ["id", 'seq','opt','qual']    
@@ -17,7 +17,7 @@ if __name__ == "__main__":
         lines.append(line.rstrip())
         if len(lines) % 4 == 0:
             read = fqformat(lines)
-            if kmer in read["seq"]:
+            if ex_kmer in read["seq"]:
                 reads.append(read)
                 break 
             lines.clear() 
