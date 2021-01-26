@@ -8,10 +8,12 @@ If you are working on the sequence analysis web app, please store your files in 
 - [Point of Care Diagnostics Projects](#point-of-care-diagnostics-projects)
 - [Table of Contents](#table-of-contents)
   * [Introduction](#introduction)
+    + [Web app](#web-app)
   * [Smartphone app](#smartphone-app)
     + [Technologies](#technologies)
   * [Web app](#web-app)
     + [Technologies](#technologies-1)
+    + [Setup and Installation](#setup-and-installation)
   * [Project Status](#project-status)
  
 
@@ -30,6 +32,38 @@ Android OS
 ## Web app
 Intakes a fastq sequence, analyzes it and produces a result based on the workflow
 
+### Setup and Installation 
+1. You need the following to correctly replicate our current dev environment: 
+- You have one of the major linux distros installed on your computer (ubuntu, debian, etc.)
+- I (Manjot) am using Ubuntu 20.04
+- If you don't want to dual boot or use a vm, I recommend using WSL, which is what I use. Really convenient for web dev
+2. Install python. First check if you already have it. Note that python3.8 is shipped with Ubuntu 20.04.
+- `python3 --v`
+If you don't have it:
+- `sudo apt-get update`
+- `sudo apt-get install python3.8` 
+2. Install npm
+- `npm --v`
+If you don't have it:
+- `sudo apt install nodejs` 
+also check if nodejs was installed along as a dependency via `node --v`
+if it wasn't, install via `sudo apt install nodejs`
+3. Install yarn using `npm install yarn`
+4. Clone this repo into whatever directory you want using `git clone https://github.com/mshunjan/POCD.git`  
+5. Install dependencies using `npm install`
+6. Install flask and dotenv as follows:
+- `python3 -m venv venv`
+- `/pathtovenv/ /venv/bin/activate`
+Your console should now have the prefix "venv"
+- `python3 -m pip install flask python-dotenv`
+7. Enter the app directory
+`cd pocd-seq-app`
+8. Start hot-reloading front-end
+`yarn start`
+Just open the link that outputs to the terminal
+9. Start hot-reloading back-end
+`yarn api-start` (note do this in another terminal window)
+10. Open one final terminal window for actual development and you're setup!
 ### Technologies
 Javascript + React.js
 HTML + CSS
