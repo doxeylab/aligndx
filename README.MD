@@ -2,7 +2,7 @@
 Sequence analysis and image analysis apps 
 
 **NOTE FOR EVERYONE ON THE TEAM**
-If you are working on the sequence analysis web app, please store your files in the directory /sequencing. If you are working on the smartphone app, please store your files in the /image_analysis directory.
+I've made several changes to the file structures of the repo. pocd-seq-app contains the full stack code for the web app. Design is a folder for any frontend designs you have created and want to store in the repo. Experimental is a chaotic folder for all our garbage collection. I have yet to make a folder for the image_analysis.
 
 # Table of Contents
 - [Point of Care Diagnostics Projects](#point-of-care-diagnostics-projects)
@@ -45,7 +45,7 @@ If you don't have it:
 2. Install npm
 - `npm --v`
 If you don't have it:
-- `sudo apt install nodejs` 
+- `sudo apt install npm` 
 also check if nodejs was installed along as a dependency via `node --v`
 if it wasn't, install via `sudo apt install nodejs`
 3. Install yarn using `npm install yarn`
@@ -53,7 +53,7 @@ if it wasn't, install via `sudo apt install nodejs`
 5. Install dependencies using `npm install`
 6. Install flask and dotenv as follows:
 - `python3 -m venv venv`
-- `/pathtovenv/ /venv/bin/activate`
+- `source /venv/bin/activate`
 Your console should now have the prefix "venv"
 - `python3 -m pip install flask python-dotenv`
 7. Enter the app directory
