@@ -1,5 +1,5 @@
 # Point of Care Diagnostics Projects
-Sequence analysis and image analysis apps 
+Sequene analysis and image analysis apps 
 
 **NOTE FOR EVERYONE ON THE TEAM**
 I've made several changes to the file structures of the repo. pocd-seq-app contains the full stack code for the web app. Design is a folder for any frontend designs you have created and want to store in the repo. Experimental is a chaotic folder for all our garbage collection. I have yet to make a folder for the image_analysis.
