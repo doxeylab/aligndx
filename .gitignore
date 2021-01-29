@@ -22,6 +22,7 @@
 /pocd-seq-app/.env.development.local
 /pocd-seq-app/.env.test.local
 /pocd-seq-app/.env.production.local
+/pocd-seq-app/.eslintcache
 __pycache__
 
 npm-debug.log*
