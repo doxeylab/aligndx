@@ -21,13 +21,12 @@ class Kmer:
         # Resets k value so we don't have to re-instantiate the class
         k = k 
             
-    def kmer_count(kmer_list): 
-        '''
-        Generates histogram of kmer frequencies for a sequence
+    # def kmer_count(kmer_list): 
+    #     '''
+    #     Generates histogram of kmer frequencies for a sequence
 
-        '''
-        kmer_hist = {}
-        for i in np.unique(kmer_list):
-            kmer_hist[i] = kmer_list.count(i)
-
-    def kmer
+    #     '''
+    #     kmer_hist = {}
+    #     for i in np.unique(kmer_list):
+    #         kmer_hist[i] = kmer_list.count(i)
+ 
