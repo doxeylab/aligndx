@@ -23,6 +23,7 @@
 /pocd-seq-app/.env.test.local
 /pocd-seq-app/.env.production.local
 /pocd-seq-app/.eslintcache
+/experimental/sratoolkit.2.10.9-ubuntu64
 __pycache__
 
 npm-debug.log*
