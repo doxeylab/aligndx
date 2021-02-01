@@ -7,18 +7,32 @@ def sliding_window(seq, k):
     kmer_record = [] 
     o = 0
     sequence = ''
+
     with open(seq, 'r') as f:
         next(f)
         # skips identifier line
         for char in f:
             sequence = sequence + char 
     seq_wo_breaks = sequence.replace("\n","")  
+    
     while o < len(seq_wo_breaks):
         kmer_record.append(seq_wo_breaks[o:k_size]) 
         o += original_k_size 
         k_size += original_k_size 
-    unique_kmers = (np.delete(np.unique(kmer_record),0))
-    return(unique_kmers)
+    # unique_kmers = (np.delete(np.unique(kmer_record),0))
+    # return(unique_kmers)
+
+    # return only unique kmers
+    unique_kmers = np.unique(kmer_record)
+
+    # make indexes for original order 
+    indexes = np.unique(kmer_record, return_index=True)[1]
+
+    # re-order sorted unique kmer list by original order
+    seq_kmers = [kmer_record[index] for index in sorted(indexes)]
+    # print(seq_kmers)
+    # unique_kmers = (np.delete(np.unique(kmer_record, return_index=True),0))
+    # print(np.sort(unique_kmers))
 
 if __name__ == "__main__":
     '''
@@ -26,7 +40,7 @@ if __name__ == "__main__":
     ''' 
     import dnaio
     import sys
-    import numpy as np  
+    import numpy as np   
     kmer_library = sliding_window(sys.argv[2], sys.argv[3])
     matches = 0  
     total_kmers = len(kmer_library)
