@@ -41,7 +41,7 @@ if __name__ == "__main__":
                     matches = 0 
                 else:
                     continue  
-            if len(seq_compar_lib) == 1:
+            if len(seq_compar_lib) == 2:
                 break
             else:
                 continue
