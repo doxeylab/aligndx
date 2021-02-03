@@ -1,4 +1,24 @@
-kmer = "GAATCCAATCAGATT"
+import numpy as np 
+
+ex_kmer = "GAATCCAATCAGATT"
+def sliding_window(k, seq):
+    '''
+    Scans read using a sliding window of size k and appends them to an array until the last character in the read is reached
+    '''
+    kmer_record = []
+    while k > len(seq):
+        kmer_record.append(seq[:k]) 
+    # Resets k value so we don't have to re-instantiate the class
+    k = k 
+
+def kmer_count(kmer_list): 
+    '''
+    Generates histogram of kmer frequencies for a sequence
+
+    '''
+    kmer_hist = {}
+    for i in np.unique(kmer_list):
+        kmer_hist[i] = kmer_list.count(i)
 
 def fqformat(lines=None):
     format = ["id", 'seq','opt','qual']    
@@ -17,7 +37,7 @@ if __name__ == "__main__":
         lines.append(line.rstrip())
         if len(lines) % 4 == 0:
             read = fqformat(lines)
-            if kmer in read["seq"]:
+            if ex_kmer in read["seq"]:
                 reads.append(read)
                 break 
             lines.clear() 

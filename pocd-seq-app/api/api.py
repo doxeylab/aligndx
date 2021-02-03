@@ -4,4 +4,4 @@ app = Flask(__name__)
 
 @app.route('/main')
 def test_hello():
-    return "hello"
+    return {'result':"You have a pathogen"} 
