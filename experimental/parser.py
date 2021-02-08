@@ -28,9 +28,7 @@ if __name__ == "__main__":
     '''
     Streams in files by chunks of four, parsing it and identifying kmers from kmer library
     ''' 
-    import fileinput  
-    # import cProfile
-    # import re
+    import fileinput   
     lines = []
     reads = []
     for line in fileinput.input(): 
@@ -42,6 +40,4 @@ if __name__ == "__main__":
                 break 
             lines.clear() 
     if reads:
-        print(reads)
-        print("You have covid") 
-    # cProfile.run('re.compile("parser.py")')
+        print(reads)  

@@ -1,6 +1,5 @@
 import sys
 import numpy as np 
-
 def sliding_window(seq, k):
     '''
     Scans read using a sliding window of size k and appends them to an array until the last character in the read is reached 
