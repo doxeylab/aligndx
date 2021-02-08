@@ -1,16 +1,13 @@
-# Point of Care Diagnostics Projects
-Sequence analysis and image analysis apps 
+# Sequence Analysis Project
+RNA-sequence analysis workflows in the cloud, delivered to you in an intuitive and easy to use manner.
 
 **Notice**
-I've made several changes to the file structures of the repo. pocd-seq-app contains the full stack code for the web app. Design is a folder for any frontend designs you have created and want to store in the repo. Experimental is a chaotic folder for all our garbage collection. I have yet to make a folder for the image_analysis.
+pocd-seq-app contains the full stack code for the web app. Design is a folder for any frontend designs you have created and want to store in the repo. Experimental is a chaotic folder for all our garbage collection. 
 
 # Table of Contents
 - [Point of Care Diagnostics Projects](#point-of-care-diagnostics-projects)
 - [Table of Contents](#table-of-contents)
-  * [Introduction](#introduction)
-    + [Web app](#web-app)
-  * [Smartphone app](#smartphone-app)
-    + [Technologies](#technologies)
+  * [Introduction](#introduction) 
   * [Web app](#web-app)
     + [Technologies](#technologies-1)
     + [Setup and Installation](#setup-and-installation)
@@ -19,19 +16,8 @@ I've made several changes to the file structures of the repo. pocd-seq-app conta
 
 ## Introduction
 
-In the following github repository, you will find the codebases for 2 primary projects, which ultimately have a goal of coming together. In summary, the goal is software able to greatly increase the bridging gap between healthcare and the patient. Initially, we are aiming for diagnosticians, clinicians, and possibly researchers that have interest in simplifying sequence analysis and popular assay analysis. Eventually we seek to deliver a user experience to every person, where the aforementioned tasks are easily accessible and understood.
-
-## Smartphone app
-Intakes an image, analyzes it and produces a result
-
-### Technologies
-Flutter + Dart
-Python + Flask 
-Android OS
-
-## Web app
-Intakes a fastq sequence, analyzes it and produces a result based on the workflow
-
+In the following github repository, you will find the codebases for software able to greatly increase the bridging gap between healthcare and the patient. Initially, we are aiming for diagnosticians, clinicians, and possibly researchers that have interest in simplifying sequence analysis. Eventually we seek to deliver a user experience to every person, where the aforementioned tasks are easily accessible and understood.
+  
 ### Setup and Installation 
 1. You need the following to correctly replicate our current dev environment: 
 - You have one of the major linux distros installed on your computer (ubuntu, debian, etc.)
@@ -70,6 +56,5 @@ HTML + CSS
 Python + Flask 
 
 ## Project Status
-**Ongoing**
-- [] smartphone app
+**Ongoing** 
 - [] web app
