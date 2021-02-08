@@ -1,8 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-#localtestfiles
-/experimental/SRR10148979*
-/experimental/influenza.fna
+#localtests
+/experimental/tests 
 
 # dependencies
 /pocd-seq-app/node_modules
