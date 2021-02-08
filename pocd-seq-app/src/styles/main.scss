@@ -1,0 +1,13 @@
+@import "./abstractStyles/Variables.scss";
+@import "./abstractStyles/Mixins.scss";
+
+@import "./baseStyles/Base.scss";
+@import "./baseStyles/Typography.scss";
+
+@import "./componentStyles/Navbar.scss";
+@import "./componentStyles/Backdrop.scss";
+@import "./componentStyles/FileUpload.scss";
+@import "./componentStyles/FileUploader.scss";
+@import "./componentStyles/Modal.scss";
+
+@import "./pageStyles/Home.scss";
