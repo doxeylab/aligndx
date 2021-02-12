@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
+// eslint-disable-next-line
 import UploadService from "../services/FileUploadService";
 import axios from 'axios';
 
 const FileUploader = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
+  // eslint-disable-next-line
   const [errorMessage, setErrorMessage] = useState('');
   const [validFiles, setValidFiles] = useState([]);
   const [unsupportedFiles, setUnsupportedFiles] = useState([]);
