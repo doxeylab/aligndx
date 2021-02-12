@@ -1,8 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-#localtestfiles
-/experimental/SRR10148979*
-/experimental/influenza.fna
+#localtests
+/experimental/tests 
 
 # dependencies
 /pocd-seq-app/node_modules
@@ -23,6 +22,7 @@
 /pocd-seq-app/.env.test.local
 /pocd-seq-app/.env.production.local
 /pocd-seq-app/.eslintcache
+/experimental/sratoolkit.2.10.9-ubuntu64
 __pycache__
 
 npm-debug.log*
