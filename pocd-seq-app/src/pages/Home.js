@@ -5,7 +5,6 @@ import Art from '../assets/Art.png';
 import { Container, Row, Col } from 'react-bootstrap';
 import FileUpload from "../components/FileUpload";
 
-
 const Home = () => {
     const [toggleUploadModal, setToggleUploadModal] = useState(false)
 
