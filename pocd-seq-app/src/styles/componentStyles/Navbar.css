@@ -1,4 +1,3 @@
-
 /* Gets Rid of Extra White Space*/
 html,body {
   width: 100%;
@@ -18,6 +17,7 @@ html,body {
 }
 
 .navbar h1 {
+    cursor:default;
     font-weight: 500;
     font-size: 4rem;
     color:#1861a6;
@@ -52,7 +52,7 @@ html,body {
         #1861a6 0%,
         #2f8ae1 51%,
         #1861a6 100%
-);
+    );
     outline: none;
 }
 
@@ -83,7 +83,11 @@ html,body {
     margin-left: 2rem;
     padding-top: 1.5rem;
     padding-bottom: 1.5rem;
+}
 
+.nav-links:hover {
+  border-bottom: 1px solid #000;
+  padding-bottom: 3px;
 }
 
 /*Hides the Hamburger Icon when screen is too big*/
@@ -99,11 +103,6 @@ html,body {
 /*Navbar content below 960px*/
 @media screen and (max-width: 960px) {
   
-  /*Hides the AlignDx*/
-  .navbar h1{
-    display: none;
-  }
-
   /*Navbar*/
   .nav-menu {
     display: flex;
@@ -141,8 +140,6 @@ html,body {
     text-align: center;
   }
 
-
-
   /*Controls position of the hamburger icon*/
   .menu-icon {
     font-size: 3rem;
@@ -154,33 +151,20 @@ html,body {
     z-index:2;
   }
 
+    /*Hides the AlignDx*/
+    .navbar h1{
+      display:block;
+      position: absolute;
+      top:3rem;
+      left:3rem;
+
+    }
+
   /*Hides the Download App*/
   .btn--download {
     display:none;
 
   }
-
-
-  /*Test*/
-  .nav-links-mobile {
-    display: block;
-    text-align: center;
-    padding: 1.5rem;
-    margin: 2rem auto;
-    border-radius: 4px;
-    width: 80%;
-    background: #1888ff;
-    text-decoration: none;
-    color: #fff;
-    font-size: 1.5rem;
-  }
-
-  .nav-links-mobile:hover {
-    color: #1888ff;
-
-  }
-
-  
 
 }
 
