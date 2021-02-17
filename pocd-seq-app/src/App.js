@@ -13,12 +13,12 @@ import FAQ from './pages/FAQ';
       <Router>
         <Navbar />
         <Switch>
-        <Route path='/' exact component={Home} />
-        <Route path='/home' exact component={Home} />
-        <Route path='/about' component={About} />
-        <Route path='/contact' component={Contact} />
-        <Route path='/FAQ' component={FAQ} />
-        <Route path='/team' component={Team} />
+          <Route path='/' component={Home} />
+          <Route path='/home' component={Home} />
+          <Route path='/about' component={About} />
+          <Route path='/contact' component={Contact} />
+          <Route path='/FAQ' component={FAQ} />
+          <Route path='/team' component={Team} />
         </Switch>
       </Router>
     );

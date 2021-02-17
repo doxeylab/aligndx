@@ -97,3 +97,14 @@
     color: $white-color;
   }
 }
+
+/*Centers the button when the screen gets smaller*/
+@media screen and (max-width:900px) {
+
+  .cta-btn--analyze {
+    padding-left: 50px;
+    padding-right: 50px;
+    margin: 0 auto;
+  }
+
+}

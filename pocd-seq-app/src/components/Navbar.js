@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from './Button';
+import { Button } from '../pages/Download';
 import { Link } from 'react-router-dom';
 
 function Navbar() {
@@ -27,6 +27,8 @@ function Navbar() {
             >
               Home
             </Link>
+          </li>
+          <li className='nav-item'>
             <Link
               to='/about'
               className='nav-links'
