@@ -106,8 +106,8 @@ html,body {
     display: block;
     position: absolute;
     font-size: 3rem;
-    top: 61px;
-    right: 15.5px;
+    top: 6rem;
+    right: 40px;
     cursor: pointer;
     z-index: 2;
   }
@@ -116,8 +116,9 @@ html,body {
   .navbar h1{
     display: block;
     position: absolute;
-    top: 61px;
-    left: 15.5px;
+    top: 6rem;
+    margin-left: 5rem;
+
   }
 
   /*Navbar*/
@@ -163,3 +164,4 @@ html,body {
   }
 
 }
+
