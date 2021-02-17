@@ -13,7 +13,7 @@ import FAQ from './pages/FAQ';
       <Router>
         <Navbar />
         <Switch>
-          <Route path='/' component={Home} />
+          <Route path='/' exact component={Home} />
           <Route path='/home' component={Home} />
           <Route path='/about' component={About} />
           <Route path='/contact' component={Contact} />
