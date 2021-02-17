@@ -63,7 +63,7 @@ html,body {
 /*Ajusts the Links (About,Teams,etc)*/
 .nav-menu {
     display: grid;
-    grid-template-columns: repeat(4, auto);
+    grid-template-columns: repeat(5, auto);
     list-style-type: none;
     align-content: center;
     align-items: center;
@@ -140,10 +140,10 @@ html,body {
     text-align: center;
   }
 
-  /*Controls position of the hamburger icon*/
+  /*Position of the hamburger icon*/
   .menu-icon {
-    font-size: 3rem;
     display: block;
+    font-size: 3rem;
     position: absolute;
     top: 3rem;
     right: 3rem;
@@ -151,7 +151,7 @@ html,body {
     z-index:2;
   }
 
-    /*Hides the AlignDx*/
+    /*Position of the AlignDx Llgo*/
     .navbar h1{
       display:block;
       position: absolute;
@@ -168,3 +168,6 @@ html,body {
 
 }
 
+*{
+  border:1px solid red;
+}
