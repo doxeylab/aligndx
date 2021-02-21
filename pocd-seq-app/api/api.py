@@ -11,6 +11,10 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 cors = CORS(app, supports_credentials=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+@app.route('/',methods=['GET'])
+def root():
+    return "Welcome to the root api endpoint \n use /upload to upload files, use /files to check if it was uploaded"
+
 def allowed_file(filename):
     identifers = filename.split('.') 
     if identifers[1].lower() in ALLOWED_EXTENSIONS: 
