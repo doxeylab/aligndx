@@ -1,5 +1,4 @@
 import React from 'react';
-
 import Modal from "./Modal.js";
 import FileUploader from './FileUploader.js';
 
