@@ -18,7 +18,7 @@ const ResultAnalysis = () => {
 
    return (
      <>
-       
+
      </>
    )
 }
