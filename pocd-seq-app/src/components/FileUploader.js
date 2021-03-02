@@ -1,9 +1,16 @@
+  
 import React, { useState, useEffect, useRef } from "react";
 // eslint-disable-next-line
 import UploadService from "../services/FileUploadService";
 import axios from 'axios';
+import ResultAnalysis from './ResultAxios';
+import LoadingSpinner from './LoadingSpinner';
+
+
 
 const FileUploader = () => {
+
+  const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   // eslint-disable-next-line
   const [errorMessage, setErrorMessage] = useState('');
@@ -12,8 +19,11 @@ const FileUploader = () => {
   const [dropzoneActive, setDropzoneActive] = useState(false);
 
   const fileInputRef = useRef();
+  // eslint-disable-next-line
   const uploadModalRef = useRef();
+  // eslint-disable-next-line
   const uploadRef = useRef();
+  // eslint-disable-next-line
   const progressRef = useRef();
 
   useEffect(() => {
@@ -123,8 +133,11 @@ const FileUploader = () => {
   }
 
   const uploadFiles = () => {
+    setLoading(true)
+    /*
     uploadModalRef.current.style.display = 'block';
     uploadRef.current.innerHTML = 'File(s) Uploading...';
+    */
     for (let i = 0; i < validFiles.length; i++) {
       const formData = new FormData();
       formData.append('file', validFiles[i]);
@@ -132,29 +145,37 @@ const FileUploader = () => {
       axios.post('http://localhost:8080/upload', formData, {
         onUploadProgress: (progressEvent) => {
           const uploadPercentage = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
+          /*
           progressRef.current.innerHTML = `${uploadPercentage}%`;
           progressRef.current.style.width = `${uploadPercentage}%`;
+          */
           if (uploadPercentage === 100) {
-            uploadRef.current.innerHTML = 'File(s) Uploaded';
+            setLoading(false)
+            /*uploadRef.current.innerHTML = 'File(s) Uploaded';*/
             validFiles.length = 0;
             setValidFiles([...validFiles]);
             setSelectedFiles([...validFiles]);
             setUnsupportedFiles([...validFiles]);
+            window.location.href = 'http://www.google.com';
           }
         }
       })
+      /*
       .catch(() => {
           // If error, display a message on the upload modal
           uploadRef.current.innerHTML = `<span class="error">Error Uploading File(s)</span>`;
           // set progress bar background color to red
           progressRef.current.style.backgroundColor = 'red';
       });
+      */
     }
   }
 
-  const closeUploadModal = () => {
+  /*
+  {const closeUploadModal = () => {
     uploadModalRef.current.style.display = 'none';
   }
+  */
 
   return (
     <div>
@@ -213,9 +234,16 @@ const FileUploader = () => {
           }
         </div>
       }
+
       <button disabled={selectedFiles.length ? false : true} className="file-upload-btn" onClick={() => uploadFiles()}>Analyze</button>
 
-      <div className="upload-modal" ref={uploadModalRef}>
+      {loading ?
+        <LoadingSpinner />
+      :
+        <ResultAnalysis />
+      }
+
+      {/*<div className="upload-modal" ref={uploadModalRef}>
         <div className="close" onClick={(() => closeUploadModal())}>X</div>
         <div className="progress-container">
           <span ref={uploadRef}></span>
@@ -223,7 +251,8 @@ const FileUploader = () => {
             <div className="progress-bar" ref={progressRef}></div>
           </div>
         </div>
-      </div>
+    </div>*/}
+
     </div>
   );
 };

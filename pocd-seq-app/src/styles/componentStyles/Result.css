@@ -1,0 +1,26 @@
+
+.result-page-title {
+    padding:2rem;
+    text-align: center;
+}
+
+.result-wrapper-box {
+    margin:1rem;
+    padding:2rem;
+    border: 2px solid black;
+    border-radius: 10px;
+
+}
+
+
+.result-container {
+    border: 2px solid black;
+}
+
+.result-wrapper-title {
+    font-size: 2rem;
+}
+
+.btn-test{
+    text-align: center;
+}
