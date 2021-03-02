@@ -6,6 +6,7 @@ import Contact from './pages/Contact';
 import About from './pages/About';
 import Team from './pages/Team';
 import FAQ from './pages/FAQ';
+import Result from './pages/Result';
 
 
   function App() {
@@ -19,6 +20,7 @@ import FAQ from './pages/FAQ';
           <Route path='/contact' component={Contact} />
           <Route path='/FAQ' component={FAQ} />
           <Route path='/team' component={Team} />
+          <Route path='/result' component={Result} />
         </Switch>
       </Router>
     );
