@@ -3,7 +3,7 @@ import subprocess
 def sanity_check():
     return 'yea it works'
 
-def quantify(sample, fastqtype, indexpath, filepath, resultspath):
+def quantify(sample, indexpath, filepath, resultspath, fastqtype='single',):
     '''
     runs salmon selective quantify using given index file
     sample : sample name 
@@ -13,25 +13,24 @@ def quantify(sample, fastqtype, indexpath, filepath, resultspath):
     resultspath : path for results output
     '''
     if fastqtype == 'paired':
-        subprocess.check_call(['salmon', 'quant', 'i', indexpath, '-l', 'A', \
+        subprocess.run(['salmon', 'quant', '-i', indexpath, '-l', 'A', \
             '-1', filepath,\
                 '-2', filepath,\
                     ' --validateMappings', \
                         '--seqBias', \
                             '--gcBias', \
-                                '-p', '4'\
+                                '-p', '4',\
                                     '-o',\
                                         resultspath + sample
             ])
     if fastqtype == 'single':
-        subprocess.check_call(['salmon', 'quant', 'i', indexpath, '-l', 'A', \
+        subprocess.run(['salmon', 'quant', '-i', indexpath, '-l', 'A', \
             '-r', filepath,\
-                ' --validateMappings', \
                     '--seqBias', \
                         '--gcBias', \
-                            '-p', '4'\
+                            '-p', '4',\
                                 '-o',\
-                                    resultspath + sample
+                                    resultspath
             ])
     else:
         return 'Invalid fastqtype'

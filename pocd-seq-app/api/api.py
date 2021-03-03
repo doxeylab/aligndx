@@ -3,18 +3,25 @@ from flask import Flask, flash, request, redirect, url_for, session, jsonify
 from werkzeug.utils import secure_filename
 from flask_cors import CORS, cross_origin
 import runsalmon 
- 
+import data
+import figures
+
 ALLOWED_EXTENSIONS = set(['fastq', 'fastq.gz'])
 path = '/home/nomo/research/pocd/pocd-seq-app/api'
 UPLOAD_FOLDER = os.path.join(path, 'uploads')
-
+RESULTS_FOLDER = os.path.join(path, 'results')
+index_path = '/home/nomo/research/pocd/experimental/tests/salmonanalysis/sars_cov_2_index/sars_and_human_index'
 if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER)
+if not os.path.isdir(RESULTS_FOLDER):
+    os.mkdir(RESULTS_FOLDER)
 
+category = 'NumReads'
 app = Flask(__name__, static_url_path='', static_folder='public', template_folder='public')
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 cors = CORS(app, supports_credentials=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['RESULTS_FOLDER'] = RESULTS_FOLDER
 
 @app.route('/',methods=['GET'])
 def root():
@@ -27,15 +34,23 @@ def root():
 #     else:
 #         return False 
  
-@app.route('/upload', methods=['POST'])
+@app.route('/upload', methods=['POST','GET'])
 def fileUpload():
     # get list of files, if there are more than 1
     files = request.files.getlist("file") 
     for file in files:  
         # if file and allowed_file(file.filename): 
         filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))  
-    return 'file uploaded successfully' 
+        sample_name = filename.split('.')[0]
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        resultspath = os.path.join(app.config['RESULTS_FOLDER'], sample_name)
+        file.save(filepath)  
+        runsalmon.quantify(sample_name, index_path, filepath, resultspath)
+        sample_df = data.producedataframe(resultspath,category)
+        # figures.heatmap(sample_df, resultspath, sample_name, category)
+        # figures.table(sample_df, resultspath, sample_name)
+        result = data.ispositive(sample_df)
+    return result 
     # target=UPLOAD_FOLDER
     # file = request.files['file']  
     # filename = secure_filename(file.filename) 
