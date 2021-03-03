@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 // eslint-disable-next-line
 import UploadService from "../services/FileUploadService";
 import axios from 'axios';
-import ResultAnalysis from './ResultAxios';
+// eslint-disable-next-line
 import LoadingSpinner from './LoadingSpinner';
 
 
@@ -156,7 +156,7 @@ const FileUploader = () => {
             setValidFiles([...validFiles]);
             setSelectedFiles([...validFiles]);
             setUnsupportedFiles([...validFiles]);
-            window.location.href = 'http://www.google.com';
+            window.location.href = '/result';
           }
         }
       })
@@ -215,6 +215,7 @@ const FileUploader = () => {
                 type="file"
                 accept=".fastq"
                 onChange={filesSelected}
+
               />
               <div className="upload-icon"></div>
               Please only upload FASTQ files!
@@ -227,6 +228,7 @@ const FileUploader = () => {
                 type="file"
                 accept=".fastq"
                 onChange={filesSelected}
+                multiple="multiple"
               />
               <div className="upload-icon"></div>
               Drag & Drop files here or click to upload
@@ -235,12 +237,12 @@ const FileUploader = () => {
         </div>
       }
 
-      <button disabled={selectedFiles.length ? false : true} className="file-upload-btn" onClick={() => uploadFiles()}>Analyze</button>
+      <button disabled={selectedFiles.length ? false : true} className="file-upload-btn"  onClick={() => uploadFiles()}>Analyze</button>
 
       {loading ?
         <LoadingSpinner />
       :
-        <ResultAnalysis />
+        null
       }
 
       {/*<div className="upload-modal" ref={uploadModalRef}>
