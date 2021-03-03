@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Container, Row, Col } from 'react-bootstrap';
 import topLeftBackground from '../assets/topLeftBackground.svg';
-import rightBackground from '../assets/rightBackground.svg';
+import rightBackground from '../assets/rightBackground.svg'; 
 
 const Result = () => {
   return (
