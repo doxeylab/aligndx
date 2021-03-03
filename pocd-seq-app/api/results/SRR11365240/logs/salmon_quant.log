@@ -1,0 +1,53 @@
+[2021-03-03 12:27:04.275] [jointLog] [info] setting maxHashResizeThreads to 4
+[2021-03-03 12:27:04.275] [jointLog] [info] Fragment incompatibility prior below threshold.  Incompatible fragments will be ignored.
+[2021-03-03 12:27:04.275] [jointLog] [info] Usage of --validateMappings implies use of minScoreFraction. Since not explicitly specified, it is being set to 0.65
+[2021-03-03 12:27:04.275] [jointLog] [info] Setting consensusSlack to selective-alignment default of 0.35.
+[2021-03-03 12:27:04.275] [jointLog] [info] parsing read library format
+[2021-03-03 12:27:04.275] [jointLog] [info] There is 1 library.
+[2021-03-03 12:27:04.314] [jointLog] [info] Loading pufferfish index
+[2021-03-03 12:27:04.315] [jointLog] [info] Loading dense pufferfish index.
+[2021-03-03 12:27:05.082] [jointLog] [info] done
+[2021-03-03 12:27:05.082] [jointLog] [info] Index contained 205,882 targets
+[2021-03-03 12:27:05.171] [jointLog] [info] Number of decoys : 205,870
+[2021-03-03 12:27:05.171] [jointLog] [info] First decoy index : 12 
+[2021-03-03 12:27:05.190] [jointLog] [warning] Fragment GC bias correction is currently *experimental* in single-end libraries.  Please use this option with caution.
+[2021-03-03 12:27:05.593] [jointLog] [info] Computed 4 rich equivalence classes for further processing
+[2021-03-03 12:27:05.593] [jointLog] [info] Counted 15 total reads in the equivalence classes 
+[2021-03-03 12:27:05.594] [jointLog] [warning] 17.1927% of fragments were shorter than the k used to build the index.
+If this fraction is too large, consider re-building the index with a smaller k.
+The minimum read size found was 8.
+
+
+[2021-03-03 12:27:05.594] [jointLog] [info] Number of mappings discarded because of alignment score : 3
+[2021-03-03 12:27:05.594] [jointLog] [info] Number of fragments entirely discarded because of alignment score : 2
+[2021-03-03 12:27:05.594] [jointLog] [info] Number of fragments discarded because they are best-mapped to decoys : 0
+[2021-03-03 12:27:05.594] [jointLog] [info] Number of fragments discarded because they have only dovetail (discordant) mappings to valid targets : 0
+[2021-03-03 12:27:05.594] [jointLog] [warning] Only 15 fragments were mapped, but the number of burn-in fragments was set to 5000000.
+The effective lengths have been computed using the observed mappings.
+
+[2021-03-03 12:27:05.594] [jointLog] [info] Mapping rate = 0.011826%
+
+[2021-03-03 12:27:05.594] [jointLog] [info] finished quantifyLibrary()
+[2021-03-03 12:27:05.595] [jointLog] [info] Starting optimizer
+[2021-03-03 12:27:05.616] [jointLog] [info] Marked 0 weighted equivalence classes as degenerate
+[2021-03-03 12:27:05.616] [jointLog] [info] iteration = 0 | max rel diff. = 0.779509
+[2021-03-03 12:27:05.616] [jointLog] [info] iteration 11, adjusting effective lengths to account for biases
+[2021-03-03 12:27:05.635] [jointLog] [info] Computed expected counts (for bias correction)
+[2021-03-03 12:27:05.636] [jointLog] [info] processed bias for 66.7% of the transcripts
+[2021-03-03 12:27:05.636] [jointLog] [info] processed bias for 75.0% of the transcripts
+[2021-03-03 12:27:05.638] [jointLog] [info] processed bias for 75.0% of the transcripts
+[2021-03-03 12:27:05.639] [jointLog] [info] processed bias for 83.3% of the transcripts
+[2021-03-03 12:27:05.652] [jointLog] [info] processed bias for 100.0% of the transcripts
+[2021-03-03 12:27:05.653] [jointLog] [info] iteration = 100 | max rel diff. = 0
+[2021-03-03 12:27:05.653] [jointLog] [info] Finished optimizer
+[2021-03-03 12:27:05.653] [jointLog] [info] writing output 
+
+[2021-03-03 12:27:05.653] [jointLog] [warning] NOTE: Read Lib [[ /home/nomo/research/pocd/pocd-seq-app/api/uploads/SRR11365240.fastq ]] :
+
+Detected a *potential* strand bias > 1% in an unstranded protocol check the file: /home/nomo/research/pocd/pocd-seq-app/api/results/SRR11365240/lib_format_counts.json for details
+
+[2021-03-03 12:27:05.594] [fileLog] [info] 
+At end of round 0
+==================
+Observed 126839 total fragments (126839 in most recent round)
+
