@@ -54,12 +54,11 @@
 
 .file-display-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
   margin-bottom: 25px;
   width: 100%;
   height: 200px;
   border: 4px solid $tertiary-color;
+  overflow-y: auto;
 }
 
 .file-display-content {
@@ -68,6 +67,7 @@
 }
 
 .file-status-bar {
+  margin: 10px;
   width: 100%;
   vertical-align: top;
   position: relative;
@@ -208,4 +208,3 @@
 .error {
   color: $error-color;
 }
-
