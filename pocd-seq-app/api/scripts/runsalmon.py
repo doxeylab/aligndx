@@ -1,7 +1,8 @@
 import subprocess 
+salmon_path = './salmon/bin/salmon'
 
 def sanity_check():
-    return 'yea it works'
+    subprocess.run([salmon_path, '-h'])
 
 def quantify(sample, indexpath, filepath, resultspath, fastqtype='single',):
     '''
@@ -13,7 +14,7 @@ def quantify(sample, indexpath, filepath, resultspath, fastqtype='single',):
     resultspath : path for results output
     '''
     if fastqtype == 'paired':
-        subprocess.run(['salmon', 'quant', '-i', indexpath, '-l', 'A', \
+        subprocess.run([salmon_path, 'quant', '-i', indexpath, '-l', 'A', \
             '-1', filepath,\
                 '-2', filepath,\
                     ' --validateMappings', \
@@ -24,7 +25,7 @@ def quantify(sample, indexpath, filepath, resultspath, fastqtype='single',):
                                         resultspath + sample
             ])
     if fastqtype == 'single':
-        subprocess.run(['salmon', 'quant', '-i', indexpath, '-l', 'A', \
+        subprocess.run([salmon_path, 'quant', '-i', indexpath, '-l', 'A', \
             '-r', filepath,\
                     '--seqBias', \
                         '--gcBias', \
@@ -34,3 +35,4 @@ def quantify(sample, indexpath, filepath, resultspath, fastqtype='single',):
             ])
     else:
         return 'Invalid fastqtype'
+ 

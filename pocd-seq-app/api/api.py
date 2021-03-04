@@ -2,21 +2,22 @@ import os
 from flask import Flask, flash, request, redirect, url_for, session, jsonify
 from werkzeug.utils import secure_filename
 from flask_cors import CORS, cross_origin
-import runsalmon 
-import data
-import figures
+from scripts import runsalmon, data, figures
+
 
 ALLOWED_EXTENSIONS = set(['fastq', 'fastq.gz'])
-path = '/home/nomo/research/pocd/pocd-seq-app/api'
+path = './'
 UPLOAD_FOLDER = os.path.join(path, 'uploads')
 RESULTS_FOLDER = os.path.join(path, 'results')
-index_path = '/home/nomo/research/pocd/experimental/tests/salmonanalysis/sars_cov_2_index/sars_and_human_index'
+INDEX_FOLDER = './indexes'
+
 if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER)
 if not os.path.isdir(RESULTS_FOLDER):
     os.mkdir(RESULTS_FOLDER)
+if not os.path.isdir(INDEX_FOLDER):
+    os.mkdir(INDEX_FOLDER)
 
-category = 'NumReads'
 app = Flask(__name__, static_url_path='', static_folder='public', template_folder='public')
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 cors = CORS(app, supports_credentials=True)
@@ -44,24 +45,15 @@ def fileUpload():
         sample_name = filename.split('.')[0]
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         resultspath = os.path.join(app.config['RESULTS_FOLDER'], sample_name)
+        indexpath = os.path.join(app.config['INDEX_FOLDER'], 'sars_with_human_decoys')
         file.save(filepath)  
-        runsalmon.quantify(sample_name, index_path, filepath, resultspath)
+        runsalmon.quantify(sample_name, indexpath, filepath, resultspath)
+        category = 'NumReads'
         sample_df = data.producedataframe(resultspath,category)
         # figures.heatmap(sample_df, resultspath, sample_name, category)
         # figures.table(sample_df, resultspath, sample_name)
         result = data.ispositive(sample_df)
-    return result 
-    # target=UPLOAD_FOLDER
-    # file = request.files['file']  
-    # filename = secure_filename(file.filename) 
-    # if file and allowed_file(filename):
-    #     destination="/".join([target, filename])
-    #     file.save(destination)
-    #     print(runsalmon.sanity_check())
-    #     response='success'
-    #     return response
-    # else:  
-    #     return "Not Valid"
+    return result  
 
 @app.route("/files", methods=['GET'])
 def list_files():
