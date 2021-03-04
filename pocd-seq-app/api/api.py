@@ -2,8 +2,8 @@ import os
 from flask import Flask, flash, request, redirect, url_for, session, jsonify
 from werkzeug.utils import secure_filename
 from flask_cors import CORS, cross_origin
-from scripts import runsalmon, data, figures
-
+from scripts import runsalmon, data, figures 
+import json
 
 ALLOWED_EXTENSIONS = set(['fastq', 'fastq.gz'])
 path = './'
@@ -36,7 +36,7 @@ def root():
 #     else:
 #         return False 
  
-@app.route('/upload', methods=['POST','GET'])
+@app.route('/upload', methods=['POST'])
 def fileUpload():
     # get list of files, if there are more than 1
     files = request.files.getlist("file") 
@@ -49,14 +49,26 @@ def fileUpload():
         indexpath = os.path.join(app.config['INDEX_FOLDER'], 'sars_with_human_decoys')
         file.save(filepath)  
         runsalmon.quantify(sample_name, indexpath, filepath, resultspath)
-        category = 'NumReads'
+        response = '200'
+    return response 
+
+@app.route('/results', methods=['GET'])
+def results_output():
+    category = 'NumReads'
+    for filename in os.listdir(RESULTS_FOLDER): 
+        sample_name = filename
+        resultspath = os.path.join(app.config['RESULTS_FOLDER'], sample_name)
         sample_df = data.producedataframe(resultspath,category)
+        detected_pathogen = 'SARS-CoV-2'
         # figures.heatmap(sample_df, resultspath, sample_name, category)
-        # figures.table(sample_df, resultspath, sample_name)
-        print(sample_df)
-        result = data.ispositive(sample_df)
-        print(result)
-    return result  
+        # figures.table(sample_df, resultspath, sample_name) 
+        table = data.intojson(sample_df) 
+        detection_result = data.ispositive(sample_df) 
+        results = {**table, **dict(zip(['sample_name', 'detected_pathogen',\
+            'detection_result'],\
+                [sample_name,detected_pathogen,\
+                    detection_result]))}
+        return json.dumps([results], indent=4)
 
 @app.route("/files", methods=['GET'])
 def list_files():
