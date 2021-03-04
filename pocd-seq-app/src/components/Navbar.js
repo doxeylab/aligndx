@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '../pages/Download';
+import { Button } from '../pages/HomeBtn';
 import { Link } from 'react-router-dom';
 
 function Navbar() {

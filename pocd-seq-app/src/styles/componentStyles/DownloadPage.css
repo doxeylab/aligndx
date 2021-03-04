@@ -1,0 +1,18 @@
+* {
+    border:1px solid red;
+}
+
+.download-page-video {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    margin:0 auto;
+}
+
+.download-page {
+    margin-bottom: 3rem;
+}
+
+.download-page-text {
+    text-align: center;
+}

@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { Container, Row, Col } from 'react-bootstrap';
 import topLeftBackground from '../assets/topLeftBackground.svg';
 import rightBackground from '../assets/rightBackground.svg'; 
@@ -37,8 +36,6 @@ const Result = () => {
                         </Col>
                     </Row>
 
-
-                    
                 </Container>
                 <img className="topLeftBackground" src={topLeftBackground} alt='topLeftBackground' />
                 <img className="rightBackground" src={rightBackground} alt='rightBackground' />

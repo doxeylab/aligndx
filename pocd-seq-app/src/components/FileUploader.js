@@ -1,4 +1,3 @@
-  
 import React, { useState, useEffect, useRef } from "react";
 // eslint-disable-next-line
 import UploadService from "../services/FileUploadService";
@@ -9,7 +8,7 @@ import LoadingSpinner from './LoadingSpinner';
 
 
 const FileUploader = () => {
-
+  // eslint-disable-next-line
   const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   // eslint-disable-next-line

@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 
 
-const ResultAnalysis = () => {
+const ResultAxios = () => {
   // eslint-disable-next-line
   const [result, setResult] = useState(null);
 
@@ -23,4 +23,4 @@ const ResultAnalysis = () => {
    )
 }
 
-export default ResultAnalysis
+export default ResultAxios;
