@@ -10,11 +10,11 @@
 /pocd-seq-app/api/venv
 
 # testing
-/pocd-seq-app/coverage
-/pocd-seq-app/api/indexes
-/pocd-seq-app/api/salmon
-/pocd-seq-app/api/results
-/pocd-seq-app/api/uploads
+/pocd-seq-app/coverage/
+/pocd-seq-app/api/indexes/
+/pocd-seq-app/api/salmon/
+/pocd-seq-app/api/results/
+/pocd-seq-app/api/uploads/
 
 # production
 /pocd-seq-app/build
