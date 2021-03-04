@@ -1,6 +1,7 @@
 import pandas as pd
 import sys 
 import os 
+import json
 
 sequences = {'lcl|NC_045512.2_cds_YP_009725255.1_12': 'ORF10',\
              'lcl|NC_045512.2_cds_YP_009724397.2_11': 'nucleocapsid phosphoprotein',\
@@ -35,8 +36,13 @@ def ispositive(dataframe):
     bool_mask = dataframe[dataframe.columns].apply(lambda x : x > 0) 
     for val in  bool_mask[bool_mask.columns]:
         if True:
-            return '\n\nPositive\n\n'
+            return 'Positive'
             break
         else:
-            return '\n\nNegative\n\n'
+            return 'Negative'
 
+def intojson(dataframe):
+    result = dataframe.to_json(orient="split")
+    parsed = json.loads(result)
+    # final = json.dumps(parsed, indent=4)  
+    return parsed
