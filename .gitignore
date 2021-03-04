@@ -11,6 +11,8 @@
 
 # testing
 /pocd-seq-app/coverage
+/pocd-seq-app/indexes
+/pocd-seq-app/api/salmon
 
 # production
 /pocd-seq-app/build
