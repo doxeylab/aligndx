@@ -68,7 +68,7 @@ def results_output():
             'detection_result'],\
                 [sample_name,detected_pathogen,\
                     detection_result]))}
-        return json.dumps([results], indent=4)
+        return json.dumps(results, indent=4)
 
 @app.route("/files", methods=['GET'])
 def list_files():
