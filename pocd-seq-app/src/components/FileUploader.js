@@ -125,7 +125,7 @@ const FileUploader = () => {
     validFiles.forEach(file => {
       formData.append('file', file)
     })
-    axios.post('https://localhost:8080/upload', formData, {
+    axios.post('http://localhost:8080/upload', formData, {
         onUploadProgress: (progressEvent) => {
           const uploadPercentage = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
           console.log('does this sill happen?')

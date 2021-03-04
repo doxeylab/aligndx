@@ -20,7 +20,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "startapi": "cd api && venv/bin/flask run --no-debugger",
+    "startapi": "cd api && venv/bin/flask run",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
