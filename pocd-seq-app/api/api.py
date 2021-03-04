@@ -23,6 +23,7 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 cors = CORS(app, supports_credentials=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['RESULTS_FOLDER'] = RESULTS_FOLDER
+app.config['INDEX_FOLDER'] = INDEX_FOLDER
 
 @app.route('/',methods=['GET'])
 def root():
@@ -52,7 +53,9 @@ def fileUpload():
         sample_df = data.producedataframe(resultspath,category)
         # figures.heatmap(sample_df, resultspath, sample_name, category)
         # figures.table(sample_df, resultspath, sample_name)
+        print(sample_df)
         result = data.ispositive(sample_df)
+        print(result)
     return result  
 
 @app.route("/files", methods=['GET'])

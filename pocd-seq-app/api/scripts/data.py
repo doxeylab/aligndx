@@ -20,13 +20,13 @@ def producedataframe(path, category):
     data = pd.DataFrame([])
     for root,dirs,files in os.walk(path):
         if quantfile in files:        
-            df = pd.read_csv(os.path.join(root,quantfile), sep='\s+', header=[0,1], index_col=0)
-            df.index.name = 'Name'
-            numreadsdf = df[category]
-            numreadsdf.columns = [root.split('/')[5]]
-            data = pd.concat([data,numreadsdf],axis=1)
-    header = pd.MultiIndex.from_product([[category],data.columns])
-    data.columns = header
+            df = pd.read_csv(os.path.join(root,quantfile), sep='\s+', header=0, index_col=0)
+            df.index.name = 'Name' 
+            numreadsdf = df[category]  
+            # numreadsdf.columns = [root.split('/')[5]]
+            data = pd.concat([data,numreadsdf],axis=1) 
+    # header = pd.MultiIndex.from_product([[category],data.columns])
+    # data.columns = header
     data = data.rename(index=sequences)
     data = data.sort_index() 
     return(data)
@@ -35,8 +35,8 @@ def ispositive(dataframe):
     bool_mask = dataframe[dataframe.columns].apply(lambda x : x > 0) 
     for val in  bool_mask[bool_mask.columns]:
         if True:
-            return 'Positive'
+            return '\n\nPositive\n\n'
             break
         else:
-            return 'Negative'
+            return '\n\nNegative\n\n'
 
