@@ -1,3 +1,7 @@
+*{
+  border: 1px solid red;
+}
+
 /* Gets Rid of Extra White Space*/
 html,body {
   width: 100%;
@@ -7,6 +11,12 @@ html,body {
   overflow-x: hidden; 
 }
 
+.Logo {
+  position: absolute;
+  top: 6rem;
+  margin-left: 5rem;
+}
+
 /* Navbar content above 960px */
 .navbar {
   padding-top: 5rem;
@@ -14,11 +24,12 @@ html,body {
   margin-top: 5rem;
   margin-bottom: 5rem;
   display: grid;
-  grid-template-columns: repeat(5, auto);
+  grid-template-columns: repeat(6, auto);
   max-width: 100%;
-  justify-content: space-evenly;
+  justify-content: center;
 }
 
+/*
 .navbar h1 {
   cursor: default;
   font-weight: 500;
@@ -30,42 +41,12 @@ html,body {
   font-weight: 700;
   color:#1861a6
 }
-
-.navbar button {
-  border: none;
-}
-
-.btn--download {
-  list-style-type: none;
-  font-size: 1.6rem;
-  font-weight: 600;
-  padding: 15px;
-  width: 300px;
-  text-align: center;
-  transition: 0.5s;
-  background-size: 200% auto;
-  color:#fff;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  cursor: pointer;
-  display: inline-block;
-  border-radius: 15px;
-  background-image: linear-gradient(
-      to right,
-      #1861a6 0%,
-      #2f8ae1 51%,
-      #1861a6 100%
-  );
-  outline: none;
-}
-
-.btn--download:hover {
-  background-position: right center;
-}
+*/
 
 /*Ajusts the Links (About,Teams,etc)*/
 .nav-menu {
   display: grid;
-  grid-template-columns: repeat(5, auto);
+  grid-template-columns: repeat(6, auto);
   list-style-type: none;
   align-content: center;
   align-items: center;
@@ -93,7 +74,7 @@ html,body {
 }
 
 /*Navbar content below 960px*/
-@media screen and (max-width: 960px) {
+@media screen and (max-width: 1000px) {
   
   /*Repositions the container*/
   .navbar {
@@ -109,16 +90,15 @@ html,body {
     top: 6rem;
     right: 40px;
     cursor: pointer;
-    z-index: 2;
+    z-index: 100;
   }
 
   /*Position of the AlignDx logo*/
-  .navbar h1{
+  .Logo{
     display: block;
     position: absolute;
     top: 6rem;
     margin-left: 5rem;
-
   }
 
   /*Navbar*/
@@ -157,11 +137,6 @@ html,body {
     text-align: center;
   }
 
-
-  /*Hides the Download App*/
-  .btn--download {
-    display:none;
-  }
 
 }
 

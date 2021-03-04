@@ -3,27 +3,32 @@ import { Container } from 'react-bootstrap';
 import topLeftBackground from '../assets/topLeftBackground.svg';
 import rightBackground from '../assets/rightBackground.svg'; 
 import demo_video from '../assets/demo_video.mp4';
-import { Button } from '../pages/DownloadAppBtn';
+
 
 const DownloadPage = () => {
   return (
       <>
          <div className="download-page">
-                <Container className="download-page-wrapper">
+                <Container className="download-page-main">
 
-                    <h1 className="download-page-text">AlignDx on the Go!</h1>
-                        <p>
-                            Reprehenderit laboris elit est nostrud enim aute.Reprehenderit laboris elit est nostrud enim aute.Reprehenderit laboris elit est nostrud enim aute.
-                        </p>
-                            <video width="360" height="640" className="download-page-video"
-                                autoPlay
-                                loop
-                                muted
-                            >
-                                <source src={demo_video} type="video/mp4"/>
-                            </video>
-                    
-                    <Button />
+                    <div className ="download-page-wrapper">
+
+                        <h1 >Take the Sequencing with you!</h1>
+                            <p>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sagittis elit eu nulla accumsan, ac rutrum mauris maximus. Sed lobortis, urna eget porttitor laoreet, sapien eros egestas mi, id iaculis arcu libero ut massa.
+                            </p>
+                            
+                        <a href="https://play.google.com/store">
+                            <button className='btn--download' >Download App</button>
+                        </a>
+                    </div>
+                        <video width="360" height="640" className="download-page-video"
+                            autoPlay
+                            loop
+                            muted
+                        >
+                            <source src={demo_video} type="video/mp4"/>
+                        </video>
 
                 </Container>
                 <img className="topLeftBackground" src={topLeftBackground} alt='topLeftBackground' />

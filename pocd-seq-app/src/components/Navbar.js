@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Button } from '../pages/HomeBtn';
 import { Link } from 'react-router-dom';
+import Logo from '../assets/Logo.png'
 
 function Navbar() {
   const [click, setClick] = useState(false);
@@ -10,7 +10,7 @@ function Navbar() {
   return (
     <>
       <nav className='navbar'>
-        <h1>Align<span>Dx</span></h1>
+      <img className="Logo" src={Logo} alt="Logo" style={{height: 50}}/>
         <div className='wrap-menu'>
         <div className='menu-icon' onClick={handleClick}>
           
@@ -63,8 +63,16 @@ function Navbar() {
               Contact
             </Link>
           </li>
+          <li className='nav-item'>
+            <Link
+              to='/download'
+              className='nav-links'
+              onClick={closeMobileMenu}
+            >
+              Download
+            </Link>
+          </li>
         </ul>
-        <Button />
       </nav>
     </>
   );
