@@ -8,7 +8,7 @@ const FileUpload = (props) => {
       <Modal show={props.show} modalClosed={props.modalToggle}>
         <i className="fas fa-times fa-lg" onClick={props.modalToggle}></i>
         <h1>Upload your Sequence</h1>
-        <FileUploader/>
+        <FileUploader spinnerCallback={props.closeSpinnerCallback} parentCallback={props.parentCallback}/>
       </Modal>
     </div>
   );
