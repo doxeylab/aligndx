@@ -1,4 +1,3 @@
-  
 import React, { useState, useEffect, useRef } from "react";
 // eslint-disable-next-line
 import UploadService from "../services/FileUploadService";

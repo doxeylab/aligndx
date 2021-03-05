@@ -7,40 +7,22 @@ html,body {
   overflow-x: hidden; 
 }
 
-/* Navbar content above 960px */
-.navbar {
-  padding-top: 5rem;
-  padding-bottom: 5rem;
-  margin-top: 5rem;
-  margin-bottom: 5rem;
-  display: grid;
-  grid-template-columns: repeat(5, auto);
-  max-width: 100%;
-  justify-content: space-evenly;
+/*Position of Logo*/
+.Logo {
+  position: absolute;
+  height:45px;
+  top: 6rem;
+  left: 100px;;
 }
 
-.navbar h1 {
-  cursor: default;
-  font-weight: 500;
-  font-size: 4rem;
-  color:#1861a6;
-}
-
-.navbar h1 span {
-  font-weight: 700;
-  color:#1861a6
-}
-
-.navbar button {
-  border: none;
-}
-
-.btn--download {
+/*Download App Styling*/
+.home-download-btn {
   list-style-type: none;
+  border: none;
   font-size: 1.6rem;
   font-weight: 600;
   padding: 15px;
-  width: 300px;
+  width: 250px;
   text-align: center;
   transition: 0.5s;
   background-size: 200% auto;
@@ -58,9 +40,30 @@ html,body {
   outline: none;
 }
 
-.btn--download:hover {
+.home-download-btn:hover {
   background-position: right center;
 }
+
+/*Position of Download Btn*/
+.home-download-btn {
+  display: block;
+  position: absolute;
+  top: 6rem;
+  right: 100px;;
+}
+
+/* Navbar content above 960px */
+.navbar {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  margin-top: 5rem;
+  margin-bottom: 5rem;
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  max-width: 100%;
+  justify-content: center;
+}
+
 
 /*Ajusts the Links (About,Teams,etc)*/
 .nav-menu {
@@ -93,9 +96,9 @@ html,body {
 }
 
 /*Navbar content below 960px*/
-@media screen and (max-width: 960px) {
+@media screen and (max-width: 1200px) {
   
-  /*Repositions the container*/
+  /*Repositions the container (Does not shift - Remove if it's intended)*/
   .navbar {
     padding-bottom: 12rem;
     margin-bottom: 55px;
@@ -107,18 +110,17 @@ html,body {
     position: absolute;
     font-size: 3rem;
     top: 6rem;
-    right: 40px;
+    right: 50px;
     cursor: pointer;
-    z-index: 2;
+    z-index: 100;
   }
 
   /*Position of the AlignDx logo*/
-  .navbar h1{
-    display: block;
+  .Logo {
     position: absolute;
+    height:45px;
     top: 6rem;
-    margin-left: 5rem;
-
+    left: 50px;;
   }
 
   /*Navbar*/
@@ -157,9 +159,8 @@ html,body {
     text-align: center;
   }
 
-
   /*Hides the Download App*/
-  .btn--download {
+  .home-download-btn {
     display:none;
   }
 
