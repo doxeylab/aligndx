@@ -19,7 +19,7 @@ const DownloadPage = () => {
                             </p>
                             
                         <a href="https://play.google.com/store">
-                            <button className='btn--download' >Download App</button>
+                            <button className='download-pg-btn' >Download App</button>
                         </a>
                     </div>
                         <video width="360" height="640" className="download-page-video"

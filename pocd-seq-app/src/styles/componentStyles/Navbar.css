@@ -8,7 +8,7 @@ html,body {
 }
 
 /*Position of Logo*/
-.Logo {
+.AlignDx {
   position: absolute;
   height:45px;
   top: 6rem;
@@ -116,7 +116,7 @@ html,body {
   }
 
   /*Position of the AlignDx logo*/
-  .Logo {
+  .AlignDx {
     position: absolute;
     height:45px;
     top: 6rem;

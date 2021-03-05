@@ -12,7 +12,7 @@ function Navbar() {
   return (
     <>
       <nav className='navbar'>
-      <img className="Logo" src={AlignDx} alt="Logo" />
+      <img className="AlignDx" src={AlignDx} alt="AlignDx" />
         <div className='wrap-menu'>
         <div className='menu-icon' onClick={handleClick}>
           
