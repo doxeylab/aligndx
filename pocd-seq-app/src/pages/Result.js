@@ -45,7 +45,7 @@ const Result = () => {
                     <Row>
                         <Col md={6} sm={6}>
                             <div className="result-wrapper-box"> 
-                                <h2 className="result-pos-neg">Tested: {result}</h2>
+                                <h2 className="result-pos-neg">Tested: {result} for {pathogen}</h2>
                             </div>
                         </Col> 
                     </Row>
