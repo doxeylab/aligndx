@@ -4,9 +4,19 @@ import rightBackground from '../assets/rightBackground.svg';
 import Art from '../assets/Art.png';
 import { Container, Row, Col } from 'react-bootstrap';
 import FileUpload from "../components/FileUpload";
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Home = () => {
     const [toggleUploadModal, setToggleUploadModal] = useState(false)
+    const [toggleLoader, setToggleLoader] = useState(false)
+
+    const callback = () => {
+        setToggleUploadModal(false)
+      }
+
+    const spinnerCallback = (loaderState) => {
+        setToggleLoader(loaderState)
+    }
 
     return (
         <>
@@ -30,7 +40,8 @@ const Home = () => {
                 <img className="topLeftBackground" src={topLeftBackground} alt='topLeftBackground' />
                 <img className="rightBackground" src={rightBackground} alt='rightBackground' />
             </div>
-            <FileUpload show={toggleUploadModal} modalToggle={(e) => {e.preventDefault(); setToggleUploadModal(!toggleUploadModal);}} />
+            <FileUpload closeSpinnerCallback={spinnerCallback} parentCallback={callback} show={toggleUploadModal} modalToggle={(e) => {e.preventDefault(); setToggleUploadModal(!toggleUploadModal);}} />
+            {toggleLoader?<LoadingSpinner /> : ''}
         </>
     );
   }

@@ -3,19 +3,15 @@ import React, { useState, useEffect, useRef } from "react";
 import UploadService from "../services/FileUploadService";
 import axios from 'axios';
 // eslint-disable-next-line
-import LoadingSpinner from './LoadingSpinner';
 
-
-
-const FileUploader = () => {
-  // eslint-disable-next-line
-  const [loading, setLoading] = useState(false);
+const FileUploader = ({parentCallback, spinnerCallback}) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   // eslint-disable-next-line
   const [errorMessage, setErrorMessage] = useState('');
   const [validFiles, setValidFiles] = useState([]);
   const [unsupportedFiles, setUnsupportedFiles] = useState([]);
   const [dropzoneActive, setDropzoneActive] = useState(false);
+  const [modalClose, setModalClose] = useState(false)
 
   const fileInputRef = useRef();
   // eslint-disable-next-line
@@ -120,14 +116,16 @@ const FileUploader = () => {
   }
 
   const uploadFiles = () => {
+    setModalClose(true);
+    parentCallback()
     const formData = new FormData();
     validFiles.forEach(file => {
       formData.append('file', file)
     })
     axios.post('http://localhost:8080/upload', formData, {
         onUploadProgress: (progressEvent) => {
+          spinnerCallback(true)
           const uploadPercentage = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
-          console.log('does this sill happen?')
           if (uploadPercentage === 100) {
             validFiles.length = 0;
             setValidFiles([...validFiles]);
@@ -140,7 +138,8 @@ const FileUploader = () => {
         window.location.href = "/result"
       })
       .catch(() => {
-          console.log('ERROR')
+        spinnerCallback(false)
+        console.log('ERROR')
       });
   }
 
@@ -212,12 +211,6 @@ const FileUploader = () => {
       }
 
       <button disabled={selectedFiles.length ? false : true} className="file-upload-btn"  onClick={() => uploadFiles()}>Analyze</button>
-
-      {loading ?
-        <LoadingSpinner />
-      :
-        null
-      }
 
       {/*<div className="upload-modal" ref={uploadModalRef}>
         <div className="close" onClick={(() => closeUploadModal())}>X</div>

@@ -42,7 +42,7 @@ def ispositive(dataframe):
             return 'Negative'
 
 def intojson(dataframe):
-    result = dataframe.to_json(orient="split")
+    result = dataframe.to_json(orient="table")
     parsed = json.loads(result)
     # final = json.dumps(parsed, indent=4)  
     return parsed

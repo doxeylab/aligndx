@@ -5,10 +5,9 @@ from flask_cors import CORS, cross_origin
 from scripts import runsalmon, data, figures 
 import json
 
-ALLOWED_EXTENSIONS = set(['fastq', 'fastq.gz'])
-path = './'
-UPLOAD_FOLDER = os.path.join(path, 'uploads')
-RESULTS_FOLDER = os.path.join(path, 'results')
+ALLOWED_EXTENSIONS = set(['fastq', 'fastq.gz']) 
+UPLOAD_FOLDER = './uploads'
+RESULTS_FOLDER = './results'
 INDEX_FOLDER = './indexes'
 
 if not os.path.isdir(UPLOAD_FOLDER):
@@ -68,7 +67,7 @@ def results_output():
             'detection_result'],\
                 [sample_name,detected_pathogen,\
                     detection_result]))}
-        return json.dumps([results], indent=4)
+        return json.dumps(results, indent=4)
 
 @app.route("/files", methods=['GET'])
 def list_files():
