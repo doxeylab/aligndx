@@ -1,5 +1,5 @@
 /*Download App Styling*/
-.btn--download {
+.download-pg-btn {
     list-style-type: none;
     border: none;
     font-size: 1.6rem;
@@ -23,7 +23,7 @@
     outline: none;
 }
   
-.btn--download:hover {
+.download-pg-btn:hover {
     background-position: right center;
 }
 
