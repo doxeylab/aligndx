@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Logo from '../assets/Logo.svg'
+import AlignDx from '../assets/AlignDx.svg'
 import { Button } from './download-test';
 
 
@@ -12,7 +12,7 @@ function Navbar() {
   return (
     <>
       <nav className='navbar'>
-      <img className="Logo" src={Logo} alt="Logo" />
+      <img className="Logo" src={AlignDx} alt="Logo" />
         <div className='wrap-menu'>
         <div className='menu-icon' onClick={handleClick}>
           
