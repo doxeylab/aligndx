@@ -1,6 +1,7 @@
 /*Download App Styling*/
 .btn--download {
     list-style-type: none;
+    border: none;
     font-size: 1.6rem;
     font-weight: 600;
     padding: 15px;
@@ -26,6 +27,8 @@
     background-position: right center;
 }
 
+
+
 .download-page-main {
     display:flex;
     flex-direction: column;
@@ -40,6 +43,7 @@
 
     .download-page-main {
         flex-direction: row;
+    
     }
 
     h1 {
@@ -47,4 +51,10 @@
         padding-bottom: 2rem;
     }
 
+    .download-page-wrapper {
+        position:relative;
+        margin-right: 3rem;
+    }
+
 }
+

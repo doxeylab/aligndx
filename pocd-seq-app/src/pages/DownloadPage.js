@@ -15,7 +15,7 @@ const DownloadPage = () => {
 
                         <h1 >Take the Sequencing with you!</h1>
                             <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sagittis elit eu nulla accumsan, ac rutrum mauris maximus. Sed lobortis, urna eget porttitor laoreet, sapien eros egestas mi, id iaculis arcu libero ut massa.
+                                Fast and Accurate LFIA Image Analysis
                             </p>
                             
                         <a href="https://play.google.com/store">

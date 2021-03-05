@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import topLeftBackground from '../assets/topLeftBackground.svg';
 import rightBackground from '../assets/rightBackground.svg'; 
-import ResultAnalysis from "../components/ResultAxios";
+import ResultAnalysis from "../components/ResultAnalysis";
 
 const Result = () => {
   return (
