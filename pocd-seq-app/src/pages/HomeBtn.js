@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 export function Button() {
   return (
     <Link to='/download'>
-      <button className='btn--download'>Download App</button>
+      <button className='home-download-btn'>Download App</button>
     </Link>
   );
 }
