@@ -7,6 +7,7 @@ import About from './pages/About';
 import Team from './pages/Team';
 import FAQ from './pages/FAQ';
 import Result from './pages/Result';
+import DownloadPage from './pages/DownloadPage';
 
   function App() {
     return (
@@ -19,6 +20,7 @@ import Result from './pages/Result';
           <Route path='/contact' component={Contact} />
           <Route path='/FAQ' component={FAQ} />
           <Route path='/team' component={Team} />
+          <Route path='/download' component={DownloadPage} />
           <Route path='/result' component={Result} />
         </Switch>
       </Router>

@@ -1,4 +1,3 @@
-  
 import React, { useState, useEffect, useRef } from "react";
 // eslint-disable-next-line
 import UploadService from "../services/FileUploadService";
@@ -12,6 +11,7 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
   const [validFiles, setValidFiles] = useState([]);
   const [unsupportedFiles, setUnsupportedFiles] = useState([]);
   const [dropzoneActive, setDropzoneActive] = useState(false);
+  // eslint-disable-next-line
   const [modalClose, setModalClose] = useState(false)
 
   const fileInputRef = useRef();
