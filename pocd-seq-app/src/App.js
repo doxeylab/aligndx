@@ -7,6 +7,8 @@ import About from './pages/About';
 import Team from './pages/Team';
 import FAQ from './pages/FAQ';
 import Result from './pages/Result';
+
+
 import DownloadPage from './pages/DownloadPage';
 
 
