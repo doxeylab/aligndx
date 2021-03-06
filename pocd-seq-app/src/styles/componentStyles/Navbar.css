@@ -95,7 +95,7 @@ html,body {
   display: none;
 }
 
-/*Navbar content below 960px*/
+/*Navbar content below max-width*/
 @media screen and (max-width: 1200px) {
   
   /*Repositions the container (Does not shift - Remove if it's intended)*/

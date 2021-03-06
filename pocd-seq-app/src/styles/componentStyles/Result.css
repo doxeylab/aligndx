@@ -92,3 +92,18 @@
 .sample_info p {
     font-weight: 500;
 }
+
+/*Navbar content below max-width*/
+@media screen and (max-width: 960px) {
+
+    .result_positive {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+
+    .result_negative {
+        padding-bottom: 2rem;
+        padding-top: 2rem;
+    }
+
+}
