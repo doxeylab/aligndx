@@ -1,10 +1,28 @@
-.result_pos_neg {
+.result_positive {
+    background-color: white;
+    padding-left:2rem;
+    box-shadow: 5px 5px 10px grey;
+    border-radius: 10px;
+    color:lightgreen;
+}
+
+.result_positive {
+    color:green;
+}
+
+.result_negative {
+    background-color: white;
     padding-left:2rem;
     box-shadow: 5px 5px 10px grey;
     border-radius: 10px;
 }
 
+.result_negative h1 {
+    color:red;
+}
+
 .sample_info {
+    background-color: white;
     box-shadow: 5px 5px 10px grey;
     border-radius: 10px;
     margin-left: 2rem;
@@ -13,6 +31,7 @@
 }
 
 .bar_graph {
+    background-color: white;
     box-shadow: 5px 5px 10px grey;
     border-radius: 10px;
     margin-right: 2rem;

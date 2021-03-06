@@ -42,15 +42,15 @@ const Result = () => {
             <div className="result_page">
                 <Container>
                 {result ?     
-                    <Row className="result_pos_neg">
+                    <Row className="result_negative">
                         <h1 >
-                            <img className="Green_Check" src={Green_Check} alt='Green_Check' /> {result} {pathogen}
+                            <img className="Red_X" src={Red_X} alt='Red_X' />{result} for ({pathogen})
                         </h1>
                     </Row>
                 :
-                    <Row className="result_pos_neg">
+                    <Row className="result_positive">
                         <h1 >
-                            <img className="Red_X" src={Red_X} alt='Red_X' /> {result} {pathogen}
+                            <img className="Green_Check" src={Green_Check} alt='Green_Check' />{result} for ({pathogen})
                         </h1>
                     </Row>
                 }
@@ -69,7 +69,7 @@ const Result = () => {
                         </Col>
                     </Row>
                     <Row>
-                        <Col className = 'button_col'>
+                        <Col>
                             <button className="result_pg_button save-result-btn">Save Results</button>
 
                             <Link to="/home">
