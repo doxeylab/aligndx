@@ -12,23 +12,18 @@ function Navbar() {
   return (
     <>
       <nav className='navbar'>
-      <img className="AlignDx" src={AlignDx} alt="AlignDx" />
-        <div className='wrap-menu'>
-        <div className='menu-icon' onClick={handleClick}>
-          
-          <i className={click ? 'far fa-minus-square' : 'fas fa-bars'} />
+
+          <Link to='/home'>
+              <img className="AlignDx" src={AlignDx} alt="AlignDx" />
+          </Link>
+
+          <div className='wrap-menu'>
+              <div className='menu-icon' onClick={handleClick}>
+                  <i className={click ? 'far fa-minus-square' : 'fas fa-bars'} />
+              </div>
         </div>
-        </div>
+
         <ul className={click ? 'nav-menu active' : 'nav-menu'}>
-          <li className='nav-item'>
-            <Link
-              to='/home'
-              className='nav-links'
-              onClick={closeMobileMenu}
-            >
-              Home
-            </Link>
-          </li>
           <li className='nav-item'>
             <Link
               to='/about'
@@ -66,7 +61,9 @@ function Navbar() {
             </Link>
           </li>
         </ul>
+
         <Button/>
+        
       </nav>
     </>
   );
