@@ -1,24 +1,75 @@
-
-.result-page-title {
-    padding:2rem;
-    text-align: center;
-}
-
-.result-wrapper-box {
-    margin:1rem;
-    padding:2rem;
-    border: 2px solid black;
+.result_pos_neg {
+    padding-left:2rem;
+    box-shadow: 5px 5px 10px grey;
     border-radius: 10px;
 }
 
-.result-container {
-    border: 2px solid black;
+.sample_info {
+    box-shadow: 5px 5px 10px grey;
+    border-radius: 10px;
+    margin-left: 2rem;
+    padding-left: 4rem;
+    padding-top: 2rem;
 }
 
-.result-wrapper-title {
-    font-size: 2rem;
+.bar_graph {
+    box-shadow: 5px 5px 10px grey;
+    border-radius: 10px;
+    margin-right: 2rem;
+    padding-top: 2rem;
 }
 
-.btn-test{
+.result_main_body {
+    margin-top:2rem;
+}
+
+.result_pg_button {
+    list-style-type: none;
+    border: none;
+    font-size: 1.6rem;
+    font-weight: 600;
+    padding: 15px;
+    width: 250px;
     text-align: center;
+    transition: 0.5s;
+    background-size: 200% auto;
+    color:#fff;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 15px;
+    background-image: linear-gradient(
+        to right,
+        #1861a6 0%,
+        #2f8ae1 51%,
+        #1861a6 100%
+    );
+    outline: none;
+  }
+
+.result_pg_button:hover {
+    background-position: right center;
+}
+
+.save-result-btn {
+    margin-right: 2rem;
+    margin-top: 2rem;
+}
+
+.Green_Check {
+    width:50px;
+    height: auto;
+    margin-left: 2rem;
+    margin-right: 2rem;
+}
+
+.Red_X {
+    width:50px;
+    height: auto;
+    margin-left: 2rem;
+    margin-right: 2rem;
+}
+
+.sample_info p {
+    font-weight: 500;
 }

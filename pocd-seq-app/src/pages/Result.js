@@ -1,17 +1,26 @@
 import React, {useState, useEffect} from 'react';
-import axios from 'axios';
-import { Container, Row, Col } from 'react-bootstrap';
 import topLeftBackground from '../assets/topLeftBackground.svg';
-import rightBackground from '../assets/rightBackground.svg'; 
-// import ResultAnalysis from "../components/ResultAxios";
- 
+import rightBackground from '../assets/rightBackground.svg';
+import { Container, Row, Col } from 'react-bootstrap';
+import Green_Check from '../assets/Green_Check.png'
+import Red_X from '../assets/Red_X.png'
+import axios from 'axios';
+import Barchart from '../components/BarChart.js'
+import { Link } from 'react-router-dom';
+
 const Result = () => {
+    const [data, setData] = useState([{ "index": "TEST1", "column_category": 6 },
+    { "index": "TEST2", "column_category": 12 },
+    { "index": "TEST3", "column_category": 3 } ])
+
     const [result, setResult] = useState(null);
     const [sample, setSample] = useState(null);
     const [pathogen, setPathogen] = useState(null);
+    // eslint-disable-next-line 
     const [columns, setColumns] = useState(null);
+    // eslint-disable-next-line 
     const [indexes, setIndexes] = useState(null);
-    const [data, setData] = useState(null);
+
     useEffect(() => {
       axios.get('http://localhost:8080/results')
           .then(res => {
@@ -28,34 +37,55 @@ const Result = () => {
           })
     }, [])
 
-  return (
-      <>
-         <div className="result">
-                <Container className="result-container">
-                <h1 className="result-page-title">Your Results</h1>
-                    <Row className="result-wrapper">
-                        <Col >
-                            <div className="result-wrapper-box"> 
-                                <h1 className="result-wrapper-title">Test for sample {sample}</h1>
-                                <p className="result-wrapper-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sagittis elit eu nulla accumsan, ac rutrum mauris maximus. Sed lobortis, urna eget porttitor laoreet, sapien eros egestas mi, id iaculis arcu libero ut massa.</p>
+    return (
+        <>
+            <div className="result_page">
+                <Container>
+                {result ?     
+                    <Row className="result_pos_neg">
+                        <h1 >
+                            <img className="Green_Check" src={Green_Check} alt='Green_Check' /> {result} for {pathogen}
+                        </h1>
+                    </Row>
+                :
+                    <Row className="result_pos_neg">
+                        <h1 >
+                            <img className="Red_X" src={Red_X} alt='Red_X' /> {result} for {pathogen}
+                        </h1>
+                    </Row>
+                }
+                    <Row className="result_main_body">
+                        <Col className = 'bar_graph'>
+                            <Barchart data={data} />
+                        </Col>
 
-                            </div>
+                        <Col className = 'sample_info'>
+                            <h1>
+                                Sample: {sample}
+                            </h1>
+                            <p>
+                                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
+                            </p>
                         </Col>
                     </Row>
                     <Row>
-                        <Col md={6} sm={6}>
-                            <div className="result-wrapper-box"> 
-                                <h2 className="result-pos-neg">Tested: {result} for {pathogen}</h2>
-                            </div>
-                        </Col> 
+                        <Col className = 'button_col'>
+                            <button className="result_pg_button save-result-btn">Save Results</button>
+
+                            <Link to="/home">
+                                <button className="result_pg_button upload-btn">Upload New</button>
+                            </Link>
+                        </Col>
+
                     </Row>
 
                 </Container>
                 <img className="topLeftBackground" src={topLeftBackground} alt='topLeftBackground' />
                 <img className="rightBackground" src={rightBackground} alt='rightBackground' />
             </div>
-      </>
-  );
-}
- 
+
+        </>
+    );
+  }
+   
 export default Result;

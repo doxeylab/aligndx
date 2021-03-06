@@ -7,7 +7,7 @@ import About from './pages/About';
 import Team from './pages/Team';
 import FAQ from './pages/FAQ';
 import Result from './pages/Result';
-import result_test from './pages/result_test';
+
 
 import DownloadPage from './pages/DownloadPage';
 
@@ -25,7 +25,6 @@ import DownloadPage from './pages/DownloadPage';
           <Route path='/team' component={Team} />
           <Route path='/download' component={DownloadPage} />
           <Route path='/result' component={Result} />
-          <Route path='/result_test' component={result_test} />
         </Switch>
       </Router>
     );
