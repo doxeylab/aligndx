@@ -44,13 +44,13 @@ const Result = () => {
                 {result ?     
                     <Row className="result_pos_neg">
                         <h1 >
-                            <img className="Green_Check" src={Green_Check} alt='Green_Check' /> {result} for {pathogen}
+                            <img className="Green_Check" src={Green_Check} alt='Green_Check' /> {result} {pathogen}
                         </h1>
                     </Row>
                 :
                     <Row className="result_pos_neg">
                         <h1 >
-                            <img className="Red_X" src={Red_X} alt='Red_X' /> {result} for {pathogen}
+                            <img className="Red_X" src={Red_X} alt='Red_X' /> {result} {pathogen}
                         </h1>
                     </Row>
                 }
