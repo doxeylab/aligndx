@@ -41,8 +41,7 @@
     background-position: right center;
 }
 
-.button_col {
-    display:flex;
-    justify-content: space-between;
-    margin-top: 3rem;
+.save-result-btn {
+    margin-right: 2rem;
+    margin-top: 2rem;
 }

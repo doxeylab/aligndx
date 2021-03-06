@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AlignDx from '../assets/AlignDx.svg'
-import { Button } from './download-test';
+
 
 
 function Navbar() {
@@ -61,9 +61,11 @@ function Navbar() {
             </Link>
           </li>
         </ul>
-
-        <Button/>
         
+            <Link to='/download'>
+                <button className='home-download-btn'>Download App</button>
+            </Link>
+
       </nav>
     </>
   );

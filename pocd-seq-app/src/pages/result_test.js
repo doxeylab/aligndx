@@ -34,13 +34,9 @@ const result_test = () => {
                     </Row>
                     <Row>
                         <Col className = 'button_col'>
-                            <button className="result_pg_button">Save Results</button>
-                            <button className="result_pg_button">Upload New</button>
+                            <button className="result_pg_button save-result-btn">Save Results</button>
+                            <button className="result_pg_button upload-btn">Upload New</button>
                         </Col>
-                        <Col>
-                            
-                        </Col>
-
 
                     </Row>
 
