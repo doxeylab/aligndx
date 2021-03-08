@@ -1,5 +1,6 @@
 import React from 'react';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Home from "./pages/Home";
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Contact from './pages/Contact';
@@ -26,6 +27,7 @@ import DownloadPage from './pages/DownloadPage';
           <Route path='/download' component={DownloadPage} />
           <Route path='/result' component={Result} />
         </Switch>
+        <Footer />
       </Router>
     );
   }

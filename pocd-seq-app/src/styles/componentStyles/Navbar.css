@@ -1,12 +1,3 @@
-/* Gets Rid of Extra White Space*/
-html,body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0px;
-  overflow-x: hidden; 
-}
-
 /*Position of Logo*/
 .AlignDx {
   position: absolute;

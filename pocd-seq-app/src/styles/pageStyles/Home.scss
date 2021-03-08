@@ -1,3 +1,13 @@
+/* Gets Rid of Extra White Space*/
+html,body {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0px;
+  overflow-x: hidden; 
+  position: relative;
+}
+
 .topLeftBackground {
   display: inline-block;
   position: absolute;

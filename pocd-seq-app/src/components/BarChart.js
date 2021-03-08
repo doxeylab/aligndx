@@ -26,6 +26,7 @@ const BarChart = ({data}) => {
     var yDomain = Math.ceil(max_value/5)*5;
     // Initial SVG Data
     const svgRef = useRef();
+    // eslint-disable-next-line
     const svg_width = 900;
     const svg_height = 400;
     var margin = { top: 10, right: 10, bottom: 50, left: 50 },
@@ -74,7 +75,7 @@ const BarChart = ({data}) => {
                 .attr('width', x.bandwidth())
                 .attr('height', function(hit) { return height - y(hit.column_category)})
                 .attr('fill', '#69b3a2');
-
+// eslint-disable-next-line
     }, [dimensions]);
 
     return (
