@@ -40,7 +40,7 @@ In the following github repository, you will find the codebases for software abl
 **6.** Install the backend dependencies:  
   - `cd path/POCD/pocd-seq-app/api`
   - `python3 -m venv venv`
-  - `source /venv/bin/activate`
+  - `source venv/bin/activate`
     - Your console should now have the prefix "venv"
   - `pip install -r requirements.txt` 
   - Next deactivate the virtual environment (venv)
