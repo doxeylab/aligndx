@@ -66,7 +66,7 @@ In the following github repository, you will find the codebases for software abl
 **3.** In another terminal tab/window run the backend server via:
     - The easy way:
     - `cd /path/POCD/pocd-seq-app/`
-    - `npm startapi`
+    - `npm run startapi`
     - The terminal will output a link for the frontend
       - **NOTE**: If it doesn't, don't worry. Just type this into your browser:
       - 'https://localhost:5000/ 
