@@ -45,7 +45,9 @@ In the following github repository, you will find the codebases for software abl
   - `pip install -r requirements.txt` 
   - Next deactivate the virtual environment (venv)
   - `deactivate`
-  - There are 2 more things you need to enable backend functionality. These are large files, thus they can't be push to github. Access them using this google drive link: https://drive.google.com/drive/folders/1XUYFlie-Enl7AiW3C2HMH-t8Kjba3R-x?usp=sharing
+  - There are 2 more things you need to enable backend functionality. These are large files, thus they can't be push to github. 
+  - Access them using this google drive link: https://drive.google.com/drive/folders/1XUYFlie-Enl7AiW3C2HMH-t8Kjba3R-x?usp=sharing
+  - Note that the salmon folder contains the binaries for linux. It won't work on Windows or Mac OS
     - Download them into the path/POCD/pocd-seq-app/api folder
     - Create a folder called indexes
     - Move the 'sars_with_human_decoys' folder into path/POCD/pocd-seq-app/api/indexes
