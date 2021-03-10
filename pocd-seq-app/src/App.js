@@ -10,7 +10,6 @@ import FAQ from './pages/FAQ';
 import Result from './pages/Result';
 import DownloadPage from './pages/DownloadPage';
 
-
   function App() {
     return (
       <div className="pageWrap">

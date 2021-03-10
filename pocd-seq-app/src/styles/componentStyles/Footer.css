@@ -39,3 +39,21 @@ a.footerLink:hover {
 .footerCopyright {
 	color: #B5B5B5;
 }
+
+@media screen and (max-width: 1200px) {
+    .footerContent {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .footerLink {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .footerCopyright {
+        text-align: center;
+    }
+}
