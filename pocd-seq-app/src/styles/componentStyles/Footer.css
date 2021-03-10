@@ -20,7 +20,6 @@ footer {
     font-weight: 500;
 	padding: 15px 50px;
 	background-color:#24262b;
-
 }
 
 .footerLink{
@@ -38,4 +37,22 @@ a.footerLink:hover {
 
 .footerCopyright {
 	color: #B5B5B5;
+}
+
+@media screen and (max-width: 1200px) {
+    .footerContent {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .footerLink {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .footerCopyright {
+        text-align: center;
+    }
 }
