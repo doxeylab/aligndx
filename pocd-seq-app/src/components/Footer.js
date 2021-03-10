@@ -7,33 +7,28 @@ const Footer = () => {
             <footer>
                 <div className="footerContent">
                     <Link 
-                        to='/privacy'
+                        to='/'
                         className='footerLink'
                         >
                         Our Services
                     </Link>
                     <Link 
-                        to='/privacy'
+                        to='/'
                         className='footerLink'
                         >
                         Privacy Policy
                     </Link>
                     <Link 
-                        to='/termsofuse'
+                        to='/'
                         className='footerLink'
                         >
-                        Terms of Use
+                        License
                     </Link>
-                    <Link 
-                        to='/sitemap'
-                        className='footerLink'
-                        >
-                        Site Map
-                    </Link>
+
                 </div>
                 <div className="footerBottom">
                     <div className="footerCopyright">
-                        Copyright © AlignDx. All rights reserved.
+                        Copyright © DoxeyLab 2021, University of Waterloo Department of Biology. All rights reserved.
                     </div>    
                 </div>    
             </footer>

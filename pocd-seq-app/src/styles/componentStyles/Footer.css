@@ -20,11 +20,11 @@ footer {
     font-weight: 500;
 	padding: 15px 50px;
 	background-color:#24262b;
-	color:#ffffff;
+
 }
 
 .footerLink{
-    color: #ffffff;
+    color: #B5B5B5;
     text-decoration: none;
 	font-size: 15px;
     margin-left: 2rem;
@@ -32,6 +32,10 @@ footer {
     font-weight: 500;
 }
 
+a.footerLink:hover {
+    color: white;
+}
+
 .footerCopyright {
-	color: #ffffff;
+	color: #B5B5B5;
 }
