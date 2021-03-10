@@ -24,7 +24,6 @@ const Footer = () => {
                         >
                         License
                     </Link>
-
                 </div>
                 <div className="footerBottom">
                     <div className="footerCopyright">
