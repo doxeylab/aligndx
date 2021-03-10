@@ -27,15 +27,12 @@
     background-position: right center;
 }
 
-
-
 .download-page-main {
     display:flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    margin: 0 auto;
 }
 
 /*When screen is larger than 960px*/
