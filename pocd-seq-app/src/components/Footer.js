@@ -4,36 +4,39 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
     return (  
         <>
-            <div className="footer">
-                <div className="footer-content">
-
+            <footer>
+                <div className="footerContent">
+                    <Link 
+                        to='/privacy'
+                        className='footerLink'
+                        >
+                        Our Services
+                    </Link>
+                    <Link 
+                        to='/privacy'
+                        className='footerLink'
+                        >
+                        Privacy Policy
+                    </Link>
+                    <Link 
+                        to='/termsofuse'
+                        className='footerLink'
+                        >
+                        Terms of Use
+                    </Link>
+                    <Link 
+                        to='/sitemap'
+                        className='footerLink'
+                        >
+                        Site Map
+                    </Link>
                 </div>
-
-                <div className="footer-bottom">
-
-                            <div className="footer-copyright">
-                                Copyright © AlignDx. All rights reserved.
-                            </div>
-                            <Link 
-                                to='/privacy'
-                                className='footer-bottom-link'
-                                >
-                                Privacy Policy
-                            </Link>
-                            <Link 
-                                to='/termsofuse'
-                                className='footer-bottom-link'
-                                >
-                                Term of Use
-                            </Link>
-                            <Link 
-                                to='/sitemap'
-                                className='footer-bottom-link'
-                                >
-                                Site Map
-                            </Link>
+                <div className="footerBottom">
+                    <div className="footerCopyright">
+                        Copyright © AlignDx. All rights reserved.
+                    </div>    
                 </div>    
-            </div>
+            </footer>
         </>
     );
 }

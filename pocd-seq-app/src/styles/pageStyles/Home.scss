@@ -1,11 +1,13 @@
-/* Gets Rid of Extra White Space*/
-html,body {
+.pageWrap {
   width: 100%;
-  min-height: 100vh;
   margin: 0;
   padding: 0px;
   overflow-x: hidden; 
   position: relative;
+}
+
+.contentWrap {
+  min-height: 100vh;
 }
 
 .topLeftBackground {
@@ -15,6 +17,7 @@ html,body {
   top: 0;
   left: 0;
 }
+
 .rightBackground {
   display: inline-block;
   position: absolute;
