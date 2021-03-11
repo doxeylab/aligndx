@@ -1,6 +1,4 @@
 import React, { useState } from 'react'
-import topLeftBackground from '../assets/topLeftBackground.svg';
-import rightBackground from '../assets/rightBackground.svg';
 import Art from '../assets/Art.png';
 import { Container, Row, Col } from 'react-bootstrap';
 import FileUpload from "../components/FileUpload";
@@ -20,8 +18,8 @@ const Home = () => {
 
     return (
         <>
-            <div className="home">
-                <Container>
+            <div className="section">
+                <Container className="home-container">
                     <Row className="home-wrapper">
                         <Col md={6} sm={12}>
                             <div className="home-wrapper__info">
@@ -32,13 +30,11 @@ const Home = () => {
                         </Col>
                         <Col md={6} sm={12}>
                             <div className="home-wrapper__image">
-                                <img className="Art" src={Art} alt="Art" style={{width: 350}}/>
+                                <img className="Art" src={Art} alt="Art"/>
                             </div>
                         </Col>
                     </Row>
                 </Container>
-                <img className="topLeftBackground" src={topLeftBackground} alt='topLeftBackground' />
-                <img className="rightBackground" src={rightBackground} alt='rightBackground' />
             </div>
             <FileUpload closeSpinnerCallback={spinnerCallback} parentCallback={callback} show={toggleUploadModal} modalToggle={(e) => {e.preventDefault(); setToggleUploadModal(!toggleUploadModal);}} />
             {toggleLoader?<LoadingSpinner /> : ''}

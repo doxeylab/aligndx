@@ -1,9 +1,9 @@
 /*Position of Logo*/
 .AlignDx {
   position: absolute;
-  height:45px;
+  height: 45px;
   top: 6rem;
-  left: 100px;;
+  left: 100px;
 }
 
 /*Download App Styling*/
@@ -17,16 +17,16 @@
   text-align: center;
   transition: 0.5s;
   background-size: 200% auto;
-  color:#fff;
+  color: #fff;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: pointer;
   display: inline-block;
   border-radius: 15px;
   background-image: linear-gradient(
-      to right,
-      #1861a6 0%,
-      #2f8ae1 51%,
-      #1861a6 100%
+    to right,
+    #1861a6 0%,
+    #2f8ae1 51%,
+    #1861a6 100%
   );
   outline: none;
 }
@@ -40,21 +40,21 @@
   display: block;
   position: absolute;
   top: 6rem;
-  right: 100px;;
+  right: 100px;
 }
 
 /* Navbar content above 960px */
 .navbar {
+  position: absolute;
   padding-top: 5rem;
   padding-bottom: 5rem;
   margin-top: 5rem;
   margin-bottom: 5rem;
   display: grid;
   grid-template-columns: repeat(5, auto);
-  max-width: 100%;
+  width: 100%;
   justify-content: center;
 }
-
 
 /*Ajusts the Links (About,Teams,etc)*/
 .nav-menu {
@@ -82,13 +82,12 @@
 }
 
 /*Hides the Hamburger Icon when screen is too big*/
-.menu-icon{
+.menu-icon {
   display: none;
 }
 
 /*Navbar content below max-width*/
 @media screen and (max-width: 1200px) {
-  
   /*Repositions the container (Does not shift - Remove if it's intended)*/
   .navbar {
     padding-bottom: 12rem;
@@ -109,9 +108,9 @@
   /*Position of the AlignDx logo*/
   .AlignDx {
     position: absolute;
-    height:45px;
+    height: 45px;
     top: 6rem;
-    left: 50px;;
+    left: 50px;
   }
 
   /*Navbar*/
@@ -129,13 +128,13 @@
 
   .nav-menu.active {
     left: 0;
-    background-color:rgba(0, 0, 0, .6);
+    background-color: rgba(0, 0, 0, 0.6);
     transition: all 0.5s ease;
     z-index: 1;
   }
 
   .nav-links {
-    color:#e8f7fe;
+    color: #e8f7fe;
     font-weight: bolder;
     text-align: center;
     font-size: 2.5rem;
@@ -146,14 +145,12 @@
   }
 
   .nav-links:hover {
-    color:#2f8ae1;
+    color: #2f8ae1;
     text-align: center;
   }
 
   /*Hides the Download App*/
   .home-download-btn {
-    display:none;
+    display: none;
   }
-
 }
-
