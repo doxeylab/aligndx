@@ -1,65 +1,72 @@
-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    background-color: white;
-    box-shadow: 5px 5px 10px grey;
-    border-radius: 10px;
+.contact-container {
+  padding-top: 250px;
+}
+
+.contact-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: white;
+  box-shadow: 5px 5px 10px grey;
+  border-radius: 10px;
+  padding: 30px;
 }
 
 .contactTitle {
-    max-width: 800px;
-    text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  padding: 0 50px;
 }
 
 .contactTitle h1 {
-    font-size: 30px;
+  font-size: 30px;
 }
 
-.contactWrap {
-    display: flex;
-    flex-direction: column;
-    margin: 3rem;
-    justify-content: center;
+/* .contactWrap {
+  display: flex;
+  flex-direction: column;
+  margin: 3rem;
+  justify-content: center;
+} */
+
+.contactBox {
+  display: flex;
+  flex-direction: row;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
-.contactBox{
-    display: flex;
-    flex-direction: row;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-}
-
-.contactIcon{
-    min-width: 60px;
-    height: 60px;
-    background: #C6C6C6;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    font-size: 22px;
+.contactIcon {
+  min-width: 60px;
+  height: 60px;
+  background: #c6c6c6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  font-size: 22px;
 }
 
 .contactText {
-    display: flex;
-    margin-left: 20px;
-    font-size: 16px;
-    flex-direction: column;
+  display: flex;
+  margin-left: 20px;
+  font-size: 16px;
+  flex-direction: column;
 }
 
 @media screen and (max-width: 1200px) {
+  .contactWrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 
-    .contactWrap {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .contactBox {
-        margin-top: 2rem;
-        margin-bottom: 2rem;
-    }
+  .contactBox {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
 }
-
