@@ -3,14 +3,9 @@ section {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-
-}
-
-section:hover {
     background-color: white;
     box-shadow: 5px 5px 10px grey;
     border-radius: 10px;
-    transition-duration: 100ms;
 }
 
 .contactTitle {
