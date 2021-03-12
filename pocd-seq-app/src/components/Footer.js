@@ -7,19 +7,19 @@ const Footer = () => {
             <footer>
                 <div className="footerContent">
                     <Link 
-                        to='/'
+                        /*to='/'*/
                         className='footerLink'
                         >
                         Our Services
                     </Link>
                     <Link 
-                        to='/'
+                        /*to='/'*/
                         className='footerLink'
                         >
                         Privacy Policy
                     </Link>
                     <Link 
-                        to='/'
+                        /*to='/'*/
                         className='footerLink'
                         >
                         License
