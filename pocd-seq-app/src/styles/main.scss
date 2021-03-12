@@ -4,19 +4,18 @@
 @import "./baseStyles/Base.scss";
 @import "./baseStyles/Typography.scss";
 
-
-
 @import "./componentStyles/Backdrop.scss";
+@import "./componentStyles/Background.scss";
 @import "./componentStyles/FileUpload.scss";
 @import "./componentStyles/FileUploader.scss";
 @import "./componentStyles/Modal.scss";
 
 @import "./pageStyles/Home.scss";
 
-
 @import "./componentStyles/Navbar.css";
+@import "./componentStyles/Footer.css";
+
 @import "./componentStyles/LoadingPage.css";
-@import "./componentStyles/Result.css";
 @import "./componentStyles/DownloadPage.css";
-
-
+@import "./componentStyles/Result.css";
+@import "./componentStyles/Contact.css";

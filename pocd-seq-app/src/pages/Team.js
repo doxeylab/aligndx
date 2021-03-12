@@ -2,8 +2,8 @@ import React from 'react';
 
 export default function Team() {
   return (
-    <>
-      <h1 className='team'>Team</h1>
-    </>
+    <div className="section">
+      <h1>FAQ</h1>
+    </div>
   );
 }

@@ -1,60 +1,57 @@
 /*Download App Styling*/
 .download-pg-btn {
-    list-style-type: none;
-    border: none;
-    font-size: 1.6rem;
-    font-weight: 600;
-    padding: 15px;
-    width: 300px;
-    text-align: center;
-    transition: 0.5s;
-    background-size: 200% auto;
-    color:#fff;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    cursor: pointer;
-    display: inline-block;
-    border-radius: 15px;
-    background-image: linear-gradient(
-        to right,
-        #1861a6 0%,
-        #2f8ae1 51%,
-        #1861a6 100%
-    );
-    outline: none;
+  list-style-type: none;
+  border: none;
+  font-size: 1.6rem;
+  font-weight: 600;
+  padding: 15px;
+  width: 300px;
+  text-align: center;
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: #fff;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  display: inline-block;
+  border-radius: 15px;
+  background-image: linear-gradient(
+    to right,
+    #1861a6 0%,
+    #2f8ae1 51%,
+    #1861a6 100%
+  );
+  outline: none;
 }
-  
+
 .download-pg-btn:hover {
-    background-position: right center;
+  background-position: right center;
 }
 
-
-
-.download-page-main {
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    margin: 0 auto;
+.download-page-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
 }
 
-/*When screen is larger than 960px*/
-@media (min-width: 960px){
-
-    .download-page-main {
-        flex-direction: row;
-    
-    }
-
-    h1 {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-    }
-
-    .download-page-wrapper {
-        position:relative;
-        margin-right: 3rem;
-    }
-
+.download-page-video {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  padding: 25px;
 }
 
+.download-page-container {
+  padding-top: 200px;
+}
+
+/* .download-page-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+} */
