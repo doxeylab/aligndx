@@ -27,7 +27,7 @@ const Footer = () => {
                 </div>
                 <div className="footerBottom">
                     <div className="footerCopyright">
-                        Copyright © DoxeyLab 2021, University of Waterloo Department of Biology. All rights reserved.
+                        Copyright © Doxey-Hirota CoLab 2021, University of Waterloo Department of Biology. All rights reserved.
                     </div>    
                 </div>    
             </footer>
