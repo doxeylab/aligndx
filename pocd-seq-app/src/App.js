@@ -1,8 +1,9 @@
 import React from 'react';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import Background from './components/Background';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from "./pages/Home";
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Contact from './pages/Contact';
 import About from './pages/About';
 import Team from './pages/Team';
@@ -12,11 +13,9 @@ import DownloadPage from './pages/DownloadPage';
 
   function App() {
     return (
-      <div className="pageWrap">
       <Router>
         <Navbar />
         <Switch>
-          <div className="contentWrap">
             <Route path='/' exact component={Home} />
             <Route path='/home' component={Home} />
             <Route path='/about' component={About} />
@@ -25,11 +24,10 @@ import DownloadPage from './pages/DownloadPage';
             <Route path='/team' component={Team} />
             <Route path='/download' component={DownloadPage} />
             <Route path='/result' component={Result} />
-          </div>
         </Switch>
+        <Background />
         <Footer />
       </Router>
-      </div>
     );
   }
   
