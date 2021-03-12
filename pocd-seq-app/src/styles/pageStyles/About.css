@@ -1,0 +1,218 @@
+.about-container {
+    padding-top: 200px;
+}
+
+/*About Us section*/
+.aboutUs {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 100px;
+}
+
+.aboutUsImage{
+    width: 750px;
+}
+.aboutUs h1 {
+    vertical-align: middle;
+    color:black;
+    text-align: center;
+}
+
+.aboutUsText {
+    padding:0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+/*Meet the Professor section*/
+.meetTheProfessors {
+    background-color: #E8E8E8;
+    box-shadow: 5px 5px 10px grey;
+    border-radius: 10px;
+    margin-bottom: 100px;
+    display: flex;
+    flex-direction: row;
+}
+
+.meetTheProfessorsText {
+    margin: 3rem;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.meetTheProfessors h2 {
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+
+.ADoxeyImage {
+    width: 250px;
+    height: auto;
+    align-items: center;
+    justify-content: center;
+    margin:0 auto;
+}
+
+.JHirotaImage{
+    width: 250px;
+    height: auto;
+    align-items: center;
+    justify-content: center;
+    margin:0 auto;
+}
+
+.ADoxeyCol {
+    margin: 3rem;
+    background-color: white;
+    box-shadow: 5px 5px 10px grey;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.JHirotaCol {
+    margin: 3rem;
+    background-color: white;
+    box-shadow: 5px 5px 10px grey;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.ourGoals {
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 100px;
+    background: #F7F7F7;
+    border-radius: 5px;
+}
+
+.ourGoalsImageWrap {
+    margin-right: 2rem;
+    height: auto;
+    width: 400px;
+}
+
+.ourGoalsText {
+    margin-left: 2rem;
+    text-align: center;
+    width: 400px;
+}
+
+.ourGoalsText p {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.companyUpdates {
+    margin-bottom: 100px;  
+}
+
+.companyUpdatesWrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.companyUpdatesContent {
+    display: flex;
+    flex-direction: row;
+}
+
+.companyUpdatesTitle {
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+    display: flex;
+}
+
+.companyUpdatesAnnouncements {
+    width: 400px;
+    margin-right: 2rem;
+}
+
+.companyUpdatesSocial {
+    width: 400px;
+}
+.companyUpdatesAnnouncements a {
+    color: black;
+}
+
+.companyUpdatesAnnouncements a:hover {
+    text-decoration: underline;
+}
+
+.companyUpdatesAnnouncements h2 {
+    margin-bottom: 30px;
+}
+
+.companyUpdatesSocial h2 {
+    margin-bottom: 30px;
+}
+
+.companyUpdatesBox {
+    display: flex;
+    flex-direction: row;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.companyUpdatesIcon {
+    min-width: 40px;
+    height: 40px;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    font-size: 22px;
+    margin-right: 2rem;
+}
+
+.companyUpdatesIcon:hover {
+    transition-duration: 400ms;
+    background:#D8D8D8;
+}
+
+@media screen and (max-width: 1200px) {
+
+    .aboutUs {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .meetTheProfessors {
+        display:flex;
+        flex-direction: column;
+    }
+
+    .ADoxeyCol {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+        padding-left: 8rem;
+        padding-right: 8rem;
+    }
+
+    .JHirotaCol {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+        padding-left: 8rem;
+        padding-right: 8rem;
+    }
+
+    .ourGoals {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+}

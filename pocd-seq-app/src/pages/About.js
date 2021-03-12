@@ -1,12 +1,14 @@
 import React from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
-
+import { Container } from 'react-bootstrap';
+import aboutUsImage from '../assets/aboutUsImage.svg';
+import ADoxey from '../assets/ADoxey.svg';
+import JHirota from '../assets/JHirota.svg'
+import OurGoals from '../assets/OurGoals.svg';;
 
 export default function About() {
   return (
     <div className="section">
-          <>
-          <Container>
+          <Container className="about-container">
               {/*About Us section*/}
               <div className="aboutUs">
                   <div className="aboutUsText">
@@ -85,7 +87,6 @@ export default function About() {
                   </div>
               </div>
           </Container>
-    </>
     </div>
   );
 }
