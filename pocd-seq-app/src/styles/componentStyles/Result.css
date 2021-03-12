@@ -6,10 +6,6 @@
     color:lightgreen;
 }
 
-.result_positive {
-    color:green;
-}
-
 .result_negative {
     background-color: white;
     padding-left:2rem;

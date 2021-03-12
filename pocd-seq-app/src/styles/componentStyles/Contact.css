@@ -6,6 +6,7 @@ section {
     background-color: white;
     box-shadow: 5px 5px 10px grey;
     border-radius: 10px;
+    padding-top: 2rem;
 }
 
 .contactTitle {
