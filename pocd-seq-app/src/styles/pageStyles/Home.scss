@@ -10,10 +10,6 @@
 //   min-height: 100vh;
 // }
 
-.home-container {
-  padding-top: 300px;
-}
-
 .home-wrapper {
   @include respond(phone) {
     padding-bottom: 5rem;

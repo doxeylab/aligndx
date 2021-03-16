@@ -1,0 +1,74 @@
+.faq-container h1 {
+  padding-top: 2rem;
+  padding-bottom: 5rem;
+  margin-bottom: 5rem;
+  text-align: center;
+}
+
+.faq-container {
+  margin-bottom: 100px;
+}
+
+/* Style the accordion section */
+.accordionWrap {
+    display: flex;
+    flex-direction: column;
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+  
+  /* Style the buttons that are used to open and close the accordion panel */
+  .accordion {
+    border-top: 2px groove gray;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    background: none;
+    color: #444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    outline: none;
+  }
+
+  .accordion.active {
+    padding-bottom: 0;
+  }
+
+  .accordion.active .accordionTitle {
+    color:#2f8ae1;
+  }
+
+  /* Style the accordion content title */
+  .accordionTitle {
+    font-weight: 600;
+    font-size: 18px;
+    text-align: left;
+  }
+  
+  /* Style the accordion chevron icon */
+  .accordionIcon {
+    margin-left: auto;
+    color:black
+  }
+
+/* Style to rotate icon when state is active */
+.rotate {
+  transform: rotate(90deg);
+}
+  
+  /* Style the accordion content panel. Note: hidden by default */
+  .accordionContent{
+    overflow: hidden;
+  }
+  
+  /* Style the accordion content text */
+  .accordionText {
+    font-weight: 500;
+    font-size: 16px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+  

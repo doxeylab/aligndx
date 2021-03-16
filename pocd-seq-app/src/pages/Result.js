@@ -38,8 +38,8 @@ const Result = () => {
     }, [])
 
     return (
-        <>
-            <div className="result_page">
+        <div className="section">
+            <div className="result-container">
                 <Container>
                 {result ?     
                     <Row className="result_negative">
@@ -83,8 +83,7 @@ const Result = () => {
                 <img className="topLeftBackground" src={topLeftBackground} alt='topLeftBackground' />
                 <img className="rightBackground" src={rightBackground} alt='rightBackground' />
             </div>
-
-        </>
+        </div>
     );
   }
    
