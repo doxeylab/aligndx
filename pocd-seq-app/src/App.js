@@ -10,6 +10,9 @@ import Team from './pages/Team';
 import FAQ from './pages/FAQ';
 import Result from './pages/Result';
 import DownloadPage from './pages/DownloadPage';
+import Policy from './pages/Policy';
+import Services from './pages/Services';
+import License from './pages/License';
 
   function App() {
     return (
@@ -24,6 +27,9 @@ import DownloadPage from './pages/DownloadPage';
             <Route path='/team' component={Team} />
             <Route path='/download' component={DownloadPage} />
             <Route path='/result' component={Result} />
+            <Route path='/policy' component={Policy} />
+            <Route path='/license' component={License} />
+            <Route path='/services' component={Services} />
         </Switch>
         <Background />
         <Footer />

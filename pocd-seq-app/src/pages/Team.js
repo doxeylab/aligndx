@@ -15,7 +15,7 @@ export default function Team() {
             <div className="teamTitle"><h1>Meet Our Team</h1></div>
             {/*Professor section*/}
             <div className="professorRow">
-                <div className="professorTitle"><h2>Our Professors</h2></div>
+                <div className="professorTitle"><h2>Our Advisors</h2></div>
                 <Row className="professorWrap">
                     <div className="teamProfileCol">
                         <a href="https://uwaterloo.ca/biology/people-profiles/andrew-c-doxey">
