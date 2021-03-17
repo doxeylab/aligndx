@@ -26,62 +26,7 @@
     text-align: center;
 }
 
-/*Meet the Professor section*/
-.meetTheProfessors {
-    background-color: #E8E8E8;
-    box-shadow: 5px 5px 10px grey;
-    border-radius: 10px;
-    margin-bottom: 100px;
-    display: flex;
-    flex-direction: row;
-}
 
-.meetTheProfessorsText {
-    margin: 3rem;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-}
-
-.meetTheProfessors h2 {
-    padding-bottom: 20px;
-    padding-top: 20px;
-}
-
-.ADoxeyImage {
-    width: 250px;
-    height: auto;
-    align-items: center;
-    justify-content: center;
-    margin:0 auto;
-}
-
-.JHirotaImage{
-    width: 250px;
-    height: auto;
-    align-items: center;
-    justify-content: center;
-    margin:0 auto;
-}
-
-.ADoxeyCol {
-    margin: 3rem;
-    background-color: white;
-    box-shadow: 5px 5px 10px grey;
-    border-radius: 10px;
-    text-align: center;
-}
-
-.JHirotaCol {
-    margin: 3rem;
-    background-color: white;
-    box-shadow: 5px 5px 10px grey;
-    border-radius: 10px;
-    text-align: center;
-}
 
 .ourGoals {
     display:flex;
@@ -185,25 +130,6 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-    }
-
-    .meetTheProfessors {
-        display:flex;
-        flex-direction: column;
-    }
-
-    .ADoxeyCol {
-        padding-top: 3rem;
-        padding-bottom: 3rem;
-        padding-left: 8rem;
-        padding-right: 8rem;
-    }
-
-    .JHirotaCol {
-        padding-top: 3rem;
-        padding-bottom: 3rem;
-        padding-left: 8rem;
-        padding-right: 8rem;
     }
 
     .ourGoals {
