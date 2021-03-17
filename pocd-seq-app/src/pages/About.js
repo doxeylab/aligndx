@@ -1,9 +1,7 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
 import aboutUsImage from '../assets/aboutUsImage.svg';
-import ADoxey from '../assets/ADoxey.svg';
-import JHirota from '../assets/JHirota.svg'
-import OurGoals from '../assets/OurGoals.svg';;
+import OurGoals from '../assets/OurGoals.svg';
 
 export default function About() {
   return (
@@ -20,33 +18,6 @@ export default function About() {
                       </p>
                   </div>
                   <img className="aboutUsImage" src={aboutUsImage} alt='aboutUsImage' />
-              </div>
-
-              {/*Meet the Professor section*/}
-              <div className="meetTheProfessors">
-                  <div className="meetTheProfessorsText">
-                      <h1>Meet the Professors</h1>
-                      <p>
-                      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ad voluptatibus fugiat rem minus architecto praesentium facere non 
-                      voluptas harum similique consequuntur dolores veniam ipsa autem tempora quam, ipsam nihil ullam!
-                      </p>
-                  </div>
-                  <div className="ADoxeyCol">
-                      <img className="ADoxeyImage" src={ADoxey} alt='ADoxeyImage' />
-                      <h2>Andrew Doxey</h2>
-                      <p>
-                        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ad voluptatibus fugiat rem minus architecto praesentium facere non 
-                        voluptas harum similique consequuntur dolores veniam ipsa autem tempora quam, ipsam nihil ullam!
-                      </p>
-                  </div>
-                  <div className="JHirotaCol">
-                      <img className="JHirotaImage" src={JHirota} alt='JHirotaImage' />
-                      <h2>Jeremy Hirota</h2>
-                      <p>
-                        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ad voluptatibus fugiat rem minus architecto praesentium facere non 
-                        voluptas harum similique consequuntur dolores veniam ipsa autem tempora quam, ipsam nihil ullam!
-                      </p>
-                  </div>
               </div>
 
               {/*Our Goals section*/}

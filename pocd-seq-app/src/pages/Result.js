@@ -1,6 +1,4 @@
 import React, {useState, useEffect} from 'react';
-import topLeftBackground from '../assets/topLeftBackground.svg';
-import rightBackground from '../assets/rightBackground.svg';
 import { Container, Row, Col } from 'react-bootstrap';
 import Green_Check from '../assets/Green_Check.png'
 import Red_X from '../assets/Red_X.png'
@@ -78,10 +76,7 @@ const Result = () => {
                         </Col>
 
                     </Row>
-
                 </Container>
-                <img className="topLeftBackground" src={topLeftBackground} alt='topLeftBackground' />
-                <img className="rightBackground" src={rightBackground} alt='rightBackground' />
             </div>
         </div>
     );

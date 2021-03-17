@@ -1,0 +1,88 @@
+.teamTitle {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    text-align: center;
+}
+
+.teamProfileText h2 {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.teamProfileText p {
+    font-size: 15px;
+}
+
+.teamProfilePictures img{
+    width: 300px;
+    height: 300px;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.teamProfileCol {
+    width: 300px;
+    margin-right: 50px;
+    margin-bottom: 3rem;
+}
+
+.teamProfilePictures:hover {
+    transition: .5s ease;
+    opacity: 0.8;
+}
+
+/*Professor section*/
+.professorWrap {
+    display: flex;
+    margin: 0 auto;
+}
+
+.professorTitle {
+    padding-bottom: 2rem;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border-bottom: 2px groove gray;
+}
+
+/*Developers section*/
+.developerWrap {
+    display: flex;
+    margin: 0 auto;
+}
+
+.developerTitle {
+    padding-bottom: 2rem;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border-bottom: 2px groove gray;
+}
+
+.developerRow {
+    margin-bottom: 50px;
+}
+
+@media screen and (max-width: 1200px) {
+    .professorWrap {
+        display: flex;
+        justify-content: center;
+    }
+
+    .developerWrap {
+        display: flex;
+        justify-content: center;
+    }
+
+}
+
+@media screen and (max-width: 991px) {
+    .teamProfileCol {
+        width: 400px;
+        margin-bottom: 3rem;
+    }
+
+    .teamProfilePictures img{
+        width: 400px;
+        height: 400px;
+    }
+}
