@@ -1,43 +1,61 @@
-import numpy as np 
+"""
+SUPER INNEFFICIENT!!!
+"""
 
-ex_kmer = "GAATCCAATCAGATT"
-def sliding_window(k, seq):
-    '''
-    Scans read using a sliding window of size k and appends them to an array until the last character in the read is reached
-    '''
-    kmer_record = []
-    while k > len(seq):
-        kmer_record.append(seq[:k]) 
-    # Resets k value so we don't have to re-instantiate the class
-    k = k 
 
-def kmer_count(kmer_list): 
-    '''
-    Generates histogram of kmer frequencies for a sequence
 
-    '''
-    kmer_hist = {}
-    for i in np.unique(kmer_list):
-        kmer_hist[i] = kmer_list.count(i)
-
-def fqformat(lines=None):
-    format = ["id", 'seq','opt','qual']    
-    return {key:value for key,value in zip(format,lines)}
+def linecount(sample):
+    process = subprocess.Popen(["wc", "-l", sample], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = process.communicate()
+    string = out.decode("utf-8")
+    lines = int(string.split(" ")[0])
+    return lines
 
 if __name__ == "__main__":
     '''
     Streams in files by chunks of four, parsing it and identifying kmers from kmer library
     ''' 
-    import fileinput   
-    lines = []
-    reads = []
-    for line in fileinput.input(): 
-        lines.append(line.rstrip())
-        if len(lines) % 4 == 0:
-            read = fqformat(lines)
-            if ex_kmer in read["seq"]:
-                reads.append(read)
-                break 
-            lines.clear() 
-    if reads:
-        print(reads)  
+    import dnaio
+    import sys    
+    import subprocess 
+    import io
+    import os 
+  
+    CHUNK_FOLDER = './chunks/' 
+
+    if not os.path.isdir(CHUNK_FOLDER):
+        os.mkdir(CHUNK_FOLDER)
+    reads = int(linecount(sys.argv[1])/4)
+    chunk_size = 10000
+    counter = 0 
+    chunk = 1
+    # print((reads))
+    num_chunks = reads/chunk_size 
+    if type(num_chunks) != int:
+        even_num_chunks = int(num_chunks)
+    
+    with dnaio.open(sys.argv[1]) as f:
+        for record in f:  
+            if counter == chunk_size and chunk != even_num_chunks: 
+                chunk+= 1 
+                counter= 0
+
+            if counter == 0:
+                with io.open(os.path.join(CHUNK_FOLDER + "chunk_" + str(chunk) + ".fastq"), 'w') as new_f:
+                # with io.open("chunk_" + str(chunk) + ".fastq", 'w') as new_f:
+                    new_f.write("@" + record.name+"\n") 
+                    new_f.write(record.sequence+"\n")
+                    new_f.write("+" + record.name +"\n")
+                    new_f.write(record.qualities+"\n")
+                counter += 1 
+
+            else: 
+                with io.open(os.path.join(CHUNK_FOLDER + "chunk_" + str(chunk) + ".fastq"), 'w') as new_f:
+                # with io.open("chunk_" + str(chunk) + ".fastq", 'w') as new_f:
+                    new_f.write("@" + record.name+"\n")  
+                    new_f.write(record.sequence+"\n")
+                    new_f.write("+" + record.name +"\n")
+                    new_f.write(record.qualities+"\n")
+                counter += 1
+    # print(counter)
+    
