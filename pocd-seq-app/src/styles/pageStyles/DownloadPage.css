@@ -1,5 +1,34 @@
+.downloadPageTitle h1 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  text-align: center;
+  font-size: 30px; 
+}
+
+.downloadPageBody {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+}
+
+.downloadPageVideo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  padding: 25px;
+}
+
+.downloadPageBtnRow {
+  display: flex;
+  justify-content: center;
+}
+
 /*Download App Styling*/
-.download-pg-btn {
+.downloadPageBtn {
   list-style-type: none;
   border: none;
   font-size: 1.6rem;
@@ -23,31 +52,6 @@
   outline: none;
 }
 
-.download-pg-btn:hover {
+.downloadPageBtn:hover {
   background-position: right center;
 }
-
-.download-page-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  flex-direction: column;
-}
-
-.download-page-video {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  flex-direction: column;
-  padding: 25px;
-}
-
-/* .download-page-main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-} */
