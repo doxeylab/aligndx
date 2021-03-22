@@ -17,13 +17,11 @@ function Navbar() {
                   <Link to='/home'>
                       <img className="AlignDx" src={AlignDx} alt="AlignDx" />
                   </Link>
-
-
+                  
                   <div className='menuIcon' onClick={handleClick}>
                       <i className={click ? 'fas fa-times-circle' : 'fas fa-bars'} />
                   </div>
               </div>
-              
               <ul className={click ? 'navMenu active' : 'navMenu'}>
                 <li className='navItem'>
                   <Link

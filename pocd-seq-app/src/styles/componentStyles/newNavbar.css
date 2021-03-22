@@ -40,11 +40,12 @@
 }
 
 /*Ajusts the Links (About,Teams,etc)*/
+
 .navMenu {
-    display: flex;
+    justify-content: center;
     align-content: center;
     align-items: center;
-    justify-content: center;
+    display: flex;
 
     list-style-type: none;
 
