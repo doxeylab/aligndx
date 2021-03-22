@@ -1,8 +1,7 @@
-
 /*About Us section*/
 .aboutUs {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     margin-bottom: 100px;
@@ -11,18 +10,20 @@
 .aboutUsImage{
     width: 750px;
 }
-.aboutUs h1 {
-    vertical-align: middle;
-    color:black;
+
+.aboutUsTitle h1{
+    padding-top: 2rem;
+    padding-bottom: 2rem;
     text-align: center;
+    font-size: 30px;  
 }
 
-.aboutUsText {
+.aboutUsBody {
     padding:0;
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
     text-align: center;
 }
 

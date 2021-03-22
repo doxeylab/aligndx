@@ -1,13 +1,8 @@
-
-.contact-wrapper {
+.contactWrap {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background-color: white;
-  box-shadow: 5px 5px 10px grey;
-  border-radius: 10px;
-  padding: 30px;
 }
 
 .contactTitle {
@@ -17,24 +12,22 @@
   text-align: center;
   flex-direction: column;
   padding: 0 50px;
+  margin-bottom: 30px;
 }
 
 .contactTitle h1 {
   font-size: 30px;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  text-align: center;
+  font-size: 30px;  
 }
-
-/* .contactWrap {
-  display: flex;
-  flex-direction: column;
-  margin: 3rem;
-  justify-content: center;
-} */
 
 .contactBox {
   display: flex;
   flex-direction: row;
   margin-top: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .contactIcon {
