@@ -11,61 +11,60 @@ function Navbar() {
 
   return (
     <>
-      <nav className='navbar'>
+      <nav className='navBar'>
 
-          <Link to='/home'>
-              <img className="AlignDx" src={AlignDx} alt="AlignDx" />
-          </Link>
-
-          <div className='wrap-menu'>
-              <div className='menu-icon' onClick={handleClick}>
-                  <i className={click ? 'far fa-minus-square' : 'fas fa-bars'} />
+              <div className="menuWrap">
+                  <Link to='/home'>
+                      <img className="AlignDx" src={AlignDx} alt="AlignDx" />
+                  </Link>
+                  
+                  <div className='menuIcon' onClick={handleClick}>
+                      <i className={click ? 'fas fa-times-circle' : 'fas fa-bars'} />
+                  </div>
               </div>
-        </div>
-
-        <ul className={click ? 'nav-menu active' : 'nav-menu'}>
-          <li className='nav-item'>
-            <Link
-              to='/about'
-              className='nav-links'
-              onClick={closeMobileMenu}
-            >
-              About
-            </Link>
-          </li>
-          <li className='nav-item'>
-            <Link
-              to='/team'
-              className='nav-links'
-              onClick={closeMobileMenu}
-            >
-              Team
-            </Link>
-          </li>
-          <li className='nav-item'>
-            <Link
-              to='/FAQ'
-              className='nav-links'
-              onClick={closeMobileMenu}
-            >
-              FAQ
-            </Link>
-          </li>
-          <li className='nav-item'>
-            <Link
-              to='/contact'
-              className='nav-links'
-              onClick={closeMobileMenu}
-            >
-              Contact
-            </Link>
-          </li>
-        </ul>
-        
-            <Link to='/download'>
-                <button className='home-download-btn'>Download App</button>
-            </Link>
-
+              <ul className={click ? 'navMenu active' : 'navMenu'}>
+                <li className='navItem'>
+                  <Link
+                    to='/about'
+                    className='navLinks'
+                    onClick={closeMobileMenu}
+                  >
+                    About
+                  </Link>
+                </li>
+                <li className='navItem'>
+                  <Link
+                    to='/team'
+                    className='navLinks'
+                    onClick={closeMobileMenu}
+                  >
+                    Team
+                  </Link>
+                </li>
+                <li className='navItem'>
+                  <Link
+                    to='/FAQ'
+                    className='navLinks'
+                    onClick={closeMobileMenu}
+                  >
+                    FAQ
+                  </Link>
+                </li>
+                <li className='navItem'>
+                  <Link
+                    to='/contact'
+                    className='navLinks'
+                    onClick={closeMobileMenu}
+                  >
+                    Contact
+                  </Link>
+                </li>
+              </ul>
+              <div className="menuWrap">
+                <Link to='/download'>
+                    <button className='homeDownloadBtn'>Download App</button>
+                </Link>
+              </div>
       </nav>
     </>
   );

@@ -1,12 +1,9 @@
-.faq-container h1 {
-  padding-top: 2rem;
-  padding-bottom: 5rem;
-  margin-bottom: 5rem;
-  text-align: center;
-}
-
-.faq-container {
-  margin-bottom: 100px;
+.faqTitle h1 {
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+    margin-bottom: 5rem;
+    text-align: center;
+    font-size: 30px;
 }
 
 /* Style the accordion section */
@@ -15,10 +12,10 @@
     flex-direction: column;
     padding-left: 30px;
     padding-right: 30px;
-  }
+}
   
   /* Style the buttons that are used to open and close the accordion panel */
-  .accordion {
+.accordion {
     border-top: 2px groove gray;
     border-bottom: none;
     border-left: none;
@@ -31,44 +28,43 @@
     display: flex;
     align-items: center;
     outline: none;
-  }
+}
 
-  .accordion.active {
+.accordion.active {
     padding-bottom: 0;
-  }
+}
 
-  .accordion.active .accordionTitle {
+.accordion.active .accordionTitle {
     color:#2f8ae1;
-  }
+}
 
-  /* Style the accordion content title */
-  .accordionTitle {
+/* Style the accordion content title */
+.accordionTitle {
     font-weight: 600;
     font-size: 18px;
     text-align: left;
-  }
-  
-  /* Style the accordion chevron icon */
-  .accordionIcon {
+}
+
+/* Style the accordion chevron icon */
+.accordionIcon {
     margin-left: auto;
     color:black
-  }
+}
 
 /* Style to rotate icon when state is active */
 .rotate {
-  transform: rotate(90deg);
+    transform: rotate(90deg);
 }
-  
-  /* Style the accordion content panel. Note: hidden by default */
-  .accordionContent{
+
+/* Style the accordion content panel. Note: hidden by default */
+.accordionContent{
     overflow: hidden;
-  }
-  
-  /* Style the accordion content text */
-  .accordionText {
+}
+
+/* Style the accordion content text */
+.accordionText {
     font-weight: 500;
     font-size: 16px;
     padding-top: 30px;
     padding-bottom: 30px;
-  }
-  
+}
