@@ -1,4 +1,13 @@
+import sys    
+import subprocess  
+import os 
+from pathlib import Path
+
 def linecount(sample):
+    '''
+    Counts number of lines in the file
+    sample: system input file
+    '''
     process = subprocess.Popen(["wc", "-l", sample], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate()
     string = out.decode("utf-8")
@@ -6,29 +15,31 @@ def linecount(sample):
     return lines
 
 def runsplit(sample, outputs):
+    '''
+    Runs fastqsplitter tool over parameters
+    sample: system input file
+    outputs: array of chunk files
+    '''
     inputs = ["fastqsplitter", "-i", sample] 
     command = inputs + outputs 
     subprocess.call(command)
 
-if __name__ == "__main__":
+def chunker(sample):
     '''
     splits files evenly among a set of chosen chunks
     '''  
-    import sys    
-    import subprocess  
-    import os 
-  
-    CHUNK_FOLDER = 'chunks/' 
+    
+    parentpath = Path(sample).parent
+    CHUNK_FOLDER = str(parentpath) + '/chunks/' 
 
     if not os.path.isdir(CHUNK_FOLDER):
         os.mkdir(CHUNK_FOLDER)
-
-    sample = sys.argv[1]
+ 
     extensions = sample.split(".")[1:] 
     if len(extensions) == 1:
         extension = extensions[0]
     else:
-        extension = extensions[1]
+        extension = extensions[0] + '.' + extensions[1]
 
     if not os.path.isdir(CHUNK_FOLDER):
         os.mkdir(CHUNK_FOLDER)
@@ -49,6 +60,6 @@ if __name__ == "__main__":
     chunks = []
     for i in range(1,even_num_chunks+1):
         chunks.append('-o')
-        chunks.append(CHUNK_FOLDER+ 'chunk' + str(i) + '.fastq') 
+        chunks.append(CHUNK_FOLDER+ 'chunk.' + str(i) + '.' + extension) 
     runsplit(sample, chunks)
-     
+ 

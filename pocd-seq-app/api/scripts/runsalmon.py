@@ -1,10 +1,12 @@
-import subprocess 
+import subprocess  
+from multiprocessing import Process
+
 salmon_path = './salmon/bin/salmon'
 
 def sanity_check():
     subprocess.run([salmon_path, '-h'])
 
-def quantify(sample, indexpath, filepath, resultspath, fastqtype='single',):
+def quantify(sample, indexpath, filepath, resultspath, fastqtype='single'):
     '''
     runs salmon selective quantify using given index file
     sample : sample name 
@@ -31,8 +33,16 @@ def quantify(sample, indexpath, filepath, resultspath, fastqtype='single',):
                         '--gcBias', \
                             '-p', '4',\
                                 '-o',\
-                                    resultspath
+                                    resultspath 
             ])
     else:
         return 'Invalid fastqtype'
  
+def runParallel(func, chunks, sample, indexpath, filepath, resultspath):
+    proc = []
+    for chunk in chunks:
+        p = Process(target=func, args=(chunk, indexpath, filepath, resultspath))
+        p.start()
+    #     proc.append(p)
+    # for p in proc:
+    #     p.join()

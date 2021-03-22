@@ -2,7 +2,7 @@ import os
 from flask import Flask, flash, request, redirect, url_for, session, jsonify
 from werkzeug.utils import secure_filename
 from flask_cors import CORS, cross_origin
-from scripts import runsalmon, data, figures 
+from scripts import runsalmon, data, runsplit
 import json
 
 ALLOWED_EXTENSIONS = set(['fastq', 'fastq.gz']) 
@@ -47,36 +47,45 @@ def fileUpload():
         resultspath = os.path.join(app.config['RESULTS_FOLDER'], sample_name)
         indexpath = os.path.join(app.config['INDEX_FOLDER'], 'sars_with_human_decoys')
         file.save(filepath)  
-        runsalmon.quantify(sample_name, indexpath, filepath, resultspath)
+
+        runsplit.chunker(filepath)
+        chunk_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'chunks')
+        
+        for chunkfile in os.listdir(chunk_dir):
+            chunk_file_name = chunkfile.split('.')[0]
+            chunkfile_dir = os.path.join(chunk_dir, chunkfile) 
+            results_dir = os.path.join(app.config['RESULTS_FOLDER'], sample_name + '/' + chunk_file_name)
+            runsalmon.quantify(chunk_file_name, indexpath, chunkfile_dir, results_dir )
+        # runsalmon.quantify(sample_name, indexpath, filepath, resultspath)
         response = '200'
     return response 
 
-@app.route('/results', methods=['GET'])
-def results_output():
-    category = 'NumReads'
-    for filename in os.listdir(RESULTS_FOLDER): 
-        sample_name = filename
-        resultspath = os.path.join(app.config['RESULTS_FOLDER'], sample_name)
-        sample_df = data.producedataframe(resultspath,category)
-        detected_pathogen = 'SARS-CoV-2'
-        # figures.heatmap(sample_df, resultspath, sample_name, category)
-        # figures.table(sample_df, resultspath, sample_name) 
-        table = data.intojson(sample_df) 
-        detection_result = data.ispositive(sample_df) 
-        results = {**table, **dict(zip(['sample_name', 'detected_pathogen',\
-            'detection_result'],\
-                [sample_name,detected_pathogen,\
-                    detection_result]))}
-        return json.dumps(results, indent=4)
+# @app.route('/results', methods=['GET'])
+# def results_output():
+#     category = 'NumReads'
+#     for filename in os.listdir(RESULTS_FOLDER): 
+#         sample_name = filename
+#         resultspath = os.path.join(app.config['RESULTS_FOLDER'], sample_name)
+#         sample_df = data.producedataframe(resultspath,category)
+#         detected_pathogen = 'SARS-CoV-2'
+#         # figures.heatmap(sample_df, resultspath, sample_name, category)
+#         # figures.table(sample_df, resultspath, sample_name) 
+#         table = data.intojson(sample_df) 
+#         detection_result = data.ispositive(sample_df) 
+#         results = {**table, **dict(zip(['sample_name', 'detected_pathogen',\
+#             'detection_result'],\
+#                 [sample_name,detected_pathogen,\
+#                     detection_result]))}
+#         return json.dumps(results, indent=4)
 
-@app.route("/files", methods=['GET'])
-def list_files():
-    """Endpoint to list files on the server."""
-    files = []
-    for filename in os.listdir(UPLOAD_FOLDER):
-        files.append(filename)
-    print(files)
-    return jsonify(files)
+# @app.route("/files", methods=['GET'])
+# def list_files():
+#     """Endpoint to list files on the server."""
+#     files = []
+#     for filename in os.listdir(UPLOAD_FOLDER):
+#         files.append(filename)
+#     print(files)
+#     return jsonify(files)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
