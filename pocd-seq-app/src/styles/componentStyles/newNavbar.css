@@ -15,10 +15,15 @@
     align-items: center;
 }
 
+.fa-bars {
+    color: black;
+    transition-duration: 2.5s;
+}
+
 /*Color of X circle*/
 .fa-times-circle {
     color: white;
-    transition-duration: 3s;
+    transition-duration: 2.5s;
 }
 
 /*Styling of entire navBar*/
@@ -160,8 +165,8 @@
         margin-bottom: 20px;
     }
 
-    .navLinks:hover {
-        color: #2f8ae1;
+    .navMenu.active .navLinks:hover {
+        color: #4aa1f3;
         text-align: center;
         border-bottom: none;
     }
