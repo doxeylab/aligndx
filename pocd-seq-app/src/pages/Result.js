@@ -40,24 +40,24 @@ const Result = () => {
             <div className="result-container">
                 <Container>
                 {result ?     
-                    <Row className="result_negative">
+                    <Row className="resultNegative">
                         <h1 >
                             <img className="Red_X" src={Red_X} alt='Red_X' />{result} for ({pathogen})
                         </h1>
                     </Row>
                 :
-                    <Row className="result_positive">
+                    <Row className="resultPositive">
                         <h1 >
                             <img className="Green_Check" src={Green_Check} alt='Green_Check' />{result} for ({pathogen})
                         </h1>
                     </Row>
                 }
-                    <Row className="result_main_body">
-                        <Col className = 'bar_graph'>
+                    <Row className="resultPageBody">
+                        <Col className = 'barGraph'>
                             <Barchart data={data} />
                         </Col>
 
-                        <Col className = 'sample_info'>
+                        <Col className = 'sampleInfo'>
                             <h1>
                                 Sample: {sample}
                             </h1>
@@ -68,10 +68,10 @@ const Result = () => {
                     </Row>
                     <Row>
                         <Col>
-                            <button className="result_pg_button save-result-btn">Save Results</button>
+                            <button className="resultPageBtn saveResultBtn">Save Results</button>
 
                             <Link to="/home">
-                                <button className="result_pg_button upload-btn">Upload New</button>
+                                <button className="resultPageBtn upload-btn">Upload New</button>
                             </Link>
                         </Col>
 
