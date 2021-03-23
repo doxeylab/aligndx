@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Art from '../assets/Art.png';
+import HomePageArt from '../assets/HomePageArt.svg';
 import { Container, Row, Col } from 'react-bootstrap';
 import FileUpload from "../components/FileUpload";
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -31,7 +31,7 @@ const Home = () => {
                             </Col>
                             <Col md={6} sm={12}>
                                 <div className="home-wrapper__image">
-                                    <img className="Art" src={Art} alt="Art" />
+                                    <img className="Art" src={HomePageArt} alt="Art" />
                                 </div>
                             </Col>
                         </Row>
