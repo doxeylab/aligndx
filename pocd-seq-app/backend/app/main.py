@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware 
- 
-from routers import uploads, results
+import uvicorn
+
+from app.api.api_v1.routers import uploads, results
 
 app = FastAPI()
  
@@ -27,5 +28,11 @@ app.include_router(results.router)
 
 @app.get("/")
 async def root():
-    return {"message": "Hello Bigger Applications!"}
+    return {"message": "The root of the onion!"}
  
+@app.get("/api/v1")
+async def root():
+    return {"message": "This is the root endpoint for version 1 of the api"}
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", reload=True, port=8888)
