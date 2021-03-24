@@ -1,11 +1,11 @@
 import React from 'react';
 
 const License = () => {
-    return ( 
+    return (
         <div className="section">
-
+            
         </div>
-     );
+    );
 }
- 
+
 export default License;

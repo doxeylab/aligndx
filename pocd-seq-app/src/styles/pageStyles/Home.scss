@@ -22,7 +22,7 @@
     justify-content: center;
 
     img {
-      width: 350px;
+      width: 400px;
     }
 
     @include respond(tab-port) {
@@ -107,6 +107,11 @@
     background-color: $primary-color;
     color: $white-color;
   }
+}
+
+.home-wrapper {
+  display: flex;
+  flex-direction: row;
 }
 
 /*Centers the button when the screen gets smaller*/

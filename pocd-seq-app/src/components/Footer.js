@@ -24,6 +24,12 @@ const Footer = () => {
                         >
                         License
                     </Link>
+                    <a
+                        href="https://storyset.com/"
+                        className="footerLink" 
+                        >
+                        Storyset Illustrations
+                    </a>
                 </div>
                 <div className="footerBottom">
                     <div className="footerCopyright">
