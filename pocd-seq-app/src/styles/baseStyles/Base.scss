@@ -1,5 +1,9 @@
-html {
+html,body {
   font-size: 62.5%;
+  width: 100%;  
+  margin: 0px;
+  padding: 0px;
+  overflow-x: hidden;
 }
 
 * {

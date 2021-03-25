@@ -28,7 +28,7 @@ export default function Team() {
                     <h4>University of Waterloo</h4>
                     <p>
                       Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                              </p>
+                    </p>
                   </div>
                 </div>
                 <div className="teamProfileCol">
@@ -40,7 +40,7 @@ export default function Team() {
                     <h4>McMaster University</h4>
                     <p>
                       Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                              </p>
+                    </p>
                   </div>
                 </div>
               </Row>
@@ -58,7 +58,7 @@ export default function Team() {
                     <h4>Full Stack Developer</h4>
                     <p>
                       Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                              </p>
+                    </p>
                   </div>
                 </div>
                 <div className="teamProfileCol">
@@ -70,7 +70,7 @@ export default function Team() {
                     <h4>UI/UX Developer</h4>
                     <p>
                       Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                              </p>
+                    </p>
                   </div>
                 </div>
                 <div className="teamProfileCol">
@@ -82,44 +82,7 @@ export default function Team() {
                     <h4>Frontend Developer</h4>
                     <p>
                       Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                              </p>
-                  </div>
-                </div>
-                {/* Filler*/}
-                <div className="teamProfileCol">
-                  <a href="https://www.linkedin.com/in/manjotsinghhunjan/">
-                    <div className="teamProfilePictures"><img src={Manjot} alt='Manjot' /></div>
-                  </a>
-                  <div className="teamProfileText">
-                    <h2>Manjot Hunjun</h2>
-                    <h4>Full Stack Developer</h4>
-                    <p>
-                      Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                              </p>
-                  </div>
-                </div>
-                <div className="teamProfileCol">
-                  <a href="https://www.linkedin.com/in/william-zhen/">
-                    <div className="teamProfilePictures"><img src={William} alt='William' /></div>
-                  </a>
-                  <div className="teamProfileText">
-                    <h2>William Zhen</h2>
-                    <h4>UI/UX Developer</h4>
-                    <p>
-                      Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                              </p>
-                  </div>
-                </div>
-                <div className="teamProfileCol">
-                  <a href="https://www.linkedin.com/in/carson-zhang-71a59219b/">
-                    <div className="teamProfilePictures"><img src={Carson} alt='Carson' /></div>
-                  </a>
-                  <div className="teamProfileText">
-                    <h2>Carson Zhang</h2>
-                    <h4>Frontend Developer</h4>
-                    <p>
-                      Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                              </p>
+                    </p>
                   </div>
                 </div>
               </Row>
