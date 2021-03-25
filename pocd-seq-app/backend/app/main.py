@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Depends
-from fastapi.middleware.cors import CORSMiddleware 
-# import uvicorn
+from fastapi.middleware.cors import CORSMiddleware  
 
-from app.api.api_v1.routers import uploads, results
+from app.api.api_v1.routers import uploads, results 
 
+app = FastAPI()
+ 
 tags_metadata = [
     {
         "name": "uploads",

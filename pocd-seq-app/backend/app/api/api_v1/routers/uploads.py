@@ -1,19 +1,20 @@
-from fastapi import APIRouter, File, UploadFile, Form 
+from fastapi import APIRouter, File, UploadFile, Form, Header, Depends
 from typing import List
 import shutil, os
-from scripts import fqsplit 
+from app.scripts import fqsplit 
 
 UPLOAD_FOLDER = './uploads'   
 
 if not os.path.isdir(UPLOAD_FOLDER):
-    os.mkdir(UPLOAD_FOLDER)
+    os.mkdir(UPLOAD_FOLDER) 
 
-router = APIRouter()
+router = APIRouter() 
 
 @router.post("/") 
 # ... is how pydantic declares a field as required  
 # type hints declared via key: type
-async def create_upload_files(files: List[UploadFile] = File(...), token: str = Form(...)):
+# async def create_upload_files(files: List[UploadFile] = File(...), token: str = Form(...)):
+async def create_upload_files(files: List[UploadFile] = File(...)):
     for file in files: 
         # get file name
         sample_name = file.filename.split('.')[0]
@@ -34,6 +35,6 @@ async def create_upload_files(files: List[UploadFile] = File(...), token: str = 
         fqsplit.chunker(file_location) 
 
     # returns the names of files that were uploaded 
-    return {"filenames": [file.filename for file in files] 
-            } 
+    return {"filenames": [file.filename for file in files]} 
+
  
