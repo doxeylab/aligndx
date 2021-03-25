@@ -136,6 +136,10 @@
         align-items: center;
     }
 
+    .aboutUsBody p {
+        width: 500px;
+    }
+    
     .aboutUsBody {
         display: flex;
         flex-direction: column;
@@ -148,3 +152,26 @@
         align-items: center;
     }
 }
+
+@media screen and (max-width: 600px) {
+
+    .aboutUsBody p {
+        width: 400px;
+    }
+
+    .aboutUsImage {
+        width: 600px;
+    }
+
+    .ourGoalsImageWrap {
+        width: 350px;
+        margin-right: 0;
+    }
+
+    .ourGoalsText {
+        width: 300px;
+        margin-left: 0;
+    }
+
+}
+  

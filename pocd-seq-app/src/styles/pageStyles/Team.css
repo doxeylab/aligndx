@@ -73,6 +73,7 @@
 }
 
 @media screen and (max-width: 991px) {
+
     .teamProfileCol {
         width: 400px;
         margin-bottom: 3rem;
@@ -81,5 +82,18 @@
     .teamProfilePictures img{
         width: 400px;
         height: 400px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+
+    .teamProfileCol {
+        margin-right: 0;
+    }
+
+    .teamProfileText {
+        text-align: center; 
+        padding-left: 10px;
+        padding-right: 10px;
     }
 }
