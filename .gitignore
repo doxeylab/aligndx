@@ -13,6 +13,10 @@
 /pocd-seq-app/api/results/
 /pocd-seq-app/api/uploads/
 /pocd-seq-app/backend/app/venv/
+/pocd-seq-app/backend/indexes/ 
+/pocd-seq-app/backend/salmon/ 
+/pocd-seq-app/backend/results/ 
+/pocd-seq-app/backend/uploads/ 
 
 # testing
 /pocd-seq-app/coverage/

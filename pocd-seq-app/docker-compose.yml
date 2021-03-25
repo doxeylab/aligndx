@@ -1,0 +1,10 @@
+version: '3.7'
+
+services:
+  web:
+    build: ./backend
+    command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    volumes:
+      - ./backend:/app/:cached
+    ports:
+      - 8002:8000
