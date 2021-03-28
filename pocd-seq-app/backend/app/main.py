@@ -2,6 +2,9 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware  
 
 from app.api.api_v1.routers import uploads, results 
+# from app.db.database import engine, metadata, database
+
+# metadata.create_all(engine)
 
 app = FastAPI()
  
@@ -67,3 +70,14 @@ async def root():
 
 # if __name__ == "__main__":
 #     uvicorn.run("main:app", host="0.0.0.0", reload=True, port=8888)
+
+
+
+# @app.on_event("startup")
+# async def startup():
+#     await database.connect()
+
+
+# @app.on_event("shutdown")
+# async def shutdown():
+#     await database.disconnect()

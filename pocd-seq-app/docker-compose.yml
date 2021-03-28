@@ -5,6 +5,19 @@ services:
     build: ./backend
     command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
     volumes:
-      - ./backend:/app/:cached
+      - ./backend/:cached
     ports:
       - 8002:8000
+    environment:
+      - DATABASE_URL=postgresql://aligndx:aligndx@db/aligndx_dev
+  db:
+    image: postgres:12 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=aligndx
+      - POSTGRES_PASSWORD=aligndx
+      - POSTGRES_DB=aligndx_dev
+
+volumes:
+  postgres_data:
