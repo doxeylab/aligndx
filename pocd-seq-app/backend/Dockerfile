@@ -1,5 +1,6 @@
 # Used to build the backend container image
 
+# Former dockerfile contents
 # # Select python image
 # FROM ubuntu:20.04 AS compile-image
 
@@ -41,14 +42,19 @@
 # ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # CMD ['app']
 
-  
+# current dockerfile contents
 FROM python:3.8
 
 RUN mkdir /app
 WORKDIR /app
 
 RUN apt update \
-    && apt install -y postgresql-client gcc cmake  
+    && apt install -y postgresql-client gcc \
+    && wget https://github.com/COMBINE-lab/salmon/releases/download/v1.4.0/salmon-1.4.0_linux_x86_64.tar.gz \
+    && tar xzvf salmon-1.4.0_linux_x86_64.tar.gz 
+
+# not working for some reason
+# ENV PATH="$PATH:salmon-1.4.0_linux_x86_64/bin"
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
