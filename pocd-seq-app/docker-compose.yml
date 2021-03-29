@@ -9,7 +9,8 @@ services:
     ports:
        - 8080:8080
     volumes:
-      - ./backend:/app/ 
+      - ./backend:/app
+      - ./backend/indexes:/app/indexes 
     environment:
       # PYTHONPATH: .
       DATABASE_URL: 'postgresql://aligndx:password@postgres:5432/aligndx_dev' 
