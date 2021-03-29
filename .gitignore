@@ -8,13 +8,18 @@
 /pocd-seq-app/.pnp
 /pocd-seq-app/.pnp.js
 /pocd-seq-app/api/venv
-
-# testing
-/pocd-seq-app/coverage/
 /pocd-seq-app/api/indexes/
 /pocd-seq-app/api/salmon/
 /pocd-seq-app/api/results/
 /pocd-seq-app/api/uploads/
+/pocd-seq-app/backend/app/venv/
+/pocd-seq-app/backend/indexes/ 
+/pocd-seq-app/backend/salmon/ 
+/pocd-seq-app/backend/results/ 
+/pocd-seq-app/backend/uploads/ 
+
+# testing
+/pocd-seq-app/coverage/
 
 # production
 /pocd-seq-app/build
