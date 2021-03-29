@@ -1,26 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 // eslint-disable-next-line
-import UploadService from "../services/FileUploadService";
+import TokenService from '../services/Token'
 import axios from 'axios';
 // eslint-disable-next-line
 
 const FileUploader = ({parentCallback, spinnerCallback}) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
-  // eslint-disable-next-line
   const [errorMessage, setErrorMessage] = useState('');
   const [validFiles, setValidFiles] = useState([]);
   const [unsupportedFiles, setUnsupportedFiles] = useState([]);
   const [dropzoneActive, setDropzoneActive] = useState(false);
-  // eslint-disable-next-line
-  const [modalClose, setModalClose] = useState(false)
 
   const fileInputRef = useRef();
-  // eslint-disable-next-line
-  // const uploadModalRef = useRef();
-  // // eslint-disable-next-line
-  // const uploadRef = useRef();
-  // // eslint-disable-next-line
-  // const progressRef = useRef();
 
   useEffect(() => {
     let filteredArray = selectedFiles.reduce((file, current) => {
@@ -117,13 +108,17 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
   }
 
   const uploadFiles = () => {
-    setModalClose(true);
+    const token = TokenService.token(40);
+
+    console.log(typeof token)
+
     parentCallback()
     const formData = new FormData();
+    formData.append('token', token);
     validFiles.forEach(file => {
-      formData.append('file', file)
+      formData.append('files', file)
     })
-    axios.post('http://localhost:8080/upload', formData, {
+    axios.post('http://localhost:8080/uploads', formData, {
         onUploadProgress: (progressEvent) => {
           spinnerCallback(true)
           const uploadPercentage = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
@@ -136,20 +131,13 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
         }
       })
       .then(() => {
-        window.location.href = "/result"
+        window.location.href = "/result/#/?id=" + token
       })
       .catch(() => {
         spinnerCallback(false)
         console.log('ERROR')
       });
   }
-
-
-  /*
-  {const closeUploadModal = () => {
-    uploadModalRef.current.style.display = 'none';
-  }
-  */
 
   return (
     <div>
@@ -212,16 +200,6 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
       }
 
       <button disabled={selectedFiles.length ? false : true} className="file-upload-btn"  onClick={() => uploadFiles()}>Analyze</button>
-
-      {/*<div className="upload-modal" ref={uploadModalRef}>
-        <div className="close" onClick={(() => closeUploadModal())}>X</div>
-        <div className="progress-container">
-          <span ref={uploadRef}></span>
-          <div className="progress">
-            <div className="progress-bar" ref={progressRef}></div>
-          </div>
-        </div>
-    </div>*/}
 
     </div>
   );
