@@ -7,6 +7,12 @@ import Barchart from '../components/BarChart.js'
 import { Link } from 'react-router-dom';
 
 const Result = () => {
+    try {
+		var url_id = window.location.href.split('#/?')[1].split('&')[0].slice('id='.length)
+	} catch(err) {
+		var url_id = undefined
+	}
+
     const [data, setData] = useState([{ "index": "TEST1", "column_category": 6 },
     { "index": "TEST2", "column_category": 12 },
     { "index": "TEST3", "column_category": 3 } ])
@@ -20,7 +26,7 @@ const Result = () => {
     const [indexes, setIndexes] = useState(null);
 
     useEffect(() => {
-      axios.get('http://localhost:8080/results')
+      axios.get('http://localhost:8080/results/' + url_id)
           .then(res => {
               console.log(res.data)
               setResult(res.data.detection_result)
