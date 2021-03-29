@@ -114,6 +114,50 @@
   flex-direction: row;
 }
 
+.howItWorks {
+  margin-top: 235px;
+}
+
+.howItWorksTitle h1 {
+  font-size: 4rem;
+  margin-bottom: 80px;
+}
+
+.process {
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 100px;
+  margin-left: 100px;
+  margin-right: 100px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.processImageWrap {
+  height: auto;
+  width: 400px;
+}
+
+.processText {
+  width: 400px;
+}
+
+.processText h1 {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  align-items: center;
+  font-size: 3rem;
+}
+
+.process p {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  align-items: center;
+}
+
+
 /*Centers the button when the screen gets smaller*/
 @media screen and (max-width: 900px) {
   .cta-btn--analyze {
