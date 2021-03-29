@@ -10,7 +10,7 @@ indexpath = os.path.join(INDEX_FOLDER, 'sars_with_human_decoys')
 
 router = APIRouter()
 
-@router.post("/")
+@router.post("/results/{token}")
 async def quantify_chunks(): 
     chunk_dir = os.path.join(UPLOAD_FOLDER, 'chunks')
     for chunkfile in os.listdir(chunk_dir):
