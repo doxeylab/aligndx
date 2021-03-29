@@ -45,10 +45,8 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-
-# app.include_router(users.router)
-app.include_router(uploads.router,
-    prefix="/uploads",
+ 
+app.include_router(uploads.router, 
     tags=["uploads"],
     # dependencies=[Depends(get_token_header)],
     responses={408: {"description": "Ain't gonna work buddy"}},
