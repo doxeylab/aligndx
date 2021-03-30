@@ -92,7 +92,7 @@
     font-weight: 500;
 }
 
-/*Navbar content below max-width*/
+/* When screen is less than 960px */
 @media screen and (max-width: 960px) {
 
     .resultPositive {

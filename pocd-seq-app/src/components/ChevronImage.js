@@ -1,5 +1,7 @@
 import React from "react";
 
+
+/* Chevron icon for the FAQ page */
 function ChevronImage(props) {
   return (
     <svg

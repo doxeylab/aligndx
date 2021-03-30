@@ -1,3 +1,4 @@
+/* Style the title of the page */
 .downloadPageTitle h1 {
   padding-top: 2rem;
   padding-bottom: 2rem;
@@ -5,6 +6,7 @@
   font-size: 30px; 
 }
 
+/* Displays the content vertically */
 .downloadPageBody {
   display: flex;
   justify-content: center;
@@ -13,21 +15,21 @@
   flex-direction: column;
 }
 
+/* Centers the video */
 .downloadPageVideo {
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: center;
-  flex-direction: column;
   padding: 25px;
 }
 
+/* Centers the button */
 .downloadPageBtnRow {
   display: flex;
   justify-content: center;
 }
 
-/*Download App Styling*/
+/* Download Btn Styling */
 .downloadPageBtn {
   list-style-type: none;
   border: none;
@@ -52,6 +54,7 @@
   outline: none;
 }
 
+/* Style the button when its hovered */
 .downloadPageBtn:hover {
   background-position: right center;
 }

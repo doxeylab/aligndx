@@ -1,10 +1,4 @@
-.contactWrap {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-
+/* Style the title of the page */
 .contactTitle {
   display: flex;
   justify-content: center;
@@ -23,6 +17,15 @@
   font-size: 30px;  
 }
 
+/* Displays content vertically */
+.contactWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+/* Displays each method of contact horizontally */
 .contactBox {
   display: flex;
   flex-direction: row;
@@ -30,6 +33,7 @@
   margin-bottom: 3rem;
 }
 
+/* Styles the contact icons */
 .contactIcon {
   min-width: 60px;
   height: 60px;
@@ -41,6 +45,7 @@
   font-size: 22px;
 }
 
+/* Styles the text of each method of contact */
 .contactText {
   display: flex;
   margin-left: 20px;
@@ -48,6 +53,7 @@
   flex-direction: column;
 }
 
+/* When screen is less than 1200px */
 @media screen and (max-width: 1200px) {
   .contactWrap {
     display: flex;
@@ -61,6 +67,7 @@
   }
 }
 
+/* When screen is less than 800px */
 @media screen and (max-width: 800px) {
 
   .contactBox {

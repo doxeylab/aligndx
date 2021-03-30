@@ -24,6 +24,7 @@ const Home = () => {
             <div className="section">
                 <div className="home-container">
                     <Container>
+                        {/* Genome Sequencing section */}
                         <Row className="home-wrapper">
                             <Col md={6} sm={12}>
                                 <div className="home-wrapper__info">
@@ -38,6 +39,7 @@ const Home = () => {
                                 </div>
                             </Col>
                         </Row>
+                        {/* How it Works section */}
                         <div className="howItWorks">
                             <div className="howItWorksTitle">
                                 <h1>How It Works</h1>
