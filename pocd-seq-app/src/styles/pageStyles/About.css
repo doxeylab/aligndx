@@ -1,4 +1,4 @@
-/*About Us section*/
+/* About Us section */
 .aboutUs {
     display: flex;
     flex-direction: column;
@@ -7,10 +7,12 @@
     margin-bottom: 100px;
 }
 
+/* Size of About Us image */
 .aboutUsImage{
     width: 750px;
 }
 
+/* Style the title of About Us section */
 .aboutUsTitle h1{
     padding-top: 2rem;
     padding-bottom: 2rem;
@@ -18,6 +20,7 @@
     font-size: 30px;  
 }
 
+/* Style the content of About Us section */
 .aboutUsBody {
     padding:0;
     display: flex;
@@ -25,31 +28,31 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-}
-
-.aboutUsBody {
     padding-left: 20px;
     padding-right: 20px;
 }
 
+/* OurGoals section */
 .ourGoals {
     display:flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 100px;
     background: #F7F7F7;
     border-radius: 5px;
+    padding-left: 5rem;
+    padding-right: 5rem;
 }
 
+/* Style the ourGoals image */
 .ourGoalsImageWrap {
-    margin-right: 2rem;
     height: auto;
     width: 400px;
 }
 
+/* Style the ourGoals text */
 .ourGoalsText {
-    margin-left: 2rem;
     text-align: center;
     width: 400px;
 }
@@ -59,6 +62,7 @@
     padding-right: 2rem;
 }
 
+/* Company Updates section */
 .companyUpdates {
     margin-bottom: 100px;  
 }
@@ -110,6 +114,7 @@
     margin-bottom: 2rem;
 }
 
+/* Social Media icon styling */
 .companyUpdatesIcon {
     min-width: 40px;
     height: 40px;
@@ -127,6 +132,7 @@
     background:#D8D8D8;
 }
 
+/* When screen is less than 1200px */
 @media screen and (max-width: 1200px) {
 
     .aboutUs {
@@ -153,6 +159,7 @@
     }
 }
 
+/* When screen is less than 600px */
 @media screen and (max-width: 600px) {
 
     .aboutUsBody p {
