@@ -12,7 +12,7 @@
 /pocd-seq-app/api/salmon/
 /pocd-seq-app/api/results/
 /pocd-seq-app/api/uploads/
-/pocd-seq-app/backend/app/venv/
+/pocd-seq-app/backend/venv/
 /pocd-seq-app/backend/indexes/ 
 /pocd-seq-app/backend/salmon/ 
 /pocd-seq-app/backend/results/ 

@@ -1,7 +1,13 @@
 from fastapi import APIRouter, File, UploadFile, Form, Header, Depends
 from typing import List
 import shutil, os
+from datetime import datetime
+
 from app.scripts import fqsplit 
+from app.db.database import database
+# from app.db.models import Sample as ModelSample
+from app.db.models import create
+from app.db.schema import Sample as SchemaSample
 
 UPLOAD_FOLDER = './uploads'   
 
@@ -45,3 +51,20 @@ async def fileretrieve():
         for sample in subdir:
             print(file)
         return {"file": file}
+
+@router.post("/sample")
+async def create_user(token: str = Form(...), files: List[UploadFile] = File(...)):
+    for file in files: 
+        # get file name
+        sample_name = file.filename.split('.')[0] 
+        now = datetime.now()
+        response = {'token_id': token, 
+                 'sample': sample_name,
+                 'created_date': now }
+        query = await create(**response)
+        return {"query": query}
+
+# @router.get("/sample/{id}", response_model=SchemaSample)
+# async def get_user(id: int):
+#     user = await ModelSample.get(id)
+#     return SchemaSample(**user).dict()
