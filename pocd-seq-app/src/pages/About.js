@@ -22,7 +22,6 @@ export default function About() {
                             <img className="aboutUsImage" src={aboutUsImage} alt='aboutUsImage' />
                         </div>
                     </div>
-
                     {/*Our Goals section*/}
                     <div className="ourGoals" >
                         <div className="ourGoalsImageWrap">
@@ -34,7 +33,6 @@ export default function About() {
                             <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Facere nisi magnam sed quaerat, sint explicabo quis possimus nesciunt nostrum, sapiente enim nam et voluptatibus corrupti illo illum doloribus sit placeat!</p>
                         </div>
                     </div>
-
                     {/*Company Updates section*/}
                     <div className="companyUpdates">
                         <div className="companyUpdatesWrapper">

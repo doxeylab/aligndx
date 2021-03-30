@@ -9,10 +9,13 @@ function Accordion(props) {
   const content = useRef(null);
 
   function toggleAccordion() {
+    /* if setActive is empty -> set to active otherwise set to empty */
     setActiveState(setActive === "" ? "active" : "");
+    /* if setActive is active -> set to 0px otherwise set to content height */
     setHeightState(
       setActive === "active" ? "0px" : `${content.current.scrollHeight}px`
     );
+    /* if setActive is active -> set to ">" otherwise rotate to "v" */
     setRotateState(
       setActive === "active" ? "accordionIcon" : "accordionIcon rotate"
     );
@@ -20,6 +23,7 @@ function Accordion(props) {
 
   return (
     <div className="accordionWrap">
+      {/* When clicked, call the toggleAccordion function */}
       <button className={`accordion ${setActive}`} onClick={toggleAccordion}>
         <p className="accordionTitle">{props.title}</p>
         <ChevronImage className={`${setRotate}`} width={10} fill={"#777"} />
