@@ -4,19 +4,14 @@
 /experimental/tests 
 
 # dependencies
-/pocd-seq-app/node_modules
-/pocd-seq-app/.pnp
-/pocd-seq-app/.pnp.js
-/pocd-seq-app/api/venv
-/pocd-seq-app/api/indexes/
-/pocd-seq-app/api/salmon/
-/pocd-seq-app/api/results/
-/pocd-seq-app/api/uploads/
-/pocd-seq-app/backend/venv/
-/pocd-seq-app/backend/indexes/ 
-/pocd-seq-app/backend/salmon/ 
-/pocd-seq-app/backend/results/ 
-/pocd-seq-app/backend/uploads/ 
+node_modules
+venv
+indexes
+salmon
+
+# localstorage
+results
+uploads
 
 # testing
 /pocd-seq-app/coverage/
@@ -33,6 +28,8 @@
 /pocd-seq-app/.eslintcache
 /experimental/sratoolkit.2.10.9-ubuntu64
 __pycache__
+.pnp
+.pnp.js
 
 npm-debug.log*
 yarn-debug.log*
