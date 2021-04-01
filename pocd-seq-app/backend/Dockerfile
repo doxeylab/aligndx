@@ -44,9 +44,8 @@
 
 # current dockerfile contents
 FROM python:3.8
-
-RUN mkdir /app
-WORKDIR /app
+ 
+WORKDIR /app/
 
 RUN apt update \
     && apt install -y postgresql-client gcc \
@@ -57,6 +56,8 @@ RUN apt update \
 # ENV PATH="$PATH:salmon-1.4.0_linux_x86_64/bin"
 
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -U pip \
+    && pip install --no-cache-dir -r requirements.txt
 
-COPY .  .
+COPY ./app  /app
+ENV PYTHONPATH=/app

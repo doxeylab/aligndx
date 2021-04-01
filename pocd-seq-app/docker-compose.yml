@@ -6,8 +6,10 @@ services:
       dockerfile: Dockerfile
     command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8080
     tty: true
+    depends_on: 
+      - postgres
     ports:
-       - 8080:8080
+       - "8080:8080"
     volumes:
       - ./backend:/app
       - ./backend/indexes:/app/indexes 
@@ -15,18 +17,29 @@ services:
       # PYTHONPATH: .
       DATABASE_URL: 'postgresql://aligndx:password@postgres:5432/aligndx_dev' 
 
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    stdin_open: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      # - ./frontend/node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+
   postgres:
     image: postgres:12
-    restart: unless-stopped
-    depends_on: 
-      - backend
+    restart: unless-stopped 
     environment:
       - POSTGRES_USER=aligndx
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=aligndx_dev
       - PGDATA=/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data 
 
@@ -40,7 +53,7 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=password
       - PGADMIN_LISTEN_PORT=80
     ports:
-      - 8001:80
+      - "8001:80"
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     links:
