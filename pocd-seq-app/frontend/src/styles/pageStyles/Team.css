@@ -15,11 +15,16 @@
     font-size: 15px;
 }
 
+.teamProfileText {
+    display: flex;
+    flex-direction: column;
+}
+
 /* Size of each photo */
 /* Make sure the photos are square otherwise they will be distorted */
 .teamProfilePictures img{
-    width: 300px;
-    height: 300px;
+    width: 350px;
+    display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto;
@@ -27,9 +32,11 @@
 
 /* Width of each coloumn */
 .teamProfileCol {
-    width: 300px;
-    margin-right: 50px;
+    width: 360px;
+    justify-content: space-evenly   ;
     margin-bottom: 3rem;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .teamProfilePictures:hover {
@@ -41,7 +48,9 @@
 .professorWrap {
     display: flex;
     margin: 0 auto;
+    justify-content: space-evenly;
 }
+
 
 /* Styling of the professors heading */
 .professorTitle {
@@ -55,6 +64,7 @@
 .developerWrap {
     display: flex;
     margin: 0 auto;
+    justify-content: space-evenly;
 }
 
 /* Styling of the developers heading */
@@ -65,44 +75,15 @@
     border-bottom: 2px groove gray;
 }
 
-/* When screen is less than 1200px */
-@media screen and (max-width: 1200px) {
-    .professorWrap {
-        display: flex;
-        justify-content: center;
-    }
-
-    .developerWrap {
-        display: flex;
-        justify-content: center;
-    }
-
-}
 
 /* When screen is less than 991px */
 @media screen and (max-width: 991px) {
 
-    .teamProfileCol {
-        width: 400px;
-        margin-bottom: 3rem;
+    .teamProfilePictures img {
+        width: 100%;
     }
-
-    .teamProfilePictures img{
-        width: 400px;
-        height: 400px;
-    }
-}
-
-/* When screen is less than 600px */
-@media screen and (max-width: 600px) {
 
     .teamProfileCol {
-        margin-right: 0;
-    }
-
-    .teamProfileText {
-        text-align: center; 
-        padding-left: 10px;
-        padding-right: 10px;
+        text-align: center;
     }
 }

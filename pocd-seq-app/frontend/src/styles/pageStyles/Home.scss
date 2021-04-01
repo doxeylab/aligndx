@@ -137,12 +137,9 @@
   display:flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-evenly;
   margin-bottom: 100px;
-  margin-left: 100px;
-  margin-right: 100px;
-  padding-left: 10px;
-  padding-right: 10px;
+
 }
 
 .processImageWrap {
@@ -167,5 +164,29 @@
   align-items: center;
 }
 
+/* When screen is less than 991px */
+@media screen and (max-width: 991px) {
 
+  .howItWorksTitle {
+    text-align: center;
+  }
+
+  .process {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* When screen is less than 600px */
+@media screen and (max-width: 600px) {
+  .processImageWrap {
+    width: 90%;
+  }
+
+  .processText {
+    width: 90%;
+  }
+}
 
