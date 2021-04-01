@@ -38,9 +38,14 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
 
         # declare upload location
         file_location = os.path.join(sample_dir, file.filename)
-        with open(file_location, "wb+") as file_object:
+
+        # open file using write, binary permissions
+        with open(file_location, "wb+") as f:
             # saves file
-            shutil.copyfileobj(file.file, file_object) 
+            # why do this instead of f.write ? Shutil processes large files through chunking. Basically it won't load the whole file into memory
+            # Also we can adjust buffer size if we deal with larger files
+            # current buffer size set to 16*1024
+            shutil.copyfileobj(file.file, f) 
             
         # splits uploaded fastq file into evenly distributed chunks
         fqsplit.chunker(file_location) 
@@ -51,4 +56,4 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
 async def fileretrieve(token: str ):
     id = await ModelSample.get(token)
     print(id)
-    return {'id': id}  
+    return {'token': id}  
