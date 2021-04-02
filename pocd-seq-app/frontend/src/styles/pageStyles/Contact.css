@@ -1,25 +1,24 @@
 /* Style the title of the page */
-.contactTitle {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  flex-direction: column;
-  padding: 0 50px;
-  margin-bottom: 30px;
-}
-
 .contactTitle h1 {
-  font-size: 30px;
   padding-top: 2rem;
   padding-bottom: 2rem;
   text-align: center;
-  font-size: 30px;  
+  font-size: 30px;
 }
 
 /* Displays content vertically */
 .contactWrap {
+  margin-top: 30px;
   display: flex;
+  flex-direction: column;
+}
+
+.contactWrap h2 {
+  text-align: center;
+}
+
+.contactInfoWrap {
+  display: grid;
   justify-content: center;
   align-items: center;
   flex-direction: column;
@@ -29,7 +28,7 @@
 .contactBox {
   display: flex;
   flex-direction: row;
-  margin-top: 2rem;
+  margin-top: 3rem;
   margin-bottom: 3rem;
 }
 

@@ -129,6 +129,20 @@
         flex-direction: row ;
         justify-content: space-between;
         align-items: center;
+        
+    }
+
+    .navLinks {
+        color: #e8f7fe;
+        font-weight: bolder;
+        text-align: center;
+        font-size: 2.5rem;
+        width: 20%;
+        display: table;
+        margin: auto;
+        align-items: center;
+        margin-top: 20px;
+        margin-bottom: 20px;
     }
 
     .navMenu {
@@ -141,6 +155,7 @@
         z-index: 1;
         transition: all 0.5s ease;
         position: fixed;
+
     }
 
     .navMenu.active {
@@ -149,6 +164,8 @@
         transition: all 0.5s ease;
         z-index: 1;
         position: fixed;
+        font-size: 2.5rem;
+        
     }
 
     .navMenu.active .navLinks {
@@ -157,7 +174,6 @@
         text-align: center;
         font-size: 2.5rem;
         width: 20%;
-        height: 50;
         display: table;
         margin: auto;
         align-items: center;

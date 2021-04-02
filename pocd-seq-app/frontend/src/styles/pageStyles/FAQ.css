@@ -1,18 +1,16 @@
 /* Style the title of the page*/
 .faqTitle h1 {
     padding-top: 2rem;
-    padding-bottom: 5rem;
-    margin-bottom: 5rem;
+    padding-bottom: 2rem;
     text-align: center;
     font-size: 30px;
 }
 
 /* Style the accordion section */
 .accordionWrap {
+    margin-top: 39.5px;
     display: flex;
     flex-direction: column;
-    padding-left: 30px;
-    padding-right: 30px;
 }
   
 /* Style the buttons that are used to open and close the accordion panel */
@@ -22,7 +20,6 @@
     border-left: none;
     border-right: none;
     padding-top: 5rem;
-    padding-bottom: 5rem;
     background: none;
     color: #444;
     cursor: pointer;
