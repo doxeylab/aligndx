@@ -24,13 +24,13 @@ def quantify(sample, indexpath, filepath, resultspath, fastqtype='single'):
                             '--gcBias', \
                                 '-p', '4',\
                                     '-o',\
-                                        resultspath + sample
+                                        resultspath
             ])
     if fastqtype == 'single':
         subprocess.run([salmon_path, 'quant', '-i', indexpath, '-l', 'A', \
             '-r', filepath,\
-                    '--seqBias', \
-                        '--gcBias', \
+                    '--seqBias',\
+                        '--minAssignedFrags', '1',\
                             '-p', '4',\
                                 '-o',\
                                     resultspath 

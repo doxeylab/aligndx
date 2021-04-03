@@ -17,15 +17,12 @@ sequences = {'lcl|NC_045512.2_cds_YP_009725255.1_12': 'ORF10',\
              'lcl|NC_045512.2_cds_YP_009724395.1_8': 'ORF7a'}
 
 def producedataframe(path, category): 
-    quantfile = 'quant.sf'
-    data = pd.DataFrame([])
-    for root,dirs,files in os.walk(path):
-        if quantfile in files:        
-            df = pd.read_csv(os.path.join(root,quantfile), sep='\s+', header=0, index_col=0)
-            df.index.name = 'Name' 
-            numreadsdf = df[category]  
-            # numreadsdf.columns = [root.split('/')[5]]
-            data = pd.concat([data,numreadsdf],axis=1) 
+    data = pd.DataFrame([])      
+    df = pd.read_csv(path, sep='\s+', header=0, index_col=0)
+    df.index.name = 'Name' 
+    numreadsdf = df[category]  
+    # numreadsdf.columns = [root.split('/')[5]]
+    data = pd.concat([data,numreadsdf],axis=1) 
     # header = pd.MultiIndex.from_product([[category],data.columns])
     # data.columns = header
     data = data.rename(index=sequences)
