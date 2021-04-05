@@ -23,7 +23,7 @@
 /* Size of each photo */
 /* Make sure the photos are square otherwise they will be distorted */
 .teamProfilePictures img{
-    width: 350px;
+    width: 330px;
     display: flex;
     align-items: center;
     justify-content: center;
