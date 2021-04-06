@@ -40,6 +40,7 @@
 .ourValueTitle h1 {
     font-size: 6rem;
     color: rgba(255, 255, 255, 1);
+    width: 50%;
 }
 
 .ourValueTitle {
@@ -47,7 +48,7 @@
     flex-direction: column;
     width: 100%;
     justify-content: center;
-    text-align: center;
+    align-items: center;
 }
 
 .ourValueBodyWrap {
@@ -87,34 +88,139 @@
     margin-right: 2rem;
 }
 
+.ourBenefitBody {
+    width: 50%;
+}
+
+.ourBenefitWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.ourBenefitTitle h1{
+    font-size: 30px; 
+}
+
+.ourBenefitBody h2 {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 100px;
+    margin-top: 100px;
+    line-height: 3;
+    font-weight: 600;
+}
+
+.ourBenefitSectionWrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 10rem;
+    align-items: center;
+}
+
+.ourBenefitCol {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.ourBenefitSection {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+    margin-left: 5rem;
+    margin-right: 5rem;
+    width: 50%;
+}
+
+.ourBenefitIcon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+}
+
+.ourBenefitSubTitle h3 {
+    margin: 2rem;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.ourBenefitText {
+    display: flex;
+    justify-content: center;
+    line-height: 2;
+}
+
+.ourBenefitText p {
+    font-weight: 500;
+    font-size: 18px;
+}
+
 /* OurGoals section */
 .ourGoals {
     display:flex;
     flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 100px;
-    background: #F7F7F7;
-    border-radius: 5px;
-    padding-left: 5rem;
-    padding-right: 5rem;
+    margin-top: 5rem;
+    margin-bottom: 5rem;
+}
+
+.ourGoalsImageWrap {
+    width: 50%;
+    display: flex;
+    justify-content: flex-end;
+    margin-left: 3rem;
+    margin-right: 3rem;
 }
 
 /* Style the ourGoals image */
-.ourGoalsImageWrap {
-    height: auto;
-    width: 400px;
+.ourGoalsImage {
+    width: 70%;
 }
 
 /* Style the ourGoals text */
-.ourGoalsText {
-    text-align: center;
-    width: 400px;
+.ourGoalsTextWrap {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: 3rem;
+    margin-right: 3rem;
 }
 
-.ourGoalsText p {
-    padding-left: 2rem;
-    padding-right: 2rem;
+.ourGoalsText {
+    width: 70%;
+}
+
+.ourGoalsText h1 {
+    font-size: 40px;
+    font-weight: 700;
+    margin-top: 5rem;
+    margin-bottom: 5rem;
+}
+
+.ourGoalsText h3 {
+    margin-bottom: 5rem;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.ourGoalsText ul {
+    font-size: 20px;
+}
+
+.ourGoalsText ul li p {
+    font-size: 18px;
+    font-weight: 450;
+    margin: 2rem;
 }
 
 /* Company Updates section */
