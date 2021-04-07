@@ -11,7 +11,10 @@ services:
     ports:
        - "8080:8080"
     volumes:
-      - ./backend:/app
+      # these are all bind mounts, not volumes
+      - ./backend/app:/app/app
+      - ./backend/results:/app/results
+      - ./backend/uploads:/app/uploads
       - ./backend/indexes:/app/indexes 
     environment:
       # PYTHONPATH: .
