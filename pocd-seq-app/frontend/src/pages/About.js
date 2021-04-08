@@ -1,9 +1,16 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import OurGoals from '../assets/OurGoals.svg';
+import DiversityImage from '../assets/DiversityImage.svg';
 import blueWaveTop from '../assets/blueWaveTop.svg';
 import blueWaveBottom from '../assets/blueWaveBottom.svg';
 
 export default function About() {
+
+    const scrollWin = () => {
+        window.scrollTo(0, 0);
+    };
+
     return (
         <div className="section">
             <div className="about-container">
@@ -23,7 +30,7 @@ export default function About() {
                 </div>
                 {/*Our Values section*/}
                 <div className="ourValue">
-                    <img className="blueWaveTop" src={blueWaveTop} alt='blueWaveTop' />
+                    <img className="blueWaveTop" draggable="false" src={blueWaveTop} alt='blueWaveTop' />
                     <div className="ourValueWrap">
                         <div className="ourValueTitle">
                             <h1>Our</h1>
@@ -52,7 +59,7 @@ export default function About() {
                             </div>
                         </div>
                     </div>
-                    <img className="blueWaveBottom" src={blueWaveBottom} alt='blueWaveBottom' />
+                    <img draggable="false" className="blueWaveBottom" src={blueWaveBottom} alt='blueWaveBottom' />
                 </div>
 
                 {/*Benefits Choosing Us*/}
@@ -115,39 +122,50 @@ export default function About() {
                             <h1>Our Goals</h1>
                             <h3>Lorem ipsum dolor, sit amet consectetur sit amet consectetur sit amet consectetur placeat!</h3>
                             <ul>
-                                <li><p>Lorem ipsum dolor sit  reiciendis alias obcaecati!</p></li>
-                                <li><p>Lorem ipsum dolor sit  reiciendis alias obcaecati!</p></li>
-                                <li><p>Lorem ipsum dolor sit  reiciendis alias obcaecati!</p></li>
+                                <li><p>Lorem ipsum dolor sit reiciendis alias obcaecati!</p></li>
+                                <li><p>Lorem ipsum dolor sit reiciendis alias obcaecati!</p></li>
+                                <li><p>Lorem ipsum dolor sit reiciendis alias obcaecati!</p></li>
                             </ul>
                         </div>
                     </div>
                 </div>
-                {/*Company Updates section*/}
-                <div className="companyUpdates">
-                    <div className="companyUpdatesWrapper">
-                        <div className="companyUpdatesTitle">
-                            <h1>Company Updates!</h1>
+
+                {/*Diversity section*/}
+                <div className="ourDiversity" >
+                    <div className="ourDiversityTextWrap">
+                        <div className="ourDiversityText">
+                            <h1>Team Diversity</h1>
+                            <h3>Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                            Accusamus mollitia cupiditate deleniti, error atque quod,
+                            facere veritatis sequi enim aliquam tempore culpa rem cumque
+                            quibusdam dolorum ullam porro doloremque ducimus.
+                            </h3>
+                            <h3>Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                            Accusamus mollitia cupiditate deleniti, error atque quod,
+                            facere veritatis sequi enim aliquam tempore culpa rem cumque
+                            quibusdam dolorum ullam porro doloremque ducimus.
+                            </h3>
                         </div>
-                        <div className="companyUpdatesContent">
-                            <div className="companyUpdatesAnnouncements">
-                                <h2>Announcements</h2>
-                                <p>Lorem ipsum dolor siolorem, odio animi cumque tempore blanditiis necessitatibus minus voluptatum at maxime</p>
-                                {/*eslint-disable-next-line*/}
-                                <a href="javascript:void(0);">Learn More</a>
-                            </div>
-                            <div className="companyUpdatesSocial">
-                                <h2>Follow Us</h2>
-                                <p>Lorem ipsum dolor, coillum iure aliquid? Sunt consequatur debitis ipsum tempore!</p>
-                                <div className="companyUpdatesBox">
-                                    <div className="companyUpdatesIcon"><i class="fab fa-facebook-f"></i></div>
-                                    <div className="companyUpdatesIcon"><i class="fab fa-youtube"></i></div>
-                                    <div className="companyUpdatesIcon"><i class="fab fa-github"></i></div>
-                                </div>
-                            </div>
-                        </div>
+                    </div>
+                    <div className="ourDiversityImageWrap">
+                        <img className="ourDiversityImage" src={DiversityImage} alt='DiversityImage' />
                     </div>
                 </div>
 
+                {/* Meet Our Team */}
+                <div className="meetUs">
+                    <div className="meetUsTitle">
+                        <h1>Meet The People Behind This Project</h1>
+                    </div>
+                    <div className="meetUsBtn">
+                        <Link to='/team' onClick={scrollWin}>
+                            <div className="meetUsBtnWrap">
+                                <div className="meetUsBtnText">Click Me</div>
+                                <i className="fas fa-angle-double-right"></i>
+                            </div>
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div >
     );

@@ -30,6 +30,15 @@
     font-weight: 600;
 }
 
+.blueWaveTop {
+    z-index: -999;
+}
+
+.blueWaveBottom {
+    z-index: -999;
+    border: 0;
+}
+
 .ourValueWrap {
     display: flex;
     flex-direction: row;
@@ -223,78 +232,122 @@
     margin: 2rem;
 }
 
-/* Company Updates section */
-.companyUpdates {
-    margin-bottom: 100px;  
+/* OurGoals section */
+.ourDiversity {
+    display:flex;
+    flex-direction: row;
+    margin-top: 5rem;
+    margin-bottom: 5rem;
 }
 
-.companyUpdatesWrapper {
+.ourDiversityImageWrap {
+    width: 50%;
+    display: flex;
+    justify-content: flex-start ;
+    margin-left: 3rem;
+    margin-right: 3rem;
+}
+
+/* Style the ourGoals image */
+.ourDiversityImage {
+    width: 70%;
+}
+
+/* Style the ourGoals text */
+.ourDiversityTextWrap {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: 3rem;
+    margin-right: 3rem;
+}
+
+.ourDiversityText {
+    width: 70%;
+}
+
+.ourDiversityText h1 {
+    font-size: 40px;
+    font-weight: 700;
+    margin-top: 5rem;
+    margin-bottom: 5rem;
+}
+
+.ourDiversityText h3 {
+    margin-bottom: 5rem;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.ourGoalsText p {
+    font-size: 18px;
+    font-weight: 450;
+    margin: 2rem;
+}
+
+.meetUs {
     display: flex;
     flex-direction: column;
-}
-
-.companyUpdatesContent {
-    display: flex;
-    flex-direction: row;
-}
-
-.companyUpdatesTitle {
-    margin-top: 3rem;
-    margin-bottom: 3rem;
-    display: flex;
-}
-
-.companyUpdatesAnnouncements {
-    width: 400px;
-    margin-right: 2rem;
-}
-
-.companyUpdatesSocial {
-    width: 400px;
-}
-.companyUpdatesAnnouncements a {
-    color: black;
-}
-
-.companyUpdatesAnnouncements a:hover {
-    text-decoration: underline;
-}
-
-.companyUpdatesAnnouncements h2 {
-    margin-bottom: 30px;
-}
-
-.companyUpdatesSocial h2 {
-    margin-bottom: 30px;
-}
-
-.companyUpdatesBox {
-    display: flex;
-    flex-direction: row;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-}
-
-/* Social Media icon styling */
-.companyUpdatesIcon {
-    min-width: 40px;
-    height: 40px;
-    border: 1px solid black;
-    display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: 10px;
-    font-size: 22px;
-    margin-right: 2rem;
 }
 
-.companyUpdatesIcon:hover {
-    transition-duration: 400ms;
-    background:#D8D8D8;
+.meetUsTitle h1 {
+    font-size: 30px;
+    text-align: center;
+}
+
+.meetUsBtn {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    list-style-type: none;
+    border: none;
+    font-size: 1.6rem;
+    font-weight: 600;
+    padding: 15px;
+    width: 230px;
+    transition: 0.5s;
+    background-size: 200% auto;
+    color: #fff;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    border-radius: 15px;
+    background-image: linear-gradient(
+      to right,
+      #1861a6 0%,
+      #2f8ae1 51%,
+      #1861a6 100%
+    );
+    outline: none;
+}
+
+.meetUsBtnWrap {
+    display: flex;
+}
+
+.meetUsBtnText {
+    color: white;
+    font-size: 24px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.fa-angle-double-right {
+    color: white;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 /* When screen is less than 1200px */
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1440px) {
 
     .aboutUs {
         display: flex;
@@ -306,40 +359,111 @@
     .aboutUsBody p {
         width: 500px;
     }
-    
-    .aboutUsBody {
-        display: flex;
+
+    .ourValueWrap {
         flex-direction: column;
-        flex-wrap: wrap;
     }
-    .ourGoals {
+
+    .ourValueTitle {
+        flex-direction: row;
+    }
+
+    .ourValueTitle h1 {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        width: auto;
+        margin-left: 2rem;
+        margin-right: 2rem;
     }
+
 }
 
-/* When screen is less than 600px */
-@media screen and (max-width: 600px) {
+/* When screen is less than 1024px */
+@media screen and (max-width: 1024px) {
 
-    .aboutUsBody p {
-        width: 400px;
+    .aboutUsBody {
+        width: 80%;
     }
 
-    .aboutUsImage {
-        width: 600px;
+    .ourBenefitBody {
+        width: 80%;
+    }
+
+    .ourBenefitSection {
+        margin-left: 1.3rem;
+        margin-right: 1.3rem;
+    }
+
+    .ourGoals {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
     .ourGoalsImageWrap {
-        width: 350px;
+        margin-left: 0;
         margin-right: 0;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .ourGoalsTextWrap {
+        margin-left: 0;
+        margin-right: 0; 
+        width: auto;
+        justify-content: center;
+    }
+
+    .ourDiversity {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ourDiversityImageWrap {
+        margin-left: 0;
+        margin-right: 0;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .ourDiversityTextWrap {
+        margin-left: 0;
+        margin-right: 0; 
+        width: auto;
+        justify-content: center;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .ourValueTitle h1 {
+        font-size: 5rem;
+    }
+
+    .ourValueBodyWrap {
+        flex-direction: column;
+    }
+
+    .ourBenefitCol {
+        flex-direction: column;
+    }
+
+    .ourBenefitSection {
+        width: 80%;
     }
 
     .ourGoalsText {
-        width: 300px;
-        margin-left: 0;
+        width: 90%;
     }
 
+    .ourGoalsImage {
+        width: 90%;
+    }
+
+    .ourDiversityText {
+        width: 90%;
+    }
+
+    .ourDiversityImage {
+        width: 90%;
+    }
 }
-  
