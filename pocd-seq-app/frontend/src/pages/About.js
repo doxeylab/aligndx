@@ -30,7 +30,7 @@ export default function About() {
                 </div>
                 {/*Our Values section*/}
                 <div className="ourValue">
-                    <img className="blueWaveTop" src={blueWaveTop} alt='blueWaveTop' />
+                    <img className="blueWaveTop" draggable="false" src={blueWaveTop} alt='blueWaveTop' />
                     <div className="ourValueWrap">
                         <div className="ourValueTitle">
                             <h1>Our</h1>
@@ -59,7 +59,7 @@ export default function About() {
                             </div>
                         </div>
                     </div>
-                    <img className="blueWaveBottom" src={blueWaveBottom} alt='blueWaveBottom' />
+                    <img draggable="false" className="blueWaveBottom" src={blueWaveBottom} alt='blueWaveBottom' />
                 </div>
 
                 {/*Benefits Choosing Us*/}

@@ -30,6 +30,15 @@
     font-weight: 600;
 }
 
+.blueWaveTop {
+    z-index: -999;
+}
+
+.blueWaveBottom {
+    z-index: -999;
+    border: 0;
+}
+
 .ourValueWrap {
     display: flex;
     flex-direction: row;
@@ -338,7 +347,7 @@
 }
 
 /* When screen is less than 1200px */
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1440px) {
 
     .aboutUs {
         display: flex;
@@ -350,14 +359,111 @@
     .aboutUsBody p {
         width: 500px;
     }
-    
-    
+
+    .ourValueWrap {
+        flex-direction: column;
+    }
+
+    .ourValueTitle {
+        flex-direction: row;
+    }
+
+    .ourValueTitle h1 {
+        display: flex;
+        width: auto;
+        margin-left: 2rem;
+        margin-right: 2rem;
+    }
+
 }
 
+/* When screen is less than 1024px */
+@media screen and (max-width: 1024px) {
 
-/* When screen is less than 600px */
-@media screen and (max-width: 600px) {
+    .aboutUsBody {
+        width: 80%;
+    }
 
-    
+    .ourBenefitBody {
+        width: 80%;
+    }
+
+    .ourBenefitSection {
+        margin-left: 1.3rem;
+        margin-right: 1.3rem;
+    }
+
+    .ourGoals {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ourGoalsImageWrap {
+        margin-left: 0;
+        margin-right: 0;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .ourGoalsTextWrap {
+        margin-left: 0;
+        margin-right: 0; 
+        width: auto;
+        justify-content: center;
+    }
+
+    .ourDiversity {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ourDiversityImageWrap {
+        margin-left: 0;
+        margin-right: 0;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .ourDiversityTextWrap {
+        margin-left: 0;
+        margin-right: 0; 
+        width: auto;
+        justify-content: center;
+    }
 }
-  
+
+@media screen and (max-width: 700px) {
+    .ourValueTitle h1 {
+        font-size: 5rem;
+    }
+
+    .ourValueBodyWrap {
+        flex-direction: column;
+    }
+
+    .ourBenefitCol {
+        flex-direction: column;
+    }
+
+    .ourBenefitSection {
+        width: 80%;
+    }
+
+    .ourGoalsText {
+        width: 90%;
+    }
+
+    .ourGoalsImage {
+        width: 90%;
+    }
+
+    .ourDiversityText {
+        width: 90%;
+    }
+
+    .ourDiversityImage {
+        width: 90%;
+    }
+}
