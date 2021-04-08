@@ -30,13 +30,17 @@
     font-weight: 600;
 }
 
+/*Getting rid of white line*/
 .blueWaveTop {
-    z-index: -999;
+    position: relative;
+    top: 1px;
 }
 
+/*Getting rid of white line*/
 .blueWaveBottom {
-    z-index: -999;
-    border: 0;
+    position: relative;
+    top: -1px;
+    
 }
 
 .ourValueWrap {
