@@ -111,8 +111,6 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
   const uploadFiles = () => {
     const token = TokenService.token(40);
 
-    console.log(typeof token)
-
     parentCallback()
     const formData = new FormData();
     formData.append('token', token);

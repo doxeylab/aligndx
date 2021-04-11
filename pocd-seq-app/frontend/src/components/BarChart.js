@@ -19,10 +19,13 @@ const useResizeObserver = ref => {
 }
 
 const BarChart = ({data}) => {
+    // Filter NumReads of 0
+    var filterData = data.filter(hit => hit.NumReads !== 0)
+    // Resize Obeserver
     const wrapperRef = useRef();
     const dimensions = useResizeObserver(wrapperRef)
     // Find Largest Column Value
-    var max_value = Math.max(...(data.map(function(hit) {return hit.column_category})));
+    var max_value = Math.max(...(filterData.map(function(hit) {return hit.NumReads})));
     var yDomain = Math.ceil(max_value/5)*5;
     // Initial SVG Data
     const svgRef = useRef();
@@ -51,9 +54,9 @@ const BarChart = ({data}) => {
 
         // Initiate Scales
         const x = d3.scaleBand()
-            .domain(data.map(function(hit) {return hit.index}))
+            .domain(filterData.map(function(hit) {return hit.index}))
             .range([0, width])
-            .padding(0.5);
+            .padding(0.1);
         const y = d3.scaleLinear()
             .domain([0, yDomain])
             .range([height, 0]);
@@ -66,26 +69,42 @@ const BarChart = ({data}) => {
             .tickSize(0);
         y_axis.call(yAxis);
 
+        x_axis.selectAll("text")
+            .style("text-anchor", "end")
+            .attr("transform", "rotate(-65)");
+
+        // Draw the chart
         focus.selectAll('.bar')
-            .data(data)
+            .data(filterData)
             .enter()
             .append('rect')
-                .attr('x', function(hit) {return x(hit.index)})
-                .attr('y', function(hit) {return y(hit.column_category)})
-                .attr('width', x.bandwidth())
-                .attr('height', function(hit) { return height - y(hit.column_category)})
-                .attr('fill', '#69b3a2');
+            .classed("bar", true)
+
+        focus.selectAll(".bar")
+            .attr('x', function(hit) {return x(hit.index)})
+            .attr('y', function(hit) {return y(hit.NumReads)})
+            .attr('width', x.bandwidth())
+            .attr('height', function(hit) { return height - y(hit.NumReads)})
+            .attr('fill', '#2f8ae1');
+
 // eslint-disable-next-line
     }, [dimensions]);
 
     return (
-        <div className="main" ref={wrapperRef}>
-            <svg className="chart" ref={svgRef} style={{width: '100%'}}>
-                <g className="focus"></g>
-                <g className="axis x-axis"></g>
-                <g className="axis y-axis"></g>
-            </svg>
-        </div>
+        <>
+        {
+            filterData.length === 0 ?
+            <h1 ref={wrapperRef} style={{display: "flex", justifyContent: "center", alignItems: "center", height: "400px"}}>There is no data</h1>
+        :
+            <div className="main" ref={wrapperRef}>
+                <svg className="chart" ref={svgRef} style={{width: '100%'}}>
+                    <g className="focus"></g>
+                    <g className="axis x-axis"></g>
+                    <g className="axis y-axis"></g>
+                </svg>
+            </div>
+        }
+        </>
     )
 }
 

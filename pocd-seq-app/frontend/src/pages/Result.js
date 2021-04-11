@@ -14,9 +14,19 @@ const Result = () => {
 		var url_id = undefined
 	}
 
-    const [data, setData] = useState([{ "index": "TEST1", "column_category": 6 },
-    { "index": "TEST2", "column_category": 12 },
-    { "index": "TEST3", "column_category": 3 } ])
+    // const [data, setData] = useState([{ "index": "TEST1", "column_category": 6 },
+    // { "index": "TEST2", "column_category": 12 },
+    // { "index": "TEST3", "column_category": 3 } ])
+
+    var dummyData = [{ "index": "TEST1", "NumReads": 6 },
+    { "index": "TEST2", "NumReads": 12 },
+    { "index": "TEST3", "NumReads": 3 },
+    { "index": "TEST4", "NumReads": 1 },
+    { "index": "TEST5", "NumReads": 0 },
+    { "index": "TEST6", "NumReads": 15 },
+    { "index": "TEST7", "NumReads": 8 },
+    { "index": "TEST8", "NumReads": 4 }
+ ]
 
     const [result, setResult] = useState(null);
     const [sample, setSample] = useState(null);
@@ -25,17 +35,16 @@ const Result = () => {
     const [columns, setColumns] = useState(null);
     // eslint-disable-next-line 
     const [indexes, setIndexes] = useState(null);
+    const [data, setData] = useState(null)
+    const [getLoad, setGetLoad] = useState(true)
 
     useEffect(() => {
       axios.get(RESULT_URL + '/' + url_id)
           .then(res => {
-              console.log(res.data)
-              setResult(res.data.detection_result)
-              setSample(res.data.sample_name)
-              setPathogen(res.data.detected_pathogen)
-              setColumns(res.data.columns)
-              setIndexes(res.data.index)
-              setData(res.data.data)
+              var finalResponse = JSON.parse(res.data)
+              var getLastValue = Math.max(...Object.keys(finalResponse))
+              setData(finalResponse[getLastValue])
+              setGetLoad(false)
           })
           .catch(() => {
               console.log('Error')
@@ -43,34 +52,50 @@ const Result = () => {
     }, [])
 
     return (
+        <>
+        {getLoad ?
+            <h1 style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100vh"}}>LOADING...</h1>
+        :
         <div className="section">
             <div className="result-container">
                 <Container>
-                {result ?     
-                    <Row className="resultNegative">
-                        <h1 >
-                            <img className="Red_X" src={Red_X} alt='Red_X' />{result} for ({pathogen})
-                        </h1>
+                {data.detection === "Negative" ?     
+                    <Row>
+                        <Col>
+                            <div className="resultNegative">
+                                <h1 >
+                                    <img className="Red_X" src={Red_X} alt='Red_X' />{data.detection} for ({pathogen})
+                                </h1>
+                            </div>
+                        </Col>
                     </Row>
                 :
-                    <Row className="resultPositive">
-                        <h1 >
-                            <img className="Green_Check" src={Green_Check} alt='Green_Check' />{result} for ({pathogen})
-                        </h1>
+                    <Row>
+                        <Col>
+                            <div className="resultPositive">
+                                <h1 >
+                                    <img className="Green_Check" src={Green_Check} alt='Green_Check' />{data.detection} for ({pathogen})
+                                </h1>
+                            </div>
+                        </Col>
                     </Row>
                 }
                     <Row className="resultPageBody">
-                        <Col className = 'barGraph'>
-                            <Barchart data={data} />
+                        <Col md={8}>
+                            <div className = 'barGraph'>
+                                <Barchart data={data.table.data} />
+                            </div>
                         </Col>
 
-                        <Col className = 'sampleInfo'>
-                            <h1>
-                                Sample: {sample}
-                            </h1>
-                            <p>
-                                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
-                            </p>
+                        <Col md={4}>
+                            <div className = 'sampleInfo'>
+                                <h1>
+                                    Sample: {sample}
+                                </h1>
+                                <p>
+                                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
+                                </p>
+                            </div>
                         </Col>
                     </Row>
                     <Row>
@@ -86,6 +111,8 @@ const Result = () => {
                 </Container>
             </div>
         </div>
+        }
+        </>
     );
   }
    
