@@ -15,7 +15,7 @@ RESULTS_FOLDER = './results'
 
 router = APIRouter()
 
-@router.post("/results/{token}")
+@router.get("/results/{token}")
 async def quantify_chunks(token: str): 
     category = 'NumReads'
     results = {}
