@@ -64,6 +64,6 @@ def chunker(sample):
     chunks = []
     for i in range(1,even_num_chunks+1):
         chunks.append('-o')
-        chunks.append(CHUNK_FOLDER+ 'chunk.' + str(i) + extension) 
+        chunks.append(CHUNK_FOLDER+ 'chunk.' + str(i) + '.' + extension) 
     runsplit(sample, chunks)
  

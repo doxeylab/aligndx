@@ -3,22 +3,16 @@ from typing import List
 import shutil, os
 from datetime import datetime
 
-from app.scripts import fqsplit, runsalmon
+from app.scripts import fqsplit 
 # from app.db.database import database
 from app.db.models import Sample as ModelSample
 # from app.db.models import create, get
 from app.db.schema import Sample as SchemaSample
 
-UPLOAD_FOLDER = './uploads' 
-RESULTS_FOLDER = './results'
-INDEX_FOLDER = './indexes'
-# eventually needs to handle various different panels of indexes
-indexpath = os.path.join(INDEX_FOLDER, 'sars_with_human_decoys')
+UPLOAD_FOLDER = './uploads'   
 
 if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER) 
-if not os.path.isdir(RESULTS_FOLDER):
-    os.mkdir(RESULTS_FOLDER)  
 
 router = APIRouter() 
 
@@ -56,14 +50,7 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
         # splits uploaded fastq file into evenly distributed chunks
         fqsplit.chunker(file_location) 
 
-        chunk_dir = os.path.join(sample_dir, 'chunks')
-        for chunkfile in os.listdir(chunk_dir): 
-            chunk_file_name = chunkfile.split('.')[1]
-            chunkfile_dir = os.path.join(chunk_dir, chunkfile) 
-            results_dir = os.path.join(RESULTS_FOLDER, token, sample_name, chunk_file_name)
-            runsalmon.quantify(chunk_file_name, indexpath, chunkfile_dir, results_dir ) 
-    return {"run": "complete"}  
-
+        return {"response": "good"}
 
 @router.get("/uploads/{token}")
 async def fileretrieve(token: str ):
