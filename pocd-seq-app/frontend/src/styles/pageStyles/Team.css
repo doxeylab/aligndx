@@ -1,9 +1,33 @@
+* {
+    border: 1px solid red;
+}
+
+.teamWrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.teamWrapWidth {
+    width: 95%;
+}
+
 /* Styling of the title */
 .teamTitle h1 {
     padding-top: 2rem;
     padding-bottom: 2rem;
     text-align: center;
     font-size: 30px;
+}
+
+.professorTitle h2 {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.developerTitle h2 {
+    font-size: 28px;
+    font-weight: 600;
 }
 
 .teamProfileText h2 {
@@ -19,33 +43,32 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-left: 2rem;
-    margin-right: 2rem;
+}
 
+.teamProfilePictures {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Size of each photo */
 /* Make sure the photos are square otherwise they will be distorted */
 .teamProfilePictures img {
-    width: 425px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
+    width: 100%;
 }
 
 /* Width of each coloumn */
 .teamProfileCol {
     display: flex;
     flex-direction: column;
-    width: 33.3%;
+    width: 450px;
     justify-content: space-evenly;
     margin-bottom: 3rem;
     padding-left: 10px;
     padding-right: 10px;
 }
 
-.teamProfilePictures:hover {
+.teamProfilePictures img:hover {
     transition: .5s ease;
     opacity: 0.8;
 }
@@ -53,7 +76,7 @@
 /* Professor section */
 .professorWrap {
     display: flex;
-    margin: 0 auto;
+    justify-content: space-evenly;
 }
 
 
@@ -69,7 +92,6 @@
 .developerWrap {
     display: flex;
     flex-direction: row;
-    margin: 0 auto;
     justify-content: space-evenly;
 }
 
@@ -82,31 +104,18 @@
 }
 
 
-@media screen and (max-width: 1200px) {
-
-}
-
 /* When screen is less than 1024px */
 @media screen and (max-width: 1024px) {
 
-    .teamProfilePictures {
-        
-    }
-
-    .teamProfileCol {
-    
-    }
-}
-
-@media screen and (max-width: 768px) {
     .professorWrap {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .professorWrap {
-        display: flex;
-        justify-content: center;
         align-items: center;
+        flex-direction: column;
+
+    }
+
+    .developerWrap {
+        align-items: center;
+        flex-direction: column;
+
     }
 }
