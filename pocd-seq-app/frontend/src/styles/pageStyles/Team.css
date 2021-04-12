@@ -18,12 +18,16 @@
 .teamProfileText {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    margin-left: 2rem;
+    margin-right: 2rem;
+
 }
 
 /* Size of each photo */
 /* Make sure the photos are square otherwise they will be distorted */
-.teamProfilePictures img{
-    width: 330px;
+.teamProfilePictures img {
+    width: 425px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -32,8 +36,10 @@
 
 /* Width of each coloumn */
 .teamProfileCol {
-    width: 360px;
-    justify-content: space-evenly   ;
+    display: flex;
+    flex-direction: column;
+    width: 33.3%;
+    justify-content: space-evenly;
     margin-bottom: 3rem;
     padding-left: 10px;
     padding-right: 10px;
@@ -48,7 +54,6 @@
 .professorWrap {
     display: flex;
     margin: 0 auto;
-    justify-content: space-evenly;
 }
 
 
@@ -63,6 +68,7 @@
 /* Developers section */
 .developerWrap {
     display: flex;
+    flex-direction: row;
     margin: 0 auto;
     justify-content: space-evenly;
 }
@@ -76,14 +82,31 @@
 }
 
 
-/* When screen is less than 991px */
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1200px) {
 
-    .teamProfilePictures img {
-        width: 100%;
+}
+
+/* When screen is less than 1024px */
+@media screen and (max-width: 1024px) {
+
+    .teamProfilePictures {
+        
     }
 
     .teamProfileCol {
-        text-align: center;
+    
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .professorWrap {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .professorWrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }

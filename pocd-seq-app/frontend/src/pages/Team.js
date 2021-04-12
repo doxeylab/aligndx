@@ -1,17 +1,14 @@
 import React from 'react';
-import { Container, Row } from 'react-bootstrap';
 import ADoxey from '../assets/ADoxey.png';
 import Manjot from '../assets/Manjot.png';
 import Carson from '../assets/Carson.jpg';
 import William from '../assets/William.png';
 import JHirota from '../assets/JHirota.png';
 
-/**/
 export default function Team() {
   return (
     <div className="section">
       <div className="team-container">
-        <Container>
           <div className="teamWrap">
             <div className="teamTitle">
               <h1>Meet Our Team</h1>
@@ -19,7 +16,7 @@ export default function Team() {
             {/*Professor section*/}
             <div className="professorRow">
               <div className="professorTitle"><h2>Our Advisors</h2></div>
-              <Row className="professorWrap">
+              <div className="professorWrap">
                 <div className="teamProfileCol">
                   <a href="https://uwaterloo.ca/biology/people-profiles/andrew-c-doxey">
                     <div className="teamProfilePictures"><img src={ADoxey} alt='ADoxey' /></div>
@@ -44,12 +41,12 @@ export default function Team() {
                     </p>
                   </div>
                 </div>
-              </Row>
+              </div>
             </div>
             {/*Developers section*/}
             <div className="developerRow">
               <div className="developerTitle"><h2>Our Developers</h2></div>
-              <Row className="developerWrap">
+              <div className="developerWrap">
                 <div className="teamProfileCol">
                   <a href="https://www.linkedin.com/in/manjotsinghhunjan/">
                     <div className="teamProfilePictures"><img src={Manjot} alt='Manjot' /></div>
@@ -86,10 +83,9 @@ export default function Team() {
                     </p>
                   </div>
                 </div>
-              </Row>
+              </div>
             </div>
           </div>
-        </Container>
       </div>
     </div>
   );
