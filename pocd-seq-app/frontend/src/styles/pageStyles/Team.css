@@ -1,9 +1,33 @@
+* {
+    border: 1px solid red;
+}
+
+.teamWrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.teamWrapWidth {
+    width: 95%;
+}
+
 /* Styling of the title */
 .teamTitle h1 {
     padding-top: 2rem;
     padding-bottom: 2rem;
     text-align: center;
     font-size: 30px;
+}
+
+.professorTitle h2 {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.developerTitle h2 {
+    font-size: 28px;
+    font-weight: 600;
 }
 
 .teamProfileText h2 {
@@ -18,28 +42,33 @@
 .teamProfileText {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+}
+
+.teamProfilePictures {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Size of each photo */
 /* Make sure the photos are square otherwise they will be distorted */
-.teamProfilePictures img{
-    width: 330px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
+.teamProfilePictures img {
+    width: 100%;
 }
 
 /* Width of each coloumn */
 .teamProfileCol {
-    width: 360px;
-    justify-content: space-evenly   ;
+    display: flex;
+    flex-direction: column;
+    width: 450px;
+    justify-content: space-evenly;
     margin-bottom: 3rem;
     padding-left: 10px;
     padding-right: 10px;
 }
 
-.teamProfilePictures:hover {
+.teamProfilePictures img:hover {
     transition: .5s ease;
     opacity: 0.8;
 }
@@ -47,7 +76,6 @@
 /* Professor section */
 .professorWrap {
     display: flex;
-    margin: 0 auto;
     justify-content: space-evenly;
 }
 
@@ -63,7 +91,7 @@
 /* Developers section */
 .developerWrap {
     display: flex;
-    margin: 0 auto;
+    flex-direction: row;
     justify-content: space-evenly;
 }
 
@@ -76,14 +104,18 @@
 }
 
 
-/* When screen is less than 991px */
-@media screen and (max-width: 991px) {
+/* When screen is less than 1024px */
+@media screen and (max-width: 1024px) {
 
-    .teamProfilePictures img {
-        width: 100%;
+    .professorWrap {
+        align-items: center;
+        flex-direction: column;
+
     }
 
-    .teamProfileCol {
-        text-align: center;
+    .developerWrap {
+        align-items: center;
+        flex-direction: column;
+
     }
 }
