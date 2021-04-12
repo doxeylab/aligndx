@@ -3,6 +3,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import Green_Check from '../assets/Green_Check.png'
 import Red_X from '../assets/Red_X.png'
 import axios from 'axios';
+import { RESULT_URL } from '../services/Config';
 import Barchart from '../components/BarChart.js'
 import { Link } from 'react-router-dom';
 
@@ -26,7 +27,7 @@ const Result = () => {
     const [indexes, setIndexes] = useState(null);
 
     useEffect(() => {
-      axios.get('http://localhost:8080/results/' + url_id)
+      axios.get(RESULT_URL + '/' + url_id)
           .then(res => {
               console.log(res.data)
               setResult(res.data.detection_result)

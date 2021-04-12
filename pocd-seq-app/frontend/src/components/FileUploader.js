@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { UPLOAD_URL } from '../services/Config';
 // eslint-disable-next-line
 import TokenService from '../services/Token'
 import axios from 'axios';
@@ -118,7 +119,7 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
     validFiles.forEach(file => {
       formData.append('files', file)
     })
-    axios.post('http://localhost:8080/uploads', formData, {
+    axios.post(UPLOAD_URL, formData, {
         onUploadProgress: (progressEvent) => {
           spinnerCallback(true)
           const uploadPercentage = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
