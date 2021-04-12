@@ -5,6 +5,7 @@ import Carson from '../assets/Carson.jpg';
 import William from '../assets/William.png';
 import JHirota from '../assets/JHirota.png';
 
+/**/
 export default function Team() {
   return (
     <div className="section">
