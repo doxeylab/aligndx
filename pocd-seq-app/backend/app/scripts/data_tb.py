@@ -16,6 +16,10 @@ sequences = {'lcl|NC_045512.2_cds_YP_009725255.1_12': 'ORF10',\
              'lcl|NC_045512.2_cds_YP_009724396.1_10': 'ORF8',\
              'lcl|NC_045512.2_cds_YP_009724395.1_8': 'ORF7a'}
 
+host_biomarkers = {'ENST00000252519.7|ENSG00000130234.10|OTTHUMG00000193402.1|OTTHUMT00000055867.1|ACE2-201|ACE2|3393|protein_coding|' : 'ACE2',\
+                   'ENST00000306602.2|ENSG00000169245.5|OTTHUMG00000160887.2|OTTHUMT00000362817.2|CXCL10-201|CXCL10|1176|protein_coding|' : 'CXCL10'
+                   }
+
 def producedataframe(path, category): 
     data = pd.DataFrame([])      
     df = pd.read_csv(path, sep='\s+', header=0, index_col=0)
@@ -37,6 +41,7 @@ def ispositive(dataframe):
             break
         else:
             return 'Negative'
+ 
 
 def intojson(dataframe):
     result = dataframe.to_json(orient="table")

@@ -13,7 +13,8 @@ UPLOAD_FOLDER = './uploads'
 RESULTS_FOLDER = './results'
 INDEX_FOLDER = './indexes'
 # eventually needs to handle various different panels of indexes
-indexpath = os.path.join(INDEX_FOLDER, 'sars_with_human_decoys')
+# indexpath = os.path.join(INDEX_FOLDER, 'sars_with_human_decoys')
+indexpath = os.path.join(INDEX_FOLDER, 'sars_and_human_index')
 
 if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER) 
@@ -23,8 +24,8 @@ if not os.path.isdir(RESULTS_FOLDER):
 router = APIRouter() 
 
 @router.post("/uploads")  
-async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)):
-    for file in files: 
+async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)):  
+    for file in files:  
         # get file name
         sample_name = file.filename.split('.')[0]  
         now = datetime.now()
@@ -42,7 +43,7 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
         if not os.path.isdir(sample_dir): 
             os.makedirs(sample_dir)
 
-        # declare upload location
+        # declare upload location 
         file_location = os.path.join(sample_dir, file.filename)
 
         # open file using write, binary permissions
@@ -51,17 +52,22 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
             # why do this instead of f.write ? Shutil processes large files through chunking. Basically it won't load the whole file into memory
             # Also we can adjust buffer size if we deal with larger files
             # current buffer size set to 16*1024
-            shutil.copyfileobj(file.file, f) 
-            
-        # splits uploaded fastq file into evenly distributed chunks
-        fqsplit.chunker(file_location) 
+            shutil.copyfileobj(file.file, f)  
+         
+        filename = file.filename.split('.')[1]
+        results_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
+        runsalmon.quantify(filename, indexpath, file_location, results_dir)
 
-        chunk_dir = os.path.join(sample_dir, 'chunks')
-        for chunkfile in os.listdir(chunk_dir): 
-            chunk_file_name = chunkfile.split('.')[1]
-            chunkfile_dir = os.path.join(chunk_dir, chunkfile) 
-            results_dir = os.path.join(RESULTS_FOLDER, token, sample_name, chunk_file_name)
-            runsalmon.quantify(chunk_file_name, indexpath, chunkfile_dir, results_dir ) 
+
+        # splits uploaded fastq file into evenly distributed chunks
+        # fqsplit.chunker(file_location) 
+
+        # chunk_dir = os.path.join(sample_dir, 'chunks')
+        # for chunkfile in os.listdir(chunk_dir): 
+        #     chunk_file_name = chunkfile.split('.')[1]
+        #     chunkfile_dir = os.path.join(chunk_dir, chunkfile) 
+        #     results_dir = os.path.join(RESULTS_FOLDER, token, sample_name, chunk_file_name)
+        #     runsalmon.quantify(chunk_file_name, indexpath, chunkfile_dir, results_dir ) 
     return {"run": "complete"}  
 
 

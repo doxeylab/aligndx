@@ -42,9 +42,12 @@ const Result = () => {
       axios.get(RESULT_URL + '/' + url_id)
           .then(res => {
               var finalResponse = JSON.parse(res.data)
+              console.log(finalResponse)
               var getLastValue = Math.max(...Object.keys(finalResponse))
-              setData(finalResponse[getLastValue])
+              setData(finalResponse)
               setGetLoad(false)
+              setPathogen(finalResponse.pathogen)
+              setSample(finalResponse.sample)
           })
           .catch(() => {
               console.log('Error')
@@ -74,7 +77,7 @@ const Result = () => {
                         <Col>
                             <div className="resultPositive">
                                 <h1 >
-                                    <img className="Green_Check" src={Green_Check} alt='Green_Check' />{data.detection} for ({pathogen})
+                                    <img className="Green_Check" src={Green_Check} alt='Green_Check' /> Sample {sample} {data.detected} for ({pathogen})
                                 </h1>
                             </div>
                         </Col>
@@ -83,14 +86,14 @@ const Result = () => {
                     <Row className="resultPageBody">
                         <Col md={8}>
                             <div className = 'barGraph'>
-                                <Barchart data={data.table.data} />
+                                <Barchart data={data.pathogen_hits.data} />
                             </div>
                         </Col>
 
                         <Col md={4}>
                             <div className = 'sampleInfo'>
                                 <h1>
-                                    Sample: {sample}
+                                    Pathogen Marker Abundance
                                 </h1>
                                 <p>
                                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
@@ -98,6 +101,25 @@ const Result = () => {
                             </div>
                         </Col>
                     </Row>
+                    <Row className="resultPageBody">
+                        <Col md={8}>
+                            <div className = 'barGraph'> 
+                                <Barchart data={data.host_hits.data} />
+                            </div>
+                        </Col>
+
+                        <Col md={4}>
+                            <div className = 'sampleInfo'>
+                                <h1>
+                                    Host Biomarker Abundance
+                                </h1>
+                                <p>
+                                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
+                                </p>
+                            </div>
+                        </Col>
+                    </Row>
+                     
                     <Row>
                         <Col>
                             <button className="resultPageBtn saveResultBtn">Save Results</button>
