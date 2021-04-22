@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
+import { filter } from 'd3';
 
 const useResizeObserver = ref => {
     const [dimensions, setDimensions] = useState(null);
@@ -36,6 +37,7 @@ const BarChart = ({data}) => {
         height = svg_height - margin.top - margin.bottom;
 
     useEffect(() => {
+        if (filterData.length === 0) return;
         if (!dimensions) return;
         var width = dimensions.width - margin.left - margin.right
 
