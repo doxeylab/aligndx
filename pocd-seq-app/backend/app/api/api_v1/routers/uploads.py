@@ -13,8 +13,8 @@ UPLOAD_FOLDER = './uploads'
 RESULTS_FOLDER = './results'
 INDEX_FOLDER = './indexes'
 # eventually needs to handle various different panels of indexes
-# indexpath = os.path.join(INDEX_FOLDER, 'sars_with_human_decoys')
-indexpath = os.path.join(INDEX_FOLDER, 'sars_and_human_index')
+indexpath = os.path.join(INDEX_FOLDER, 'sars_with_human_decoys')
+# indexpath = os.path.join(INDEX_FOLDER, 'sars_and_human_index')
 
 if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER) 
