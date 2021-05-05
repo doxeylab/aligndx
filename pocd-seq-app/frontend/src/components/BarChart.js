@@ -42,17 +42,24 @@ const BarChart = ({data}) => {
         var width = dimensions.width - margin.left - margin.right
 
         // Setting Width & Height of SVG
-        d3.selectAll(".chart")
-            .attr("height", svg_height);
+        const svg = d3.selectAll(".chart").attr("height", svg_height);
 
         // Initiate and Transform Main Chart, Brush, and Axes
-        const focus = d3.select(".focus");
-        const x_axis = d3.select(".x-axis");
-        const y_axis = d3.select(".y-axis");
+        const focus = svg.selectAll(".focus")
+        const x_axis = svg.selectAll(".x-axis")
+        const y_axis = svg.selectAll(".y-axis")
+        const y_label = svg.selectAll(".y-label")
 
         focus.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
         x_axis.attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")");
         y_axis.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // y_label.append("text")
+        //     .attr("text-anchor", "end")
+        //     .attr("transform", "rotate(-90)")
+        //     .attr("y", -margin.left+20)
+        //     .attr("x", -margin.top)
+        //     .text("Y axis title")
 
         // Initiate Scales
         const x = d3.scaleBand()
@@ -101,8 +108,9 @@ const BarChart = ({data}) => {
             <div className="main" ref={wrapperRef}>
                 <svg className="chart" ref={svgRef} style={{width: '100%'}}>
                     <g className="focus"></g>
-                    <g className="axis x-axis"></g>
-                    <g className="axis y-axis"></g>
+                    <g className="x-axis"></g>
+                    <g className="y-axis"></g>
+                    <g className="y-label"></g>
                 </svg>
             </div>
         }

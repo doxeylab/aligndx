@@ -6,6 +6,7 @@ import axios from 'axios';
 import { RESULT_URL } from '../services/Config';
 import Barchart from '../components/BarChart.js'
 import { Link } from 'react-router-dom';
+import ResultCard from '../components/ResultCard';
 
 const Result = () => {
     try {
@@ -18,15 +19,59 @@ const Result = () => {
     // { "index": "TEST2", "column_category": 12 },
     // { "index": "TEST3", "column_category": 3 } ])
 
-    var dummyData = [{ "index": "TEST1", "NumReads": 6 },
-    { "index": "TEST2", "NumReads": 12 },
-    { "index": "TEST3", "NumReads": 3 },
-    { "index": "TEST4", "NumReads": 1 },
-    { "index": "TEST5", "NumReads": 0 },
-    { "index": "TEST6", "NumReads": 15 },
-    { "index": "TEST7", "NumReads": 8 },
-    { "index": "TEST8", "NumReads": 4 }
- ]
+    var dummyData = [{detection: "Positive", 
+        pathogen_hits : 
+            {data: [
+                { "index": "TEST1", "NumReads": 6 },
+                { "index": "TEST2", "NumReads": 12 },
+                { "index": "TEST3", "NumReads": 3 },
+                { "index": "TEST4", "NumReads": 1 },
+                { "index": "TEST5", "NumReads": 0 },
+                { "index": "TEST6", "NumReads": 15 },
+                { "index": "TEST7", "NumReads": 8 },
+                { "index": "TEST8", "NumReads": 4 }
+                ]
+            },
+        host_hits : 
+            {data: [
+                { "index": "TEST1", "NumReads": 6 },
+                { "index": "TEST2", "NumReads": 12 },
+                { "index": "TEST3", "NumReads": 3 },
+                { "index": "TEST4", "NumReads": 1 },
+                { "index": "TEST5", "NumReads": 0 },
+                { "index": "TEST6", "NumReads": 15 },
+                { "index": "TEST7", "NumReads": 8 },
+                { "index": "TEST8", "NumReads": 4 }
+                ]
+            }
+        },
+        {detection: "Negative", 
+        pathogen_hits : 
+            {data: [
+                { "index": "TEST1", "NumReads": 6 },
+                { "index": "TEST2", "NumReads": 12 },
+                { "index": "TEST3", "NumReads": 3 },
+                { "index": "TEST4", "NumReads": 1 },
+                { "index": "TEST5", "NumReads": 0 },
+                { "index": "TEST6", "NumReads": 15 },
+                { "index": "TEST7", "NumReads": 8 },
+                { "index": "TEST8", "NumReads": 4 }
+                ]
+            },
+        host_hits : 
+            {data: [
+                { "index": "TEST1", "NumReads": 6 },
+                { "index": "TEST2", "NumReads": 12 },
+                { "index": "TEST3", "NumReads": 3 },
+                { "index": "TEST4", "NumReads": 1 },
+                { "index": "TEST5", "NumReads": 0 },
+                { "index": "TEST6", "NumReads": 15 },
+                { "index": "TEST7", "NumReads": 8 },
+                { "index": "TEST8", "NumReads": 4 }
+                ]
+            }
+        }
+    ]
 
     const [result, setResult] = useState(null);
     const [sample, setSample] = useState(null);
@@ -50,7 +95,9 @@ const Result = () => {
               setSample(finalResponse.sample)
           })
           .catch(() => {
-              console.log('Error')
+            console.log('Error')
+              setData(dummyData)
+              setGetLoad(false)
           })
     }, [])
 
@@ -62,62 +109,39 @@ const Result = () => {
         <div className="section">
             <div className="result-container">
                 <Container>
-                {data.detection === "Negative" ?     
                     <Row>
-                        <Col>
-                            <div className="resultNegative">
-                                <h1 >
-                                    <img className="Red_X" src={Red_X} alt='Red_X' />{data.detection} for ({pathogen})
-                                </h1>
-                            </div>
-                        </Col>
-                    </Row>
-                :
-                    <Row>
-                        <Col>
-                            <div className="resultPositive">
-                                <h1 >
-                                    <img className="Green_Check" src={Green_Check} alt='Green_Check' /> Sample {sample} {data.detected} for ({pathogen})
-                                </h1>
-                            </div>
-                        </Col>
-                    </Row>
-                }
-                    <Row className="resultPageBody">
-                        <Col md={8}>
-                            <div className = 'barGraph'>
-                                <Barchart data={data.pathogen_hits.data} />
-                            </div>
-                        </Col>
-
-                        <Col md={4}>
-                            <div className = 'sampleInfo'>
-                                <h1>
-                                    Pathogen Marker Abundance
-                                </h1>
-                                <p>
-                                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
-                                </p>
-                            </div>
-                        </Col>
-                    </Row>
-                    <Row className="resultPageBody">
-                        <Col md={8}>
-                            <div className = 'barGraph'> 
-                                <Barchart data={data.host_hits.data} />
-                            </div>
-                        </Col>
-
-                        <Col md={4}>
-                            <div className = 'sampleInfo'>
-                                <h1>
-                                    Host Biomarker Abundance
-                                </h1>
-                                <p>
-                                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident."
-                                </p>
-                            </div>
-                        </Col>
+                        {data.map(d => {
+                            return (
+                                <ResultCard detection={d.detection}>
+                                    <Row style={{padding: "25px"}}>
+                                        <Col md={12}>
+                                            <div>
+                                                <h1>
+                                                    Pathogen Marker Abundance
+                                                </h1>
+                                                <p>
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                                                </p>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                    <Row style={{padding: "25px"}}>
+                                        <Col md={6}>
+                                            <div className = 'barGraph'>
+                                                <h1>Pathogen Hits</h1>
+                                                <Barchart data={d.pathogen_hits.data} />
+                                            </div>
+                                        </Col>
+                                        <Col md={6}>
+                                            <div className = 'barGraph'>
+                                                <h1>Host Hits</h1>
+                                                <Barchart data={d.host_hits.data} />
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                </ResultCard>
+                            )
+                        })}
                     </Row>
                      
                     <Row>
