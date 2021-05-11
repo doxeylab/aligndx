@@ -19,7 +19,7 @@ const useResizeObserver = ref => {
     return dimensions;
 }
 
-const BarChart = ({data}) => {
+const BarChart = ({data, yLabel, xLabel}) => {
     // Filter NumReads of 0
     var filterData = data.filter(hit => hit.NumReads !== 0)
     // Resize Obeserver
@@ -33,7 +33,7 @@ const BarChart = ({data}) => {
     // eslint-disable-next-line
     const svg_width = 900;
     const svg_height = 400;
-    var margin = { top: 10, right: 10, bottom: 50, left: 50 },
+    var margin = { top: 10, right: 10, bottom: 65, left: 50 },
         height = svg_height - margin.top - margin.bottom;
 
     useEffect(() => {
@@ -49,17 +49,27 @@ const BarChart = ({data}) => {
         const x_axis = svg.selectAll(".x-axis")
         const y_axis = svg.selectAll(".y-axis")
         const y_label = svg.selectAll(".y-label")
+        const x_label = svg.selectAll(".x-label")
 
         focus.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
         x_axis.attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")");
         y_axis.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        // y_label.append("text")
-        //     .attr("text-anchor", "end")
-        //     .attr("transform", "rotate(-90)")
-        //     .attr("y", -margin.left+20)
-        //     .attr("x", -margin.top)
-        //     .text("Y axis title")
+        x_label.selectAll("text")   
+            .attr("transform",
+                "translate(" + (dimensions.width/2) + " ," + 
+                                (height + margin.top + 55) + ")")
+            .style("text-anchor", "middle")
+            .style("font-size", "14px")
+            .text(xLabel);
+
+        y_label.selectAll("text")            
+            .attr("transform", "rotate(-90)")
+            .attr("x",0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .style("font-size", "14px")
+            .text(yLabel); 
 
         // Initiate Scales
         const x = d3.scaleBand()
@@ -70,6 +80,10 @@ const BarChart = ({data}) => {
             .domain([0, yDomain])
             .range([height, 0]);
 
+        x_axis.selectAll("text")
+            .style("text-anchor", "end")
+            .attr("transform", "rotate(-65)");
+
         // Initiate Axis
         const xAxis = d3.axisBottom(x)
             .tickSize(0);
@@ -77,10 +91,6 @@ const BarChart = ({data}) => {
         const yAxis = d3.axisLeft(y)
             .tickSize(0);
         y_axis.call(yAxis);
-
-        x_axis.selectAll("text")
-            .style("text-anchor", "end")
-            .attr("transform", "rotate(-65)");
 
         // Draw the chart
         focus.selectAll('.bar')
@@ -110,7 +120,12 @@ const BarChart = ({data}) => {
                     <g className="focus"></g>
                     <g className="x-axis"></g>
                     <g className="y-axis"></g>
-                    <g className="y-label"></g>
+                    <g className="y-label">
+                        <text></text>
+                    </g>
+                    <g className="x-label">
+                        <text></text>
+                    </g>
                 </svg>
             </div>
         }
