@@ -1,7 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import Green_Check from '../assets/Green_Check.png'
-import Red_X from '../assets/Red_X.png'
 import axios from 'axios';
 import { RESULT_URL } from '../services/Config';
 import Barchart from '../components/BarChart.js'
@@ -73,15 +71,10 @@ const Result = () => {
         }
     ]
 
-    const [result, setResult] = useState(null);
     const [sample, setSample] = useState(null);
     const [pathogen, setPathogen] = useState(null);
-    // eslint-disable-next-line 
-    const [columns, setColumns] = useState(null);
-    // eslint-disable-next-line 
-    const [indexes, setIndexes] = useState(null);
-    const [data, setData] = useState(null)
-    const [getLoad, setGetLoad] = useState(true)
+    const [data, setData] = useState(null);
+    const [getLoad, setGetLoad] = useState(true);
 
     useEffect(() => {
       axios.get(RESULT_URL + '/' + url_id)
@@ -97,6 +90,8 @@ const Result = () => {
           .catch(() => {
             console.log('Error')
               setData(dummyData)
+              setSample("DUMMY TEST")
+              setPathogen("DUMMY")
               setGetLoad(false)
           })
     }, [])
@@ -110,14 +105,27 @@ const Result = () => {
             <div className="result-container">
                 <Container>
                     <Row>
+                        <h1>Sample: {sample} for {pathogen}</h1>
+                    </Row>
+                    <Row>
                         {data.map(d => {
                             return (
                                 <ResultCard detection={d.detection}>
                                     <Row style={{padding: "25px"}}>
-                                        <Col md={12}>
+                                        <Col md={6}>
                                             <div>
                                                 <h1>
                                                     Pathogen Marker Abundance
+                                                </h1>
+                                                <p>
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                                                </p>
+                                            </div>
+                                        </Col>
+                                        <Col md={6}>
+                                            <div>
+                                                <h1>
+                                                    Host Marker Abundance
                                                 </h1>
                                                 <p>
                                                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
@@ -129,13 +137,13 @@ const Result = () => {
                                         <Col md={6}>
                                             <div className = 'barGraph'>
                                                 <h1>Pathogen Hits</h1>
-                                                <Barchart data={d.pathogen_hits.data} />
+                                                <Barchart data={d.pathogen_hits.data} yLabel="Y-AXIS" xLabel="X-AXIS"/>
                                             </div>
                                         </Col>
                                         <Col md={6}>
                                             <div className = 'barGraph'>
                                                 <h1>Host Hits</h1>
-                                                <Barchart data={d.host_hits.data} />
+                                                <Barchart data={d.host_hits.data} yLabel="Y-AXIS2" xLabel="X-AXIS2"/>
                                             </div>
                                         </Col>
                                     </Row>
@@ -143,7 +151,6 @@ const Result = () => {
                             )
                         })}
                     </Row>
-                     
                     <Row>
                         <Col>
                             <button className="resultPageBtn saveResultBtn">Save Results</button>
