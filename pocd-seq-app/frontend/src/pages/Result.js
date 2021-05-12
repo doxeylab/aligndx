@@ -90,8 +90,8 @@ const Result = () => {
           .catch(() => {
             console.log('Error')
               setData(dummyData)
-              setSample("DUMMY TEST")
-              setPathogen("DUMMY")
+              setSample("SRR11365240")
+              setPathogen("Sars CoV-2")
               setGetLoad(false)
           })
     }, [])
@@ -105,7 +105,7 @@ const Result = () => {
             <div className="result-container">
                 <Container>
                     <Row>
-                        <h1>Sample: {sample} for {pathogen}</h1>
+                        <h1 className="result-container__title">Sample: {sample} for {pathogen}</h1>
                     </Row>
                     <Row>
                         {data.map(d => {
