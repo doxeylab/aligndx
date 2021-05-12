@@ -1,5 +1,14 @@
 .result-container {
-  /* Style the buttons that are used to open and close the accordion panel */
+  &__title {
+    font-size: 3.2rem;
+    margin-bottom: 3.2rem;
+
+    @include respond(tab-port) {
+      font-size: 2.8rem;
+      margin-bottom: 1.8rem;
+    }
+  }
+
   .barGraph h1 {
     text-align: center;
     text-decoration: underline;
