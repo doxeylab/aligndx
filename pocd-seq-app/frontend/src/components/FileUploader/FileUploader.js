@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { UPLOAD_URL } from '../services/Config';
+import { UPLOAD_URL } from '../../services/Config';
 // eslint-disable-next-line
-import TokenService from '../services/Token'
+import TokenService from '../../services/Token'
 import axios from 'axios';
 // eslint-disable-next-line
 
-const FileUploader = ({parentCallback, spinnerCallback}) => {
+const FileUploader = ({ parentCallback, spinnerCallback }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [validFiles, setValidFiles] = useState([]);
@@ -16,12 +16,12 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
 
   useEffect(() => {
     let filteredArray = selectedFiles.reduce((file, current) => {
-        const x = file.find(item => item.name === current.name);
-        if (!x) {
-            return file.concat([current]);
-        } else {
-            return file;
-        }
+      const x = file.find(item => item.name === current.name);
+      if (!x) {
+        return file.concat([current]);
+      } else {
+        return file;
+      }
     }, []);
     setValidFiles([...filteredArray]);
 
@@ -46,13 +46,13 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
     e.preventDefault();
     const files = e.dataTransfer.files;
     if (files.length) {
-        handleFiles(files);
+      handleFiles(files);
     }
   }
 
   const filesSelected = () => {
     if (fileInputRef.current.files.length) {
-        handleFiles(fileInputRef.current.files);
+      handleFiles(fileInputRef.current.files);
     }
   }
 
@@ -61,9 +61,9 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
   }
 
   const handleFiles = (files) => {
-    for(let i = 0; i < files.length; i++) {
+    for (let i = 0; i < files.length; i++) {
       if (validateFile(files[i])) {
-          setSelectedFiles(prevArray => [...prevArray, files[i]]);
+        setSelectedFiles(prevArray => [...prevArray, files[i]]);
       } else {
         files[i]['invalid'] = true;
         setSelectedFiles(prevArray => [...prevArray, files[i]]);
@@ -77,7 +77,7 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
     const fileType = file.name.split('.').pop()
     const validTypes = ['fastq'];
     if (validTypes.indexOf(fileType) === -1) {
-        return false;
+      return false;
     }
     return true;
   }
@@ -103,8 +103,8 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
     setValidFiles([...validFiles]);
     setSelectedFiles([...selectedFiles]);
     if (unsupportedFileIndex !== -1) {
-        unsupportedFiles.splice(unsupportedFileIndex, 1);
-        setUnsupportedFiles([...unsupportedFiles]);
+      unsupportedFiles.splice(unsupportedFileIndex, 1);
+      setUnsupportedFiles([...unsupportedFiles]);
     }
   }
 
@@ -118,17 +118,17 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
       formData.append('files', file)
     })
     axios.post(UPLOAD_URL, formData, {
-        onUploadProgress: (progressEvent) => {
-          spinnerCallback(true)
-          const uploadPercentage = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
-          if (uploadPercentage === 100) {
-            validFiles.length = 0;
-            setValidFiles([...validFiles]);
-            setSelectedFiles([...validFiles]);
-            setUnsupportedFiles([...validFiles]);
-          }
+      onUploadProgress: (progressEvent) => {
+        spinnerCallback(true)
+        const uploadPercentage = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
+        if (uploadPercentage === 100) {
+          validFiles.length = 0;
+          setValidFiles([...validFiles]);
+          setSelectedFiles([...validFiles]);
+          setUnsupportedFiles([...validFiles]);
         }
-      })
+      }
+    })
       .then(() => {
         window.location.href = "/result/#/?id=" + token
       })
@@ -140,11 +140,11 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
 
   return (
     <div>
-      {selectedFiles.length ? 
+      {selectedFiles.length ?
         <div className="file-display-container">
           <div className="file-display-content">
             {
-              validFiles.map((data, i) => 
+              validFiles.map((data, i) =>
                 <div className="file-status-bar" key={i}>
                   <div>
                     <div className="file-type-logo"></div>
@@ -168,7 +168,7 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
           onDrop={fileDrop}
           onClick={fileInputClicked}
         >
-          {unsupportedFiles.length ? 
+          {unsupportedFiles.length ?
             <div className="drop-message-error">
               <input
                 ref={fileInputRef}
@@ -181,7 +181,7 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
               <div className="upload-icon"></div>
               Please only upload FASTQ files!
             </div>
-          :
+            :
             <div className="drop-message">
               <input
                 ref={fileInputRef}
@@ -198,7 +198,13 @@ const FileUploader = ({parentCallback, spinnerCallback}) => {
         </div>
       }
 
-      <button disabled={selectedFiles.length ? false : true} className="file-upload-btn"  onClick={() => uploadFiles()}>Analyze</button>
+      <button
+        id="analyzeModalBtn"
+        disabled={selectedFiles.length ? false : true}
+        className="file-upload-btn"
+        onClick={() => uploadFiles()}
+      >Analyze
+      </button>
 
     </div>
   );

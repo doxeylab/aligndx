@@ -2,9 +2,9 @@ import React, {useState, useEffect} from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
 import { RESULT_URL } from '../services/Config';
-import Barchart from '../components/BarChart.js'
+import Barchart from '../components/BarChart';
 import { Link } from 'react-router-dom';
-import ResultCard from '../components/ResultCard';
+import ResultCard from '../components/ResultCard.js';
 
 const Result = () => {
     try {
@@ -12,7 +12,7 @@ const Result = () => {
 	} catch(err) {
 		var url_id = undefined
 	}
-
+    
     // const [data, setData] = useState([{ "index": "TEST1", "column_category": 6 },
     // { "index": "TEST2", "column_category": 12 },
     // { "index": "TEST3", "column_category": 3 } ])
