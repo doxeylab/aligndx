@@ -10,6 +10,10 @@
 //   min-height: 100vh;
 // }
 
+.home-container {
+  top: 50%;
+}
+
 .home-wrapper {
   @include respond(phone) {
     padding-bottom: 5rem;
@@ -134,12 +138,11 @@
 }
 
 .process {
-  display:flex;
+  display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-evenly;
   margin-bottom: 100px;
-
 }
 
 .processImageWrap {
@@ -166,7 +169,6 @@
 
 /* When screen is less than 991px */
 @media screen and (max-width: 991px) {
-
   .howItWorksTitle {
     text-align: center;
   }
@@ -189,4 +191,3 @@
     width: 90%;
   }
 }
-
