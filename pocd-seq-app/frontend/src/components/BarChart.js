@@ -110,7 +110,7 @@ const BarChart = ({data, yLabel, xLabel}) => {
     }, [dimensions]);
 
     return (
-        <>
+        <div>
         {
             filterData.length === 0 ?
             <h1 ref={wrapperRef} style={{display: "flex", justifyContent: "center", alignItems: "center", height: "400px"}}>There is no data</h1>
@@ -129,7 +129,7 @@ const BarChart = ({data, yLabel, xLabel}) => {
                 </svg>
             </div>
         }
-        </>
+        </div>
     )
 }
 

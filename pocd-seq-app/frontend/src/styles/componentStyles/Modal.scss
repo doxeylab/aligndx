@@ -1,13 +1,20 @@
+.ModalContainer {
+  width: 800px;
+  position: absolute;
+}
+
 .Modal {
   position: absolute;
+  left: 20%;
+  bottom: 80%;
+  transform: translate(-50%, -50%);
   z-index: 500;
   background-color: white;
-  width: 50%;
+  width: 100%;
   border-radius: 16px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   padding: 30px;
-  left: 25%;
-  top: 30%;
+  margin: 0 auto;
   box-sizing: border-box;
   transition: all 0.3s ease-out;
   align-items: center;
@@ -16,9 +23,3 @@
 }
 
 
-@media (min-width: 800px) {
-  .Modal {
-    width: 800px;
-    left: calc(50% - 400px);
-  }
-}
