@@ -75,7 +75,6 @@ const Home = () => {
                     </Row>
                 </Container>
             </Section>
-
         </>
     );
 }
