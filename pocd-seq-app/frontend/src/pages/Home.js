@@ -13,7 +13,7 @@ const Home = () => {
 
     return (
         <>
-            <Section id="hero">
+            <Section id="hero" center>
                 <Container className="home-container">
                     {/* Genome Sequencing section */}
                     <Row className="home-wrapper">
@@ -34,6 +34,11 @@ const Home = () => {
             </Section>
             <Section id="info">
                 <Container>
+                    <Row>
+                        <Col>
+                            <Title>How it works</Title>
+                        </Col>
+                    </Row>
                     <Row>
                         <Col md={6} sm={12}>
                             <div className="processImageWrap">
