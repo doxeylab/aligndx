@@ -10,7 +10,6 @@ import reportImage from '../assets/reportImage.svg';
 import AnalyzeHomeBtn from '../components/AnalyzeHomeBtn/AnalyzeHomeBtn';
 
 const Home = () => {
-
     return (
         <>
             <Section id="hero" center>

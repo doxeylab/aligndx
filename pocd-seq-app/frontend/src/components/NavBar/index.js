@@ -49,10 +49,10 @@ const NavBar = () => {
                 </NavMenu>
                 <Sidebar NavItems={NavbarItems} MobileMenu={mobileMenu} CloseClick={closeMobileMenu}/>
                 <NavBtn>
-                    <NavBtnLink to="/">
+                    <NavBtnLink to="/login">
                         <span className="btn-text">Log In</span>
                     </NavBtnLink>
-                    <NavBtnLink fill to="/">
+                    <NavBtnLink fill to="/login">
                         <span className="btn-text">Sign Up</span>
                     </NavBtnLink>
                 </NavBtn>
