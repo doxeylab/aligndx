@@ -13,6 +13,7 @@ import DownloadPage from './pages/DownloadPage';
 import Policy from './pages/Policy';
 import Services from './pages/Services';
 import License from './pages/License';
+import LoginSignup from './pages/LoginSignup';
 
   function App() {
     return (
@@ -30,6 +31,7 @@ import License from './pages/License';
             <Route path='/policy' component={Policy} />
             <Route path='/license' component={License} />
             <Route path='/services' component={Services} />
+            <Route path='/login' component={LoginSignup} />
         </Switch>
         <Background />
         <Footer />
