@@ -1,5 +1,7 @@
 // React
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
+import Aos from "aos";
+import "aos/dist/aos.css"
 // Components
 import {Title, Section} from '../components/PageElement'
 import HomePageArt from '../assets/HomePageArt.svg';
@@ -10,6 +12,11 @@ import reportImage from '../assets/reportImage.svg';
 import AnalyzeHomeBtn from '../components/AnalyzeHomeBtn/AnalyzeHomeBtn';
 
 const Home = () => {
+        //Animations//
+        useEffect(() => {
+            Aos.init({duration: 2000});
+        }, []);
+    
     return (
         <>
             <Section id="hero" center>
@@ -17,7 +24,7 @@ const Home = () => {
                     {/* Genome Sequencing section */}
                     <Row className="home-wrapper">
                         <Col md={6} sm={12}>
-                            <div className="home-wrapper__info">
+                            <div data-aos="fade-right" className="home-wrapper__info">
                                 <h1 className="home-wrapper__info-title">GENOME<br />SEQUENCING</h1>
                                 <p className="home-wrapper__info-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sagittis elit eu nulla accumsan, ac rutrum mauris maximus. Sed lobortis, urna eget porttitor laoreet, sapien eros egestas mi, id iaculis arcu libero ut massa.</p>
                                     <AnalyzeHomeBtn />
@@ -28,6 +35,9 @@ const Home = () => {
                                 <img className="Art" src={HomePageArt} alt="Art" />
                             </div>
                         </Col>
+                    </Row>
+                    <Row>
+                        <div className="scroll-down"></div>
                     </Row>
                 </Container>
             </Section>
