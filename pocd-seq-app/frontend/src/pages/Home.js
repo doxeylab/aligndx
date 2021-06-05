@@ -1,7 +1,6 @@
 // React
 import React, { useEffect } from 'react'
 import Aos from "aos";
-import "aos/dist/aos.css";
 import { motion } from 'framer-motion';
 // Components
 import { Title, Section } from '../components/PageElement'
@@ -63,11 +62,13 @@ const Home = () => {
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: shouldShowActions ? 1 : 0 }}
-                            transition={{ opacity: { duration: 0.8 } }}
+                            transition={{ opacity: { duration: 0.6 } }}
                         >
                             <div className="scrollDown">
                                 <p>Scroll Down</p>
+                                <div className="scrollIcon">
                                 <i class="fas fa-angle-double-down"></i>
+                                </div>
                             </div>
                         </motion.div>
                     </Row>

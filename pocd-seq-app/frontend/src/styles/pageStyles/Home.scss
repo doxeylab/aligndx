@@ -131,8 +131,17 @@
 .scrollDown {
   display: flex;
   flex-direction: column;
+  position: absolute;
+  top: 95%;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  font-weight: 600;
+}
+
+.scrollIcon {
+  display: flex;
   justify-content: center;
-  align-items: center;
+  font-size: 20px;
 }
 
 
