@@ -15,7 +15,9 @@ const Home = () => {
     //Animations for Title block//
     //Uses the Aos library//
     useEffect(() => {
-        Aos.init({ duration: 2000 });
+        Aos.init({ duration: 2000, 
+        once:true  
+        });
     }, []);
 
     //Animations for scroll down fade out//

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react'
+import Aos from "aos";
 import { Link } from 'react-router-dom';
 import OurGoals from '../assets/OurGoals.svg';
 import DiversityImage from '../assets/DiversityImage.svg';
@@ -10,6 +11,13 @@ export default function About() {
     const scrollWin = () => {
         window.scrollTo(0, 0);
     };
+
+    //Uses the Aos library//
+    useEffect(() => {
+        Aos.init({ duration: 2000, 
+        once:true  
+        });
+    }, []);
 
     return (
         <div className="section">
@@ -74,8 +82,8 @@ export default function About() {
                         </div>
                     </div>
                     <div className="ourBenefitSectionWrap">
-                        <div className="ourBenefitCol">
-                            <div className="ourBenefitSection">
+                        <div data-aos="fade-up" className="ourBenefitCol">
+                            <div  className="ourBenefitSection">
                                 <div className="ourBenefitIcon"><i class="fas fa-users"></i></div>
                                 <div className="ourBenefitSubTitle"><h3>Benefit 1</h3></div>
                                 <div className="ourBenefitText"><p>Lorem ipsum dolor sit amet Tempora quae repudiandae, nisi eveniet quis vitae unde rerum magni deleniti.</p></div>
@@ -91,7 +99,7 @@ export default function About() {
                                 <div className="ourBenefitText"><p>Lorem ipsum dolor sit amet Tempora quae repudiandae, nisi eveniet quis vitae unde rerum magni deleniti.</p></div>
                             </div>
                         </div>
-                        <div className="ourBenefitCol">
+                        <div data-aos="fade-up" className="ourBenefitCol">
                             <div className="ourBenefitSection">
                                 <div className="ourBenefitIcon"><i class="fas fa-users"></i></div>
                                 <div className="ourBenefitSubTitle"><h3>Benefit 1</h3></div>
