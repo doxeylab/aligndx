@@ -14,11 +14,12 @@ import Policy from './pages/Policy';
 import Services from './pages/Services';
 import License from './pages/License';
 import LoginSignup from './pages/LoginSignup';
+import Profile from './pages/Profile';
 
   function App() {
     return (
       <Router>
-        <Navbar />
+        <Navbar authenticated={true}/>
         <Switch>
             <Route path='/' exact component={Home} />
             <Route path='/home' component={Home} />
@@ -32,6 +33,7 @@ import LoginSignup from './pages/LoginSignup';
             <Route path='/license' component={License} />
             <Route path='/services' component={Services} />
             <Route path='/login' component={LoginSignup} />
+            <Route path='/USER_ID' component={Profile} />
         </Switch>
         <Background />
         <Footer />

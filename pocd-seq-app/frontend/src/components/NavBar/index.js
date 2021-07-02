@@ -1,16 +1,28 @@
 // React
 import React, {useState, useEffect} from 'react';
 // Components
-import {Nav, NavContainer, NavLogo, MobileIcon, NavMenu, NavItem, NavLink, NavBtn, NavBtnLink} from './NavbarElement';
+import {
+    Nav,
+    NavContainer,
+    NavLogo,
+    MobileIcon,
+    NavMenu,
+    NavItem,
+    NavLink,
+    NavBtn,
+    NavBtnLink
+    } from './NavbarElement';
 import {FaBars, FaTimes} from 'react-icons/fa';
 import {NavbarItems} from './NavbarItems';
 import Sidebar from './SideBar';
+import Profile from './Profile';
 // Assets
-import AlignDx from '../../assets/AlignDx.svg'
+import AlignDx from '../../assets/AlignDx.svg';
 
-const NavBar = () => {
+const max_width = '992px';
+
+const NavBar = ({authenticated}) => {
     const [mobileMenu, setMobileMenu] = useState(false);
-    const [windowSize, setWindowSize] = useState(window.innerWidth);
 
     const handleMenuToggle = () => {
         setMobileMenu(!mobileMenu);
@@ -22,7 +34,7 @@ const NavBar = () => {
 
     useEffect(() => {
         function handleResize() {
-            if (window.innerWidth > 830) {
+            if (window.innerWidth > max_width) {
                 setMobileMenu(false)
             }
         }
@@ -47,14 +59,21 @@ const NavBar = () => {
                         )
                     })}
                 </NavMenu>
-                <Sidebar NavItems={NavbarItems} MobileMenu={mobileMenu} CloseClick={closeMobileMenu}/>
+                <Sidebar authenticated={authenticated} NavItems={NavbarItems} MobileMenu={mobileMenu} CloseClick={closeMobileMenu}/>
                 <NavBtn>
-                    <NavBtnLink to="/login">
-                        <span className="btn-text">Log In</span>
-                    </NavBtnLink>
-                    <NavBtnLink fill to="/login">
-                        <span className="btn-text">Sign Up</span>
-                    </NavBtnLink>
+                    {authenticated ? (
+                        <Profile/>
+                    )
+                    : (
+                        <>                 
+                            <NavBtnLink to="/login">
+                                <span className="btn-text">Log In</span>
+                            </NavBtnLink>
+                            <NavBtnLink fill to="/login">
+                                <span className="btn-text">Sign Up</span>
+                            </NavBtnLink>
+                        </>
+                    )}
                 </NavBtn>
             </NavContainer>
         </Nav>

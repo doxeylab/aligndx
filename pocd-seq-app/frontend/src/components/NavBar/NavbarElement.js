@@ -1,29 +1,25 @@
 import styled from 'styled-components';
 import {NavLink as Link} from 'react-router-dom';
+import { Container } from 'react-bootstrap';
+
+const max_width = '992px';
 
 export const Nav = styled.nav`
-  height: 120px;
-  display: fixed;
-  justify-content: center;
-  align-items: center;
-  font-size: 1rem;
   position: absolute;
+  display: flex;
+  align-items: center;
   width: 100%;
-  top: 0;
   z-index: 1;
-
-  @media screen and (max-width: 830px) {
-    transition: 0.8s all ease;
-  }
+  height: 120px;
 `
 
-export const NavContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  height: 80px;
-  width: 100%;
-  padding: 0 24px;
-  max-width: 1100px;
+export const NavContainer = styled(Container)`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media screen and (max-width: ${max_width}) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 `
 
 export const NavLogo = styled(Link)`
@@ -41,12 +37,9 @@ export const NavLogo = styled(Link)`
 export const MobileIcon = styled.div`
   display: none;
 
-  @media screen and (max-width: 830px) {
+  @media screen and (max-width: ${max_width}) {
     display: block;
-    position: absolute;
-    top: 0;
-    right: 0;
-    transform: translate(-100%, 72%);
+    justify-self: end;
     font-size: 3rem;
     cursor: pointer;
     z-index: 1;
@@ -59,13 +52,14 @@ export const MobileIcon = styled.div`
 
 export const NavMenu = styled.ul`
     display: flex;
+    justify-content: center;
     align-items: center;
     list-style: none;
     text-align: center;
     margin: 0;
     padding: 0;
 
-    @media screen and (max-width: 830px) {
+    @media screen and (max-width: ${max_width}) {
       display: none;
     }
 `
@@ -93,8 +87,10 @@ export const NavLink = styled(Link)`
 export const NavBtn = styled.div`
     display: flex;
     align-items: center;
+    justify-self: end;
+    margin-right: 24px;
 
-    @media screen and (max-width: 830px) {
+    @media screen and (max-width: ${max_width}) {
       display: none;
     }
 `

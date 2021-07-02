@@ -20,13 +20,28 @@ export const SidebarContainer = styled.aside`
     }
 `
 
+export const SidebarDivider = styled.hr`
+  border-top: 1px solid #bbb;
+  width: 90%;
+  margin: 10px auto;
+`
+
+export const SidebarProfile = styled.ul`
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, 80px);
+    text-align: center;
+    list-style: none;
+    padding: 0;
+`
+
 export const SidebarMenu = styled.ul`
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: repeat(4, 80px);
     text-align: center;
     list-style: none;
-    margin: 90px 0 45px 0;
+    margin: 90px 0 0 0;
     padding: 0;
 `
 
@@ -43,6 +58,7 @@ export const SidebarLink = styled(Link)`
 
     &:hover {
       color: #1861A6;
+      background: rgba(0,0,0,0.1)
     }
 `
 
