@@ -26,7 +26,7 @@ const Profile = () => {
       ));
 
     const CustomMenu = React.forwardRef(
-        ({ children, style}, ref) => {
+        ({ children, style }, ref) => {
           const [value, setValue] = useState('');
       
           return (
@@ -57,9 +57,9 @@ const Profile = () => {
             </Dropdown.Toggle>
 
             <Dropdown.Menu as={CustomMenu}>
-                <ProfileMenuItem><FaUserAlt/> Profile</ProfileMenuItem>
-                <ProfileMenuItem><FaCogs /> Settings</ProfileMenuItem>
-                <ProfileMenuItem><FaSignOutAlt /> Sign Out</ProfileMenuItem>
+                <ProfileMenuItem href="/USER_ID"><FaUserAlt/> Profile</ProfileMenuItem>
+                <ProfileMenuItem href="/"><FaCogs /> Settings</ProfileMenuItem>
+                <ProfileMenuItem href="/"><FaSignOutAlt /> Sign Out</ProfileMenuItem>
             </Dropdown.Menu>
         </Dropdown>
     )
