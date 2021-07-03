@@ -58,3 +58,9 @@ class User:
         query = users.insert().values(**vars(user))
         user_id = await database.execute(query)
         return user_id
+
+    @classmethod
+    async def get(cls, username):
+        query = users.select().where(users.c.username == username)
+        user = await database.fetch_one(query)
+        return user
