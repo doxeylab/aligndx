@@ -1,6 +1,6 @@
 from app.db.database import database, metadata
 
-from sqlalchemy import (Column, DateTime, String, Table, BigInteger)
+from sqlalchemy import (Column, DateTime, String, Table, BigInteger, func)
 
 samples = Table(
     "samples",
@@ -20,21 +20,8 @@ users = Table(
     Column("name", String(50)),
     Column("email", String(50)),
     Column("hashed_password", String(250)),
+    Column("created_at", DateTime(timezone=True), default=func.now())
 )
-
-
-# class Sample:
-#     @classmethod
-#     async def get(cls, token):
-#         query = samples.select().where(samples.c.token == token)
-#         sample = await database.fetch_one(query)
-#         return sample
-
-#     @classmethod
-#     async def create(cls, **sample):
-#         query = samples.insert().values(**sample)
-#         sample_id = await database.execute(query)
-#         return sample_id
 
 
 # REPOSITORIES

@@ -49,9 +49,7 @@ app.include_router(results.router,
                    responses={408: {"description": "Ain't gonna work buddy"}},
                    )
 app.include_router(user_auth.router,
-                   tags=["user authentication"],
-                   responses={408: {"description": "Ain't gonna work buddy"}},
-                   )
+                   tags=["user authentication"])
 
 
 @app.get("/")
