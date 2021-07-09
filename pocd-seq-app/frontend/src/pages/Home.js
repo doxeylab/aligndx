@@ -44,7 +44,7 @@ const Home = () => {
     return (
         <>
             <Section id="hero" center>
-                <Container className="home-container">
+                <Container>
                     {/* Genome Sequencing section */}
                     <Row className="home-wrapper">
                         <Col md={6} sm={12}>
