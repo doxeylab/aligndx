@@ -31,7 +31,18 @@ export const ProfileMenu = styled.div`
   border-radius: 5px;
   padding: 10px;
   min-width: 100%;
-  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+  margin-top: 8px;
+  &::after{
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    right: 10%;
+    width: 0; 
+    height: 0; 
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #fff;
+  }
 `
 
 export const ProfileMenuList = styled.ul`
