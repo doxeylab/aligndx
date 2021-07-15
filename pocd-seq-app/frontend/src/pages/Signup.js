@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Title, Section } from '../components/PageElement'
 import SignUpImg from "../assets/SignUpImg.svg"
 import { Container, Row, Col } from 'react-bootstrap';
+import axios from 'axios';
 
 const request = (options) => {
     const headers = new Headers({
@@ -27,8 +28,8 @@ const request = (options) => {
 
 const SignUp = () => {
     const [signUp, setSignUp] = useState({
-        first_name: "",
-        last_name: "",
+        name: "",
+        username: "",
         email: "",
         password: ""
     })
@@ -43,18 +44,18 @@ const SignUp = () => {
         setSignUp({ ...signUp, password: e.target.value })
     }
 
-    const onChangeFirstName = (e) => {
-        setSignUp({ ...signUp, first_name: e.target.value })
+    const onChangeName = (e) => {
+        setSignUp({ ...signUp, name: e.target.value })
     }
 
 
-    const onChangeLastName = (e) => {
-        setSignUp({ ...signUp, last_name: e.target.value })
+    const onChangeUsername = (e) => {
+        setSignUp({ ...signUp, username: e.target.value })
     }
 
     const signup = (signupRequest) => {
         return request({
-            url: "http://localhost:8080/auth/signup",
+            url: "http://localhost:8080/create_user",
             method: "POST",
             body: JSON.stringify(signupRequest),
         });
@@ -62,13 +63,13 @@ const SignUp = () => {
 
     const handleSignUp = (e) => {
         e.preventDefault();
-        if (!Object.values(signUp).some(o => o === "")) {
+        if (Object.values(signUp).some(o => o === "")) {
             console.log("MISSING PARAMETER")
         }
 
         const signupRequest = {
-            first_name: signUp.first_name,
-            last_name: signUp.last_name,
+            name: signUp.name,
+            username: signUp.username,
             email: signUp.email,
             password: signUp.password,
         };
@@ -79,6 +80,7 @@ const SignUp = () => {
                 // this.setState({ loading: false });
                 // this.props.loadCurrentUser("SIGNUP");
                 // this.props.router.back();
+                console.log("YAY")
             })
             .catch(() => {
                 console.log("SOMETHING WENT WRONG LOL")
@@ -97,13 +99,13 @@ const SignUp = () => {
                             <div className="form-group-container">
 
                                 <div className="form-group">
-                                    <label>First name</label>
-                                    <input type="text" className="form-control" placeholder="First name" onChange={onChangeFirstName} />
+                                    <label>Username</label>
+                                    <input type="text" className="form-control" placeholder="Username" onChange={onChangeUsername} />
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Last name</label>
-                                    <input type="text" className="form-control" placeholder="Last name" onChange={onChangeLastName} />
+                                    <label>Name</label>
+                                    <input type="text" className="form-control" placeholder="Name" onChange={onChangeName} />
                                 </div>
 
                                 <div className="form-group">
