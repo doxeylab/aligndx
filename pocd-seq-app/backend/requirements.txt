@@ -1,5 +1,6 @@
 alembic==1.5.8
 asyncpg==0.22.0
+bcrypt==3.2.0
 click==7.1.2
 databases==0.4.2
 fastapi==0.63.0
