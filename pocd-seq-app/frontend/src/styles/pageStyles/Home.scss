@@ -113,6 +113,36 @@
   }
 }
 
+.demoHomeBtn {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  list-style-type: none;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 10px;
+  width: 150px;
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: #fff;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  border-radius: 15px;
+  background-color: #fff;
+  outline: none;
+  border: 3px solid #2f8ae1;
+  color:#2f8ae1;
+}
+
+.demoHomeBtn:hover {
+  color:white; 
+  background-color: #2f8ae1;
+}
+
 .home-wrapper {
   display: flex;
   flex-direction: row;
