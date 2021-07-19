@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react'
 import Aos from "aos";
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 // Components
 import { Title, Section } from '../components/PageElement'
 import HomePageArt from '../assets/HomePageArt.svg';
@@ -15,8 +16,9 @@ const Home = () => {
     //Animations for Title block//
     //Uses the Aos library//
     useEffect(() => {
-        Aos.init({ duration: 2000, 
-        once:true  
+        Aos.init({
+            duration: 2000,
+            once: true
         });
     }, []);
 
@@ -52,6 +54,11 @@ const Home = () => {
                                 <h1 className="home-wrapper__info-title">GENOME<br />SEQUENCING</h1>
                                 <p className="home-wrapper__info-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sagittis elit eu nulla accumsan, ac rutrum mauris maximus. Sed lobortis, urna eget porttitor laoreet, sapien eros egestas mi, id iaculis arcu libero ut massa.</p>
                                 <AnalyzeHomeBtn />
+                                <Link to='/result'>
+                                    <div className="demoHomeBtn">
+                                       Demo File
+                                    </div>
+                                </Link>
                             </div>
                         </Col>
                         <Col md={6} sm={12}>
@@ -69,7 +76,7 @@ const Home = () => {
                             <div className="scrollDown">
                                 <p>Scroll Down</p>
                                 <div className="scrollIcon">
-                                <i class="fas fa-angle-double-down"></i>
+                                    <i class="fas fa-angle-double-down"></i>
                                 </div>
                             </div>
                         </motion.div>
