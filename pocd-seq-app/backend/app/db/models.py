@@ -20,7 +20,7 @@ users = Table(
     Column("name", String(50)),
     Column("email", String(50)),
     Column("hashed_password", String(250)),
-    Column("created_at", DateTime(timezone=True), default=func.now())
+    # Column("created_at", DateTime(timezone=True), default=func.now())
 )
 
 
