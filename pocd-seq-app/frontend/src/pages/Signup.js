@@ -3,8 +3,14 @@ import {Section} from '../components/PageElement'
 import SignUpImg from "../assets/SignUpImg.svg"
 import {Col, Container, Row} from 'react-bootstrap';
 import {request} from "../http-common";
+import {useHistory} from "react-router-dom";
+import {CircularProgress} from "@material-ui/core";
 
 const SignUp = () => {
+
+    const history = useHistory();
+
+    const [loading, setLoading] = useState(false)
     const [signUp, setSignUp] = useState({
         name: "",
         username: "",
@@ -38,7 +44,9 @@ const SignUp = () => {
     }
 
     const handleSignUp = (e) => {
+        setLoading(true);
         e.preventDefault();
+
         if (Object.values(signUp).some(o => o === "")) {
             console.log("MISSING PARAMETER")
         }
@@ -52,10 +60,11 @@ const SignUp = () => {
 
         signup(signupRequest)
             .then(() => {
-                console.log("YAY")
+                setLoading(false);
+                history.push('/');
             })
-            .catch(() => {
-                console.log("SOMETHING WENT WRONG LOL")
+            .catch((err) => {
+                console.log(err);
             });
     }
     return (
@@ -65,7 +74,7 @@ const SignUp = () => {
                     <Col md={5} sm={8} className="signUp">
                         <form onSubmit={handleSignUp}>
                             <div className="signUpTitle">
-                                <h3>Sign Up Now</h3>
+                                <h3>Sign Up</h3>
                             </div>
 
                             <div className="form-group-container">
@@ -97,11 +106,12 @@ const SignUp = () => {
                             </div>
                             <div className="signUpBtnDiv">
                                 <button type="submit" className="signUpBtn"
-                                        onClick={handleSignUp}>Sign Up
+                                        onClick={handleSignUp}>
+                                    {loading ? <CircularProgress size={25}/> : "Sign Up"}
                                 </button>
                             </div>
                             <p className="forgot-password">
-                                Already have an account? <a href="/login">Login In</a>
+                                Already have an account? <a href="/login">Login</a>
                             </p>
                         </form>
                     </Col>

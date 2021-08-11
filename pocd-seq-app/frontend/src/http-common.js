@@ -20,7 +20,7 @@ export const request = (options, contentType) => {
     );
 };
 
-export function getCurrentUser() {
+export const getCurrentUser = () => {
     if (!localStorage.getItem("accessToken")) {
         return Promise.reject("No access token set.");
     }

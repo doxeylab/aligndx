@@ -3,8 +3,16 @@ import LoginImg from "../assets/LoginImg.svg"
 import {Section} from '../components/PageElement'
 import {Col, Container, Row} from 'react-bootstrap';
 import {request} from "../http-common";
+import {useHistory} from "react-router-dom";
+import {CircularProgress} from '@material-ui/core';
+import {useGlobalContext} from "../context-provider";
 
 const Login = () => {
+
+    const history = useHistory();
+    const context = useGlobalContext();
+
+    const [loading, setLoading] = useState(false)
     const [login, setLogin] = useState({
         username: "",
         password: ""
@@ -27,7 +35,9 @@ const Login = () => {
     }
 
     const handleLogin = (e) => {
+        setLoading(true);
         e.preventDefault();
+
         if (Object.values(login).some(o => o === "")) {
             console.log("MISSING PARAMETER")
         }
@@ -40,9 +50,12 @@ const Login = () => {
         loginRequest(request)
             .then((response) => {
                 localStorage.setItem("accessToken", response.access_token);
+                setLoading(false)
+                history.push("/");
+                context.loadCurrentUser();
             })
             .catch((error) => {
-                console.log("SOMETHING WENT WRONG LOL")
+                console.log(error)
             });
     }
 
@@ -76,13 +89,12 @@ const Login = () => {
                                 <button type="submit"
                                         className="loginBtn"
                                         onClick={handleLogin}>
-                                    Login
+                                    {loading ? <CircularProgress size={25} /> : "Login"}
                                 </button>
 
                             </div>
                             <p className="forgot-password">
-                                Don't Have an Account
-                                <a href="/signup">Sign Up</a>
+                                Don't Have an Account? <a href="/signup">Sign Up</a>
                             </p>
                         </form>
                     </Col>

@@ -10,8 +10,11 @@ import {
     ProfileMenuList,
     ProfileName
 } from './StyledProfile';
+import {useGlobalContext} from "../../../context-provider";
 
-const Profile = ({currentUser}) => {
+const Profile = () => {
+
+    const context = useGlobalContext();
 
     const CustomToggle = React.forwardRef(({children, onClick}, ref) => (
         <a
@@ -50,7 +53,7 @@ const Profile = ({currentUser}) => {
                     <ProfileIcon>
                         <FaUserAlt />
                     </ProfileIcon>
-                    <ProfileName>{currentUser ? currentUser.name : ""}</ProfileName>
+                    <ProfileName>{context.currentUser ? context.currentUser.name : ""}</ProfileName>
                     <Chevron>
                         <FaCaretDown />
                     </Chevron>
@@ -61,7 +64,7 @@ const Profile = ({currentUser}) => {
                 <ProfileMenuItem
                     href="/USER_ID"><FaUserAlt /> Profile</ProfileMenuItem>
                 <ProfileMenuItem href="/"><FaCogs /> Settings</ProfileMenuItem>
-                <ProfileMenuItem href="/"><FaSignOutAlt /> Sign Out</ProfileMenuItem>
+                <ProfileMenuItem onClick={context.logout}><FaSignOutAlt /> Sign Out</ProfileMenuItem>
             </Dropdown.Menu>
         </Dropdown>
     )
