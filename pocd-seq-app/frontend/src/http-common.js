@@ -19,3 +19,14 @@ export const request = (options, contentType) => {
         })
     );
 };
+
+export function getCurrentUser() {
+    if (!localStorage.getItem("accessToken")) {
+        return Promise.reject("No access token set.");
+    }
+
+    return request({
+        url: "http://localhost:8080/users/me",
+        method: "GET",
+    }, "application/json");
+}

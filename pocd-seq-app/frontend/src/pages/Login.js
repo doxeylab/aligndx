@@ -71,11 +71,14 @@ const Login = () => {
                                        placeholder="Enter password"
                                        onChange={onChangePassword} />
                             </div>
+
                             <div className="loginBtnDiv">
                                 <button type="submit"
                                         className="loginBtn"
-                                        onClick={handleLogin}>Login
+                                        onClick={handleLogin}>
+                                    Login
                                 </button>
+
                             </div>
                             <p className="forgot-password">
                                 Don't Have an Account

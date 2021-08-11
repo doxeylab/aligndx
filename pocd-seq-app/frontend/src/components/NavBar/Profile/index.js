@@ -11,9 +11,7 @@ import {
     ProfileName
 } from './StyledProfile';
 
-const Profile = () => {
-
-    const [profileName, setProfileName] = useState("")
+const Profile = ({currentUser}) => {
 
     const CustomToggle = React.forwardRef(({children, onClick}, ref) => (
         <a
@@ -52,7 +50,7 @@ const Profile = () => {
                     <ProfileIcon>
                         <FaUserAlt />
                     </ProfileIcon>
-                    <ProfileName>{profileName}</ProfileName>
+                    <ProfileName>{currentUser ? currentUser.name : ""}</ProfileName>
                     <Chevron>
                         <FaCaretDown />
                     </Chevron>

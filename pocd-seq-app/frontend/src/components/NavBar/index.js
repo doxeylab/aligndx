@@ -21,7 +21,7 @@ import AlignDx from '../../assets/AlignDx.svg';
 
 const max_width = '992px';
 
-const NavBar = ({authenticated}) => {
+const NavBar = ({authenticated, currentUser}) => {
     const [mobileMenu, setMobileMenu] = useState(false);
 
     const handleMenuToggle = () => {
@@ -62,7 +62,7 @@ const NavBar = ({authenticated}) => {
                 <Sidebar authenticated={authenticated} NavItems={NavbarItems} MobileMenu={mobileMenu} CloseClick={closeMobileMenu}/>
                 <NavBtn>
                     {authenticated ? (
-                        <Profile/>
+                        <Profile currentUser={currentUser}/>
                     )
                     : (
                         <>                 
