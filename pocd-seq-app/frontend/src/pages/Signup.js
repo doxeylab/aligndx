@@ -1,30 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Title, Section } from '../components/PageElement'
+import React, {useEffect, useState} from "react";
+import {Section} from '../components/PageElement'
 import SignUpImg from "../assets/SignUpImg.svg"
-import { Container, Row, Col } from 'react-bootstrap';
-import axios from 'axios';
-
-const request = (options) => {
-    const headers = new Headers({
-        "Content-Type": "application/json",
-    });
-
-    if (localStorage.getItem("accessToken")) {
-        headers.append("Authorization", "Bearer " + localStorage.getItem("accessToken"));
-    }
-
-    const defaults = { headers: headers };
-    options = Object.assign({}, defaults, options);
-
-    return fetch(options.url, options).then((response) =>
-        response.json().then((json) => {
-            if (!response.ok) {
-                return Promise.reject(json);
-            }
-            return json;
-        })
-    );
-};
+import {Col, Container, Row} from 'react-bootstrap';
+import {request} from "../http-common";
 
 const SignUp = () => {
     const [signUp, setSignUp] = useState({
@@ -58,7 +36,7 @@ const SignUp = () => {
             url: "http://localhost:8080/create_user",
             method: "POST",
             body: JSON.stringify(signupRequest),
-        });
+        }, "application/json");
     }
 
     const handleSignUp = (e) => {
@@ -75,11 +53,7 @@ const SignUp = () => {
         };
 
         signup(signupRequest)
-            .then((response) => {
-                localStorage.setItem("accessToken", response.accessToken);
-                // this.setState({ loading: false });
-                // this.props.loadCurrentUser("SIGNUP");
-                // this.props.router.back();
+            .then(() => {
                 console.log("YAY")
             })
             .catch(() => {
@@ -126,7 +100,7 @@ const SignUp = () => {
                             </p>
                         </form>
                     </Col>
-                    <Col className="signUpContainer" md={{ span: 6, offset: 1 }} sm={4}> 
+                    <Col className="signUpContainer" md={{ span: 6, offset: 1 }} sm={4}>
                         <div >
                             <img classname="signUpPicture" src={SignUpImg} alt='SignUpImg' />
                         </div>
