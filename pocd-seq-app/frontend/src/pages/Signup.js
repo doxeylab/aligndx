@@ -64,6 +64,7 @@ const SignUp = () => {
                 history.push('/');
             })
             .catch((err) => {
+                setLoading(false);
                 console.log(err);
             });
     }
