@@ -55,7 +55,8 @@ const Login = () => {
                 context.loadCurrentUser();
             })
             .catch((error) => {
-                console.log(error)
+                setLoading(false);
+                console.log(error);
             });
     }
 

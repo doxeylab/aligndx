@@ -62,7 +62,7 @@ const NavBar = () => {
                         )
                     })}
                 </NavMenu>
-                <Sidebar authenticated={context.authenticated} NavItems={NavbarItems} MobileMenu={mobileMenu} CloseClick={closeMobileMenu}/>
+                <Sidebar NavItems={NavbarItems} MobileMenu={mobileMenu} CloseClick={closeMobileMenu}/>
                 <NavBtn>
                     {context.authenticated ? (
                         <Profile />
