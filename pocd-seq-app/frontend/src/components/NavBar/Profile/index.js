@@ -1,55 +1,59 @@
 import React, {useState} from 'react';
-import {FaUserAlt, FaCaretDown, FaCaretUp, FaCogs, FaSignOutAlt} from 'react-icons/fa';
-import { Dropdown } from 'react-bootstrap';
+import {FaCaretDown, FaCogs, FaSignOutAlt, FaUserAlt} from 'react-icons/fa';
+import {Dropdown} from 'react-bootstrap';
 import {
-    ProfileBtn, 
-    ProfileName,
+    Chevron,
+    ProfileBtn,
     ProfileIcon,
     ProfileMenu,
-    ProfileMenuList,
     ProfileMenuItem,
-    Chevron
+    ProfileMenuList,
+    ProfileName
 } from './StyledProfile';
+import {useGlobalContext} from "../../../context-provider";
 
 const Profile = () => {
-    const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
+
+    const context = useGlobalContext();
+
+    const CustomToggle = React.forwardRef(({children, onClick}, ref) => (
         <a
-          href=""
-          ref={ref}
-          onClick={(e) => {
-            e.preventDefault();
-            onClick(e);
-          }}
+            href=""
+            ref={ref}
+            onClick={(e) => {
+                e.preventDefault();
+                onClick(e);
+            }}
         >
-          {children}
+            {children}
         </a>
-      ));
+    ));
 
     const CustomMenu = React.forwardRef(
-        ({ children, style }, ref) => {
-          const [value, setValue] = useState('');
-      
-          return (
-            <ProfileMenu ref={ref} style={style}>
-                <ProfileMenuList className="list-unstyled">
-                {React.Children.toArray(children).filter(
-                    (child) =>
-                    !value || child.props.children.toLowerCase().startsWith(value),
-                )}
-                </ProfileMenuList>
-            </ProfileMenu>
-          );
+        ({children, style}, ref) => {
+            const [value, setValue] = useState('');
+
+            return (
+                <ProfileMenu ref={ref} style={style}>
+                    <ProfileMenuList className="list-unstyled">
+                        {React.Children.toArray(children).filter(
+                            (child) =>
+                                !value || child.props.children.toLowerCase().startsWith(value),
+                        )}
+                    </ProfileMenuList>
+                </ProfileMenu>
+            );
         },
-      );
+    );
 
     return (
         <Dropdown>
             <Dropdown.Toggle as={CustomToggle}>
                 <ProfileBtn>
                     <ProfileIcon>
-                        <FaUserAlt/>
+                        <FaUserAlt />
                     </ProfileIcon>
-                    <ProfileName>William WL</ProfileName>
+                    <ProfileName>{context.currentUser ? context.currentUser.name : ""}</ProfileName>
                     <Chevron>
                         <FaCaretDown />
                     </Chevron>
@@ -57,9 +61,10 @@ const Profile = () => {
             </Dropdown.Toggle>
 
             <Dropdown.Menu as={CustomMenu}>
-                <ProfileMenuItem href="/USER_ID"><FaUserAlt/> Profile</ProfileMenuItem>
+                <ProfileMenuItem
+                    href="/USER_ID"><FaUserAlt /> Profile</ProfileMenuItem>
                 <ProfileMenuItem href="/"><FaCogs /> Settings</ProfileMenuItem>
-                <ProfileMenuItem href="/"><FaSignOutAlt /> Sign Out</ProfileMenuItem>
+                <ProfileMenuItem onClick={context.logout}><FaSignOutAlt /> Sign Out</ProfileMenuItem>
             </Dropdown.Menu>
         </Dropdown>
     )

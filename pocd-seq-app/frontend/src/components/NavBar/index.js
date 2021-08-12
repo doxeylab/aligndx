@@ -1,27 +1,30 @@
 // React
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 // Components
 import {
-    Nav,
-    NavContainer,
-    NavLogo,
     MobileIcon,
-    NavMenu,
+    Nav,
+    NavBtn,
+    NavBtnLink,
+    NavContainer,
     NavItem,
     NavLink,
-    NavBtn,
-    NavBtnLink
-    } from './NavbarElement';
+    NavLogo,
+    NavMenu
+} from './NavbarElement';
 import {FaBars, FaTimes} from 'react-icons/fa';
 import {NavbarItems} from './NavbarItems';
 import Sidebar from './SideBar';
 import Profile from './Profile';
 // Assets
 import AlignDx from '../../assets/AlignDx.svg';
+import {useGlobalContext} from "../../context-provider";
 
 const max_width = '992px';
 
-const NavBar = ({authenticated}) => {
+const NavBar = () => {
+
+    const context = useGlobalContext()
     const [mobileMenu, setMobileMenu] = useState(false);
 
     const handleMenuToggle = () => {
@@ -59,17 +62,17 @@ const NavBar = ({authenticated}) => {
                         )
                     })}
                 </NavMenu>
-                <Sidebar authenticated={authenticated} NavItems={NavbarItems} MobileMenu={mobileMenu} CloseClick={closeMobileMenu}/>
+                <Sidebar authenticated={context.authenticated} NavItems={NavbarItems} MobileMenu={mobileMenu} CloseClick={closeMobileMenu}/>
                 <NavBtn>
-                    {authenticated ? (
-                        <Profile/>
+                    {context.authenticated ? (
+                        <Profile />
                     )
                     : (
                         <>                 
                             <NavBtnLink to="/login">
                                 <span className="btn-text">Log In</span>
                             </NavBtnLink>
-                            <NavBtnLink fill to="/login">
+                            <NavBtnLink fill to="/signup">
                                 <span className="btn-text">Sign Up</span>
                             </NavBtnLink>
                         </>
