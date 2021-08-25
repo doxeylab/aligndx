@@ -9,8 +9,9 @@ export const Nav = styled.nav`
   display: flex;
   align-items: center;
   width: 100%;
-  z-index: 1;
+  z-index: 3;
   height: 120px;
+  font-size: 1.6rem;
 `
 
 export const NavContainer = styled(Container)`
@@ -102,7 +103,7 @@ export const NavBtnLink = styled(Link)`
     line-height: 1;
     z-index: 1;
     transition: all cubic-bezier(0.19, 1, 0.22, 1) 0.6s;
-    overflow: hidden;
+    ${'' /* overflow: hidden; */}
     margin: 0 5px;
     border-radius: 8px;
 

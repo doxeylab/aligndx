@@ -9,13 +9,12 @@ export const SidebarContainer = styled.aside`
     align-items: center;
     left: 0;
     transition: all 0.5s ease;
-
     ${
         props => props.isOpen ?
             `top: 0
             `
         :
-            `top: -100vh;
+            `top: -768px;
             `
     }
 `
@@ -75,7 +74,7 @@ export const SidebarBtnLink = styled(Link)`
     line-height: 2;
     z-index: 1;
     transition: all cubic-bezier(0.19, 1, 0.22, 1) 0.6s;
-    overflow: hidden;
+    ${'' /* overflow: hidden; */}
     margin: 0 5px;
     border-radius: 50px;
     width: 80%;

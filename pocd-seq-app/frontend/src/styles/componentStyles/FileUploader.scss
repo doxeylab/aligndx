@@ -58,7 +58,7 @@
   width: 100%;
   height: 200px;
   border: 4px solid $tertiary-color;
-  overflow-y: auto;
+  // overflow-y: auto;
 }
 
 .file-display-content {
@@ -75,7 +75,7 @@
   height: 50px;
   text-align: left;
   > div {
-    overflow: hidden;
+    // overflow: hidden;
   }
 }
 
@@ -164,7 +164,7 @@
 .upload-modal {
   z-index: 999;
   display: none;
-  overflow: hidden;
+  // overflow: hidden;
 }
 
 .progress-container {
@@ -175,7 +175,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  overflow: hidden;
+  // overflow: hidden;
   span {
     display: flex;
     justify-content: center;

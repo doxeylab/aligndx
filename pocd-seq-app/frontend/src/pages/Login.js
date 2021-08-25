@@ -1,110 +1,22 @@
-import {useState} from "react"
-import LoginImg from "../assets/LoginImg.svg"
-import {Section} from '../components/PageElement'
-import {Col, Container, Row} from 'react-bootstrap';
-import {request} from "../http-common";
-import {useHistory} from "react-router-dom";
-import {CircularProgress} from '@material-ui/core';
-import {useGlobalContext} from "../context-provider";
+// React
+import React from 'react';
+// Components
+import { Section } from '../components/PageElement';
+import { Container, Row, Col } from 'react-bootstrap';
+import { LogInAuth } from '../components/Authentication';
+// Assets
+import LoginImg from "../assets/LoginImg.svg";
 
 const Login = () => {
-
-    const history = useHistory();
-    const context = useGlobalContext();
-
-    const [loading, setLoading] = useState(false)
-    const [login, setLogin] = useState({
-        username: "",
-        password: ""
-    })
-
-    const onChangeUsername = (e) => {
-        setLogin({...login, username: e.target.value})
-    }
-
-    const onChangePassword = (e) => {
-        setLogin({...login, password: e.target.value})
-    }
-
-    const loginRequest = (req) => {
-        return request({
-            url: "http://localhost:8080/token",
-            method: "POST",
-            body: new URLSearchParams(req),
-        }, "application/x-www-form-urlencoded");
-    }
-
-    const handleLogin = (e) => {
-        setLoading(true);
-        e.preventDefault();
-
-        if (Object.values(login).some(o => o === "")) {
-            console.log("MISSING PARAMETER")
-        }
-
-        const request = {
-            username: login.username,
-            password: login.password,
-        };
-
-        loginRequest(request)
-            .then((response) => {
-                localStorage.setItem("accessToken", response.access_token);
-                setLoading(false)
-                history.push("/");
-                context.loadCurrentUser();
-            })
-            .catch((error) => {
-                setLoading(false);
-                console.log(error);
-            });
-    }
-
     return (
-        <Section id="login">
+        <Section center id="login">
             <Container>
-                <Row className="loginRow">
-                    <Col md={5} sm={8} className="login">
-                        <form>
-                            <div className="loginTitle">
-                                <h3>Log In</h3>
-                            </div>
-
-                            <div className="form-group">
-                                <label>Username</label>
-                                <input type="username"
-                                       className="form-control"
-                                       placeholder="Enter username"
-                                       onChange={onChangeUsername} />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Password</label>
-                                <input type="password"
-                                       className="form-control"
-                                       placeholder="Enter password"
-                                       onChange={onChangePassword} />
-                            </div>
-
-                            <div className="loginBtnDiv">
-                                <button type="submit"
-                                        className="loginBtn"
-                                        onClick={handleLogin}>
-                                    {loading ? <CircularProgress size={25} /> : "Login"}
-                                </button>
-
-                            </div>
-                            <p className="forgot-password">
-                                Don't Have an Account? <a href="/signup">Sign Up</a>
-                            </p>
-                        </form>
+                <Row className="justify-content-md-center">
+                    <Col md={5}>
+                        <LogInAuth />
                     </Col>
-                    <Col className="loginContainer" md={{span: 6, offset: 1}}
-                         sm={4}>
-                        <div>
-                            <img className="loginPicture" src={LoginImg}
-                                 alt='loginImg' />
-                        </div>
+                    <Col md={{ span: 5, offset: 1 }}>
+                        <img src={LoginImg} alt='loginImg' />
                     </Col>
                 </Row>
             </Container>

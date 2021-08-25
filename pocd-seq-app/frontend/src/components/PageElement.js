@@ -20,7 +20,8 @@ export const Title = styled.h1`
 `
 
 export const Section = styled.section`
-    min-height: 100vh;
+    min-height: 768px;
+    padding: 4rem 0;
     display: flex;
     ${
         props => props.center ? 
