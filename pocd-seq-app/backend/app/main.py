@@ -40,12 +40,10 @@ app.add_middleware(
 
 app.include_router(uploads.router,
                    tags=["uploads"],
-                   # dependencies=[Depends(get_token_header)],
                    responses={408: {"description": "Ain't gonna work buddy"}},
                    )
 app.include_router(results.router,
                    tags=["results"],
-                   # dependencies=[Depends(get_token_header)],
                    responses={408: {"description": "Ain't gonna work buddy"}},
                    )
 app.include_router(user_auth.router,
@@ -60,10 +58,6 @@ async def root():
 @app.get("/api/v1")
 async def root():
     return {"message": "This is the root endpoint for version 1 of the api"}
-
-
-# if __name__ == "__main__":
-#     uvicorn.run("main:app", host="0.0.0.0", reload=True, port=8888)
 
 
 # starts database connection
