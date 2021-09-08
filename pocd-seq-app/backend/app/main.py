@@ -1,4 +1,4 @@
-from app.api.api_v1.routers import uploads, results, user_auth
+from app.api_v1.routers import uploads, results, user_auth
 from app.db.database import database
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
