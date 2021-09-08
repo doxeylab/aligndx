@@ -7,9 +7,7 @@ samples = Table(
     metadata,
     Column("token", String(50), primary_key=True),
     Column("sample", String(50)),
-    Column("created_date", DateTime, nullable=False)
-    # Column("description", String(50))
-    # Column("created_date", DateTime, default=func.now(), nullable=False)
+    Column("created_date", DateTime, nullable=False) 
 )
 
 users = Table(
@@ -20,7 +18,6 @@ users = Table(
     Column("name", String(50)),
     Column("email", String(50)),
     Column("hashed_password", String(250)),
-    # Column("created_at", DateTime(timezone=True), default=func.now())
 )
 
 
