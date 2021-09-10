@@ -6,13 +6,13 @@ case $1 in
     # then react-scripts won't clear the console.
     npm start | cat
     ;;
-  build)
-    npm build
-    ;;
-  test)
-    npm test $@
-    ;;
-  *)
-    npm "$@"
-    ;;
+#  build)
+#    npm build
+#    ;;
+#  test)
+#    npm test $@
+#    ;;
+#  *)
+#    npm "$@"
+#    ;;
 esac
