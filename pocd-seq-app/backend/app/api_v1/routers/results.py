@@ -63,7 +63,8 @@ async def quantify_chunks(token: str):
               "host_hits": host_table,\
               "all_hits": hits_table}
     # results[dir] = result
-    return json.dumps(result)
+    # return json.dumps(result)
+    return result
     # if detection_result:
     #     return json.dumps(table, indent=4)
     # else:
