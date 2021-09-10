@@ -11,8 +11,11 @@ import { CircularProgress } from '@material-ui/core';
 import { request } from "../../../http-common";
 import { useGlobalContext } from "../../../context-provider";
 // Styles
-import { FormInput, FormBtn } from '../StyledForm';
+import { FormContainer, FormInput, FormBtn } from '../StyledForm';
 import '../CustomForm.css';
+// Assets
+import GoogleIcon from "../../../assets/AuthenticationIcons/google-icon.png";
+import FacebookIcon from "../../../assets/AuthenticationIcons/facebook-icon.png";
 
 const LogInAuth = () => {
     const history = useHistory();
@@ -67,21 +70,19 @@ const LogInAuth = () => {
     }
 
     return (
-        <Form className="form">
+        <FormContainer>
             <h1>Log In</h1>
             <FormInput>
-                <Row className="form-input">
-                    <Col>
-                        <Form.Label>Username</Form.Label>
-                        <Form.Control size="lg" type="username" placeholder="Enter username" onChange={onChangeUsername}/>
-                    </Col>
-                </Row>
-                <Row className="form-input">
-                    <Col>
-                        <Form.Label>Password</Form.Label>
-                        <Form.Control size="lg" type="password" placeholder="Password" onChange={onChangePassword}/>
-                    </Col>
-                </Row>
+                <Col>
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control size="lg" type="email" placeholder="Email" onChange={onChangeUsername}/>
+                </Col>
+            </FormInput>
+            <FormInput>
+                <Col>
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control size="lg" type="password" placeholder="Password" onChange={onChangePassword}/>
+                </Col>
             </FormInput>
 
             <Row>
@@ -110,7 +111,13 @@ const LogInAuth = () => {
                     <p>Or connect with</p>
                 </Col>
             </Row>
-        </Form>
+            <Row>
+                <Col style={{display: 'flex', justifyContent: "center"}}>
+                    <img src={GoogleIcon} alt='google-icon' width="25" height="25" style={{margin: "10px"}}/>
+                    <img src={FacebookIcon} alt='facebook-icon' width="25" height="25" style={{margin: "10px"}}/>
+                </Col>
+            </Row>
+        </FormContainer>
     );
 }
 

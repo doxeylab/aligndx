@@ -5,6 +5,8 @@ import OurGoals from '../assets/OurGoals.svg';
 import DiversityImage from '../assets/DiversityImage.svg';
 import blueWaveTop from '../assets/blueWaveTop.svg';
 import blueWaveBottom from '../assets/blueWaveBottom.svg';
+import { Section, Title } from '../components/PageElement';
+import { Container, Row, Col } from 'react-bootstrap';
 
 export default function About() {
 
@@ -20,10 +22,11 @@ export default function About() {
     }, []);
 
     return (
-        <div className="section">
-            <div className="about-container">
-
-                {/*About Us section*/}
+        <Section center full id="about">
+            <Container>
+                <Title>Who we are</Title>
+            </Container>
+            {/* <div className="about-container">
                 <div className="aboutUs">
                     <div className="aboutUsTitle">
                         <h1>Who We Are</h1>
@@ -36,7 +39,6 @@ export default function About() {
                         </h2>
                     </div>
                 </div>
-                {/*Our Values section*/}
                 <div className="ourValue">
                     <img className="blueWaveTop" draggable="false" src={blueWaveTop} alt='blueWaveTop' />
                     <div className="ourValueWrap">
@@ -69,9 +71,6 @@ export default function About() {
                     </div>
                     <img draggable="false" className="blueWaveBottom" src={blueWaveBottom} alt='blueWaveBottom' />
                 </div>
-
-                {/*Benefits Choosing Us*/}
-
                 <div className="ourBenefit">
                     <div className="ourBenefitWrap">
                         <div className="ourBenefitTitle">
@@ -118,8 +117,6 @@ export default function About() {
                         </div>
                     </div>
                 </div>
-
-                {/*Our Goals section*/}
                 <div className="ourGoals" >
                     <div className="ourGoalsImageWrap">
                         <img className="ourGoalsImage" src={OurGoals} alt='OurGoalsImage' />
@@ -137,8 +134,6 @@ export default function About() {
                         </div>
                     </div>
                 </div>
-
-                {/*Diversity section*/}
                 <div className="ourDiversity" >
                     <div className="ourDiversityTextWrap">
                         <div className="ourDiversityText">
@@ -159,8 +154,6 @@ export default function About() {
                         <img className="ourDiversityImage" src={DiversityImage} alt='DiversityImage' />
                     </div>
                 </div>
-
-                {/* Meet Our Team */}
                 <div className="meetUs">
                     <div className="meetUsTitle">
                         <h1>Meet The People Behind This Project</h1>
@@ -174,7 +167,7 @@ export default function About() {
                         </Link>
                     </div>
                 </div>
-            </div>
-        </div >
+            </div> */}
+        </Section>
     );
 }

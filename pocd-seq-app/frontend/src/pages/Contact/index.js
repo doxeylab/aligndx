@@ -6,7 +6,7 @@ import {Header, ContactWrapper, ContactItem, ContactIcon, ContactText, ContactTi
 
 const Contact = () => {
     return (
-        <Section id="contact" center>
+        <Section id="contact" center full>
             <Container>
                 <Row>
                     <Col>

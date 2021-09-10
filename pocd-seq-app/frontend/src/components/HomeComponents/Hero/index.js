@@ -13,7 +13,7 @@ import './CustomModal.css';
 // Assets
 import HomePageArt from '../../../assets/HomePageArt.svg';
 import { UPLOAD_URL } from '../../../services/Config';
-import TokenService from '../../../services/Token'
+import { TokenService } from '../../../services/Token'
 import axios from 'axios';
 
 const Hero = () => {
@@ -105,7 +105,7 @@ const Hero = () => {
                     </Row>
                     <Row>
                         <Col>
-                            <Button fill disabled={dataFiles.length === 0 ? true : false}>Analyze</Button>
+                            <Button fill disabled={dataFiles.length === 0 ? true : false} onClick={() => upload()}>Analyze</Button>
                         </Col>
                     </Row>
                 </Container>

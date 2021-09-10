@@ -20,7 +20,7 @@ export const Title = styled.h1`
 `
 
 export const Section = styled.section`
-    min-height: 768px;
+    min-height: ${props => props.full ? '100vh' : '768px'};
     padding: 4rem 0;
     display: flex;
     ${

@@ -9,13 +9,13 @@ import LoginImg from "../assets/LoginImg.svg";
 
 const Login = () => {
     return (
-        <Section center id="login">
+        <Section center full id="login">
             <Container>
                 <Row className="justify-content-md-center">
                     <Col md={5}>
                         <LogInAuth />
                     </Col>
-                    <Col md={{ span: 5, offset: 1 }}>
+                    <Col md={{ span: 5, offset: 1 }} style={{display: 'flex', alignItems: 'center'}}>
                         <img src={LoginImg} alt='loginImg' />
                     </Col>
                 </Row>

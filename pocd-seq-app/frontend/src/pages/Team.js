@@ -1,20 +1,49 @@
 import React from 'react';
-import ADoxey from '../assets/ADoxey.png';
-import Manjot from '../assets/Manjot.png';
-import Carson from '../assets/Carson.jpg';
-import William from '../assets/William.png';
-import JHirota from '../assets/JHirota.png';
+import { Section, Title } from '../components/PageElement';
+import { Container, Row, Col } from 'react-bootstrap';
+import TeamCard from '../components/TeamCard';
+// Assets
+import Doxey from '../assets/Team/ADoxey.png';
+import Hirota from '../assets/Team/JHirota.png';
+import Manjot from '../assets/Team/Manjot.png';
+import Linda from '../assets/Team/Linda.jpeg';
+import William from '../assets/Team/William.png';
+import Carson from '../assets/Team/Carson.jpg';
 
-export default function Team() {
+const Team = () => {
   return (
-    <div className="section">
-      <div className="team-container">
+    <Section>
+      <Container>
+        <Title>Meet Our Team</Title>
+        <Row style={{marginBottom: "30px"}}>
+          <Col>
+            <TeamCard name="Andrew Doxey" role="Advisor" image={Doxey}/>
+          </Col>
+          <Col>
+            <TeamCard name="Jermey Hirota" role="Advisor" image={Hirota}/>
+          </Col>
+          <Col>
+            <TeamCard name="Manjot Hunjun" role="Project Manager" image={Manjot}/>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <TeamCard name="Carson Zheng" role="Front-End Developer" image={Carson}/>
+          </Col>
+          <Col>
+            <TeamCard name="Linda Yang" role="Back-End Developer" image={Linda}/>
+          </Col>
+          <Col>
+            <TeamCard name="William Zhen" role="UI/UX Designer" image={William}/>
+          </Col>
+        </Row>
+      </Container>
+      {/* <div className="team-container">
         <div className="teamWrap">
           <div className="teamWrapWidth">
             <div className="teamTitle">
               <h1>Meet Our Team</h1>
             </div>
-            {/*Professor section*/}
             <div className="professorRow">
               <div className="professorTitle"><h2>Our Advisors</h2></div>
               <div className="professorWrap">
@@ -48,11 +77,9 @@ export default function Team() {
                     </div>
                   </div>
                 </div>
-                {/*PlaceHolder Div */}
                 <div className="teamProfileCol"></div>
               </div>
             </div>
-            {/*Developers section*/}
             <div className="developerRow">
               <div className="developerTitle"><h2>Our Developers</h2></div>
               <div className="developerWrap">
@@ -108,7 +135,9 @@ export default function Team() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </div> */}
+    </Section>
   );
 }
+
+export default Team;

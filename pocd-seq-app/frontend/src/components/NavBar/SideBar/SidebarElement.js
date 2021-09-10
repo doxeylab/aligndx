@@ -14,7 +14,7 @@ export const SidebarContainer = styled.aside`
             `top: 0
             `
         :
-            `top: -768px;
+            `top: -100vh;
             `
     }
 `

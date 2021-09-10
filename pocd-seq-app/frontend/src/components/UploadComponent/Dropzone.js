@@ -50,7 +50,7 @@ const FileUploader = ({ fileCallback, selectedFiles, removeCallback }) => {
         <Preview files={selectedFiles} removeFileCallback={removeCallback} />
         :
         <Dropzone
-            active={dropzoneActive}
+          active={dropzoneActive}
           onDragOver={dragOver}
           onDragEnter={dragEnter}
           onDragLeave={dragLeave}
