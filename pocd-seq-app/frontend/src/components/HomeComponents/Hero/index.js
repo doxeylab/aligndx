@@ -38,12 +38,12 @@ const Hero = () => {
         formData.append("token", token)
 
         dataFiles.forEach(file => {
-            formData.append('sequence', file)
+            formData.append('files', file)
         })
 
         axios.post(UPLOAD_URL, formData)
             .then(() => {
-                window.location.href = "/result/#/?id=" + token
+                window.location.href = "/results/#/?id=" + token
             })
             .catch(() => {
                 console.log("ERROR")

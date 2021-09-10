@@ -1,7 +1,9 @@
+from array import ArrayType
 from fastapi import APIRouter, File, UploadFile, Form 
 from typing import List
 import shutil, os
 from datetime import datetime
+from pydantic import BaseModel
 
 from app.scripts import fqsplit, runsalmon
 # from app.db.database import database
@@ -22,7 +24,7 @@ if not os.path.isdir(RESULTS_FOLDER):
     os.mkdir(RESULTS_FOLDER)  
 
 router = APIRouter() 
-
+ 
 @router.post("/uploads")  
 async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)):  
     for file in files:  
