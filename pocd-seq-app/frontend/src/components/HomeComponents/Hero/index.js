@@ -42,8 +42,8 @@ const Hero = () => {
         })
 
         axios.post(UPLOAD_URL, formData)
-            .then(() => {
-                window.location.href = "/result/#/?id=" + token
+            .then(() => { 
+                window.location.href = "/results/#/?id=" + token
             })
             .catch(() => {
                 console.log("ERROR")
@@ -60,7 +60,7 @@ const Hero = () => {
                 <Row>
                     <Col md={6} sm={12}>
                         <HeroBody>
-                            <HeroTitle>GENOME<br />SEQUENCING</HeroTitle>
+                            <HeroTitle>PATHOGEN<br />DETECTION</HeroTitle>
                             <HeroText>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
                             Mauris sagittis elit eu nulla accumsan, ac rutrum mauris maximus. 
                             Sed lobortis, urna eget porttitor laoreet, sapien eros egestas mi, 
