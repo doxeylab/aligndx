@@ -3,7 +3,6 @@ from fastapi import APIRouter, File, UploadFile, Form
 from typing import List
 import shutil, os
 from datetime import datetime
-from pydantic import BaseModel
 
 from app.scripts import fqsplit, runsalmon
 # from app.db.database import database
@@ -14,9 +13,7 @@ from app.db.schema import Sample as SchemaSample
 UPLOAD_FOLDER = './uploads' 
 RESULTS_FOLDER = './results'
 INDEX_FOLDER = './indexes'
-# eventually needs to handle various different panels of indexes
-indexpath = os.path.join(INDEX_FOLDER, 'sars_with_human_decoys')
-# indexpath = os.path.join(INDEX_FOLDER, 'sars_and_human_index')
+
 
 if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER) 
@@ -35,13 +32,13 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
                  'sample': sample_name,
                  'created_date': now }
         query = await ModelSample.create(**response)
-
-        # create directory for uploaded sample, only if it hasn't been uploaded before
-        # should I consider allowing repeated uploads of the same file?
-        
-        sample_dir = os.path.join(UPLOAD_FOLDER, token, sample_name)
+ 
         if not os.path.isdir(UPLOAD_FOLDER):
             os.mkdir(UPLOAD_FOLDER)
+        
+        sample_dir = os.path.join(UPLOAD_FOLDER, token, sample_name)
+        
+        # create directory for uploaded sample, only if it hasn't been uploaded before
         if not os.path.isdir(sample_dir): 
             os.makedirs(sample_dir)
 
@@ -56,10 +53,13 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
             # current buffer size set to 16*1024
             shutil.copyfileobj(file.file, f)  
          
+        # indexpath = os.path.join(INDEX_FOLDER, 'sars_and_human_index')
+        indexpath = os.path.join(INDEX_FOLDER, 'sars_with_human_decoys')
         filename = file.filename.split('.')[1]
         results_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
         runsalmon.quantify(filename, indexpath, file_location, results_dir)
 
+        # Code not currently in use
 
         # splits uploaded fastq file into evenly distributed chunks
         # fqsplit.chunker(file_location) 
@@ -77,4 +77,40 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
 async def fileretrieve(token: str ):
     id = await ModelSample.get(token)
     print(id)
-    return {'token': id}  
+    return {'token': id} 
+
+@router.post("/panel_uploads/")
+async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...), panel: str = Form(...):
+    for file in files:
+        # get file name
+        sample_name = file.filename.split('.')[0]
+        now = datetime.now()
+        response = {'token': token,
+                 'sample': sample_name,
+                 'created_date': now }
+        query = await ModelSample.create(**response)
+
+        if not os.path.isdir(UPLOAD_FOLDER):
+            os.mkdir(UPLOAD_FOLDER)
+
+        sample_dir = os.path.join(UPLOAD_FOLDER, token, sample_name)
+
+        # create directory for uploaded sample, only if it hasn't been uploaded before
+        if not os.path.isdir(sample_dir):
+            os.makedirs(sample_dir)
+
+        # declare upload location
+        file_location = os.path.join(sample_dir, file.filename)
+
+        # open file using write, binary permissions
+        with open(file_location, "wb+") as f:
+            shutil.copyfileobj(file.file, f)
+            shutil.copyfileobj(file.file, f)
+        
+        indexpath = os.path.join(INDEX_FOLDER, panel)
+        filename = file.filename.split('.')[1]
+        results_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
+        runsalmon.quantify(filename, indexpath, file_location, results_dir)
+
+        # splits uploaded fastq file into evenly distributed chunks
+    return {"run": "complete"}
