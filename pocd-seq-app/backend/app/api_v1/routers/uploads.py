@@ -80,7 +80,7 @@ async def fileretrieve(token: str ):
     return {'token': id} 
 
 @router.post("/panel_uploads/")
-async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...), panel: str = Form(...):
+async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...), panel: str = Form(...)):
     for file in files:
         # get file name
         sample_name = file.filename.split('.')[0]
@@ -104,8 +104,7 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
 
         # open file using write, binary permissions
         with open(file_location, "wb+") as f:
-            shutil.copyfileobj(file.file, f)
-            shutil.copyfileobj(file.file, f)
+            shutil.copyfileobj(file.file, f) 
         
         indexpath = os.path.join(INDEX_FOLDER, panel)
         filename = file.filename.split('.')[1]

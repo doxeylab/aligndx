@@ -44,16 +44,16 @@ async def quantify_chunks(token: str):
     quant_dir = os.path.join(sample_dir,'quant.sf') 
     raw_df = data_tb.producedataframe(quant_dir,'NumReads')  
     hits_df = raw_df[raw_df.NumReads > 0]
-    sars_hits =raw_df[raw_df.index.isin(sequences.values())]
-    sars_biomarkers = raw_df[raw_df.index.isin(host_biomarkers.keys())]
+    pathogen_hits =raw_df[raw_df.index.isin(sequences.values())]
+    pathogen_biomarkers = raw_df[raw_df.index.isin(host_biomarkers.keys())]
     # sample_df = data_tb.producedataframe(quant_dir,category)
     # detected_pathogen = 'SARS-CoV-2'  
     
     # raw_table = data_tb.intojson(raw_df)
     hits_table = data_tb.intojson(hits_df)
 
-    pathogen_table = data_tb.intojson(sars_hits)
-    host_table = data_tb.intojson(sars_biomarkers)
+    pathogen_table = data_tb.intojson(pathogen_hits)
+    host_table = data_tb.intojson(pathogen_biomarkers)
 
     detection_result = data_tb.ispositive(raw_df) 
     result = {"sample": sample_name, 
