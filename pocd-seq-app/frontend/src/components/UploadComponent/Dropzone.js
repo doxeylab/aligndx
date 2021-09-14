@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import {Dropzone, DropzoneInput, DropzoneMessage, DropzoneTitle} from './StyledDropzone';
 import Preview from './Preview/Preview';
+import UploadIcon from '../../assets/uploadIcon.png';
 
 const FileUploader = ({ fileCallback, selectedFiles, removeCallback }) => {
   const [dropzoneActive, setDropzoneActive] = useState(false);
@@ -64,7 +65,7 @@ const FileUploader = ({ fileCallback, selectedFiles, removeCallback }) => {
                     ref={fileInputRef}
                     onChange={filesSelected}
                 />
-              <div className="upload-icon"></div>
+              <img style={{ width: "100px", height: "100px" }} src={UploadIcon} />
               Drag & Drop files here or click to upload
             </DropzoneMessage>
           </Dropzone>

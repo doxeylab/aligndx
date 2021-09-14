@@ -5,6 +5,7 @@ import { RESULT_URL } from '../services/Config';
 import Barchart from '../components/BarChart';
 import { Link } from 'react-router-dom';
 import ResultCard from '../components/ResultCard.js';
+import { Section } from '../components/PageElement';
 
 const Result = () => {
     try {
@@ -76,6 +77,8 @@ const Result = () => {
     const [data, setData] = useState(null);
     const [getLoad, setGetLoad] = useState(true);
 
+    console.log(url_id)
+
     useEffect(() => {
       axios.get(RESULT_URL + '/' + url_id)
           .then(res => {
@@ -101,69 +104,67 @@ const Result = () => {
         {getLoad ?
             <h1 style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100vh"}}>LOADING...</h1>
         :
-        <div className="section">
-            <div className="result-container">
-                <Container>
-                    <Row>
-                        <h1 className="result-container__title">Sample: {sample} for {pathogen}</h1>
-                    </Row>
-                    <Row>
-                        {data.map(d => {
-                            return (
-                                <ResultCard detection={d.detection}>
-                                    <Row style={{padding: "25px"}}>
-                                        <Col md={6}>
-                                            <div>
-                                                <h1>
-                                                    Pathogen Marker Abundance
-                                                </h1>
-                                                <p>
-                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
-                                                </p>
-                                            </div>
-                                        </Col>
-                                        <Col md={6}>
-                                            <div>
-                                                <h1>
-                                                    Host Marker Abundance
-                                                </h1>
-                                                <p>
-                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
-                                                </p>
-                                            </div>
-                                        </Col>
-                                    </Row>
-                                    <Row style={{padding: "25px"}}>
-                                        <Col md={6}>
-                                            <div className = 'barGraph'>
-                                                <h1>Pathogen Hits</h1>
-                                                <Barchart data={d.pathogen_hits.data} yLabel="Y-AXIS" xLabel="X-AXIS"/>
-                                            </div>
-                                        </Col>
-                                        <Col md={6}>
-                                            <div className = 'barGraph'>
-                                                <h1>Host Hits</h1>
-                                                <Barchart data={d.host_hits.data} yLabel="Y-AXIS2" xLabel="X-AXIS2"/>
-                                            </div>
-                                        </Col>
-                                    </Row>
-                                </ResultCard>
-                            )
-                        })}
-                    </Row>
-                    <Row>
-                        <Col>
-                            <button className="resultPageBtn saveResultBtn">Save Results</button>
+        <Section full id="results">
+            <Container className="result-container">
+                <Row>
+                    <h1 className="result-container__title">Sample: {sample} for {pathogen}</h1>
+                </Row>
+                <Row>
+                    {data.map(d => {
+                        return (
+                            <ResultCard detection={d.detection}>
+                                <Row style={{padding: "25px"}}>
+                                    <Col md={6}>
+                                        <div>
+                                            <h1>
+                                                Pathogen Marker Abundance
+                                            </h1>
+                                            <p>
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                                            </p>
+                                        </div>
+                                    </Col>
+                                    <Col md={6}>
+                                        <div>
+                                            <h1>
+                                                Host Marker Abundance
+                                            </h1>
+                                            <p>
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                                            </p>
+                                        </div>
+                                    </Col>
+                                </Row>
+                                <Row style={{padding: "25px"}}>
+                                    <Col md={6}>
+                                        <div className = 'barGraph'>
+                                            <h1>Pathogen Hits</h1>
+                                            <Barchart data={d.pathogen_hits.data} yLabel="Y-AXIS" xLabel="X-AXIS"/>
+                                        </div>
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className = 'barGraph'>
+                                            <h1>Host Hits</h1>
+                                            <Barchart data={d.host_hits.data} yLabel="Y-AXIS2" xLabel="X-AXIS2"/>
+                                        </div>
+                                    </Col>
+                                </Row>
+                            </ResultCard>
+                        )
+                    })}
+                </Row>
+                <Row>
+                    <Col>
+                        <button className="resultPageBtn saveResultBtn">Save Results</button>
 
-                            <Link to="/home">
-                                <button className="resultPageBtn upload-btn">Upload New</button>
-                            </Link>
-                        </Col>
+                        <Link to="/home">
+                            <button className="resultPageBtn upload-btn">Upload New</button>
+                        </Link>
+                    </Col>
 
-                    </Row>
-                </Container>
-            </div>
-        </div>
+                </Row>
+            </Container>
+        </Section>
         }
         </>
     );

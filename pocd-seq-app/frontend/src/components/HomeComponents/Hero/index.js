@@ -18,7 +18,8 @@ import axios from 'axios';
 
 const Hero = () => {
     const [show, setShow] = useState(false);
-    const [dataFiles, setDataFiles] = useState([])
+    const [dataFiles, setDataFiles] = useState([]);
+    const [getLoad, setGetLoad] = useState(false);
 
     const dataFileCallback = (file) => {
         setDataFiles(prevFiles => [...prevFiles, file])
@@ -31,7 +32,7 @@ const Hero = () => {
     }
 
     const upload = () => {
-        // setLoading(true)
+        setGetLoad(true)
         const token = TokenService(40);
         const formData = new FormData();
 
@@ -55,62 +56,68 @@ const Hero = () => {
 
     return (
         <>
-        <Section id="hero" center>
-            <Container>
-                <Row>
-                    <Col md={6} sm={12}>
-                        <HeroBody>
-                            <HeroTitle>PATHOGEN<br />DETECTION</HeroTitle>
-                            <HeroText>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-                            Mauris sagittis elit eu nulla accumsan, ac rutrum mauris maximus. 
-                            Sed lobortis, urna eget porttitor laoreet, sapien eros egestas mi, 
-                            id iaculis arcu libero ut massa.</HeroText>
-                            <HeroBtns>
-                                <Button onClick={handleShow}>Analyze</Button>
-                                <Button fill to="/result">Example</Button>
-                                {/* <Link to="/result">
-                                    <Button>Demo File</Button>
-                                </Link> */}
-                            </HeroBtns>
-                        </HeroBody>
-                    </Col>
-                    <Col md={6} sm={12}>
-                        <HeroImage>
-                            <img className="Art" src={HomePageArt} alt="Art" />
-                        </HeroImage>
-                    </Col>
-                </Row>
-            </Container>
-        </Section>
-        <Modal size="lg"
-            aria-labelledby="contained-modal-title-vcenter"
-            centered
-            show={show} 
-            onHide={handleClose}>
-            <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title-vcenter">
-                    Upload your Sequence
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="show-grid">
+        {getLoad ?
+            <h1 style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100vh"}}>LOADING...</h1>
+        :
+            <>
+            <Section id="hero" center>
                 <Container>
-                    <Row style={{marginBottom: '1.5rem'}}>
-                        <Col>
-                            <UploadComponent 
-                                fileCallback = {dataFileCallback} 
-                                selectedFiles={dataFiles} 
-                                removeCallback={dataRemoveFileCallback} 
-                            />
-                        </Col>
-                    </Row>
                     <Row>
-                        <Col>
-                            <Button fill disabled={dataFiles.length === 0 ? true : false} onClick={() => upload()}>Analyze</Button>
+                        <Col md={6} sm={12}>
+                            <HeroBody>
+                                <HeroTitle>PATHOGEN<br />DETECTION</HeroTitle>
+                                <HeroText>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                                Mauris sagittis elit eu nulla accumsan, ac rutrum mauris maximus. 
+                                Sed lobortis, urna eget porttitor laoreet, sapien eros egestas mi, 
+                                id iaculis arcu libero ut massa.</HeroText>
+                                <HeroBtns>
+                                    <Button onClick={handleShow}>Analyze</Button>
+                                    <Button fill to="/result">Example</Button>
+                                    {/* <Link to="/result">
+                                        <Button>Demo File</Button>
+                                    </Link> */}
+                                </HeroBtns>
+                            </HeroBody>
+                        </Col>
+                        <Col md={6} sm={12}>
+                            <HeroImage>
+                                <img className="Art" src={HomePageArt} alt="Art" />
+                            </HeroImage>
                         </Col>
                     </Row>
                 </Container>
-            </Modal.Body>
-        </Modal>
+            </Section>
+            <Modal size="lg"
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+                show={show} 
+                onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        Upload your Sequence
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="show-grid">
+                    <Container>
+                        <Row style={{marginBottom: '1.5rem'}}>
+                            <Col>
+                                <UploadComponent 
+                                    fileCallback = {dataFileCallback} 
+                                    selectedFiles={dataFiles} 
+                                    removeCallback={dataRemoveFileCallback} 
+                                />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <Button fill disabled={dataFiles.length === 0 ? true : false} onClick={() => upload()}>Analyze</Button>
+                            </Col>
+                        </Row>
+                    </Container>
+                </Modal.Body>
+            </Modal>
+            </>
+        }
         </>
     );
 }
