@@ -77,18 +77,14 @@ const Result = () => {
     const [data, setData] = useState(null);
     const [getLoad, setGetLoad] = useState(true);
 
-    console.log(url_id)
-
     useEffect(() => {
       axios.get(RESULT_URL + '/' + url_id)
           .then(res => {
-              var finalResponse = JSON.parse(res.data)
-              console.log(finalResponse)
-              var getLastValue = Math.max(...Object.keys(finalResponse))
-              setData(finalResponse)
+              console.log(res.data)
+              setData([res.data])
               setGetLoad(false)
-              setPathogen(finalResponse.pathogen)
-              setSample(finalResponse.sample)
+              setPathogen(res.data.pathogen)
+              setSample(res.data.sample)
           })
           .catch(() => {
             console.log('Error')
@@ -112,7 +108,7 @@ const Result = () => {
                 <Row>
                     {data.map(d => {
                         return (
-                            <ResultCard detection={d.detection}>
+                            <ResultCard detection={d.detected}>
                                 <Row style={{padding: "25px"}}>
                                     <Col md={6}>
                                         <div>
