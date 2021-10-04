@@ -22,7 +22,7 @@ def quantify(sample, indexpath, filepath, resultspath, fastqtype='single'):
                     ' --validateMappings', \
                         '--seqBias', \
                             '--gcBias', \
-                                '-p', '4',\
+                                '-p', '8',\
                                     '-o',\
                                         resultspath
             ])
@@ -31,7 +31,7 @@ def quantify(sample, indexpath, filepath, resultspath, fastqtype='single'):
             '-r', filepath,\
                     '--seqBias',\
                         '--minAssignedFrags', '1',\
-                            '-p', '4',\
+                            '-p', '8',\
                                 '-o',\
                                     resultspath 
             ])

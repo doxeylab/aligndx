@@ -1,0 +1,5 @@
+1. use build.sh
+2. change config.js urls to server ip
+3. add server ip to main.py CORS
+4. check to see if indexes are present, and correctly called in results and uploads.py
+5. Changed logs in index.js
