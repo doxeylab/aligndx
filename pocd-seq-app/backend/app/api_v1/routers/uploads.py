@@ -53,8 +53,8 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
             # current buffer size set to 16*1024
             shutil.copyfileobj(file.file, f)  
          
-        # indexpath = os.path.join(INDEX_FOLDER, 'sars_and_human_index')
-        indexpath = os.path.join(INDEX_FOLDER, 'sars_with_human_decoys')
+        indexpath = os.path.join(INDEX_FOLDER, 'sars_and_human_index')
+        # indexpath = os.path.join(INDEX_FOLDER, 'sars_with_human_decoys')
         filename = file.filename.split('.')[1]
         results_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
         runsalmon.quantify(filename, indexpath, file_location, results_dir)
@@ -84,6 +84,8 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
     for file in files:
         # get file name
         sample_name = file.filename.split('.')[0]
+        panel = str(panel) + "_index"
+
         now = datetime.now()
         response = {'token': token,
                  'sample': sample_name,
@@ -111,5 +113,4 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
         results_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
         runsalmon.quantify(filename, indexpath, file_location, results_dir)
 
-        # splits uploaded fastq file into evenly distributed chunks
     return {"run": "complete"}
