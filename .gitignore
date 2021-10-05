@@ -14,18 +14,18 @@ results
 uploads
 
 # testing
-/pocd-seq-app/coverage/
+/app/coverage/
 
 # production
-/pocd-seq-app/build
+/app/build
 
 # misc
-/pocd-seq-app/.DS_Store
-/pocd-seq-app/.env.local
-/pocd-seq-app/.env.development.local
-/pocd-seq-app/.env.test.local
-/pocd-seq-app/.env.production.local
-/pocd-seq-app/.eslintcache
+/app/.DS_Store
+/app/.env.local
+/app/.env.development.local
+/app/.env.test.local
+/app/.env.production.local
+/app/.eslintcache
 /experimental/sratoolkit.2.10.9-ubuntu64
 __pycache__
 .pnp
