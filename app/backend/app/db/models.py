@@ -1,20 +1,19 @@
 from app.db.database import database, metadata
 
-from sqlalchemy import (Column, DateTime, String, Table, BigInteger, func)
+from sqlalchemy import Column, DateTime, String, Table, BigInteger, func
 
 samples = Table(
     "samples",
     metadata,
     Column("token", String(50), primary_key=True),
     Column("sample", String(50)),
-    Column("created_date", DateTime, nullable=False) 
+    Column("created_date", DateTime, nullable=False),
 )
 
 users = Table(
     "users",
     metadata,
     Column("id", BigInteger, primary_key=True),
-    Column("username", String(50)),
     Column("name", String(50)),
     Column("email", String(50)),
     Column("hashed_password", String(250)),
@@ -44,7 +43,7 @@ class User:
         return user_id
 
     @classmethod
-    async def get(cls, username):
-        query = users.select().where(users.c.username == username)
+    async def get(cls, email):
+        query = users.select().where(users.c.email == email)
         user = await database.fetch_one(query)
         return user
