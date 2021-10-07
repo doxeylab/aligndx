@@ -84,7 +84,8 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
     for file in files:
         # get file name
         sample_name = file.filename.split('.')[0]
-        panel = str(panel) + "_index"
+        chosen_panel = str(panel) + "_index"
+        metadata = pd.read_csv(panel + "_metadata", sep=";")
 
         now = datetime.now()
         response = {'token': token,
@@ -108,7 +109,7 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
         with open(file_location, "wb+") as f:
             shutil.copyfileobj(file.file, f) 
         
-        indexpath = os.path.join(INDEX_FOLDER, panel)
+        indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
         filename = file.filename.split('.')[1]
         results_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
         runsalmon.quantify(filename, indexpath, file_location, results_dir)
