@@ -7,7 +7,7 @@ export const request = (options, contentType) => {
         headers.append("Authorization", "Bearer " + localStorage.getItem("accessToken"));
     }
 
-    const defaults = {headers: headers};
+    const defaults = { headers: headers };
     options = Object.assign({}, defaults, options);
 
     return fetch(options.url, options).then((response) =>
@@ -19,6 +19,22 @@ export const request = (options, contentType) => {
         })
     );
 };
+
+export const loginRequest = (loginRequest) => {
+    return request({
+        url: "http://localhost:8080/token",
+        method: "POST",
+        body: new URLSearchParams(loginRequest),
+    }, "application/x-www-form-urlencoded");
+}
+
+export const signupRequest = (signupRequest) => {
+    return request({
+        url: "http://localhost:8080/create_user",
+        method: "POST",
+        body: JSON.stringify(signupRequest),
+    }, "application/json");
+}
 
 export const getCurrentUser = () => {
     if (!localStorage.getItem("accessToken")) {

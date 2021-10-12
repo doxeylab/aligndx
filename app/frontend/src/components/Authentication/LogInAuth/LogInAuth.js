@@ -8,7 +8,7 @@ import Button from '../../Button';
 import Checkbox from '../../Checkbox';
 import { CircularProgress } from '@material-ui/core';
 // Actions
-import { request } from "../../../http-common";
+import { loginRequest } from "../../../http-common";
 import { useGlobalContext } from "../../../context-provider";
 // Styles
 import { FormContainer, FormInput, FormBtn } from '../StyledForm';
@@ -23,24 +23,16 @@ const LogInAuth = () => {
 
     const [loading, setLoading] = useState(false)
     const [login, setLogin] = useState({
-        username: "",
+        email: "",
         password: ""
     })
 
-    const onChangeUsername = (e) => {
-        setLogin({...login, username: e.target.value})
+    const onChangeEmail = (e) => {
+        setLogin({ ...login, email: e.target.value })
     }
 
     const onChangePassword = (e) => {
-        setLogin({...login, password: e.target.value})
-    }
-
-    const loginRequest = (req) => {
-        return request({
-            url: "http://localhost:8080/token",
-            method: "POST",
-            body: new URLSearchParams(req),
-        }, "application/x-www-form-urlencoded");
+        setLogin({ ...login, password: e.target.value })
     }
 
     const handleLogin = (e) => {
@@ -51,12 +43,13 @@ const LogInAuth = () => {
             console.log("MISSING PARAMETER")
         }
 
-        const request = {
-            username: login.username,
+        // username = email in our project
+        const loginParams = {
+            username: login.email,
             password: login.password,
         };
 
-        loginRequest(request)
+        loginRequest(loginParams)
             .then((response) => {
                 localStorage.setItem("accessToken", response.access_token);
                 setLoading(false)
@@ -75,21 +68,21 @@ const LogInAuth = () => {
             <FormInput>
                 <Col>
                     <Form.Label>Email</Form.Label>
-                    <Form.Control size="lg" type="email" placeholder="Email" onChange={onChangeUsername}/>
+                    <Form.Control size="lg" type="email" placeholder="Email" onChange={onChangeEmail} />
                 </Col>
             </FormInput>
             <FormInput>
                 <Col>
                     <Form.Label>Password</Form.Label>
-                    <Form.Control size="lg" type="password" placeholder="Password" onChange={onChangePassword}/>
+                    <Form.Control size="lg" type="password" placeholder="Password" onChange={onChangePassword} />
                 </Col>
             </FormInput>
 
             <Row>
                 <Col>
-                    <Checkbox label="Remember me"/>
+                    <Checkbox label="Remember me" />
                 </Col>
-                <Col style={{cursor: "pointer"}}>
+                <Col style={{ cursor: "pointer" }}>
                     <a className="float-right">Forgot Password?</a>
                 </Col>
             </Row>
@@ -101,20 +94,20 @@ const LogInAuth = () => {
             </FormBtn>
 
             <Row>
-                <Col style={{textAlign: "center"}}>
+                <Col style={{ textAlign: "center" }}>
                     <p>Don't Have an Account? <a href="/signup">Sign Up</a></p>
                 </Col>
             </Row>
 
             <Row>
-                <Col style={{textAlign: "center"}}>
+                <Col style={{ textAlign: "center" }}>
                     <p>Or connect with</p>
                 </Col>
             </Row>
             <Row>
-                <Col style={{display: 'flex', justifyContent: "center"}}>
-                    <img src={GoogleIcon} alt='google-icon' width="25" height="25" style={{margin: "10px"}}/>
-                    <img src={FacebookIcon} alt='facebook-icon' width="25" height="25" style={{margin: "10px"}}/>
+                <Col style={{ display: 'flex', justifyContent: "center" }}>
+                    <img src={GoogleIcon} alt='google-icon' width="25" height="25" style={{ margin: "10px" }} />
+                    <img src={FacebookIcon} alt='facebook-icon' width="25" height="25" style={{ margin: "10px" }} />
                 </Col>
             </Row>
         </FormContainer>
