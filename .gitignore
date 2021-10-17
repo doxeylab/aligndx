@@ -19,6 +19,9 @@ uploads
 # production
 /app/build
 
+# secrets
+.env
+
 # misc
 /app/.DS_Store
 /app/.env.local
