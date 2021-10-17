@@ -11,4 +11,4 @@
 3. Run the frontend app:
 `npm run start`
 
-4. View the website on `localhost:3000`
+4. View the website on `http://localhost:3000/`
