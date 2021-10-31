@@ -1,5 +1,6 @@
 from array import ArrayType
 from fastapi import APIRouter, File, UploadFile, Form 
+import pandas as pd
 from typing import List
 import shutil, os
 from datetime import datetime
@@ -35,6 +36,9 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
  
         if not os.path.isdir(UPLOAD_FOLDER):
             os.mkdir(UPLOAD_FOLDER)
+
+        # for deleting
+        sample_folder = os.path.join(UPLOAD_FOLDER, token)
         
         sample_dir = os.path.join(UPLOAD_FOLDER, token, sample_name)
         
@@ -58,6 +62,11 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
         filename = file.filename.split('.')[1]
         results_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
         runsalmon.quantify(filename, indexpath, file_location, results_dir)
+
+        try: 
+            shutil.rmtree(sample_folder)
+        except:
+            print("File couldn't be deleted")
 
         # Code not currently in use
 
@@ -85,11 +94,12 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
         # get file name
         sample_name = file.filename.split('.')[0]
         chosen_panel = str(panel) + "_index"
-        metadata = pd.read_csv(panel + "_metadata", sep=";")
+        metadata = pd.read_csv(panel + "_metadata.csv", sep=";")
 
         now = datetime.now()
         response = {'token': token,
                  'sample': sample_name,
+                 'panel': chosen_panel,
                  'created_date': now }
         query = await ModelSample.create(**response)
 
@@ -99,7 +109,7 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
         sample_dir = os.path.join(UPLOAD_FOLDER, token, sample_name)
 
         # create directory for uploaded sample, only if it hasn't been uploaded before
-        if not os.path.isdir(sample_dir):
+        if not os.path.isdir(sample_dir): 
             os.makedirs(sample_dir)
 
         # declare upload location

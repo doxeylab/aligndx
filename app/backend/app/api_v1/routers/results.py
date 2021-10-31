@@ -36,7 +36,7 @@ router = APIRouter()
 async def quantify_chunks(token: str): 
     category = 'NumReads'
     results = {}
-    query = await ModelSample.get(token)  
+    query = await ModelSample.get_token(token)  
     sample_name = query['sample']
     sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name) 
     # for subdir, dirs,files in os.walk(sample_dir): 
@@ -80,7 +80,7 @@ async def quantify_chunks(token: str):
 async def analyze_quants(token: str): 
     category = 'NumReads'
     results = {}
-    query = await ModelSample.get(token)  
+    query = await ModelSample.get_token(token)  
     sample_name = query['sample']
     sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name) 
     
