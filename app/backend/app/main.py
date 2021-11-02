@@ -1,4 +1,4 @@
-from app.api_v1.routers import uploads, results, user_auth
+from app.api_v1.routers import uploads, results, users
 from app.db.database import database
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,38 +16,41 @@ tags_metadata = [
             "url": "https://salmon.readthedocs.io/en/latest/index.html",
         },
     },
+    {"name": "users", "description": "User endpoint - Login, Signup, User info"},
 ]
 
 app = FastAPI(
-    title='AlignDX',
+    title="AlignDX",
     description="This is the restful API for the AlignDX application. Here you will find the auto docs genereated for the API endpoints",
     version="1.0",
-    openapi_tags=tags_metadata
+    openapi_tags=tags_metadata,
 )
 
-origins = [
-    "http://localhost:3000",
-    "localhost:3000"
-]
+origins = ["http://localhost:3000", "localhost:3000"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
-app.include_router(uploads.router,
-                   tags=["uploads"],
-                   responses={408: {"description": "Ain't gonna work buddy"}},
-                   )
-app.include_router(results.router,
-                   tags=["results"],
-                   responses={408: {"description": "Ain't gonna work buddy"}},
-                   )
-app.include_router(user_auth.router,
-                   tags=["user authentication"])
+app.include_router(
+    uploads.router,
+    tags=["uploads"],
+    responses={408: {"description": "Ain't gonna work buddy"}},
+)
+app.include_router(
+    results.router,
+    tags=["results"],
+    responses={408: {"description": "Ain't gonna work buddy"}},
+)
+app.include_router(
+    users.router,
+    tags=["users"],
+    responses={408: {"description": "Ain't gonna work buddy"}},
+)
 
 
 @app.get("/")

@@ -49,6 +49,9 @@ class UserInDB(User):
 
 # ---- METHODS ----
 
+
+# ---- USER AUTHENTICATION ----
+
 # Returns the current logged in user
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
@@ -99,6 +102,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
+# Sign up endpoint
 @router.post("/create_user", status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserTemp):
     user_from_db = await UserRepo.get(user.email)
@@ -119,6 +123,7 @@ async def create_user(user: UserTemp):
     return {"status": status.HTTP_201_CREATED}
 
 
+# Log in endpoint
 @router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     # OAuth2PasswordRequestForm has username and password, username = email in our project
