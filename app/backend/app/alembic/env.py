@@ -14,7 +14,7 @@ from alembic import context
 # load_dotenv(os.path.join(BASE_DIR, ".env"))
 # sys.path.append(BASE_DIR)
 
-import os 
+import os
 
 os.getenv("DATABASE_URL")
 # this is the Alembic Config object, which provides
@@ -34,6 +34,7 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 from app.db import models
 from app.db.database import metadata
+
 target_metadata = metadata
 # target_metadata = None
 
@@ -82,9 +83,7 @@ def run_migrations_online():
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
