@@ -55,12 +55,14 @@ ADD https://github.com/COMBINE-lab/salmon/releases/download/v1.4.0/salmon-1.4.0_
 COPY requirements.txt ./
 RUN pip install -U pip \
     && pip install --no-cache-dir -r requirements.txt \
-    && tar xvzf salmon-1.4.0_linux_x86_64.tar.gz && rm salmon-1.4.0_linux_x86_64.tar.gz \
-    && mkdir indexes | cd indexes | mkdir sars_with_human_decoys | cd sars_with_human_decoys \
-    && pip install gdown \
+    && tar xvzf salmon-1.4.0_linux_x86_64.tar.gz && rm salmon-1.4.0_linux_x86_64.tar.gz 
+
+WORKDIR /app/indexes/sars_with_human_decoys 
+RUN pip install gdown \
     && gdown "https://drive.google.com/drive/folders/1G4fJGf_CutQIycQvGTTbSG4IP3LnelKs" -O . --folder
 
-COPY . . 
+WORKDIR /app/
+# COPY . . 
 ENV PATH="$PATH:/app/salmon-latest_linux_x86_64/bin/"
 ENV PYTHONPATH=/app
  
