@@ -18,9 +18,13 @@ AlignDx is a framework for implementing Bioinformatic pipelines, with our main f
 ### **With Docker (Recommended)** 
 **1.** Clone this repo into whatever directory you want using `git clone https://github.com/doxeylab/aligndx.git`   
 
-**2.** Change directories into /path/aligdnx/app and run `./scripts/build.sh`
+**2.** (OPTIONAL) Change directories into /path/aligdnx/app and create an .env file, with the appropriate environment variables. If you don't, default values will be used.
 
-**3.** Watch logs via Docker Desktop, or utilize optional logs.sh script `./scripts/logs.sh` 
+> **_Note:_** Please contact Manjot for the environment variables if you choose to do this step.
+
+**3.** In /path/aligdnx/app, run `./scripts/build.sh`
+
+**4.** Watch logs via Docker Desktop, or utilize optional logs.sh script `./scripts/logs.sh` 
 
 
 ### **Without Docker** 
