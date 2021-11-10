@@ -7,7 +7,7 @@ import Doxey from '../assets/Team/ADoxey.png';
 import Hirota from '../assets/Team/JHirota.png';
 import Manjot from '../assets/Team/Manjot.png';
 import Linda from '../assets/Team/Linda.jpeg';
-import William from '../assets/Team/William.png';
+import William from '../assets/Team/William.png'; 
 import Carson from '../assets/Team/Carson.jpg';
 
 const Team = () => {
@@ -20,22 +20,21 @@ const Team = () => {
             <TeamCard name="Andrew Doxey" role="Advisor" image={Doxey}/>
           </Col>
           <Col>
-            <TeamCard name="Jermey Hirota" role="Advisor" image={Hirota}/>
+            <TeamCard name="Jeremy Hirota" role="Advisor" image={Hirota}/>
           </Col>
           <Col>
-            <TeamCard name="Manjot Hunjun" role="Project Manager" image={Manjot}/>
+            <TeamCard name="Manjot Hunjan" role="Project Manager/Full-Stack Dev" image={Manjot}/>
           </Col>
         </Row>
-        <Row>
+        <Row> 
           <Col>
-            <TeamCard name="Carson Zheng" role="Front-End Developer" image={Carson}/>
-          </Col>
+          <TeamCard name="Linda Yang" role="Back-End Developer" image={Linda}/>  
+          </Col>  
           <Col>
-            <TeamCard name="Linda Yang" role="Back-End Developer" image={Linda}/>
-          </Col>
+          </Col>  
           <Col>
-            <TeamCard name="William Zhen" role="UI/UX Designer" image={William}/>
-          </Col>
+          <TeamCard name="William Zhen" role="UI/UX Designer" image={William}/> 
+          </Col>  
         </Row>
       </Container>
       {/* <div className="team-container">
