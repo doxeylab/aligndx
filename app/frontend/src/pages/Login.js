@@ -1,22 +1,24 @@
-// React
 import React from 'react';
-// Components
-import { Section } from '../components/PageElement';
-import { Container, Row, Col } from 'react-bootstrap';
-import { LogInAuth } from '../components/Authentication';
-// Assets
+import { Col, Container, Row } from 'react-bootstrap';
+import Fade from 'react-reveal/Fade';
 import LoginImg from "../assets/LoginImg.svg";
+import { LogInAuth } from '../components/Authentication';
+import { Section } from '../components/PageElement';
 
 const Login = () => {
     return (
-        <Section center full id="login">
+        <Section center id="login">
             <Container>
                 <Row className="justify-content-md-center">
                     <Col md={5}>
-                        <LogInAuth />
+                        <Fade left duration={1000} delay={600} distance="30px">
+                            <LogInAuth />
+                        </Fade>
                     </Col>
-                    <Col md={{ span: 5, offset: 1 }} style={{display: 'flex', alignItems: 'center'}}>
-                        <img src={LoginImg} alt='loginImg' />
+                    <Col md={{ span: 5, offset: 1 }} style={{ display: 'flex', alignItems: 'center' }}>
+                        <Fade right duration={1000} delay={600} distance="30px">
+                            <img src={LoginImg} alt='loginImg' />
+                        </Fade>
                     </Col>
                 </Row>
             </Container>

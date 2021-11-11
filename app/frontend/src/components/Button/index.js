@@ -1,10 +1,10 @@
 import React from 'react';
-import {BtnText, Btn} from './StyledButton';
+import { Btn, BtnText } from './StyledButton';
 
-const Button = ({children, fill, disabled, ...buttonProps}) => {
+const Button = ({ children, fill, to, disabled, ...buttonProps }) => {
     return (
-        <Btn fill={fill} disabled={disabled} {...buttonProps}>
-            <BtnText fill={fill} disabled={disabled}>{children}</BtnText>
+        <Btn fill={fill ? true : false} disabled={disabled} {...buttonProps}>
+            <BtnText fill={fill ? true : false} disabled={disabled}>{children}</BtnText>
         </Btn>
     )
 }

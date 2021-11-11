@@ -8,10 +8,6 @@ export const NavbarItems = [
         url: "/team"
     },
     {
-        title: "FAQ",
-        url: "/faq"
-    },
-    {
         title: "CONTACT",
         url: "/contact"
     },

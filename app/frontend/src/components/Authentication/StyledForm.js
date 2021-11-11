@@ -1,6 +1,6 @@
-import styled from 'styled-components';
-import {Row} from 'react-bootstrap';
+import { Row } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
+import styled from 'styled-components';
 
 export const FormContainer = styled(Form)`
     display: flex;
@@ -13,7 +13,7 @@ export const FormContainer = styled(Form)`
 
     h1 {
         color: #1861a7;
-        margin: 2.5rem 0;
+        margin-bottom: 2.5rem;
     }
 `
 
@@ -22,5 +22,11 @@ export const FormInput = styled(Row)`
 `
 
 export const FormBtn = styled(Row)`
-    margin: 3rem 0;
+    margin: 1rem 0;
+`
+
+export const ErrorMsg = styled.p`
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+    color: #cc0000;
 `
