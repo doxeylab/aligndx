@@ -20,7 +20,7 @@ const SelectMenu = (grabOption) => {
       ...option
     };
   });
-  const [value, setValue] = React.useState(selectmenuoptions[0]);
+  // const [value, setValue] = React.useState(selectmenuoptions[0]);
 //   const [inputValue, setInputValue] = React.useState("");
 //   const give_value = (x) => {
 //     return typeof x === "object" && x !== null ? x.title : "Null";
@@ -30,11 +30,11 @@ const SelectMenu = (grabOption) => {
   return (
     <Autocomplete
       id="query option"
-      value = {value}
+      // value = {value}
       onChange={(event, newValue) => {
-        setValue(newValue);
+        grabOption(newValue);
       }}
-      onClick={() => grabOption(value)}
+      // onClick={() => grabOption(value)}
     //   inputValue={inputValue}
     //   onInputChange={(event, newInputValue) => {
     //     setInputValue(newInputValue);
