@@ -1,24 +1,25 @@
 // React
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
+import { FaBars, FaTimes } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+// Assets
+import AlignDx from '../../assets/AlignDx.svg';
+import { useGlobalContext } from "../../context-provider";
+import Button from '../Button';
+import { NavbarItems } from './NavbarItems';
+import Profile from './Profile';
+import Sidebar from './SideBar';
 // Components
 import {
     MobileIcon,
     Nav,
     NavBtn,
-    NavBtnLink,
     NavContainer,
     NavItem,
     NavLink,
     NavLogo,
     NavMenu
-} from './NavbarElement';
-import {FaBars, FaTimes} from 'react-icons/fa';
-import {NavbarItems} from './NavbarItems';
-import Sidebar from './SideBar';
-import Profile from './Profile';
-// Assets
-import AlignDx from '../../assets/AlignDx.svg';
-import {useGlobalContext} from "../../context-provider";
+} from './StyledNavbar';
 
 const max_width = '992px';
 
@@ -48,35 +49,35 @@ const NavBar = () => {
         <Nav>
             <NavContainer>
                 <NavLogo to="/" onClick={closeMobileMenu}>
-                    <img src={AlignDx} style={{width:'150px',height:'auto'}} alt="AlignDx"/>
+                    <img src={AlignDx} style={{ width: '150px', height: 'auto' }} alt="AlignDx" />
                 </NavLogo>
                 <MobileIcon onClick={handleMenuToggle}>
-                    {mobileMenu ? <FaTimes/> : <FaBars />}
+                    {mobileMenu ? <FaTimes /> : <FaBars />}
                 </MobileIcon>
                 <NavMenu activeMobile={mobileMenu}>
                     {NavbarItems.map((item, index) => {
                         return (
                             <NavItem key={index} onClick={closeMobileMenu} activeMobile={mobileMenu}>
-                                <NavLink to={item.url} activeStyle={{color: '#1861A6'}}>{item.title}</NavLink>
+                                <NavLink to={item.url} activeStyle={{ color: '#1861A6' }}>{item.title}</NavLink>
                             </NavItem>
                         )
                     })}
                 </NavMenu>
-                <Sidebar NavItems={NavbarItems} MobileMenu={mobileMenu} CloseClick={closeMobileMenu}/>
+                <Sidebar NavItems={NavbarItems} MobileMenu={mobileMenu} CloseClick={closeMobileMenu} />
                 <NavBtn>
                     {context.authenticated ? (
                         <Profile />
                     )
-                    : (
-                        <>                 
-                            <NavBtnLink to="/login">
-                                <span className="btn-text">Log In</span>
-                            </NavBtnLink>
-                            <NavBtnLink fill to="/signup">
-                                <span className="btn-text">Sign Up</span>
-                            </NavBtnLink>
-                        </>
-                    )}
+                        : (
+                            <>
+                                <Link to="/login">
+                                    <Button>Log In</Button>
+                                </Link>
+                                <Link to="/signup">
+                                    <Button fill={true} to="/signup">Sign Up</Button>
+                                </Link>
+                            </>
+                        )}
                 </NavBtn>
             </NavContainer>
         </Nav>
