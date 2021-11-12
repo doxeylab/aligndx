@@ -146,7 +146,7 @@ const Hero = () => {
                                         <EmailTextBox grabEmail = {grabEmail}/> 
                                     </Col>
                                     <Col>
-                                        <Button fill disabled={dataFiles.length === 0 ? true : false} onClick={() => upload()}>Analyze</Button>
+                                        <Button fill disabled={dataFiles.length === 0 || option.length == 0 ? true : false} onClick={() => upload()}>Analyze</Button>
                                     </Col>
                                 </Row>
                             </Container>
