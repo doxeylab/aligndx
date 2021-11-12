@@ -1,27 +1,22 @@
-//React
+import { CircularProgress } from '@material-ui/core';
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
-// Components
-import { Row, Col } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
+import { Link, useHistory } from "react-router-dom";
+import FacebookIcon from "../../../assets/AuthenticationIcons/facebook-icon.png";
+import GoogleIcon from "../../../assets/AuthenticationIcons/google-icon.png";
+import { useGlobalContext } from "../../../context-provider";
+import { loginRequest } from "../../../http-common";
 import Button from '../../Button';
 import Checkbox from '../../Checkbox';
-import { CircularProgress } from '@material-ui/core';
-// Actions
-import { loginRequest } from "../../../http-common";
-import { useGlobalContext } from "../../../context-provider";
-// Styles
-import { FormContainer, FormInput, FormBtn } from '../StyledForm';
-import '../CustomForm.css';
-// Assets
-import GoogleIcon from "../../../assets/AuthenticationIcons/google-icon.png";
-import FacebookIcon from "../../../assets/AuthenticationIcons/facebook-icon.png";
+import { ErrorMsg, FormBtn, FormContainer, FormInput } from '../StyledForm';
 
 const LogInAuth = () => {
     const history = useHistory();
     const context = useGlobalContext();
 
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false);
     const [login, setLogin] = useState({
         email: "",
         password: ""
@@ -53,12 +48,13 @@ const LogInAuth = () => {
             .then((response) => {
                 localStorage.setItem("accessToken", response.access_token);
                 setLoading(false)
+                setError(false)
                 history.push("/");
                 context.loadCurrentUser();
             })
             .catch((error) => {
                 setLoading(false);
-                console.log(error);
+                setError(true);
             });
     }
 
@@ -87,6 +83,16 @@ const LogInAuth = () => {
                 </Col>
             </Row>
 
+            {error ?
+                <Row>
+                    <Col style={{ textAlign: "center" }}>
+                        <ErrorMsg>Invalid credentials!</ErrorMsg>
+                    </Col>
+                </Row>
+                :
+                ""
+            }
+
             <FormBtn>
                 <Col md={{ span: 6, offset: 3 }}>
                     <Button fill onClick={handleLogin}>{loading ? <CircularProgress size={25} /> : "Login"}</Button>
@@ -95,7 +101,7 @@ const LogInAuth = () => {
 
             <Row>
                 <Col style={{ textAlign: "center" }}>
-                    <p>Don't Have an Account? <a href="/signup">Sign Up</a></p>
+                    <p>Don't Have an Account? <Link to="/signup">Sign Up</Link></p>
                 </Col>
             </Row>
 
