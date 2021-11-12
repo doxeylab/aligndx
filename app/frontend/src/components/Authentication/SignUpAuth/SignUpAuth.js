@@ -1,29 +1,31 @@
-// React
-import React, { useState } from 'react';
-import { useHistory } from "react-router-dom";
-// Components
-import { Row, Col } from 'react-bootstrap';
-import Form from 'react-bootstrap/Form';
-import Button from '../../Button';
 import { CircularProgress } from '@material-ui/core';
-// Actions
-import { loginRequest, signupRequest } from "../../../http-common";
-import { useGlobalContext } from "../../../context-provider";
-// styles
-import { FormContainer, FormInput, FormBtn } from '../StyledForm';
-import '../CustomForm.css';
-// Assets
-import GoogleIcon from "../../../assets/AuthenticationIcons/google-icon.png";
+import React, { useState } from 'react';
+import { Col, Row } from 'react-bootstrap';
+import Form from 'react-bootstrap/Form';
+import { Link, useHistory } from "react-router-dom";
 import FacebookIcon from "../../../assets/AuthenticationIcons/facebook-icon.png";
+import GoogleIcon from "../../../assets/AuthenticationIcons/google-icon.png";
+import { useGlobalContext } from "../../../context-provider";
+import { loginRequest, signupRequest } from "../../../http-common";
+import Button from '../../Button';
+import { ErrorMsg, FormBtn, FormContainer, FormInput } from '../StyledForm';
 
 const SignUpAuth = () => {
     const history = useHistory();
     const context = useGlobalContext();
     const [loading, setLoading] = useState(false)
+    const [confirmPass, setConfirmPass] = useState(false)
+    const [error, setError] = useState({
+        name: false,
+        email: false,
+        password: false,
+        confirm_password: false
+    })
     const [signUp, setSignUp] = useState({
         name: "",
         email: "",
-        password: ""
+        password: "",
+        confirm_password: ""
     })
 
     const onChangeName = (e) => {
@@ -38,48 +40,70 @@ const SignUpAuth = () => {
         setSignUp({ ...signUp, password: e.target.value })
     }
 
+    const onChangeConfirmPassword = (e) => {
+        setSignUp({ ...signUp, confirm_password: e.target.value })
+    }
+
     // TODO - William: should not allow users to signup if the two password fields do not match
     const handleSignUp = (e) => {
-        setLoading(true);
         e.preventDefault();
 
-        if (Object.values(signUp).some(o => o === "")) {
-            console.log("MISSING PARAMETER")
+        var missing_signup = Object.keys(signUp).filter(key => signUp[key] === "");
+
+        if (missing_signup.length !== 0) {
+            var err_tmp = {
+                name: false,
+                email: false,
+                password: false,
+                confirm_password: false
+            }
+            for (var i = 0; i < missing_signup.length; i++) {
+                err_tmp[missing_signup[i]] = true
+            }
+            setError(err_tmp)
+        } else {
+
+            if (signUp.password !== signUp.confirm_password) {
+                setConfirmPass(true)
+            } else {
+                setConfirmPass(false)
+            }
+
+            setLoading(true);
+            const signupParams = {
+                name: signUp.name,
+                email: signUp.email,
+                password: signUp.password,
+            };
+
+            signupRequest(signupParams)
+                .then((res) => {
+                    if (res.status == 201) {
+                        const loginParams = {
+                            username: signUp.email,
+                            password: signUp.password,
+                        };
+
+                        loginRequest(loginParams)
+                            .then((response) => {
+                                localStorage.setItem("accessToken", response.access_token);
+                                setLoading(false)
+                                history.push("/");
+                                context.loadCurrentUser();
+                            })
+                            .catch((error) => {
+                                setLoading(false);
+                                console.log(error);
+                            });
+                    }
+
+                })
+                .catch((err) => {
+                    setLoading(false);
+                    setSignUp({ ...signUp, password: "" })
+                    setSignUp({ ...signUp, confirm_password: "" })
+                });
         }
-
-        const signupParams = {
-            name: signUp.name,
-            email: signUp.email,
-            password: signUp.password,
-        };
-
-        signupRequest(signupParams)
-            .then((res) => {
-                if (res.status == 201) {
-                    const loginParams = {
-                        username: signUp.email,
-                        password: signUp.password,
-                    };
-
-                    loginRequest(loginParams)
-                        .then((response) => {
-                            localStorage.setItem("accessToken", response.access_token);
-                            setLoading(false)
-                            history.push("/");
-                            context.loadCurrentUser();
-                        })
-                        .catch((error) => {
-                            setLoading(false);
-                            console.log(error);
-                        });
-                }
-
-            })
-            .catch((err) => {
-                setLoading(false);
-                console.log(err);
-                // TODO - William: should display these errors on the UI so users know why they cannot signup
-            });
     }
 
     return (
@@ -89,37 +113,39 @@ const SignUpAuth = () => {
                 <Col>
                     <Form.Label>Name</Form.Label>
                     <Form.Control size="lg" type="name" placeholder="Enter name" onChange={onChangeName} />
+                    {error.name ? <ErrorMsg>Enter your name</ErrorMsg> : ""}
                 </Col>
             </FormInput>
             <FormInput>
                 <Col>
                     <Form.Label>Email</Form.Label>
                     <Form.Control size="lg" type="email" placeholder="Enter email" onChange={onChangeEmail} />
+                    {error.email ? <ErrorMsg>Enter your email</ErrorMsg> : ""}
                 </Col>
             </FormInput>
             <FormInput>
                 <Col>
                     <Form.Label>Password</Form.Label>
                     <Form.Control size="lg" type="password" placeholder="Password" onChange={onChangePassword} />
+                    {error.password ? <ErrorMsg>Enter your password</ErrorMsg> : ""}
                 </Col>
-            </FormInput>
-            <FormInput>
                 <Col>
                     <Form.Label>Confirm Password</Form.Label>
-                    <Form.Control size="lg" type="password" placeholder="Confirm" />
+                    <Form.Control size="lg" type="password" placeholder="Confirm" onChange={onChangeConfirmPassword} />
+                    {error.confirm_password && !error.password ? <ErrorMsg>Confirm your password</ErrorMsg> : ""}
+                    {confirmPass ? <ErrorMsg>Your password and confirmation password must match</ErrorMsg> : ""}
                 </Col>
             </FormInput>
-
 
             <FormBtn>
                 <Col md={{ span: 6, offset: 3 }}>
-                    <Button fill onClick={handleSignUp}>{loading ? <CircularProgress size={25} /> : "Sign Up"}</Button>
+                    <Button fill onClick={handleSignUp}>{loading ? <CircularProgress size={15} /> : "Sign Up"}</Button>
                 </Col>
             </FormBtn>
 
             <Row>
                 <Col style={{ textAlign: "center" }}>
-                    <p>Already have an account? <a href="/login">Login</a></p>
+                    <p>Already have an account? <Link to="/login">Login</Link></p>
                 </Col>
             </Row>
 

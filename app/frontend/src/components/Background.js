@@ -6,6 +6,7 @@ const Background = () => {
         <>
             <img className="topLeftBackground" src={topLeftBackground} alt='topLeftBackground' />
             <img className="rightBackground" src={rightBackground} alt='rightBackground' />
+            
         </>
     )
 }

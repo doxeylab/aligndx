@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import inspect
 from typing import Dict, Type, TypeVar, Protocol, Generic, NewType
 
+
 def as_form(cls: Type[BaseModel]):
     """
     Adds an as_form class method to decorated models. The as_form class method
@@ -28,10 +29,8 @@ def as_form(cls: Type[BaseModel]):
 
 
 # @as_form
-class Sample():
-    token_id: str 
+class Sample:
+    token_id: str
 
     class Config:
         orm_mode = True
-
- 
