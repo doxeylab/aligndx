@@ -12,6 +12,8 @@ import Button from '../../Button';
 // Components
 import { Section } from '../../PageElement';
 import UploadComponent from '../../UploadComponent';
+import EmailTextBox from '../../EmailTextBox';
+import SelectMenu from '../../SelectMenu';
 // Styles
 import './CustomModal.css';
 import { HeroBody, HeroBtns, HeroImage, HeroText, HeroTitle } from './StyledHero';
@@ -20,6 +22,8 @@ const Hero = () => {
     const [show, setShow] = useState(false);
     const [dataFiles, setDataFiles] = useState([]);
     const [getLoad, setGetLoad] = useState(false);
+    const [email, setEmail] = useState('');
+    const [option,setOption] = useState('');
 
     const dataFileCallback = (file) => {
         setDataFiles(prevFiles => [...prevFiles, file])
@@ -29,6 +33,16 @@ const Hero = () => {
         const dataFileIndex = dataFiles.findIndex(e => e.name === fileName);
         dataFiles.splice(dataFileIndex, 1);
         setDataFiles([...dataFiles]);
+    }
+
+    const grabEmail = (emaildata) => { 
+        console.log(emaildata);
+        setEmail(emaildata);
+    }
+
+    const grabOption = (optiondata) => { 
+        console.log(optiondata);
+        setOption(optiondata);
     }
 
     const upload = () => {
@@ -41,6 +55,9 @@ const Hero = () => {
         dataFiles.forEach(file => {
             formData.append('files', file)
         })
+
+        formData.append("email", email)
+        formData.append("option", option)
 
         axios.post(UPLOAD_URL, formData)
             .then(() => {
@@ -110,6 +127,12 @@ const Hero = () => {
                                     </Col>
                                 </Row>
                                 <Row>
+                                    <Col>
+                                        <SelectMenu grabOption = {grabOption}/>
+                                    </Col>
+                                    <Col>
+                                        <EmailTextBox grabEmail = {grabEmail}/> 
+                                    </Col>
                                     <Col>
                                         <Button fill disabled={dataFiles.length === 0 ? true : false} onClick={() => upload()}>Analyze</Button>
                                     </Col>

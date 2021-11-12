@@ -26,7 +26,7 @@ export const HeroTitle = styled.h1`
 export const HeroText = styled.p`
     font-size: 1.6rem;
     text-align: left;
-    margin-bottom: 2.4rem;
+    margin-bottom: 2.4rem; 
 `
 
 export const HeroBtns = styled.div`
@@ -34,7 +34,7 @@ export const HeroBtns = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    width: 70%;
 
     Button {
         margin: 0 5px;

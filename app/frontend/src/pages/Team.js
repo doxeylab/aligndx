@@ -21,10 +21,10 @@ const Team = () => {
               <TeamCard name="Andrew Doxey" role="Advisor" image={Doxey} />
             </Col>
             <Col>
-              <TeamCard name="Jermey Hirota" role="Advisor" image={Hirota} />
+              <TeamCard name="Jeremy Hirota" role="Advisor" image={Hirota} />
             </Col>
             <Col>
-              <TeamCard name="Manjot Hunjun" role="Project Manager" image={Manjot} />
+              <TeamCard name="Manjot Hunjan" role="Project Manager" image={Manjot} />
             </Col>
           </Row>
           <Row>
