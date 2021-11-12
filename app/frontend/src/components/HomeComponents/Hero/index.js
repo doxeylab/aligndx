@@ -84,10 +84,7 @@ const Hero = () => {
                                     <Fade left duration={1000} delay={600} distance="30px">
                                         <HeroBody>
                                             <HeroTitle>PATHOGEN<br />DETECTION</HeroTitle>
-                                            <HeroText>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                                Mauris sagittis elit eu nulla accumsan, ac rutrum mauris maximus.
-                                                Sed lobortis, urna eget porttitor laoreet, sapien eros egestas mi,
-                                                id iaculis arcu libero ut massa.</HeroText>
+                                            <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined RNA-seq pipeline. Alternatively, go through our examples for sample results.</HeroText>
                                             <HeroBtns>
                                                 <Button onClick={handleShow}>Analyze</Button>
                                                 <Button fill to="/result">Example</Button>
