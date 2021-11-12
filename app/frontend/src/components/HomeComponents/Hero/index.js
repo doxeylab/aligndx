@@ -35,7 +35,9 @@ const Hero = () => {
         setDataFiles([...dataFiles]);
     }
 
-    const grabEmail = () => { 
+    const grabEmail = (emaildata) => { 
+        console.log(emaildata);
+        setEmail(emaildata);
     }
 
     const grabOption = (optiondata) => { 
@@ -126,10 +128,10 @@ const Hero = () => {
                         </Row>
                         <Row>
                             <Col>
-                            <SelectMenu grabOption={grabOption}/>
+                            <SelectMenu grabOption = {grabOption}/>
                             </Col>
                             <Col>
-                            <EmailTextBox/> 
+                            <EmailTextBox grabEmail = {grabEmail}/> 
                             </Col>
                             <Col>
                                 <Button fill disabled={dataFiles.length === 0 ? true : false} onClick={() => upload()}>Analyze</Button>

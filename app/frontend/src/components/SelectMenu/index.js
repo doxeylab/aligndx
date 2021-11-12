@@ -12,33 +12,20 @@ const selectmenuoptions = [
   { title: "Sars-Cov-2", category: "Virus" }
 ];
 
-const SelectMenu = (grabOption) => {
+const SelectMenu = ({grabOption}) => {
   const options = selectmenuoptions.map((option) => {
     const category = option.category;
     return {
       category,
       ...option
     };
-  });
-  // const [value, setValue] = React.useState(selectmenuoptions[0]);
-//   const [inputValue, setInputValue] = React.useState("");
-//   const give_value = (x) => {
-//     return typeof x === "object" && x !== null ? x.title : "Null";
-//   }; 
-  const data = "test data"
+  });  
   
   return (
     <Autocomplete
-      id="query option"
-      // value = {value}
-      onChange={(event, newValue) => {
-        grabOption(newValue);
-      }}
-      // onClick={() => grabOption(value)}
-    //   inputValue={inputValue}
-    //   onInputChange={(event, newInputValue) => {
-    //     setInputValue(newInputValue);
-    //   }}  
+      id="query option" 
+      multiple 
+      onChange={(event,data) => grabOption(data)}
       options={options.sort((a, b) => -b.category.localeCompare(a.category))}
       getOptionDisabled={(option) => option.category === "Bacteria" || option.category === "Virus"}
       groupBy={(option) => option.category}
