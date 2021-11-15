@@ -84,31 +84,109 @@ async def quantify_chunks(token: str):
     #             detection_result]))}
 # return json.dumps(results, indent=4) 
 
+# @router.get('/panel_results/{token}') 
+# async def analyze_quants(token: str): 
+#     category = 'NumReads'
+#     results = {}
+#     query = await ModelSample.get_token(token)  
+#     sample_name = query['sample']
+#     sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name) 
+    
+#     quant_dir = os.path.join(sample_dir,'quant.sf') 
+#     raw_df = data_tb.producedataframe(quant_dir,'NumReads')  
+    
+    
+#     hits_df = raw_df[raw_df.NumReads > 0]
+#     pathogen_hits =raw_df[raw_df.index.isin(sequences.values())]
+#     pathogen_biomarkers = raw_df[raw_df.index.isin(host_biomarkers.keys())]
+    
+#     hits_table = data_tb.intojson(hits_df)
+
+#     pathogen_table = data_tb.intojson(pathogen_hits)
+#     host_table = data_tb.intojson(pathogen_biomarkers)
+
+#     detection_result = data_tb.ispositive(raw_df) 
+#     result = {"sample": sample_name, 
+#               "detected": detection_result,\
+#               "pathogen_hits": pathogen_table,\
+#               "host_hits": host_table,\
+#               "all_hits": hits_table} 
+#     return result
+
+def grab_gene(id): 
+  if type(id) == str:
+    x = id.split(" ")   
+    for names in x:
+      # if names.startswith("[protein="):
+      #   return (names.strip("[protein=]"))  
+      if names.startswith("[gene"):
+        return (names.strip("[gene=]")) 
+
+def metadata_load(panel):
+  metadata = pd.read_csv(panel + "_metadata.csv", sep=";")
+  metadata = metadata.applymap(grab_gene)  
+  metadata = metadata[~metadata.isnull()] 
+  metadata = metadata.apply(lambda x: pd.Series(x.dropna().values))
+  metadata = metadata.fillna('')  
+  return metadata
+
+def expression_hits_and_misses(sample_name, headers, metadata, hits):
+  sample = pd.read_csv(sample_name, sep="\t") 
+  sample = sample.loc[:, sample.columns.isin(headers)] 
+  sample = sample.dropna()     
+  
+  df_list = []
+  for col in metadata:
+    sample['Name'] = sample[sample['Name'].isin(metadata[col])]
+    sample = sample.dropna()       
+    sample = sample.reset_index(drop=True)  
+
+    mask_cols = sample.select_dtypes(include=['float64']).columns 
+
+    if hits == True:   
+      mask = sample[mask_cols] > 0  
+      sample[mask_cols] = sample[mask_cols][mask]
+      sample = sample.apply(lambda x: pd.Series(x.dropna().values))
+      sample = sample.dropna() 
+      sample[sample.select_dtypes(include=['float64']).columns] = sample.select_dtypes(include=['float64']).apply(lambda x: x.apply('{:.2f}'.format)) 
+    else:
+      pass
+
+    col_list = list(zip([col]*len(headers), headers)) 
+
+    new_df = sample.copy() 
+    cols = pd.MultiIndex.from_tuples(col_list)
+    new_df.columns = cols  
+    
+    df_list.append(new_df)
+  matches_df = pd.concat(df_list, axis=1, join="outer") 
+  matches_df = matches_df.apply(lambda x: pd.Series(x.fillna('').values)) 
+  return matches_df 
+
+def coverage_cal(hits, all):
+  hits = hits.loc[:, (slice(None), ["Name"])].count()
+  all = all.loc[:, (slice(None), ["Name"])].count() 
+
+  coverage = hits/all * 100
+  coverage.index =coverage.index.get_level_values(0)
+  coverage = coverage.apply('{:.2f}'.format) 
+  return coverage.to_dict()
+
+
 @router.get('/panel_results/{token}') 
 async def analyze_quants(token: str): 
-    category = 'NumReads'
+    headers=['Name', 'TPM']
     results = {}
     query = await ModelSample.get_token(token)  
     sample_name = query['sample']
+
+    headers=['Name', 'TPM', 'NumReads'] 
+    panel = query['panel']
+    metadata = metadata_load(panel)
     sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name) 
-    
-    quant_dir = os.path.join(sample_dir,'quant.sf') 
-    raw_df = data_tb.producedataframe(quant_dir,'NumReads')  
-    
-    
-    hits_df = raw_df[raw_df.NumReads > 0]
-    pathogen_hits =raw_df[raw_df.index.isin(sequences.values())]
-    pathogen_biomarkers = raw_df[raw_df.index.isin(host_biomarkers.keys())]
-    
-    hits_table = data_tb.intojson(hits_df)
+    quant_dir = os.path.join(sample_dir,'quant.sf')  
 
-    pathogen_table = data_tb.intojson(pathogen_hits)
-    host_table = data_tb.intojson(pathogen_biomarkers)
-
-    detection_result = data_tb.ispositive(raw_df) 
-    result = {"sample": sample_name, 
-              "detected": detection_result,\
-              "pathogen_hits": pathogen_table,\
-              "host_hits": host_table,\
-              "all_hits": hits_table} 
-    return result
+    hits_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=True) 
+    all_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
+    return coverage_cal(hits_df,all_df)
+     
