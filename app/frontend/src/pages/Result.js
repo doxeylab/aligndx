@@ -94,7 +94,7 @@ const Result = () => {
     //           setGetLoad(false)
     //       })
     // }, [])
-
+    const [data, setData] = useState(null);
     const [sample, setSample] = useState(null);
     const [pathogens, setPathogens] = useState(null); 
     const [getLoad, setGetLoad] = useState(true);

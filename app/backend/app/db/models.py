@@ -8,6 +8,7 @@ samples = Table(
     Column("token", String(50), primary_key=True),
     Column("sample", String(50)),
     Column("panel", String(50), nullable=True),
+    Column("email", String(50)),
     Column("created_date", DateTime, nullable=False)
 )
 
