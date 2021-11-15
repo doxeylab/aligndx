@@ -163,6 +163,16 @@ def expression_hits_and_misses(sample_name, headers, metadata, hits):
   matches_df = matches_df.apply(lambda x: pd.Series(x.fillna('').values)) 
   return matches_df 
 
+def df_to_dict(df):
+  col_titles = list(set(df.columns.get_level_values(0)))
+  df_list = []
+  for col in col_titles:
+    pathogen_df = {}
+    data = df[col].set_index("Name").to_dict()
+    pathogen_df[col] = data
+    df_list.append(pathogen_df)
+  return df_list
+
 def coverage_cal(hits, all):
   hits = hits.loc[:, (slice(None), ["Name"])].count()
   all = all.loc[:, (slice(None), ["Name"])].count() 
@@ -172,7 +182,15 @@ def coverage_cal(hits, all):
   coverage = coverage.apply('{:.2f}'.format) 
   return coverage.to_dict()
 
-def d3_compatible_data(df, sample, hits, all):
+def detection(df): 
+    pathogens = df.index[df['coverage'] > 50].to_list()
+    if pathogens:
+      detected = "Positive"
+    else:
+      detected = "Negative"
+    return pathogens, detected
+
+def d3_compatible_data(df, sample, hits, all, pathogens, detected):
     data = []
     rows, cols = df.index, df.columns
     for row in rows:
@@ -184,6 +202,8 @@ def d3_compatible_data(df, sample, hits, all):
     data_dict['sample'] = sample
     data_dict['hits'] = hits
     data_dict['all'] = all
+    data_dict['pathogens'] = pathogens
+    data_dict['detected'] = detected
     return data_dict
 
 @router.get('/panel_results/{token}') 
@@ -200,5 +220,7 @@ async def analyze_quants(token: str):
 
     hits_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=True) 
     all_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
-    return d3_compatible_data(coverage_cal(hits_df,all_df), sample_name, hits_df, all_df)
+    coverage = coverage_cal(hits_df,all_df)
+    detected, pathogens = detection(coverage)
+    return d3_compatible_data(coverage, sample_name, df_to_dict(hits_df), df_to_dict(all_df), pathogens, detected)
     

@@ -72,9 +72,31 @@ const Result = () => {
         }
     ]
 
+    // const [sample, setSample] = useState(null);
+    // const [pathogen, setPathogen] = useState(null);
+    // const [data, setData] = useState(null);
+    // const [getLoad, setGetLoad] = useState(true);
+
+    // useEffect(() => {
+    //   axios.get(RESULT_URL + '/' + url_id)
+    //       .then(res => {
+    //           console.log(res.data)
+    //           setData([res.data])
+    //           setGetLoad(false)
+    //           setPathogen(res.data.pathogen)
+    //           setSample(res.data.sample)
+    //       })
+    //       .catch(() => {
+    //         console.log('Error')
+    //           setData(dummyData)
+    //           setSample("SRR11365240")
+    //           setPathogen("Sars CoV-2")
+    //           setGetLoad(false)
+    //       })
+    // }, [])
+
     const [sample, setSample] = useState(null);
-    const [pathogen, setPathogen] = useState(null);
-    const [data, setData] = useState(null);
+    const [pathogens, setPathogens] = useState(null); 
     const [getLoad, setGetLoad] = useState(true);
 
     useEffect(() => {
@@ -83,14 +105,14 @@ const Result = () => {
               console.log(res.data)
               setData([res.data])
               setGetLoad(false)
-              setPathogen(res.data.pathogen)
+              setPathogens(res.data.pathogens)
               setSample(res.data.sample)
           })
           .catch(() => {
             console.log('Error')
               setData(dummyData)
               setSample("SRR11365240")
-              setPathogen("Sars CoV-2")
+              setPathogens("Sars CoV-2")
               setGetLoad(false)
           })
     }, [])
@@ -103,7 +125,7 @@ const Result = () => {
         <Section full id="results">
             <Container className="result-container">
                 <Row>
-                    <h1 className="result-container__title">Sample: {sample} for {pathogen}</h1>
+                    <h1 className="result-container__title">Sample: {sample} for {pathogens}</h1>
                 </Row>
                 <Row>
                     {data.map(d => {
@@ -134,8 +156,8 @@ const Result = () => {
                                 <Row style={{padding: "25px"}}>
                                     <Col md={6}>
                                         <div className = 'barGraph'>
-                                            <h1>Pathogen Hits</h1>
-                                            <Barchart data={d.pathogen_hits.data} yLabel="Y-AXIS" xLabel="X-AXIS"/>
+                                            <h1>Transcriptome Coverage Estimate</h1>
+                                            <Barchart data={d.coverage} yLabel="Y-AXIS" xLabel="X-AXIS"/>
                                         </div>
                                     </Col>
                                     {/* <Col md={6}>
