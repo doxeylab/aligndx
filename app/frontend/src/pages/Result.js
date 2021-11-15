@@ -120,7 +120,7 @@ const Result = () => {
                                             </p>
                                         </div>
                                     </Col>
-                                    <Col md={6}>
+                                    {/* <Col md={6}>
                                         <div>
                                             <h1>
                                                 Host Marker Abundance
@@ -129,7 +129,7 @@ const Result = () => {
                                                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
                                             </p>
                                         </div>
-                                    </Col>
+                                    </Col> */}
                                 </Row>
                                 <Row style={{padding: "25px"}}>
                                     <Col md={6}>
@@ -138,12 +138,12 @@ const Result = () => {
                                             <Barchart data={d.pathogen_hits.data} yLabel="Y-AXIS" xLabel="X-AXIS"/>
                                         </div>
                                     </Col>
-                                    <Col md={6}>
+                                    {/* <Col md={6}>
                                         <div className = 'barGraph'>
                                             <h1>Host Hits</h1>
                                             <Barchart data={d.host_hits.data} yLabel="Y-AXIS2" xLabel="X-AXIS2"/>
                                         </div>
-                                    </Col>
+                                    </Col> */}
                                 </Row>
                             </ResultCard>
                         )

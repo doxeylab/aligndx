@@ -174,13 +174,12 @@ def coverage_cal(hits, all):
 
 
 @router.get('/panel_results/{token}') 
-async def analyze_quants(token: str): 
-    headers=['Name', 'TPM']
+async def analyze_quants(token: str):  
     results = {}
     query = await ModelSample.get_token(token)  
     sample_name = query['sample']
 
-    headers=['Name', 'TPM', 'NumReads'] 
+    headers=['Name', 'TPM'] 
     panel = query['panel']
     metadata = metadata_load(panel)
     sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name) 
@@ -189,4 +188,4 @@ async def analyze_quants(token: str):
     hits_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=True) 
     all_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
     return coverage_cal(hits_df,all_df)
-     
+    
