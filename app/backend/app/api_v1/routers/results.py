@@ -172,6 +172,19 @@ def coverage_cal(hits, all):
   coverage = coverage.apply('{:.2f}'.format) 
   return coverage.to_dict()
 
+def d3_compatible_data(df, sample, hits, all):
+    data = []
+    rows, cols = df.index, df.columns
+    for row in rows:
+        values = float([df[c][row] for c in cols][0])
+        data.append({cols[0]: values, 'pathogen': row})
+
+    data_dict = {}
+    data_dict['coverage'] = data
+    data_dict['sample'] = sample
+    data_dict['hits'] = hits
+    data_dict['all'] = all
+    return data_dict
 
 @router.get('/panel_results/{token}') 
 async def analyze_quants(token: str):  
@@ -187,5 +200,5 @@ async def analyze_quants(token: str):
 
     hits_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=True) 
     all_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
-    return coverage_cal(hits_df,all_df)
+    return d3_compatible_data(coverage_cal(hits_df,all_df), sample_name, hits_df, all_df)
     
