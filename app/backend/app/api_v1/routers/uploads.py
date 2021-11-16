@@ -100,7 +100,7 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
             now = datetime.now()
             response = {'token': token,
                      'sample': sample_name,
-                     'panel': chosen_panel,
+                     'panel': option,
                      'created_date': now }
             query = await ModelSample.create(**response)
     

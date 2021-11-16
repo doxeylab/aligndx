@@ -34,6 +34,7 @@ host_biomarkers = {
 import json
 
 RESULTS_FOLDER = "./results"
+METADATA_FOLDER = "./metadata"
 
 router = APIRouter()
 
@@ -81,8 +82,9 @@ def grab_gene(id):
       if names.startswith("[gene"):
         return (names.strip("[gene=]")) 
 
-def metadata_load(panel):
-  metadata = pd.read_csv(panel + "_metadata.csv", sep=";")
+def metadata_load(panel): 
+  metadata_path = os.path.join(METADATA_FOLDER, panel + "_metadata.csv")
+  metadata = pd.read_csv(metadata_path, sep=";")
   metadata = metadata.applymap(grab_gene)  
   metadata = metadata[~metadata.isnull()] 
   metadata = metadata.apply(lambda x: pd.Series(x.dropna().values))
@@ -137,9 +139,14 @@ def coverage_cal(hits, all):
   all = all.loc[:, (slice(None), ["Name"])].count() 
 
   coverage = hits/all * 100
-  coverage.index =coverage.index.get_level_values(0)
+  
   coverage = coverage.apply('{:.2f}'.format) 
-  return coverage.to_dict()
+  coverage = coverage.to_frame()
+  coverage.rename(columns={0:"coverage"}, inplace=True)
+  coverage.index =coverage.index.get_level_values(0)
+  coverage['coverage'] = coverage['coverage'].astype('float')
+  # coverage = coverage.apply(lambda x: pd.Series(x.fillna('').values)) 
+  return coverage 
 
 def detection(df): 
     pathogens = df.index[df['coverage'] > 50].to_list()
