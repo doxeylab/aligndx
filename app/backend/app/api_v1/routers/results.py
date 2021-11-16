@@ -72,28 +72,28 @@ router = APIRouter()
 #         "host_hits": host_table,
 #         "all_hits": hits_table,
 #     } 
+ 
 
-def grab_gene(id): 
+def grab_id(id, prefix, strip): 
   if type(id) == str:
     x = id.split(" ")   
-    for names in x:
-      # if names.startswith("[protein="):
-      #   return (names.strip("[protein=]"))  
-      if names.startswith("[gene"):
-        return (names.strip("[gene=]")) 
+    for names in x: 
+      if names.startswith(prefix):
+        return (names.strip(strip)) 
 
 def metadata_load(panel): 
   metadata_path = os.path.join(METADATA_FOLDER, panel + "_metadata.csv")
   metadata = pd.read_csv(metadata_path, sep=";")
-  metadata = metadata.applymap(grab_gene)  
-  metadata = metadata[~metadata.isnull()] 
+  metadata = metadata.applymap(lambda x: grab_id(x,prefix=">lcl|", strip=">")) 
+  metadata = metadata[~metadata.isnull()]  
   metadata = metadata.apply(lambda x: pd.Series(x.dropna().values))
-  metadata = metadata.fillna('')  
+  metadata = metadata.fillna('')   
   return metadata
+ 
 
 def expression_hits_and_misses(sample_name, headers, metadata, hits):
   sample = pd.read_csv(sample_name, sep="\t") 
-  sample = sample.loc[:, sample.columns.isin(headers)] 
+  sample = sample.loc[:, sample.columns.isin(headers)]  
   sample = sample.dropna()     
   
   df_list = []
@@ -138,8 +138,7 @@ def coverage_cal(hits, all):
   hits = hits.loc[:, (slice(None), ["Name"])].count()
   all = all.loc[:, (slice(None), ["Name"])].count() 
 
-  coverage = hits/all * 100
-  
+  coverage = hits/all * 100  
   coverage = coverage.apply('{:.2f}'.format) 
   coverage = coverage.to_frame()
   coverage.rename(columns={0:"coverage"}, inplace=True)
@@ -149,12 +148,17 @@ def coverage_cal(hits, all):
   return coverage 
 
 def detection(df): 
-    pathogens = df.index[df['coverage'] > 50].to_list()
-    if pathogens:
-      detected = "Positive"
-    else:
+    if df.isnull().values.any(): 
+      pathogens = []
       detected = "Negative"
-    return pathogens, detected
+      return pathogens, detected
+    else: 
+      pathogens = df.index[df['coverage'] > 50].to_list()
+      if pathogens:
+        detected = "Positive"
+      else:
+        detected = "Negative"
+      return pathogens, detected
 
 def d3_compatible_data(df, sample, hits, all, pathogens, detected):
     data = []
@@ -189,4 +193,4 @@ async def analyze_quants(token: str):
     coverage = coverage_cal(hits_df,all_df)
     detected, pathogens = detection(coverage)
     return d3_compatible_data(coverage, sample_name, df_to_dict(hits_df), df_to_dict(all_df), pathogens, detected)
-    
+ 
