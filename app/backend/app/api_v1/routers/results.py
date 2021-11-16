@@ -2,6 +2,7 @@ from fastapi import APIRouter
 import os
 from datetime import datetime
 import pandas as pd
+import numpy as np
 
 from app.scripts import data_tb
 
@@ -135,16 +136,19 @@ def df_to_dict(df):
   return df_list
 
 def coverage_cal(hits, all):
-  hits = hits.loc[:, (slice(None), ["Name"])].count()
-  all = all.loc[:, (slice(None), ["Name"])].count() 
+  hits = hits.loc[:, (slice(None), ["Name"])].apply(np.count_nonzero)
+  all = all.loc[:, (slice(None), ["Name"])].apply(np.count_nonzero) 
 
-  coverage = hits/all * 100  
+  coverage = hits/all * 100   
   coverage = coverage.apply('{:.2f}'.format) 
+
   coverage = coverage.to_frame()
   coverage.rename(columns={0:"coverage"}, inplace=True)
   coverage.index =coverage.index.get_level_values(0)
   coverage['coverage'] = coverage['coverage'].astype('float')
   # coverage = coverage.apply(lambda x: pd.Series(x.fillna('').values)) 
+    
+  coverage = coverage.fillna(0)  
   return coverage 
 
 def detection(df): 
@@ -191,6 +195,5 @@ async def analyze_quants(token: str):
     hits_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=True) 
     all_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
     coverage = coverage_cal(hits_df,all_df)
-    detected, pathogens = detection(coverage)
+    pathogens, detected = detection(coverage)
     return d3_compatible_data(coverage, sample_name, df_to_dict(hits_df), df_to_dict(all_df), pathogens, detected)
- 
