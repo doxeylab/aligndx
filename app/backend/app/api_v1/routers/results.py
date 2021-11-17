@@ -4,7 +4,7 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
-from app.scripts import data_tb
+from app.scripts import data_tb, email_feature
 
 # from app.db.database import database
 from app.db.models import Sample as ModelSample
@@ -181,11 +181,18 @@ def d3_compatible_data(df, sample, hits, all, pathogens, detected):
     data_dict['detected'] = detected
     return data_dict
 
+
+
 @router.get('/results/{token}') 
 async def analyze_quants(token: str):  
     results = {}
     query = await ModelSample.get_token(token)  
     sample_name = query['sample']
+    email = query['email']
+    if email == "":
+      pass
+    else:
+      email_feature.send_email(email, sample_name)
 
     headers=['Name', 'TPM'] 
     panel = query['panel']
