@@ -21,6 +21,8 @@ services:
     environment:
       # PYTHONPATH: .
       DATABASE_URL: "postgresql://aligndx:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
+      ORIGINS: ${ORIGINS}
+      SECRET_KEY: ${SECRET_KEY}
 
   frontend:
     platform: linux/amd64
@@ -35,6 +37,8 @@ services:
       # - ./frontend/node_modules:/app/node_modules
     environment:
       - NODE_ENV=development
+      - REACT_APP_UPLOAD_URL=${REACT_APP_UPLOAD_URL}
+      - REACT_APP_RESULT_URL=${REACT_APP_RESULT_URL}
 
   postgres:
     platform: linux/amd64

@@ -2,6 +2,7 @@ from app.api_v1.routers import uploads, results, users
 from app.db.database import database
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 tags_metadata = [
     {
@@ -26,22 +27,8 @@ app = FastAPI(
     openapi_tags=tags_metadata,
 )
 
-origins = [
-    "http://localhost:3000",
-    "localhost:3000",
-    "http://localhost:80",
-    "localhost:80",
-    "http://localhost",
-    "localhost",
-    "http://localhost:8080",
-    "localhost:8008",
-    "http://206.12.123.7:80",
-    "206.12.123.7:80",
-    "http://206.12.123.7",
-    "206.12.123.7",
-    "http://206.12.123.7:8080",
-    "206.12.123.7:8080",
-]
+lst_origins = os.getenv("ORIGINS")
+origins = lst_origins.replace(" ", "").split(",")  
 
 app.add_middleware(
     CORSMiddleware,

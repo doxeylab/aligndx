@@ -1,11 +1,10 @@
 from array import ArrayType
 from fastapi import APIRouter, File, UploadFile, Form 
-import pandas as pd
 from typing import List 
 import shutil, os
 from datetime import datetime
 
-from app.scripts import fqsplit, runsalmon
+from app.scripts import email_feature, runsalmon
 
 # from app.db.database import database
 from app.db.models import Sample as ModelSample
@@ -90,17 +89,18 @@ async def fileretrieve(token: str):
     return {'token': id} 
 
 @router.post("/uploads/")
-async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...), panel: List[str] = Form(...), email: str = Form(None)):
+async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...), panel: List[str] = Form(...), email: str = Form("")):
     for file in files:
         for option in panel:
             # get file name
             sample_name = file.filename.split('.')[0]
             chosen_panel = str(option.lower()) + "_index"
-    
+            
             now = datetime.now()
             response = {'token': token,
                      'sample': sample_name,
                      'panel': option.lower(),
+                     'email': email,
                      'created_date': now }
             query = await ModelSample.create(**response)
     
@@ -131,5 +131,12 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
                 shutil.rmtree(sample_folder)
             except:
                 print("File couldn't be deleted")
+
+            if email == "" or email == None:
+              print("No email")
+              pass
+            else:
+              print(email)
+              email_feature.send_email(email, sample_name)
 
     return {"run": "complete"}

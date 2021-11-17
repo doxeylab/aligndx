@@ -5,7 +5,9 @@ from bs4 import BeautifulSoup as bs
 import os 
 
 def email_html_customizer(sample):
-  with open('email_template.html', 'r') as f:
+  dir = os.path.dirname(os.path.abspath(__file__))
+  path = os.path.join(dir, 'email_template.html') 
+  with open(path, 'r') as f:
     html = f.read()
   soup = bs(html, 'html.parser')
   old_text = soup.find("h1", {"id":"greeting"})
@@ -21,10 +23,13 @@ def send_email(receiver_email, sample):
     message["Subject"] = f"Analysis Results for {sample}"
     message["From"] = sender_email
     message["To"] = receiver_email
-  
+    
     html = email_html_customizer(sample) 
- 
+
+    # Fool gmail by sending html as plain and html, to prevent spam flagging
+    plain_part = MIMEText(html, "plain")
     html_part = MIMEText(html, "html")
+    message.attach(plain_part) 
     message.attach(html_part) 
 
     # Create secure connection with server and send email
