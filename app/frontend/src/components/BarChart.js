@@ -19,14 +19,14 @@ const useResizeObserver = ref => {
     return dimensions;
 }
 
-const BarChart = ({data, yLabel, xLabel}) => {
+const BarChart = ({data, yLabel, xLabel, col}) => {
     // Filter NumReads of 0
-    var filterData = data.filter(hit => hit.NumReads !== 0)
+    var filterData = data.filter(hit => hit.col !== 0)
     // Resize Obeserver
     const wrapperRef = useRef();
     const dimensions = useResizeObserver(wrapperRef)
     // Find Largest Column Value
-    var max_value = Math.max(...(filterData.map(function(hit) {return hit.NumReads})));
+    var max_value = Math.max(...(filterData.map(function(hit) {return hit.col})));
     var yDomain = Math.ceil(max_value/5)*5;
     // Initial SVG Data
     const svgRef = useRef();
@@ -101,9 +101,9 @@ const BarChart = ({data, yLabel, xLabel}) => {
 
         focus.selectAll(".bar")
             .attr('x', function(hit) {return x(hit.index)})
-            .attr('y', function(hit) {return y(hit.NumReads)})
+            .attr('y', function(hit) {return y(hit.col)})
             .attr('width', x.bandwidth())
-            .attr('height', function(hit) { return height - y(hit.NumReads)})
+            .attr('height', function(hit) { return height - y(hit.col)})
             .attr('fill', '#2f8ae1');
 
 // eslint-disable-next-line

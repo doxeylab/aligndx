@@ -197,5 +197,5 @@ async def analyze_quants(token: str):
     all_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
     coverage = coverage_cal(hits_df,all_df)
     pathogens, detected = detection(coverage)
-    # return d3_compatible_data(coverage, sample_name, df_to_dict(hits_df), df_to_dict(all_df), pathogens, detected)
-    return df_to_dict(all_df)
+    return d3_compatible_data(coverage, sample_name, df_to_dict(hits_df), df_to_dict(all_df), pathogens, detected)
+    

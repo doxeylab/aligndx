@@ -157,7 +157,7 @@ const Result = () => {
                                     <Col md={6}>
                                         <div className = 'barGraph'>
                                             <h1>Transcriptome Coverage Estimate</h1>
-                                            <Barchart data={d.coverage} yLabel="Y-AXIS" xLabel="X-AXIS"/>
+                                            <Barchart data={d.coverage} yLabel="Y-AXIS" xLabel="X-AXIS" col="coverage"/>
                                         </div>
                                     </Col>
                                     {/* <Col md={6}>

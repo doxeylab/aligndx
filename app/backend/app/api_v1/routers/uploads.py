@@ -95,12 +95,12 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
         for option in panel:
             # get file name
             sample_name = file.filename.split('.')[0]
-            chosen_panel = str(option) + "_index"
+            chosen_panel = str(option.lower()) + "_index"
     
             now = datetime.now()
             response = {'token': token,
                      'sample': sample_name,
-                     'panel': option,
+                     'panel': option.lower(),
                      'created_date': now }
             query = await ModelSample.create(**response)
     
