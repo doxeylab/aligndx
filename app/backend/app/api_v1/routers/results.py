@@ -92,13 +92,14 @@ def metadata_load(panel):
   return metadata
  
 
-def expression_hits_and_misses(sample_name, headers, metadata, hits):
-  sample = pd.read_csv(sample_name, sep="\t") 
-  sample = sample.loc[:, sample.columns.isin(headers)]  
-  sample = sample.dropna()     
+def expression_hits_and_misses(sample_name, headers, metadata, hits): 
+  df = pd.read_csv(sample_name, sep="\t") 
+  df = df.loc[:, df.columns.isin(headers)]  
+  df = df.dropna()   
   
   df_list = []
   for col in metadata:
+    sample = df.copy()
     sample['Name'] = sample[sample['Name'].isin(metadata[col])]
     sample = sample.dropna()       
     sample = sample.reset_index(drop=True)  
@@ -196,4 +197,5 @@ async def analyze_quants(token: str):
     all_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
     coverage = coverage_cal(hits_df,all_df)
     pathogens, detected = detection(coverage)
-    return d3_compatible_data(coverage, sample_name, df_to_dict(hits_df), df_to_dict(all_df), pathogens, detected)
+    # return d3_compatible_data(coverage, sample_name, df_to_dict(hits_df), df_to_dict(all_df), pathogens, detected)
+    return df_to_dict(all_df)
