@@ -1,6 +1,7 @@
 version: "3.7"
 services:
-  backend: 
+  backend:
+    platform: linux/amd64
     build:
       context: backend
       dockerfile: Dockerfile
@@ -23,7 +24,8 @@ services:
       ORIGINS: ${ORIGINS}
       SECRET_KEY: ${SECRET_KEY}
 
-  frontend: 
+  frontend:
+    platform: linux/amd64
     build:
       context: frontend
       dockerfile: Dockerfile
@@ -38,7 +40,8 @@ services:
       - REACT_APP_UPLOAD_URL=${REACT_APP_UPLOAD_URL}
       - REACT_APP_RESULT_URL=${REACT_APP_RESULT_URL}
 
-  postgres: 
+  postgres:
+    platform: linux/amd64
     image: postgres:12
     restart: unless-stopped
     environment:
@@ -51,7 +54,8 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
 
-  pgadmin: 
+  pgadmin:
+    platform: linux/amd64
     image: dpage/pgadmin4
     restart: unless-stopped
     depends_on:
