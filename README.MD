@@ -28,7 +28,7 @@ AlignDx is a framework for implementing Bioinformatic pipelines, with our main f
 
 
 ### **Without Docker** 
-**1.** A unix system is preferred, but any system that can utilized docker will do: 
+**1.** A unix system is preferred, but any system that can utilize docker will do: 
   - One of the major linux distros (ubuntu, debian, etc.) is recommended 
 
 **2.** Install python. First check if you already have it.  
@@ -56,8 +56,7 @@ AlignDx is a framework for implementing Bioinformatic pipelines, with our main f
   - `source venv/bin/activate`
     - Your console should now have the prefix "venv"
   - `pip install -r requirements.txt` 
-  - Next deactivate the virtual environment (venv)
-  - `deactivate`
+  - Next deactivate the virtual environment (venv): `deactivate`
   - There are 2 more things you need to enable backend functionality. These are large files, thus they can't be push to github. 
   - Access them using this google drive link: https://drive.google.com/drive/folders/1XUYFlie-Enl7AiW3C2HMH-t8Kjba3R-x?usp=sharing
   - Note that the salmon folder contains the binaries for linux. It won't work on Windows or Mac OS
