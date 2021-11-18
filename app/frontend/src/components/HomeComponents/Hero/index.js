@@ -23,7 +23,7 @@ const Hero = () => {
     const [dataFiles, setDataFiles] = useState([]);
     const [getLoad, setGetLoad] = useState(false);
     const [email, setEmail] = useState('');
-    const [option,setOption] = useState('');
+    const [option,setOption] = useState([]);
 
     const dataFileCallback = (file) => {
         setDataFiles(prevFiles => [...prevFiles, file])
@@ -54,18 +54,35 @@ const Hero = () => {
 
         dataFiles.forEach(file => {
             formData.append('files', file)
-        })
-
+        }) 
         formData.append("email", email)
-        formData.append("option", option)
+        option.forEach(x => {
+            formData.append("panel", x.title) 
+        })
+ 
 
         axios.post(UPLOAD_URL, formData)
             .then(() => {
                 window.location.href = "/results/#/?id=" + token
             })
-            .catch(() => {
-                console.log("ERROR")
-            })
+            .catch(function (error) {
+                if (error.response) {
+                  // The request was made and the server responded with a status code
+                  // that falls out of the range of 2xx
+                  console.log(error.response.data);
+                  console.log(error.response.status);
+                  console.log(error.response.headers);
+                } else if (error.request) {
+                  // The request was made but no response was received
+                  // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                  // http.ClientRequest in node.js
+                  console.log(error.request);
+                } else {
+                  // Something happened in setting up the request that triggered an Error
+                  console.log('Error', error.message);
+                }
+                console.log(error.config);
+              });
     }
 
     const handleClose = () => setShow(false);
@@ -131,7 +148,7 @@ const Hero = () => {
                                         <EmailTextBox grabEmail = {grabEmail}/> 
                                     </Col>
                                     <Col>
-                                        <Button fill disabled={dataFiles.length === 0 ? true : false} onClick={() => upload()}>Analyze</Button>
+                                        <Button fill disabled={dataFiles.length === 0 || option.length == 0 ? true : false} onClick={() => upload()}>Analyze</Button>
                                     </Col>
                                 </Row>
                             </Container>

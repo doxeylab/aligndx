@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import os
 
 from app.db.models import User as UserRepo
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -12,7 +13,7 @@ router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-SECRET_KEY = "74ec68e4e3540e4a6ced9af05d26ea6858bc73a9e3c5cc701228fc37481ad9f7"
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

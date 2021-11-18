@@ -16,14 +16,13 @@ sleep 5;
 docker-compose run --rm -w "/app" backend gdown "https://drive.google.com/drive/folders/1G4fJGf_CutQIycQvGTTbSG4IP3LnelKs" -O ./indexes/sars_with_human_decoys/ --folder
 
 # clear screen and list docker container links
-address='http://localhost:'
-frontend_port='3000'
+address='http://localhost:' 
 backend_docs='8080/docs'
 backend_redoc='8080/redoc'
 postgres_admin_port='8001'
 clear
 echo "Access the various containers through the following links:"
-echo "Frontend: $address$frontend_port"
+echo "Frontend: $address"
 echo "Backend API using Swagger: $address$backend_docs"
 echo "Backend API using ReDoc: $address$backend_redoc"
 echo "Postgres Admin: $address$postgres_admin_port" 

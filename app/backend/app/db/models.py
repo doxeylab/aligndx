@@ -7,7 +7,9 @@ samples = Table(
     metadata,
     Column("token", String(50), primary_key=True),
     Column("sample", String(50)),
-    Column("created_date", DateTime, nullable=False),
+    Column("panel", String(50), nullable=True),
+    Column("email", String(50)),
+    Column("created_date", DateTime, nullable=False)
 )
 
 users = Table(
@@ -23,10 +25,16 @@ users = Table(
 # REPOSITORIES
 class Sample:
     @classmethod
-    async def get(cls, token):
+    async def get_token(cls, token):
         query = samples.select().where(samples.c.token == token)
         sample = await database.fetch_one(query)
         return sample
+
+    @classmethod
+    async def get_sample(cls, panel):
+        query = samples.select().where(samples.c.panel == panel)
+        sample = await database.fetch_one(query)
+        return panel 
 
     @classmethod
     async def create(cls, **sample):

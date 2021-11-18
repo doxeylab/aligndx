@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 import os
-from datetime import datetime
+from datetime import datetime 
 
-from app.scripts import data_tb
+from app.scripts import data_tb, analyze
 
 # from app.db.database import database
 from app.db.models import Sample as ModelSample
@@ -33,54 +33,61 @@ host_biomarkers = {
 import json
 
 RESULTS_FOLDER = "./results"
+METADATA_FOLDER = "./metadata"
 
 router = APIRouter()
 
 
-@router.get("/results/{token}")
-async def quantify_chunks(token: str):
-    category = "NumReads"
+# @router.get("/results/{token}")
+# async def quantify_chunks(token: str):
+#     category = "NumReads"
+#     results = {}
+#     query = await ModelSample.get_token(token)  
+#     sample_name = query['sample']
+#     sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name) 
+#     # for subdir, dirs,files in os.walk(sample_dir): 
+#         # print(subdir, dirs, files)
+#         # for dir in dirs:  
+#     quant_dir = os.path.join(sample_dir,'quant.sf') 
+#     raw_df = data_tb.producedataframe(quant_dir,'NumReads')  
+#     hits_df = raw_df[raw_df.NumReads > 0]
+#     pathogen_hits =raw_df[raw_df.index.isin(sequences.values())]
+#     pathogen_biomarkers = raw_df[raw_df.index.isin(host_biomarkers.keys())]
+#     # sample_df = data_tb.producedataframe(quant_dir,category)
+#     # detected_pathogen = 'SARS-CoV-2'
+
+#     # raw_table = data_tb.intojson(raw_df)
+#     hits_table = data_tb.intojson(hits_df)
+
+#     pathogen_table = data_tb.intojson(pathogen_hits)
+#     host_table = data_tb.intojson(pathogen_biomarkers)
+
+#     detection_result = data_tb.ispositive(raw_df)
+#     result = {
+#         "sample": sample_name,
+#         "detected": detection_result,
+#         "pathogen": "SARS-CoV-2",
+#         "pathogen_hits": pathogen_table,
+#         "host_hits": host_table,
+#         "all_hits": hits_table,
+#     } 
+ 
+
+@router.get('/results/{token}') 
+async def analyze_quants(token: str):  
     results = {}
-    query = await ModelSample.get(token)
-    sample_name = query["sample"]
-    sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
-    # for subdir, dirs,files in os.walk(sample_dir):
-    # print(subdir, dirs, files)
-    # for dir in dirs:
-    quant_dir = os.path.join(sample_dir, "quant.sf")
-    raw_df = data_tb.producedataframe(quant_dir, "NumReads")
-    hits_df = raw_df[raw_df.NumReads > 0]
-    sars_hits = raw_df[raw_df.index.isin(sequences.values())]
-    sars_biomarkers = raw_df[raw_df.index.isin(host_biomarkers.keys())]
-    # sample_df = data_tb.producedataframe(quant_dir,category)
-    # detected_pathogen = 'SARS-CoV-2'
+    query = await ModelSample.get_token(token)  
+    sample_name = query['sample']
+    
+    headers=['Name', 'TPM'] 
+    panel = query['panel']
+    metadata = analyze.metadata_load(METADATA_FOLDER, panel)
+    sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name) 
+    quant_dir = os.path.join(sample_dir,'quant.sf')  
 
-    # raw_table = data_tb.intojson(raw_df)
-    hits_table = data_tb.intojson(hits_df)
-
-    pathogen_table = data_tb.intojson(sars_hits)
-    host_table = data_tb.intojson(sars_biomarkers)
-
-    detection_result = data_tb.ispositive(raw_df)
-    result = {
-        "sample": sample_name,
-        "detected": detection_result,
-        "pathogen": "SARS-CoV-2",
-        "pathogen_hits": pathogen_table,
-        "host_hits": host_table,
-        "all_hits": hits_table,
-    }
-    # results[dir] = result
-    # return json.dumps(result)
-    return result
-    # if detection_result:
-    #     return json.dumps(table, indent=4)
-    # else:
-    #     continue
-    # results = {**table, **dict(zip(['sample_name', 'detected_pathogen',\
-    #     'detection_result'],\
-    #         [sample_name,detected_pathogen,\
-    #             detection_result]))}
-
-
-# return json.dumps(results, indent=4)
+    hits_df = analyze.expression_hits_and_misses(quant_dir, headers, metadata, hits=True) 
+    all_df = analyze.expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
+    coverage = analyze.coverage_cal(hits_df,all_df)
+    pathogens, detected = analyze.detection(coverage)
+    return analyze.d3_compatible_data(coverage, sample_name, analyze.df_to_dict(hits_df), analyze.df_to_dict(all_df), pathogens, detected)
+    
