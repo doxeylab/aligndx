@@ -19,7 +19,7 @@ services:
       - ./backend/metadata:/app/metadata
     environment:
       # PYTHONPATH: .
-      DATABASE_URL: "postgresql://aligndx:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
       ORIGINS: ${ORIGINS}
       SECRET_KEY: ${SECRET_KEY}
 
