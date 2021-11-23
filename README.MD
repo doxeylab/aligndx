@@ -34,7 +34,7 @@ AlignDx is a framework for implementing Bioinformatic pipelines, with our main f
 
 
 ### **Without Docker** 
-**1.** A unix system is preferred, but any system that can utilize docker will do: 
+**1.** A unix system is preferred, but others are okay too: 
   - One of the major linux distros (ubuntu, debian, etc.) is recommended 
 
 **2.** Install python. First check if you already have it.  
