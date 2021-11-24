@@ -1,3 +1,5 @@
+import {LOGIN_URL, SIGNUP_URL, ACCESS_TOKEN_URL} from './services/Config';
+
 export const request = (options, contentType) => {
     const headers = new Headers({
         "Content-Type": contentType,
@@ -22,7 +24,7 @@ export const request = (options, contentType) => {
 
 export const loginRequest = (loginRequest) => {
     return request({
-        url: "http://localhost:8080/token",
+        url: LOGIN_URL,
         method: "POST",
         body: new URLSearchParams(loginRequest),
     }, "application/x-www-form-urlencoded");
@@ -30,7 +32,7 @@ export const loginRequest = (loginRequest) => {
 
 export const signupRequest = (signupRequest) => {
     return request({
-        url: "http://localhost:8080/create_user",
+        url: SIGNUP_URL,
         method: "POST",
         body: JSON.stringify(signupRequest),
     }, "application/json");
@@ -42,7 +44,7 @@ export const getCurrentUser = () => {
     }
 
     return request({
-        url: "http://localhost:8080/users/me",
+        url: ACCESS_TOKEN_URL,
         method: "GET",
     }, "application/json");
 }
