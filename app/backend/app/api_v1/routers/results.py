@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 import os
-from datetime import datetime 
+from datetime import datetime
+from app.api_v1.routers.users import is_authenticated
 
 from app.scripts import data_tb, analyze
 
@@ -42,14 +43,14 @@ router = APIRouter()
 # async def quantify_chunks(token: str):
 #     category = "NumReads"
 #     results = {}
-#     query = await ModelSample.get_token(token)  
+#     query = await ModelSample.get_token(token)
 #     sample_name = query['sample']
-#     sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name) 
-#     # for subdir, dirs,files in os.walk(sample_dir): 
+#     sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
+#     # for subdir, dirs,files in os.walk(sample_dir):
 #         # print(subdir, dirs, files)
-#         # for dir in dirs:  
-#     quant_dir = os.path.join(sample_dir,'quant.sf') 
-#     raw_df = data_tb.producedataframe(quant_dir,'NumReads')  
+#         # for dir in dirs:
+#     quant_dir = os.path.join(sample_dir,'quant.sf')
+#     raw_df = data_tb.producedataframe(quant_dir,'NumReads')
 #     hits_df = raw_df[raw_df.NumReads > 0]
 #     pathogen_hits =raw_df[raw_df.index.isin(sequences.values())]
 #     pathogen_biomarkers = raw_df[raw_df.index.isin(host_biomarkers.keys())]
@@ -70,24 +71,41 @@ router = APIRouter()
 #         "pathogen_hits": pathogen_table,
 #         "host_hits": host_table,
 #         "all_hits": hits_table,
-#     } 
- 
+#     }
 
-@router.get('/results/{token}') 
-async def analyze_quants(token: str):  
+
+@router.get("/results/{token}")
+async def analyze_quants(token: str):
     results = {}
-    query = await ModelSample.get_token(token)  
-    sample_name = query['sample']
-    
-    headers=['Name', 'TPM'] 
-    panel = query['panel']
-    metadata = analyze.metadata_load(METADATA_FOLDER, panel)
-    sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name) 
-    quant_dir = os.path.join(sample_dir,'quant.sf')  
+    query = await ModelSample.get_token(token)
+    sample_name = query["sample"]
 
-    hits_df = analyze.expression_hits_and_misses(quant_dir, headers, metadata, hits=True) 
-    all_df = analyze.expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
-    coverage = analyze.coverage_cal(hits_df,all_df)
+    headers = ["Name", "TPM"]
+    panel = query["panel"]
+    metadata = analyze.metadata_load(METADATA_FOLDER, panel)
+    sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
+    quant_dir = os.path.join(sample_dir, "quant.sf")
+
+    hits_df = analyze.expression_hits_and_misses(
+        quant_dir, headers, metadata, hits=True
+    )
+    all_df = analyze.expression_hits_and_misses(
+        quant_dir, headers, metadata, hits=False
+    )
+    coverage = analyze.coverage_cal(hits_df, all_df)
     pathogens, detected = analyze.detection(coverage)
-    return analyze.d3_compatible_data(coverage, sample_name, analyze.df_to_dict(hits_df), analyze.df_to_dict(all_df), pathogens, detected)
-    
+    result = analyze.d3_compatible_data(
+        coverage,
+        sample_name,
+        analyze.df_to_dict(hits_df),
+        analyze.df_to_dict(all_df),
+        pathogens,
+        detected,
+    )
+
+    authenticated = is_authenticated()
+
+    if authenticated:
+        # TODO: remove hardcode user_id
+        await ModelSample.save_result(token, json.dumps(result), 1)
+    return result

@@ -1,6 +1,8 @@
+from sqlalchemy.sql.sqltypes import JSON
 from app.db.database import database, metadata
 
-from sqlalchemy import Column, DateTime, String, Table, BigInteger, func
+from sqlalchemy import Column, DateTime, String, Table, BigInteger, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 
 samples = Table(
     "samples",
@@ -8,8 +10,10 @@ samples = Table(
     Column("token", String(50), primary_key=True),
     Column("sample", String(50)),
     Column("panel", String(50), nullable=True),
-    Column("email", String(50)),
-    Column("created_date", DateTime, nullable=False)
+    Column("email", String(50), nullable=True),
+    Column("result", JSON),
+    Column("user_id", Integer, ForeignKey("users.id"), nullable=True),
+    Column("created_date", DateTime, nullable=False),
 )
 
 users = Table(
@@ -34,13 +38,23 @@ class Sample:
     async def get_sample(cls, panel):
         query = samples.select().where(samples.c.panel == panel)
         sample = await database.fetch_one(query)
-        return panel 
+        return panel
 
     @classmethod
     async def create(cls, **sample):
         query = samples.insert().values(**sample)
         sample_id = await database.execute(query)
         return sample_id
+
+    @classmethod
+    async def save_result(cls, token, result, user_id):
+        query = (
+            samples.update()
+            .where(samples.c.token == token)
+            .values(result=result, user_id=user_id)
+        )
+        sample = await database.execute(query)
+        return sample
 
 
 class User:

@@ -3,5 +3,9 @@
 // export const UPLOAD_URL = 'http://localhost:8080/uploads';
 // export const RESULT_URL = 'http://localhost:8080/results';
 
-export const UPLOAD_URL = process.env.REACT_APP_UPLOAD_URL
-export const RESULT_URL = process.env.REACT_APP_RESULT_URL
+export const URL = process.env.REACT_APP_BACKEND_ACCESS_URL
+export const UPLOAD_URL = URL + "uploads"
+export const RESULT_URL = URL + "results"
+export const LOGIN_URL = URL + "token"
+export const SIGNUP_URL = URL + "create_user"
+export const ACCESS_TOKEN_URL = URL + "users/me" 

@@ -53,27 +53,6 @@ class UserInDB(User):
 
 # ---- USER AUTHENTICATION ----
 
-# Returns the current logged in user
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-        token_data = TokenData(email=email)
-    except JWTError:
-        raise credentials_exception
-    user = await UserRepo.get(token_data.email)
-    if user is None:
-        raise credentials_exception
-    return user
-
-
 # Authenticate the user: verify user exists and password is correct
 async def authenticate_user(email: str, password: str):
     # Verify that the password is the correct password
@@ -140,6 +119,34 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+# Returns the current logged in user
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        token_data = TokenData(email=email)
+    except JWTError:
+        raise credentials_exception
+
+    user = await UserRepo.get(token_data.email)
+    if user is None:
+        raise credentials_exception
+
+    return user
+
+
+# TODO: check if user is authenticated
+def is_authenticated():
+    return True
 
 
 @router.get("/users/me", response_model=User)
