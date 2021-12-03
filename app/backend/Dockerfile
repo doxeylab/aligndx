@@ -48,16 +48,12 @@ FROM python:3.8
 WORKDIR /app/
 
 RUN apt update \
-    && apt install -y postgresql-client gcc 
-
-ADD https://github.com/COMBINE-lab/salmon/releases/download/v1.4.0/salmon-1.4.0_linux_x86_64.tar.gz .  
+    && apt install -y postgresql-client gcc  
 
 COPY requirements.txt ./
 RUN pip install -U pip \
-    && pip install --no-cache-dir -r requirements.txt \
-    && tar xvzf salmon-1.4.0_linux_x86_64.tar.gz && rm salmon-1.4.0_linux_x86_64.tar.gz 
+    && pip install --no-cache-dir -r requirements.txt 
 
 WORKDIR /app/indexes/sars_with_human_decoys/
-WORKDIR /app/
-ENV PATH="$PATH:/app/salmon-latest_linux_x86_64/bin/"
+WORKDIR /app/ 
 ENV PYTHONPATH=/app

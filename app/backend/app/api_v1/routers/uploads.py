@@ -140,3 +140,12 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
               email_feature.send_email(email, sample_name)
 
     return {"run": "complete"}
+
+
+import requests
+
+@router.post("/test_salmon_container/")
+async def fileupload():
+    requests.post("http://192.168.65.0:8002", data = ["salmon"])
+
+    return {"run": "complete"}
