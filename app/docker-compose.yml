@@ -65,7 +65,21 @@ services:
       - pgadmin-data:/var/lib/pgadmin
     links:
       - postgres:pgsql-server
-
+  
+  salmon: 
+    build:
+      context: salmon
+      dockerfile: Dockerfile
+    command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 80
+    tty: true
+    ports:
+      - "8002:80"
+    volumes: 
+      - ./salmon/app:/app/app
+      - ./backend/results:/app/results
+      - ./backend/uploads:/app/uploads
+      - ./backend/indexes:/app/indexes
+      - ./backend/metadata:/app/metadata
 volumes:
   db-data:
-  pgadmin-data:
+  pgadmin-data: 

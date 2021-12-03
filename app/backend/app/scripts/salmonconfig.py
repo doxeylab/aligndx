@@ -1,14 +1,4 @@
-import subprocess
-from multiprocessing import Process
-
-# salmon_path = './salmon/bin/salmon'
-
-
-def sanity_check():
-    subprocess.run(["salmon", "-h"])
-
-
-def quantify(sample, indexpath, filepath, resultspath, fastqtype="single"):
+def commands(sample, indexpath, filepath, resultspath, fastqtype="single"):
     """
     runs salmon selective quantify using given index file
     sample : sample name
@@ -18,8 +8,7 @@ def quantify(sample, indexpath, filepath, resultspath, fastqtype="single"):
     resultspath : path for results output
     """
     if fastqtype == "paired":
-        subprocess.run(
-            [
+        command_list = [
                 "salmon",
                 "quant",
                 "-i",
@@ -38,10 +27,9 @@ def quantify(sample, indexpath, filepath, resultspath, fastqtype="single"):
                 "-o",
                 resultspath,
             ]
-        )
+        return {"commands" : command_list}
     if fastqtype == "single":
-        subprocess.run(
-            [
+        command_list = [
                 "salmon",
                 "quant",
                 "-i",
@@ -57,18 +45,8 @@ def quantify(sample, indexpath, filepath, resultspath, fastqtype="single"):
                 "4",
                 "-o",
                 resultspath,
-            ]
-        )
+            ] 
+        return {"commands" : command_list}
     else:
         return "Invalid fastqtype"
-
-
-def runParallel(func, chunks, sample, indexpath, filepath, resultspath):
-    proc = []
-    for chunk in chunks:
-        p = Process(target=func, args=(chunk, indexpath, filepath, resultspath))
-        p.start()
-    #     proc.append(p)
-    # for p in proc:
-    #     p.join()
  
