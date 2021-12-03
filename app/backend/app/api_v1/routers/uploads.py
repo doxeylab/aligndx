@@ -1,10 +1,10 @@
 from array import ArrayType
 from fastapi import APIRouter, File, UploadFile, Form 
 from typing import List 
-import shutil, os
+import shutil, os, requests
 from datetime import datetime
 
-from app.scripts import email_feature, runsalmon
+from app.scripts import email_feature, salmonconfig
 
 # from app.db.database import database
 from app.db.models import Sample as ModelSample
@@ -125,7 +125,9 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
             indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
             filename = file.filename.split('.')[1]
             results_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
-            runsalmon.quantify(filename, indexpath, file_location, results_dir)
+
+            commands = salmonconfig.commands(filename, indexpath, file_location, results_dir)
+            x = requests.post("http://salmon:80/", json = commands )
 
             try: 
                 shutil.rmtree(sample_folder)
@@ -142,10 +144,13 @@ async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)
     return {"run": "complete"}
 
 
-import requests
 
 @router.post("/test_salmon_container/")
 async def fileupload():
-    requests.post("http://192.168.65.0:8002", data = ["salmon"])
-
-    return {"run": "complete"}
+    try:
+        commands = {"commands": ["salmon"]}
+        x = requests.post("http://salmon:80/", json = commands )
+        print(x.text)
+        return x.text 
+    except Exception as e:
+        return e
