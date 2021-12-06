@@ -1,39 +1,32 @@
 import axios from "axios";
 
-const CHUNK_SIZE = 2e5;
+import { CHUNK_SIZE, RL_FILE_URL, RL_CHUNK_URL } from "../../../services/Config";
 
-const EMPTY_FILE_NOT_UPLOADED = "Empty file, not uploaded";
-
-const upload = async (data) => {
-  const res = await axios.post(UPLOAD_URL, data);
-
-  return res;
-};
-
-const uploadChunk = (id, file) => {
+const readChunk = (id, file) => {
   let reader = new FileReader();
-  let chunk = file.file.slice(id * CHUNK_SIZE, (id + 1) * CHUNK_SIZE);
+  let chunk = file.slice(id * CHUNK_SIZE, (id + 1) * CHUNK_SIZE);
 
   return new Promise((resolve, reject) => {
     reader.onload = (e) => {
       const data = e.target.result;
+
       if (data) {
-        compressChunk(data)
-          .then((result) =>
-            upload({ message: "chunk upload", id, data: result })
-          )
-          .then((res) => {
-            resolve({ response: res });
-          });
+        resolve({
+          chunkExists: true,
+          chunkData: data,
+        });
       } else {
-        resolve({ response: EMPTY_FILE_NOT_UPLOADED });
+        resolve({
+          chunkExists: false,
+          chunkData: null,
+        });
       }
     };
     reader.readAsText(chunk);
   });
 };
 
-const compressChunk = async (data) => {
+const compressChunk = (data) => {
   let enc = new TextEncoder();
   const encData = enc.encode(data);
 
@@ -58,32 +51,38 @@ const compressChunk = async (data) => {
   return result;
 };
 
-const uploadChunksWhileData = async (id, file, stateCallbacks) => {
-  const res = await uploadChunk(id, file);
-  stateCallbacks.setChunk(id, file, res);
+const postChunk = (id, data) => axios.post(RL_CHUNK_URL, { id, data });
 
-  if (res.response != EMPTY_FILE_NOT_UPLOADED) {
-    uploadChunksWhileData(id + 1, file, stateCallbacks);
-  } else {
-    stateCallbacks.fileComplete();
+const startChunk = async (id, file) => {
+  let data = await readChunk(id, file);
+  data = compressChunk(data);
+
+  let res = await postChunk(id, data);
+  return res;
+};
+
+const startChunksWhileExist = async (id, file) => {
+  let data = await readChunk(id, file);
+
+  if (!data) {
+    return;
   }
+
+  data = compressChunk(data);
+  let res = await postChunk(id, data);
+
+  startChunksWhileExist(id + 1, file);
+  // return res;
 };
 
-const startFileUpload = async (file, stateCallbacks) => {
-  const req = {
-    message: "start file upload",
-    file: file,
-    numChunks: Math.ceil(file.file.size / CHUNK_SIZE),
-  };
+const registerFile = (filename, numberOfChunks) =>
+  axios.post(RL_FILE_URL, { filename, numberOfChunks });
 
-  const res = await upload(req);
-  stateCallbacks.setFile(file, res);
+const startFile = async (filename, file) => {
+  const numberOfChunks = Math.ceil(file.size / CHUNK_SIZE);
+  await registerFile(filename, numberOfChunks);
+
+  startChunksWhileExist(file);
 };
 
-const uploadFile = (file, stateCallbacks) => {
-  await;
-
-  await uploadChunksWhileData(0, file, stateCallbacks);
-};
-
-export default uploadFile;
+export default startFile;
