@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter 
 import os
 from datetime import datetime 
 
@@ -72,22 +72,76 @@ router = APIRouter()
 #         "all_hits": hits_table,
 #     } 
  
-
-@router.get('/results/{token}') 
-async def analyze_quants(token: str):  
-    results = {}
-    query = await ModelSample.get_token(token)  
-    sample_name = query['sample']
-    
-    headers=['Name', 'TPM'] 
-    panel = query['panel']
-    metadata = analyze.metadata_load(METADATA_FOLDER, panel)
-    sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name) 
-    quant_dir = os.path.join(sample_dir,'quant.sf')  
-
+def analyze_handler(sample_name, headers, metadata, quant_dir):
     hits_df = analyze.expression_hits_and_misses(quant_dir, headers, metadata, hits=True) 
     all_df = analyze.expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
     coverage = analyze.coverage_cal(hits_df,all_df)
     pathogens, detected = analyze.detection(coverage)
     return analyze.d3_compatible_data(coverage, sample_name, analyze.df_to_dict(hits_df), analyze.df_to_dict(all_df), pathogens, detected)
+
+@router.get('/results/{token}') 
+async def analyze_quants(token: str):   
+    query = await ModelSample.get_token(token)  
+    sample_name = query['sample']
+    headers=['Name', 'TPM'] 
+    panel = query['panel']
+
+    metadata = analyze.metadata_load(METADATA_FOLDER, panel)
+    sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name) 
+    quant_dir = os.path.join(sample_dir,'quant.sf')  
+
+    analyze_handler(sample_name, headers, metadata, quant_dir)
+
     
+
+import time 
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler 
+
+class ProcessingHandler(FileSystemEventHandler):
+    def __init__(self, headers, metadata):
+        self.headers = headers
+        self.metadata = metadata 
+
+    def on_created(self,event):
+        chunk_path = event.src_path
+        quant_path = os.path.join(chunk_path,'quant.sf') 
+        sample_name = os.path.basename(os.path.dirname(quant_path))
+        # quants_lst = []
+        processed_quant = analyze_handler(sample_name, self.headers, self.metadata, quant_path)
+        print(processed_quant)
+        # if processed_quant['coverage'] !=0:
+        #     quants_lst.append(processed_quant)
+        #     return processed_quant
+        # else:
+        #     pass
+
+@router.get('/quickdetect/{token}') 
+async def quick_detect(token: str): 
+    query = await ModelSample.get_token(token)  
+    sample_name = query['sample']
+    sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name, "chunks")   
+
+    headers=['Name', 'TPM'] 
+    panel = query['panel']
+
+    metadata = analyze.metadata_load(METADATA_FOLDER, panel)
+
+    path = sample_dir
+
+    event_handler = ProcessingHandler(headers, metadata)
+    observer = Observer()
+    observer.schedule(event_handler, path, recursive=True)
+    observer.start()
+    try:
+        while True:
+            time.sleep(1)
+    finally:
+        observer.stop()
+        observer.join() 
+
+# @router.get('/realtime/{token}') 
+# async def realtime_quant_analysis(token: str): 
+#     for chunk_quant in chunk_quant_dir:
+#         process(chunk_quant)   
+ 

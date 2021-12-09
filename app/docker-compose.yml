@@ -37,7 +37,7 @@ services:
       - NODE_ENV=development
       - REACT_APP_BACKEND_ACCESS_URL=${REACT_APP_BACKEND_ACCESS_URL} 
 
-  postgres: 
+  postgres:  
     image: postgres:12
     restart: unless-stopped
     environment:
@@ -51,6 +51,7 @@ services:
       - db-data:/var/lib/postgresql/data
 
   pgadmin: 
+    tty: true
     image: dpage/pgadmin4
     restart: unless-stopped
     depends_on:
@@ -62,9 +63,7 @@ services:
     ports:
       - "8001:80"
     volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    links:
-      - postgres:pgsql-server
+      - pgadmin-data:/var/lib/pgadmin 
   
   salmon: 
     build:
