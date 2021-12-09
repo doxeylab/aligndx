@@ -6,11 +6,7 @@
 # dependencies
 node_modules
 venv
-<<<<<<< HEAD
-indexes
-=======
 indexes 
->>>>>>> added results chunk quant watcher
 
 # localstorage
 results
