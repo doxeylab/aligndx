@@ -112,21 +112,18 @@ class ProcessingHandler(FileSystemEventHandler):
         print(processed_quant)
         # if processed_quant['coverage'] !=0:
         #     quants_lst.append(processed_quant)
-        #     return processed_quant
+        #     return  quants_lst
         # else:
         #     pass
 
 @router.get('/quickdetect/{token}') 
 async def quick_detect(token: str): 
-    query = await ModelSample.get_token(token)  
+    query = await ModelSample.get_token(token)   
     sample_name = query['sample']
     sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name, "chunks")   
-
-    headers=['Name', 'TPM'] 
     panel = query['panel']
-
     metadata = analyze.metadata_load(METADATA_FOLDER, panel)
-
+    headers=['Name', 'TPM'] 
     path = sample_dir
 
     event_handler = ProcessingHandler(headers, metadata)
@@ -137,7 +134,7 @@ async def quick_detect(token: str):
         while True:
             time.sleep(1)
     finally:
-        observer.stop()
+        observer.stop() 
         observer.join() 
 
 # @router.get('/realtime/{token}') 
