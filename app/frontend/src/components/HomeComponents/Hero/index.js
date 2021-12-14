@@ -17,6 +17,7 @@ import SelectMenu from '../../SelectMenu';
 // Styles
 import './CustomModal.css';
 import { HeroBody, HeroBtns, HeroImage, HeroText, HeroTitle } from './StyledHero';
+import startFile from '../ChunkController/chunkController';
 
 const Hero = () => {
     const [show, setShow] = useState(false);
@@ -43,6 +44,13 @@ const Hero = () => {
     const grabOption = (optiondata) => { 
         console.log(optiondata);
         setOption(optiondata);
+    }
+    
+    const uploadChunked = () => {
+        setGetLoad(true)
+        const token = TokenService(40);
+        
+        startFile('my_fastq_file.fastq', dataFiles[0], token);
     }
 
     const upload = () => {
@@ -148,7 +156,7 @@ const Hero = () => {
                                         <EmailTextBox grabEmail = {grabEmail}/> 
                                     </Col>
                                     <Col>
-                                        <Button fill disabled={dataFiles.length === 0 || option.length == 0 ? true : false} onClick={() => upload()}>Analyze</Button>
+                                        <Button fill disabled={dataFiles.length === 0 || option.length == 0 ? true : false} onClick={() => uploadChunked()}>Analyze</Button>
                                     </Col>
                                 </Row>
                             </Container>

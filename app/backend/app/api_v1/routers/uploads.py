@@ -1,8 +1,12 @@
 from array import ArrayType
-from fastapi import APIRouter, File, UploadFile, Form 
+from uuid import uuid4
+import aiofiles
+from fastapi import APIRouter, BackgroundTasks, File, UploadFile, Form, Body
 from typing import List 
 import shutil, os, requests
 from datetime import datetime
+
+import pandas as pd
 
 from app.scripts import email_feature, salmonconfig
 
@@ -12,15 +16,26 @@ from app.db.models import Sample as ModelSample
 # from app.db.models import create, get
 from app.db.schema import Sample as SchemaSample
 
+chunk_size = 4096
+
 UPLOAD_FOLDER = './uploads' 
 RESULTS_FOLDER = './results'
 INDEX_FOLDER = './indexes'
+
+REAL_TIME_FOLDER = UPLOAD_FOLDER + '/real_time'
+RL_FILE_FOLDER = REAL_TIME_FOLDER + "/file_meta"
+RL_CHUNK_FOLDER = REAL_TIME_FOLDER + "/chunk_data"
 
 
 if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER)
 if not os.path.isdir(RESULTS_FOLDER):
     os.mkdir(RESULTS_FOLDER)
+
+for dirname in (REAL_TIME_FOLDER, RL_FILE_FOLDER, RL_CHUNK_FOLDER):
+    if not os.path.isdir(dirname):
+        os.mkdir(dirname)
+
 
 router = APIRouter()
 
@@ -154,3 +169,95 @@ async def fileupload():
         return x.text 
     except Exception as e:
         return e
+
+
+@router.post("/start-file")
+def start_file(
+    filename: str = Body(...),
+    number_of_chunks: int = Body(...),
+    token: str = Body(...)
+):
+    uuid = uuid4()
+    file_id = str(uuid)
+
+    os.mkdir("uploads/{}".format(file_id))
+    with open("uploads/{}/meta.txt".format(file_id), 'w') as f:
+        f.write(filename)
+        f.write('\n')
+        f.write(str(number_of_chunks))
+    os.mkdir("results/{}".format(file_id))
+
+    return {"Result": "OK",
+            "File_ID": file_id}
+
+
+@router.post("/upload-chunk")
+async def upload_chunk(
+    background_tasks: BackgroundTasks,
+    chunk_number: int = Form(...),
+    file_id: str = Form(...),
+    chunk_file: UploadFile = File(...),
+    token: str = Form(...),
+):
+    async with aiofiles.open("uploads/{}/{}.fastq".format(file_id, chunk_number), 'wb') as f:
+        while content := await chunk_file.read(chunk_size):
+            await f.write(content)
+
+    num_chunks = None
+    with open("uploads/{}/meta.txt".format(file_id)) as f:
+        num_chunks = int(f.readlines()[1])
+
+    if chunk_number + 1 == num_chunks:
+        background_tasks.add_task(
+            start_final_chunk_analysis, file_id, chunk_number)
+    else:
+        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number)
+
+    return {"Result": "OK"}
+
+
+def start_final_chunk_analysis(file_id, chunk_number):
+    start_chunk_analysis(file_id, chunk_number)
+    finish_file_analysis(file_id)
+
+
+def start_chunk_analysis(file_id, chunk_number):
+    dist = []
+
+    with open("uploads/{}/{}.fastq".format(file_id, chunk_number)) as f:
+        while content := f.read(chunk_size):
+            chunk_dist = analyze(content)
+            dist.append(chunk_dist)
+
+    dist = pd.DataFrame(dist).sum()
+    dist.to_csv("results/{}/{}.txt".format(file_id, chunk_number), sep='\t')
+
+    os.remove("uploads/{}/{}.fastq".format(file_id, chunk_number))
+
+
+def finish_file_analysis(file_id):
+    dist = []
+
+    num_chunks = None
+    with open("uploads/{}/meta.txt".format(file_id)) as f:
+        num_chunks = int(f.readlines()[1])
+
+    for i in range(num_chunks):
+        chunk_dist = pd.read_csv(
+            "results/{}/{}.txt".format(file_id, i), sep='\t')["0"]
+        dist.append(chunk_dist)
+
+    dist = pd.DataFrame(dist)
+    dist = dist.sum()
+
+    dist.to_csv("results/{}/final.csv".format(file_id))
+
+
+@router.get("/results/{file_id}")
+async def get_results(file_id: str):
+    if not os.path.isfile("results/{}/final.csv".format(file_id)):
+        return 404
+
+    dist = pd.read_csv("results/{}/final.csv".format(file_id))
+
+    return {"Results": dist.to_dict()}
