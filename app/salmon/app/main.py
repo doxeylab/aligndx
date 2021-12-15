@@ -61,3 +61,15 @@ async def runsalmon(command : Dict[str, list]):
         return logs_decoded 
     except:
         return "Error"
+
+# import asyncio 
+
+# @app.post("/")
+# async def runsalmon(command : Dict[str, list]):   
+#     commands = " ".join(str(x) for x in command['commands'])
+#     proc = await asyncio.create_subprocess_shell(
+#     commands,
+#     stdout=asyncio.subprocess.PIPE)
+
+#     stdout = await proc.communicate() 
+#     return stdout.decode()  
