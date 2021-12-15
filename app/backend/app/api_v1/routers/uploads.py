@@ -1,6 +1,6 @@
 from array import ArrayType
 from uuid import uuid4
-import aiofiles
+import aiofiles, asyncio, aiohttp 
 from fastapi import APIRouter, BackgroundTasks, File, UploadFile, Form, Body
 from typing import List 
 import shutil, os, requests
@@ -16,7 +16,7 @@ from app.db.models import Sample as ModelSample
 # from app.db.models import create, get
 from app.db.schema import Sample as SchemaSample
 
-chunk_size = 4096
+chunk_size = 4096 
 
 UPLOAD_FOLDER = './uploads' 
 RESULTS_FOLDER = './results'
@@ -104,7 +104,12 @@ async def fileretrieve(token: str):
     return {'token': id} 
 
 @router.post("/uploads/")
-async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...), panel: List[str] = Form(...), email: str = Form("")):
+async def fileupload(
+    token: str = Form(...),
+    files: List[UploadFile] = File(...), 
+    panel: List[str] = Form(...), 
+    email: str = Form("")
+    ):
     for file in files:
         for option in panel:
             # get file name
@@ -172,24 +177,48 @@ async def fileupload():
 
 
 @router.post("/start-file")
-def start_file(
+async def start_file(
     filename: str = Body(...),
     number_of_chunks: int = Body(...),
-    token: str = Body(...)
+    token: str = Body(...),
+    option: List[  str] = Body(...), 
+    email: str = Body("")
 ):
-    uuid = uuid4()
-    file_id = str(uuid)
+    for panel in option:
+        now = datetime.now()
+        response = {'token': token,
+                 'sample': filename,
+                 'panel': panel.lower(),
+                 'email': email,
+                 'created_date': now }
+        query = await ModelSample.create(**response)
 
-    os.mkdir("uploads/{}".format(file_id))
-    with open("uploads/{}/meta.txt".format(file_id), 'w') as f:
-        f.write(filename)
-        f.write('\n')
-        f.write(str(number_of_chunks))
-    os.mkdir("results/{}".format(file_id))
+        uuid = uuid4()
+        file_id = str(uuid)
 
-    return {"Result": "OK",
-            "File_ID": file_id}
+        os.mkdir("uploads/{}".format(file_id))
+        with open("uploads/{}/meta.txt".format(file_id), 'w') as f:
+            f.write(filename)
+            f.write('\n')
+            f.write(str(number_of_chunks))
+        os.mkdir("results/{}".format(file_id))
 
+        return {"Result": "OK",
+                "File_ID": file_id}
+
+def gather_tasks(commands_lst, session):
+    tasks = []
+    for commands in commands_lst:
+        tasks.append(session.post("http://salmon:80/", json = commands, ssl=False))
+    return tasks
+
+async def call_salmon(commands_lst):
+    results = []
+    async with aiohttp.ClientSession as session:
+        tasks = gather_tasks(commands_lst, session) 
+        responses = await asyncio.gather(*tasks)
+        for response in responses:
+            results.append(await response.json())
 
 @router.post("/upload-chunk")
 async def upload_chunk(
@@ -198,66 +227,91 @@ async def upload_chunk(
     file_id: str = Form(...),
     chunk_file: UploadFile = File(...),
     token: str = Form(...),
-):
-    async with aiofiles.open("uploads/{}/{}.fastq".format(file_id, chunk_number), 'wb') as f:
+):  
+    query = await ModelSample.get_token(token)    
+    panel = query['panel']
+    chosen_panel = str(panel.lower()) + "_index"
+    indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
+
+    commands_lst = []
+
+    chunk_dir = "uploads/{}/{}.fastq".format(file_id, chunk_number)
+    results_dir = "results/{}/{}.".format(file_id, chunk_number)
+    
+    async with aiofiles.open(chunk_dir, 'wb') as f:
         while content := await chunk_file.read(chunk_size):
             await f.write(content)
+            await commands_lst.append(salmonconfig.commands(indexpath, chunk_dir, results_dir))  
+    asyncio.run(call_salmon(await commands_lst))
 
-    num_chunks = None
-    with open("uploads/{}/meta.txt".format(file_id)) as f:
-        num_chunks = int(f.readlines()[1])
+#     return {"Result": "OK"}
+# @router.post("/upload-chunk")
+# async def upload_chunk(
+#     background_tasks: BackgroundTasks,
+#     chunk_number: int = Form(...),
+#     file_id: str = Form(...),
+#     chunk_file: UploadFile = File(...),
+#     token: str = Form(...),
+# ):
+#     async with aiofiles.open("uploads/{}/{}.fastq".format(file_id, chunk_number), 'wb') as f:
+#         while content := await chunk_file.read(chunk_size):
+#             await f.write(content)
 
-    if chunk_number + 1 == num_chunks:
-        background_tasks.add_task(
-            start_final_chunk_analysis, file_id, chunk_number)
-    else:
-        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number)
+#     num_chunks = None
+#     with open("uploads/{}/meta.txt".format(file_id)) as f:
+#         num_chunks = int(f.readlines()[1])
 
-    return {"Result": "OK"}
+#     if chunk_number + 1 == num_chunks:
+#         background_tasks.add_task(
+#             start_final_chunk_analysis, file_id, chunk_number)
+#     else:
+#         background_tasks.add_task(start_chunk_analysis, file_id, chunk_number)
 
-
-def start_final_chunk_analysis(file_id, chunk_number):
-    start_chunk_analysis(file_id, chunk_number)
-    finish_file_analysis(file_id)
-
-
-def start_chunk_analysis(file_id, chunk_number):
-    dist = []
-
-    with open("uploads/{}/{}.fastq".format(file_id, chunk_number)) as f:
-        while content := f.read(chunk_size):
-            chunk_dist = analyze(content)
-            dist.append(chunk_dist)
-
-    dist = pd.DataFrame(dist).sum()
-    dist.to_csv("results/{}/{}.txt".format(file_id, chunk_number), sep='\t')
-
-    os.remove("uploads/{}/{}.fastq".format(file_id, chunk_number))
+#     return {"Result": "OK"}
 
 
-def finish_file_analysis(file_id):
-    dist = []
-
-    num_chunks = None
-    with open("uploads/{}/meta.txt".format(file_id)) as f:
-        num_chunks = int(f.readlines()[1])
-
-    for i in range(num_chunks):
-        chunk_dist = pd.read_csv(
-            "results/{}/{}.txt".format(file_id, i), sep='\t')["0"]
-        dist.append(chunk_dist)
-
-    dist = pd.DataFrame(dist)
-    dist = dist.sum()
-
-    dist.to_csv("results/{}/final.csv".format(file_id))
+# def start_final_chunk_analysis(file_id, chunk_number):
+#     start_chunk_analysis(file_id, chunk_number)
+#     finish_file_analysis(file_id)
 
 
-@router.get("/results/{file_id}")
-async def get_results(file_id: str):
-    if not os.path.isfile("results/{}/final.csv".format(file_id)):
-        return 404
+# def start_chunk_analysis(file_id, chunk_number):
+#     dist = []
 
-    dist = pd.read_csv("results/{}/final.csv".format(file_id))
+#     with open("uploads/{}/{}.fastq".format(file_id, chunk_number)) as f:
+#         while content := f.read(chunk_size):
+#             chunk_dist = analyze(content)
+#             dist.append(chunk_dist)
 
-    return {"Results": dist.to_dict()}
+#     dist = pd.DataFrame(dist).sum()
+#     dist.to_csv("results/{}/{}.txt".format(file_id, chunk_number), sep='\t')
+
+#     os.remove("uploads/{}/{}.fastq".format(file_id, chunk_number))
+
+
+# def finish_file_analysis(file_id):
+#     dist = []
+
+#     num_chunks = None
+#     with open("uploads/{}/meta.txt".format(file_id)) as f:
+#         num_chunks = int(f.readlines()[1])
+
+#     for i in range(num_chunks):
+#         chunk_dist = pd.read_csv(
+#             "results/{}/{}.txt".format(file_id, i), sep='\t')["0"]
+#         dist.append(chunk_dist)
+
+#     dist = pd.DataFrame(dist)
+#     dist = dist.sum()
+
+#     dist.to_csv("results/{}/final.csv".format(file_id))
+
+
+# @router.get("/results/{file_id}")
+# async def get_results(file_id: str):
+#     if not os.path.isfile("results/{}/final.csv".format(file_id)):
+#         return 404
+
+#     dist = pd.read_csv("results/{}/final.csv".format(file_id))
+
+#     return {"Results": dist.to_dict()}

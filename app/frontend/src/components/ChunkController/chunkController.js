@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { CHUNK_SIZE, UPLOAD_CHUNK_URL, START_FILE_URL } from "../config/Config";
+import { CHUNK_SIZE, UPLOAD_CHUNK_URL, START_FILE_URL } from "../../services/Config";
 
 const readChunk = (chunkNumber, file) => {
   let chunkFile = file.slice(
@@ -32,16 +32,18 @@ const startChunk = async (chunkNumber, fileId, file, token) => {
   return await postChunk(chunkNumber, fileId, chunkFile, token);
 };
 
-const postFileProcess = (filename, numberOfChunks, token) =>
+const postFileProcess = (filename, numberOfChunks, token, option, email) =>
   axios.post(START_FILE_URL, {
     filename,
     number_of_chunks: numberOfChunks,
     token,
+    option,
+    email
   });
 
-const startFile = async (file, token) => {
+const startFile = async (file, token, panel, email) => {
   const numberOfChunks = Math.ceil(file.size / CHUNK_SIZE);
-  const res = await postFileProcess(file.name, numberOfChunks, token);
+  const res = await postFileProcess(file.name, numberOfChunks, token, panel, email);
   const fileId = res.data.File_ID;
 
   for (let i = 0; i < numberOfChunks; i++) {

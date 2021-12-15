@@ -9,3 +9,6 @@ export const RESULT_URL = URL + "results"
 export const LOGIN_URL = URL + "token"
 export const SIGNUP_URL = URL + "create_user"
 export const ACCESS_TOKEN_URL = URL + "users/me" 
+export const UPLOAD_CHUNK_URL = URL + "upload-chunk" 
+export const START_FILE_URL = URL + "start-file"
+export const CHUNK_SIZE = 4096

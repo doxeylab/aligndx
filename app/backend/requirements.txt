@@ -36,3 +36,4 @@ gdown==4.2.0
 beautifulsoup4==4.10.0 
 aiofiles
 watchdog==2.1.6
+aiohttp

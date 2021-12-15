@@ -1,4 +1,4 @@
-def commands(sample, indexpath, filepath, resultspath, fastqtype="single"):
+def commands(indexpath, filepath, resultspath, fastqtype="single"):
     """
     runs salmon selective quantify using given index file
     sample : sample name

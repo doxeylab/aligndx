@@ -17,10 +17,11 @@ import SelectMenu from '../../SelectMenu';
 // Styles
 import './CustomModal.css';
 import { HeroBody, HeroBtns, HeroImage, HeroText, HeroTitle } from './StyledHero';
-import startFile from '../ChunkController/chunkController';
+import startFile from '../../ChunkController/chunkController';
 
 const Hero = () => {
-    const [show, setShow] = useState(false);
+    const [showStandard, setShowStandard] = useState(false);
+    const [showQuickDetect, setShowQuickDetect] = useState(false);
     const [dataFiles, setDataFiles] = useState([]);
     const [getLoad, setGetLoad] = useState(false);
     const [email, setEmail] = useState('');
@@ -49,8 +50,10 @@ const Hero = () => {
     const uploadChunked = () => {
         setGetLoad(true)
         const token = TokenService(40);
-        
-        startFile('my_fastq_file.fastq', dataFiles[0], token);
+        const option_lst = []
+        option.forEach(x => option_lst.push(x.title))
+        console.log(option_lst)
+        startFile(dataFiles[0], token, option_lst, email);
     }
 
     const upload = () => {
@@ -93,8 +96,11 @@ const Hero = () => {
               });
     }
 
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+    const handleCloseStandard = () => setShowStandard(false);
+    const handleCloseQuickDetect = () => setShowQuickDetect(false);
+
+    const handleShowStandard = () => setShowStandard(true);
+    const handleShowQuickDetect = () => setShowQuickDetect(true);
 
     return (
         <>
@@ -109,10 +115,11 @@ const Hero = () => {
                                     <Fade left duration={1000} delay={600} distance="30px">
                                         <HeroBody>
                                             <HeroTitle>PATHOGEN<br />DETECTION</HeroTitle>
-                                            <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined RNA-seq pipeline. Alternatively, go through our examples for sample results.</HeroText>
+                                            <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined RNA-seq pipeline using either our standard or quick detect workflows. Alternatively, go through our examples for sample results.</HeroText>
                                             <HeroBtns>
-                                                <Button onClick={handleShow}>Analyze</Button>
-                                                <Button fill to="/result">Example</Button>
+                                                <Button onClick={handleShowStandard}>Standard</Button>
+                                                <Button onClick={handleShowQuickDetect}>Quick Detect</Button>
+                                                <Button fill to="/result">Examples</Button>
                                             </HeroBtns>
                                         </HeroBody>
                                     </Fade>
@@ -130,8 +137,8 @@ const Hero = () => {
                     <Modal size="lg"
                         aria-labelledby="contained-modal-title-vcenter"
                         centered
-                        show={show}
-                        onHide={handleClose}>
+                        show={showStandard}
+                        onHide={handleCloseStandard}>
                         <Modal.Header closeButton>
                             <Modal.Title id="contained-modal-title-vcenter">
                                 Upload your Sequence
@@ -147,7 +154,42 @@ const Hero = () => {
                                             removeCallback={dataRemoveFileCallback}
                                         />
                                     </Col>
+                                </Row>    
+                                <Row>
+                                    <Col>
+                                        <SelectMenu grabOption = {grabOption}/>
+                                    </Col>
+                                    <Col>
+                                        <EmailTextBox grabEmail = {grabEmail}/> 
+                                    </Col>
+                                    <Col>
+                                        <Button fill disabled={dataFiles.length === 0 || option.length == 0 ? true : false} onClick={() => upload()}>Analyze</Button>
+                                    </Col>
                                 </Row>
+                            </Container>
+                        </Modal.Body>
+                    </Modal>
+                    <Modal size="lg"
+                        aria-labelledby="contained-modal-title-vcenter"
+                        centered
+                        show={showQuickDetect}
+                        onHide={handleCloseQuickDetect}>
+                        <Modal.Header closeButton>
+                            <Modal.Title id="contained-modal-title-vcenter">
+                                Upload your Sequence
+                            </Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body className="show-grid">
+                            <Container>
+                                <Row style={{ marginBottom: '1.5rem' }}>
+                                    <Col>
+                                        <UploadComponent
+                                            fileCallback={dataFileCallback}
+                                            selectedFiles={dataFiles}
+                                            removeCallback={dataRemoveFileCallback}
+                                        />
+                                    </Col>
+                                </Row>    
                                 <Row>
                                     <Col>
                                         <SelectMenu grabOption = {grabOption}/>
