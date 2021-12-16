@@ -236,7 +236,7 @@ async def call_salmon(commands_lst):
         await session.post("http://salmon:80/", json = commands, ssl=False)
     await session.close()
 
-async def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, sample_name, analyze_result):
+async def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, sample_name, analyze_result, option):
     indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
 
     chunk_dir =  "uploads/{}/{}.fastq".format(file_id, chunk_number)
@@ -247,10 +247,9 @@ async def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst
     commands_lst.append(commands) 
     await call_salmon(commands_lst)
 
-    metadata = analyze.metadata_load(METADATA_FOLDER, chosen_panel)
+    metadata = analyze.metadata_load(METADATA_FOLDER, option)
     headers=['Name', 'TPM'] 
-    analyze_result.append(analyze_handler(sample_name, headers, metadata, quant_dir))
-    return analyze_result
+    analyze_result.append(analyze_handler(sample_name, headers, metadata, quant_dir)) 
 
 @router.post("/upload-chunk")
 async def upload_chunk(
@@ -263,13 +262,12 @@ async def upload_chunk(
     # query = await ModelSample.get_token(token)  
     # panel = query['panel']
     # chosen_panel = str(panel.lower()) + "_index"
+    panel = "bacterial"
     chosen_panel = "bacterial_index"
     sample_name = "test"
     indexpath = os.path.join(INDEX_FOLDER, chosen_panel) 
     chunk_dir =  "uploads/{}/{}.fastq".format(file_id, chunk_number)
-    results_dir = "results/{}/{}".format(file_id, chunk_number)
-
-    print(chunk_dir)
+    results_dir = "results/{}/{}".format(file_id, chunk_number) 
     
     if chunk_number > 0:
         content_before = None
@@ -291,12 +289,14 @@ async def upload_chunk(
     with open("uploads/{}/meta.txt".format(file_id)) as f:
         num_chunks = int(f.readlines()[1])
 
+    analyze_result = []
     if chunk_number > 0: 
-        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number-1, chosen_panel, [], sample_name, [])
+        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number-1, chosen_panel, [], sample_name, analyze_result, panel)
 
     if chunk_number + 1 == num_chunks:
-        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number, chosen_panel, [], sample_name, [])
- 
+        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number, chosen_panel, [], sample_name, analyze_result, panel)
+    
+    print(analyze_result)
     return {"Result": "OK"}
     
 # @router.post("/upload-chunk")

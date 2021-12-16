@@ -51,7 +51,7 @@ async def root():
     return {"message": "This is the salmon container!"}
 
 @app.post("/")
-async def runsalmon(command : Dict[str, list]):  
+def runsalmon(command : Dict[str, list]):  
     try:
         commands = command['commands']  
         process = subprocess.Popen(commands, stdout=subprocess.PIPE)
