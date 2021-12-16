@@ -20,7 +20,8 @@ memory_batch_size = 400000
 
 UPLOAD_FOLDER = './uploads' 
 RESULTS_FOLDER = './results'
-INDEX_FOLDER = './indexes'
+INDEX_FOLDER = './indexes' 
+METADATA_FOLDER = "./metadata"
 
 REAL_TIME_FOLDER = UPLOAD_FOLDER + '/real_time'
 RL_FILE_FOLDER = REAL_TIME_FOLDER + "/file_meta"
@@ -211,22 +212,46 @@ def gather_tasks(commands_lst, session):
         tasks.append(asyncio.create_task(session.post("http://salmon:80/", json = commands, ssl=False)))
     return tasks
 
+# async def call_salmon(commands_lst):
+#     results = [] 
+#     session = aiohttp.ClientSession()
+#     tasks = gather_tasks(commands_lst, session) 
+#     responses = await asyncio.gather(*tasks)
+#     for response in responses:
+#         results.append(await response.json())
+#     await session.close()  
+
+from app.scripts import analyze
+
+def analyze_handler(sample_name, headers, metadata, quant_dir):
+    hits_df = analyze.expression_hits_and_misses(quant_dir, headers, metadata, hits=True) 
+    all_df = analyze.expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
+    coverage = analyze.coverage_cal(hits_df,all_df)
+    pathogens, detected = analyze.detection(coverage)
+    return analyze.d3_compatible_data(coverage, sample_name, analyze.df_to_dict(hits_df), analyze.df_to_dict(all_df), pathogens, detected)
+
 async def call_salmon(commands_lst):
-    results = [] 
     session = aiohttp.ClientSession()
-    tasks = gather_tasks(commands_lst, session) 
-    responses = await asyncio.gather(*tasks)
-    for response in responses:
-        results.append(await response.json())
+    for commands in commands_lst:
+        await session.post("http://salmon:80/", json = commands, ssl=False)
     await session.close()
-# async def call_salmon(commands):
-#     results = []
-#     async with aiohttp.ClientSession as session: 
-#         response = await session.post("http://salmon:80/", json = commands, ssl=False)
-#         results.append(await response.json()) 
 
+async def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, sample_name, analyze_result):
+    indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
 
-commands_lst = []
+    chunk_dir =  "uploads/{}/{}.fastq".format(file_id, chunk_number)
+    results_dir = "results/{}/{}".format(file_id, chunk_number)
+    quant_dir = "results/{}/{}/quant.sf".format(file_id, chunk_number)
+
+    commands = salmonconfig.commands(indexpath, chunk_dir, results_dir)  
+    commands_lst.append(commands) 
+    await call_salmon(commands_lst)
+
+    metadata = analyze.metadata_load(METADATA_FOLDER, chosen_panel)
+    headers=['Name', 'TPM'] 
+    analyze_result.append(analyze_handler(sample_name, headers, metadata, quant_dir))
+    return analyze_result
+
 @router.post("/upload-chunk")
 async def upload_chunk(
     background_tasks: BackgroundTasks,
@@ -239,23 +264,38 @@ async def upload_chunk(
     # panel = query['panel']
     # chosen_panel = str(panel.lower()) + "_index"
     chosen_panel = "bacterial_index"
-    indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
- 
+    sample_name = "test"
+    indexpath = os.path.join(INDEX_FOLDER, chosen_panel) 
     chunk_dir =  "uploads/{}/{}.fastq".format(file_id, chunk_number)
     results_dir = "results/{}/{}".format(file_id, chunk_number)
+
+    print(chunk_dir)
     
+    if chunk_number > 0:
+        content_before = None
     async with aiofiles.open(chunk_dir, 'wb') as f:
-        while content := await chunk_file.read(memory_batch_size):
-            await f.write(content)   
+        #while content := await chunk_file.read(memory_batch_size):
+        content = await chunk_file.read()
+        start_location = content.index("@".encode("utf8"))
 
-    # num_chunks = None
-    # with open("uploads/{}/meta.txt".format(file_id)) as f:
-    #     num_chunks = int(f.readlines()[1])
+        content_before = content[:start_location]
+        content_after = content[start_location:]
 
-    # if chunk_number + 1 == num_chunks:
-    background_tasks.add_task(start_chunk_analysis, file_id, chunk_number, chosen_panel)
-    # else: 
-    #     background_tasks.add_task(call_salmon, commands) 
+        await f.write(content_after)
+    if chunk_number > 0:
+        prev_chunk_dir = "uploads/{}/{}.fastq".format(file_id, chunk_number-1)
+        async with aiofiles.open(prev_chunk_dir, 'ab') as f:
+            f.write(content_before)
+
+    num_chunks = None
+    with open("uploads/{}/meta.txt".format(file_id)) as f:
+        num_chunks = int(f.readlines()[1])
+
+    if chunk_number > 0: 
+        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number-1, chosen_panel, [], sample_name, [])
+
+    if chunk_number + 1 == num_chunks:
+        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number, chosen_panel, [], sample_name, [])
  
     return {"Result": "OK"}
     
@@ -289,16 +329,7 @@ async def upload_chunk(
 #     finish_file_analysis(file_id)
 
 
-def start_chunk_analysis(file_id, chunk_number, chosen_panel):
-    indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
 
-    chunk_dir =  "uploads/{}/{}.fastq".format(file_id, chunk_number)
-    results_dir = "results/{}/{}".format(file_id, chunk_number)
-
-    commands = salmonconfig.commands(indexpath, chunk_dir, results_dir) 
-    commands_lst.append(commands) 
-
-    call_salmon(commands_lst)
 
     # dist = []
 

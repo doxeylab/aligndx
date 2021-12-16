@@ -193,10 +193,7 @@ const Hero = () => {
                                 <Row>
                                     <Col>
                                         <SelectMenu grabOption = {grabOption}/>
-                                    </Col>
-                                    <Col>
-                                        <EmailTextBox grabEmail = {grabEmail}/> 
-                                    </Col>
+                                    </Col> 
                                     <Col>
                                         <Button fill disabled={dataFiles.length === 0 || option.length == 0 ? true : false} onClick={() => uploadChunked()}>Analyze</Button>
                                     </Col>

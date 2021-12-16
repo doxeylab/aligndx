@@ -90,7 +90,7 @@ async def analyze_quants(token: str):
     sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name) 
     quant_dir = os.path.join(sample_dir,'quant.sf')  
 
-    analyze_handler(sample_name, headers, metadata, quant_dir)
+    return  analyze_handler(sample_name, headers, metadata, quant_dir)
 
     
 
