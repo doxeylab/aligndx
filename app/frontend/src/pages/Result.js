@@ -72,28 +72,6 @@ const Result = () => {
         }
     ]
 
-    // const [sample, setSample] = useState(null);
-    // const [pathogen, setPathogen] = useState(null);
-    // const [data, setData] = useState(null);
-    // const [getLoad, setGetLoad] = useState(true);
-
-    // useEffect(() => {
-    //   axios.get(RESULT_URL + '/' + url_id)
-    //       .then(res => {
-    //           console.log(res.data)
-    //           setData([res.data])
-    //           setGetLoad(false)
-    //           setPathogen(res.data.pathogen)
-    //           setSample(res.data.sample)
-    //       })
-    //       .catch(() => {
-    //         console.log('Error')
-    //           setData(dummyData)
-    //           setSample("SRR11365240")
-    //           setPathogen("Sars CoV-2")
-    //           setGetLoad(false)
-    //       })
-    // }, [])
     const [data, setData] = useState(null);
     const [sample, setSample] = useState(null);
     const [pathogens, setPathogens] = useState(null); 
@@ -131,7 +109,7 @@ const Result = () => {
                     {data.map(d => {
                         return (
                             <ResultCard detection={d.detected}>
-                                <Row style={{padding: "25px"}}>
+                                {/* <Row style={{padding: "25px"}}>
                                     <Col md={6}>
                                         <div>
                                             <h1>
@@ -142,30 +120,31 @@ const Result = () => {
                                             </p>
                                         </div>
                                     </Col>
-                                    {/* <Col md={6}>
-                                        <div>
-                                            <h1>
-                                                Host Marker Abundance
-                                            </h1>
-                                            <p>
-                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
-                                            </p>
-                                        </div>
-                                    </Col> */}
                                 </Row>
                                 <Row style={{padding: "25px"}}>
                                     <Col md={6}>
                                         <div className = 'barGraph'>
-                                            <h1>Transcriptome Coverage Estimate</h1>
-                                            <Barchart data={d.coverage} yLabel="Y-AXIS" xLabel="X-AXIS" col="coverage"/>
+                                            <h1>{d.title}</h1>
+                                            <Barchart data={d} yLabel={d.ylabel} xLabel={d.xlabel} col="coverage"/>
                                         </div>
                                     </Col>
-                                    {/* <Col md={6}>
+                                </Row> */}
+                                <Row style={{padding: "25px"}}>
+                                <Col style={{padding: "25px"}}>
                                         <div className = 'barGraph'>
-                                            <h1>Host Hits</h1>
-                                            <Barchart data={d.host_hits.data} yLabel="Y-AXIS2" xLabel="X-AXIS2"/>
-                                        </div>
-                                    </Col> */}
+                                            <Barchart data={d} yLabel={d.ylabel} xLabel={d.xlabel} col="coverage"/>  
+                                        </div>  
+                                </Col> 
+                                <Col style={{padding: "25px"}}> 
+                                        <div>
+                                            <h1>
+                                                {d.title}
+                                            </h1> 
+                                            <p>
+                                                {d.text }
+                                            </p>
+                                        </div> 
+                                </Col>
                                 </Row>
                             </ResultCard>
                         )

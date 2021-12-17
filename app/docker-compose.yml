@@ -4,7 +4,7 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
-    command: uvicorn app.main:app --workers 1 --host 0.0.0.0 --port 8080
+    command: uvicorn app.main:app --workers 4 --host 0.0.0.0 --port 8080
     tty: true
     depends_on:
       - postgres
@@ -69,7 +69,7 @@ services:
     build:
       context: salmon
       dockerfile: Dockerfile
-    command: uvicorn app.main:app --workers 1 --host 0.0.0.0 --port 80
+    command: uvicorn app.main:app --workers 4 --host 0.0.0.0 --port 80
     tty: true
     ports:
       - "8002:80"

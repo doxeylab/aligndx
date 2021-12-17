@@ -105,7 +105,7 @@ async def fileretrieve(token: str):
     return {'token': id} 
 
 @router.post("/uploads/")
-async def fileupload(
+async def fileupload( 
     token: str = Form(...),
     files: List[UploadFile] = File(...), 
     panel: List[str] = Form(...), 
@@ -230,13 +230,28 @@ def analyze_handler(sample_name, headers, metadata, quant_dir):
     pathogens, detected = analyze.detection(coverage)
     return analyze.d3_compatible_data(coverage, sample_name, analyze.df_to_dict(hits_df), analyze.df_to_dict(all_df), pathogens, detected)
 
-async def call_salmon(commands_lst):
-    session = aiohttp.ClientSession()
-    for commands in commands_lst:
-        await session.post("http://salmon:80/", json = commands, ssl=False)
-    await session.close()
+def call_salmon(commands_lst):
+    # session = aiohttp.ClientSession()
+    # for commands in commands_lst:
+    #     await session.post("http://salmon:80/", json = commands, ssl=False)
+    # await session.close()
+    with requests.Session() as s:
+        for commands in commands_lst:
+            s.post("http://salmon:80/", json = commands)
 
-async def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, sample_name, analyze_result, option):
+def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, sample_name, analyze_result, option):
+    '''
+    file_id : 
+    chunk_number:
+    chosen_panel: 
+    commands_lst: 
+    sample_name:
+    analyze_result:
+    option:
+
+    Note* This function cannot be run asynchronously due to the blocking implementation of long computation (salmon). Starlette (which is the underlying framework of FastApi) has implemented background tasks in a manner that is async. Since salmon is synchronous, this means it will block the event loop if implemented in async (which is why they are now no longer implemented via async).
+
+    '''
     indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
 
     chunk_dir =  "uploads/{}/{}.fastq".format(file_id, chunk_number)
@@ -245,11 +260,13 @@ async def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst
 
     commands = salmonconfig.commands(indexpath, chunk_dir, results_dir)  
     commands_lst.append(commands) 
-    await call_salmon(commands_lst)
+    # await call_salmon(commands_lst)
+    call_salmon(commands_lst)
 
     metadata = analyze.metadata_load(METADATA_FOLDER, option)
-    headers=['Name', 'TPM'] 
-    analyze_result.append(analyze_handler(sample_name, headers, metadata, quant_dir)) 
+    headers=['Name', 'TPM']
+    analyze_result.append(analyze_handler(sample_name, headers, metadata, quant_dir))  
+
 
 @router.post("/upload-chunk")
 async def upload_chunk(
@@ -290,15 +307,15 @@ async def upload_chunk(
         num_chunks = int(f.readlines()[1])
 
     analyze_result = []
-    if chunk_number > 0: 
+    if chunk_number > 0:  
         background_tasks.add_task(start_chunk_analysis, file_id, chunk_number-1, chosen_panel, [], sample_name, analyze_result, panel)
 
-    if chunk_number + 1 == num_chunks:
+    if chunk_number + 1 == num_chunks: 
         background_tasks.add_task(start_chunk_analysis, file_id, chunk_number, chosen_panel, [], sample_name, analyze_result, panel)
-    
-    print(analyze_result)
-    return {"Result": "OK"}
-    
+        print(analyze_result)
+
+    return {"Result": "OK"} 
+
 # @router.post("/upload-chunk")
 # async def upload_chunk(
 #     background_tasks: BackgroundTasks,

@@ -21,13 +21,14 @@ const useResizeObserver = ref => {
 
 const BarChart = ({data, yLabel, xLabel, col}) => {
     // Filter NumReads of 0
-    var filterData = data.filter(hit => hit.col !== 0)
+    
+    var filterData = data[`${col}`].filter(hit => hit[`${col}`] !== 0) 
     // Resize Obeserver
     const wrapperRef = useRef();
     const dimensions = useResizeObserver(wrapperRef)
     // Find Largest Column Value
-    var max_value = Math.max(...(filterData.map(function(hit) {return hit.col})));
-    var yDomain = Math.ceil(max_value/5)*5;
+    var max_value = Math.max(...(filterData.map(function(hit) {return hit[`${col}`]})));
+    var yDomain = Math.ceil(max_value/1)*1;
     // Initial SVG Data
     const svgRef = useRef();
     // eslint-disable-next-line
@@ -73,7 +74,7 @@ const BarChart = ({data, yLabel, xLabel, col}) => {
 
         // Initiate Scales
         const x = d3.scaleBand()
-            .domain(filterData.map(function(hit) {return hit.index}))
+            .domain(filterData.map(function(hit) {return hit.pathogen}))
             .range([0, width])
             .padding(0.1);
         const y = d3.scaleLinear()
@@ -100,11 +101,19 @@ const BarChart = ({data, yLabel, xLabel, col}) => {
             .classed("bar", true)
 
         focus.selectAll(".bar")
-            .attr('x', function(hit) {return x(hit.index)})
-            .attr('y', function(hit) {return y(hit.col)})
+            .attr('x', function(hit) {return x(hit.pathogen)})
+            .attr('y', function(hit) {return y(0)})
             .attr('width', x.bandwidth())
-            .attr('height', function(hit) { return height - y(hit.col)})
+            .attr('height', function(hit) { return height - y(0)})
             .attr('fill', '#2f8ae1');
+        
+        // Animate bars on pageload
+        svg.selectAll("rect")
+            .transition()
+            .duration(800)
+            .attr("y", function(d) { return y(d[`${col}`]); })
+            .attr("height", function(d) { return height - y(d[`${col}`])})
+            .delay(function(d,i){console.log(i) ; return(i*100)})
 
 // eslint-disable-next-line
     }, [dimensions]);
