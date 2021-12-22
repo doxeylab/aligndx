@@ -45,16 +45,16 @@ async def analyze_quants(token: str):
     sample_name = query['sample']
     headers=['Name', 'TPM'] 
     panel = query['panel']
-    fileid = str(query['id'])
+    file_id = str(query['id'])
     metadata = analyze.metadata_load(METADATA_FOLDER, panel)
-    sample_dir = os.path.join(RESULTS_FOLDER, fileid, sample_name) 
+    sample_dir = os.path.join(RESULTS_FOLDER, file_id, sample_name) 
     quant_dir = os.path.join(sample_dir,'quant.sf')   
     return  analyze_handler(sample_name, headers, metadata, quant_dir)
 
 @router.websocket('/livegraphs/{token}') 
 async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
     query = await ModelSample.get_token(token) 
-    fileid = str(query['id'])
+    file_id = str(query['id'])
     output_dir = os.path.join(RESULTS_FOLDER, file_id, "out.csv")
     await websocket.accept()
     while True:

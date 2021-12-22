@@ -186,12 +186,12 @@ def call_salmon(commands_lst):
 from app.scripts import realtime 
 
 def analyze_handler(headers, metadata, quant_dir, output_dir):
-    if output_dir:
+    if os.path.isfile(output_dir):  
         current_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
         previous_chunk = pd.read_csv(output_dir, index_col='Pathogen')
-        accumulated_results = update_analysis(previous_chunk, current_chunk, 'NumReads')  
+        accumulated_results = realtime.update_analysis(previous_chunk, current_chunk, 'NumReads')  
         accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results) 
-        accumulated_results.to_csv(output_dir, index=False, header=True)
+        accumulated_results.to_csv(output_dir)
     else:
         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
         first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
@@ -222,10 +222,13 @@ def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, samp
     # await call_salmon(commands_lst)
     call_salmon(commands_lst)
 
-    metadata = analyze.metadata_load(METADATA_FOLDER, option)
-    headers=['Name', 'NumReads']
-    output_dir = os.path.join(RESULTS_FOLDER, file_id, "out.csv")
-    analyze_handler(headers, metadata, quant_dir, output_dir) 
+    if os.path.isfile(quant_dir):
+        metadata = realtime.metadata_load(METADATA_FOLDER, option)
+        headers=['Name', 'NumReads']
+        output_dir = os.path.join(RESULTS_FOLDER, file_id, "out.csv")
+        analyze_handler(headers, metadata, quant_dir, output_dir) 
+    else:
+        pass
 
 @router.post("/upload-chunk")
 async def upload_chunk(
