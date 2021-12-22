@@ -40,64 +40,6 @@ for dirname in (REAL_TIME_FOLDER, RL_FILE_FOLDER, RL_CHUNK_FOLDER):
 
 router = APIRouter()
 
-
-# @router.post("/uploads")
-# async def fileupload(token: str = Form(...), files: List[UploadFile] = File(...)):
-#     for file in files:
-#         # get file name
-#         sample_name = file.filename.split(".")[0]
-#         now = datetime.now()
-#         response = {"token": token, "sample": sample_name, "created_date": now}
-#         query = await ModelSample.create(**response)
- 
-#         if not os.path.isdir(UPLOAD_FOLDER):
-#             os.mkdir(UPLOAD_FOLDER)
-
-#         # for deleting
-#         sample_folder = os.path.join(UPLOAD_FOLDER, token)
-        
-#         sample_dir = os.path.join(UPLOAD_FOLDER, token, sample_name)
-        
-#         # create directory for uploaded sample, only if it hasn't been uploaded before
-#         if not os.path.isdir(sample_dir): 
-#             os.makedirs(sample_dir)
-
-#         # declare upload location
-#         file_location = os.path.join(sample_dir, file.filename)
-
-#         # open file using write, binary permissions
-#         with open(file_location, "wb+") as f:
-#             # saves file
-#             # why do this instead of f.write ? Shutil processes large files through chunking. Basically it won't load the whole file into memory
-#             # Also we can adjust buffer size if we deal with larger files
-#             # current buffer size set to 16*1024
-#             shutil.copyfileobj(file.file, f)  
-         
-#         # indexpath = os.path.join(INDEX_FOLDER, 'sars_and_human_index')
-#         indexpath = os.path.join(INDEX_FOLDER, 'sars_with_human_decoys')
-#         filename = file.filename.split('.')[1]
-#         results_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
-#         runsalmon.quantify(filename, indexpath, file_location, results_dir)
-
-#         try: 
-#             shutil.rmtree(sample_folder)
-#         except:
-#             print("File couldn't be deleted")
-
-#         # Code not currently in use
-
-#         # splits uploaded fastq file into evenly distributed chunks
-#         # fqsplit.chunker(file_location)
-
-#         # chunk_dir = os.path.join(sample_dir, 'chunks')
-#         # for chunkfile in os.listdir(chunk_dir):
-#         #     chunk_file_name = chunkfile.split('.')[1]
-#         #     chunkfile_dir = os.path.join(chunk_dir, chunkfile)
-#         #     results_dir = os.path.join(RESULTS_FOLDER, token, sample_name, chunk_file_name)
-#         #     runsalmon.quantify(chunk_file_name, indexpath, chunkfile_dir, results_dir )
-#     return {"run": "complete"}
-
-
 @router.get("/uploads/{token}")
 async def fileretrieve(token: str):
     id = await ModelSample.get(token)
@@ -116,21 +58,26 @@ async def fileupload(
             # get file name
             sample_name = file.filename.split('.')[0]
             chosen_panel = str(option.lower()) + "_index"
-            
+
+            id = uuid4()
+            file_id = str(id)
             now = datetime.now()
-            response = {'token': token,
-                     'sample': sample_name,
-                     'panel': option.lower(),
-                     'email': email,
-                     'created_date': now }
+            response = {
+                    'id': id,
+                    'token': token,
+                    'sample': sample_name,
+                    'panel': option.lower(),
+                    'email': email,
+                    'created_date': now 
+                       }
             query = await ModelSample.create(**response)
     
             if not os.path.isdir(UPLOAD_FOLDER):
                 os.mkdir(UPLOAD_FOLDER)
     
             # for deleting
-            sample_folder = os.path.join(UPLOAD_FOLDER, token)
-            sample_dir = os.path.join(UPLOAD_FOLDER, token, sample_name)
+            sample_folder = os.path.join(UPLOAD_FOLDER, file_id)
+            sample_dir = os.path.join(UPLOAD_FOLDER, file_id, sample_name)
     
             # create directory for uploaded sample, only if it hasn't been uploaded before
             if not os.path.isdir(sample_dir): 
@@ -145,7 +92,7 @@ async def fileupload(
             
             indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
             filename = file.filename.split('.')[1]
-            results_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
+            results_dir = os.path.join(RESULTS_FOLDER, file_id, sample_name)
 
             commands = salmonconfig.commands(indexpath, file_location, results_dir)
             x = requests.post("http://salmon:80/", json = commands ) 
@@ -185,16 +132,21 @@ async def start_file(
     email: str = Body("")
 ):
     for panel in option:
+        
+        # it's worth noting that uuid4 generates random numbers, but the possibility of having a collision is so low, it's been estimated that it would take 90 years for such to occur.
+ 
+        id = uuid4()
+        file_id = str(id)
         now = datetime.now()
         response = {'token': token,
                  'sample': filename,
+                 'id': id,
                  'panel': panel.lower(),
                  'email': email,
-                 'created_date': now }
-        query = await ModelSample.create(**response)
+                 'created_date': now
+                   }
 
-        uuid = uuid4()
-        file_id = str(uuid)
+        query = await ModelSample.create(**response)
 
         os.mkdir("uploads/{}".format(file_id))
         with open("uploads/{}/meta.txt".format(file_id), 'w') as f:
@@ -206,11 +158,11 @@ async def start_file(
         return {"Result": "OK",
                 "File_ID": file_id}
 
-def gather_tasks(commands_lst, session):
-    tasks = []
-    for commands in commands_lst:
-        tasks.append(asyncio.create_task(session.post("http://salmon:80/", json = commands, ssl=False)))
-    return tasks
+# def gather_tasks(commands_lst, session):
+#     tasks = []
+#     for commands in commands_lst:
+#         tasks.append(asyncio.create_task(session.post("http://salmon:80/", json = commands, ssl=False)))
+#     return tasks
 
 # async def call_salmon(commands_lst):
 #     results = [] 
@@ -221,14 +173,6 @@ def gather_tasks(commands_lst, session):
 #         results.append(await response.json())
 #     await session.close()  
 
-from app.scripts import analyze
-
-def analyze_handler(sample_name, headers, metadata, quant_dir):
-    hits_df = analyze.expression_hits_and_misses(quant_dir, headers, metadata, hits=True) 
-    all_df = analyze.expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
-    coverage = analyze.coverage_cal(hits_df,all_df)
-    pathogens, detected = analyze.detection(coverage)
-    return analyze.d3_compatible_data(coverage, sample_name, analyze.df_to_dict(hits_df), analyze.df_to_dict(all_df), pathogens, detected)
 
 def call_salmon(commands_lst):
     # session = aiohttp.ClientSession()
@@ -239,7 +183,21 @@ def call_salmon(commands_lst):
         for commands in commands_lst:
             s.post("http://salmon:80/", json = commands)
 
-def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, sample_name, analyze_result, option):
+from app.scripts import realtime 
+
+def analyze_handler(headers, metadata, quant_dir, output_dir):
+    if output_dir:
+        current_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
+        previous_chunk = pd.read_csv(output_dir, index_col='Pathogen')
+        accumulated_results = update_analysis(previous_chunk, current_chunk, 'NumReads')  
+        accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results) 
+        accumulated_results.to_csv(output_dir, index=False, header=True)
+    else:
+        first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
+        first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
+        first_chunk.to_csv(output_dir)
+    
+def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, sample_name, option):
     '''
     file_id : 
     chunk_number:
@@ -260,13 +218,14 @@ def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, samp
 
     commands = salmonconfig.commands(indexpath, chunk_dir, results_dir)  
     commands_lst.append(commands) 
+
     # await call_salmon(commands_lst)
     call_salmon(commands_lst)
 
     metadata = analyze.metadata_load(METADATA_FOLDER, option)
-    headers=['Name', 'TPM']
-    analyze_result.append(analyze_handler(sample_name, headers, metadata, quant_dir))  
-
+    headers=['Name', 'NumReads']
+    output_dir = os.path.join(RESULTS_FOLDER, file_id, "out.csv")
+    analyze_handler(headers, metadata, quant_dir, output_dir) 
 
 @router.post("/upload-chunk")
 async def upload_chunk(
@@ -274,7 +233,7 @@ async def upload_chunk(
     chunk_number: int = Form(...),
     file_id: str = Form(...),
     chunk_file: UploadFile = File(...),
-    token: str = Form(...),
+    token: str = Form(...)
 ):  
     # query = await ModelSample.get_token(token)  
     # panel = query['panel']
@@ -305,14 +264,12 @@ async def upload_chunk(
     num_chunks = None
     with open("uploads/{}/meta.txt".format(file_id)) as f:
         num_chunks = int(f.readlines()[1])
-
-    analyze_result = []
+ 
     if chunk_number > 0:  
-        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number-1, chosen_panel, [], sample_name, analyze_result, panel)
+        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number-1, chosen_panel, [], sample_name, panel)
 
     if chunk_number + 1 == num_chunks: 
-        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number, chosen_panel, [], sample_name, analyze_result, panel)
-        print(analyze_result)
+        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number, chosen_panel, [], sample_name, panel) 
 
     return {"Result": "OK"} 
 

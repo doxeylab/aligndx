@@ -4,7 +4,7 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
-    command: uvicorn app.main:app --workers 4 --host 0.0.0.0 --port 8080
+    command: uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port 8080
     tty: true
     depends_on:
       - postgres
@@ -50,7 +50,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
 
-  pgadmin: 
+  pgadmin:  
     tty: true
     image: dpage/pgadmin4
     restart: unless-stopped
@@ -79,6 +79,17 @@ services:
       - ./backend/uploads:/app/uploads
       - ./backend/indexes:/app/indexes
       - ./backend/metadata:/app/metadata
+
+  redis:
+    image: redis:latest
+    ports:
+        - 6379:6379
+    volumes:
+        - ./redis/redis.conf:/redis.conf
+        - redis-data:/data
+    command: [ "redis-server", "/redis.conf" ]
+
 volumes:
   db-data:
   pgadmin-data: 
+  redis-data:
