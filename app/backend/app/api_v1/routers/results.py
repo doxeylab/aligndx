@@ -55,6 +55,7 @@ async def analyze_quants(token: str):
 async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
     query = await ModelSample.get_token(token) 
     fileid = str(query['id'])
+    output_dir = os.path.join(RESULTS_FOLDER, file_id, "out.csv")
     await websocket.accept()
     while True:
         await asyncio.sleep(1)
