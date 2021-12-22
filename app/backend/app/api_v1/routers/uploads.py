@@ -33,9 +33,9 @@ if not os.path.isdir(UPLOAD_FOLDER):
 if not os.path.isdir(RESULTS_FOLDER):
     os.mkdir(RESULTS_FOLDER)
 
-for dirname in (REAL_TIME_FOLDER, RL_FILE_FOLDER, RL_CHUNK_FOLDER):
-    if not os.path.isdir(dirname):
-        os.mkdir(dirname)
+# for dirname in (REAL_TIME_FOLDER, RL_FILE_FOLDER, RL_CHUNK_FOLDER):
+#     if not os.path.isdir(dirname):
+#         os.mkdir(dirname)
 
 
 router = APIRouter()

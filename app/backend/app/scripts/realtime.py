@@ -25,12 +25,13 @@ def coverage_calc(df):
 
   mask = hits[mask_cols] > 0
   hits[mask_cols] = hits[mask_cols][mask]
-  hits = hits.dropna()  
+  hits = hits.dropna()   
 
   all_count = df.groupby(["Pathogen"])['Name'].apply(np.count_nonzero)
   hits_count = hits.groupby(["Pathogen"])['Name'].apply(np.count_nonzero)
   coverage = np.round(hits_count/all_count * 100, decimals=2)
-  
+  coverage.fillna(0, inplace=True)
+
   return coverage.to_frame("Coverage")
 
 def realtime_quant_analysis(sample_name, headers, metadata): 

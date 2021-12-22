@@ -56,11 +56,12 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
     query = await ModelSample.get_token(token) 
     file_id = str(query['id'])
     output_dir = os.path.join(RESULTS_FOLDER, file_id, "out.csv")
+    print("Check")
     await websocket.accept()
     while True:
         await asyncio.sleep(1)
-        data = await realtime.data_loader(output_dir)
-        await websocket.json(data)
+        data = realtime.data_loader(output_dir)
+        await websocket.send_json(data)
 
 # import time 
 # from watchdog.observers import Observer
