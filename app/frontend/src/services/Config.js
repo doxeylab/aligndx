@@ -12,3 +12,4 @@ export const ACCESS_TOKEN_URL = URL + "users/me"
 export const UPLOAD_CHUNK_URL = URL + "upload-chunk" 
 export const START_FILE_URL = URL + "start-file"
 export const CHUNK_SIZE = 800000
+export const WEBSOCKET_URL = "ws://aligndx.uwaterloo.ca:8080/livegraphs"

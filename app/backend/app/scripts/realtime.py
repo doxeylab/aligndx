@@ -79,8 +79,9 @@ def detection(df):
       detected = "Negative"
     return pathogens, detected
 
-def data_loader(output_dir): 
+def data_loader(output_dir, sample_name): 
     df = pd.read_csv(output_dir, index_col='Pathogen')
+    df.reset_index(inplace=True)
     pathogens = df['Pathogen'].unique().tolist()
     df_list={} 
     for pathogen in pathogens:
@@ -92,10 +93,11 @@ def data_loader(output_dir):
     c = c.to_dict(orient="records")
 
     d3_data = {
-        "all": df_list,
+        # "all": df_list,
         "coverage": c,
         "pathogens": pathogens, 
         "detected": detected,
+        "sample": sample_name,
         'title': "Transcriptome Coverage Estimate",
         'xlabel': "Pathogens",
         'ylabel': "Coverage (%)"

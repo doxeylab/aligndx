@@ -12,6 +12,7 @@ import Profile from './pages/Profile';
 import Result from './pages/Result';
 import Signup from './pages/Signup';
 import Team from './pages/Team';
+import LiveResults from './pages/LiveResults';
 
 function App() {
 
@@ -29,6 +30,7 @@ function App() {
                     <Route path='/signup' component={Signup} />
                     <Route path='/login' component={Login} />
                     <Route path='/USER_ID' component={Profile} />
+                    <Route path='/liveresults' component={LiveResults} />
                 </Switch>
                 <Background />
                 <Footer />

@@ -23,19 +23,14 @@ RESULTS_FOLDER = './results'
 INDEX_FOLDER = './indexes' 
 METADATA_FOLDER = "./metadata"
 
-REAL_TIME_FOLDER = UPLOAD_FOLDER + '/real_time'
-RL_FILE_FOLDER = REAL_TIME_FOLDER + "/file_meta"
-RL_CHUNK_FOLDER = REAL_TIME_FOLDER + "/chunk_data"
+STANDARD_UPLOADS = UPLOAD_FOLDER + '/standard'
+STANDARD_RESULTS = RESULTS_FOLDER + '/standard'
+REAL_TIME_UPLOADS = UPLOAD_FOLDER + '/real_time'
+REAL_TIME_RESULTS = RESULTS_FOLDER + '/real_time' 
 
-
-if not os.path.isdir(UPLOAD_FOLDER):
-    os.mkdir(UPLOAD_FOLDER)
-if not os.path.isdir(RESULTS_FOLDER):
-    os.mkdir(RESULTS_FOLDER)
-
-# for dirname in (REAL_TIME_FOLDER, RL_FILE_FOLDER, RL_CHUNK_FOLDER):
-#     if not os.path.isdir(dirname):
-#         os.mkdir(dirname)
+for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULTS,  REAL_TIME_UPLOADS, REAL_TIME_RESULTS):
+    if not os.path.isdir(dirname):
+        os.mkdir(dirname)
 
 
 router = APIRouter()
@@ -70,14 +65,11 @@ async def fileupload(
                     'email': email,
                     'created_date': now 
                        }
-            query = await ModelSample.create(**response)
-    
-            if not os.path.isdir(UPLOAD_FOLDER):
-                os.mkdir(UPLOAD_FOLDER)
+            query = await ModelSample.create(**response) 
     
             # for deleting
-            sample_folder = os.path.join(UPLOAD_FOLDER, file_id)
-            sample_dir = os.path.join(UPLOAD_FOLDER, file_id, sample_name)
+            sample_folder = os.path.join(STANDARD_UPLOADS, file_id)
+            sample_dir = os.path.join(STANDARD_UPLOADS, file_id, sample_name)
     
             # create directory for uploaded sample, only if it hasn't been uploaded before
             if not os.path.isdir(sample_dir): 
@@ -92,7 +84,7 @@ async def fileupload(
             
             indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
             filename = file.filename.split('.')[1]
-            results_dir = os.path.join(RESULTS_FOLDER, file_id, sample_name)
+            results_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
 
             commands = salmonconfig.commands(indexpath, file_location, results_dir)
             x = requests.post("http://salmon:80/", json = commands ) 
@@ -148,12 +140,12 @@ async def start_file(
 
         query = await ModelSample.create(**response)
 
-        os.mkdir("uploads/{}".format(file_id))
-        with open("uploads/{}/meta.txt".format(file_id), 'w') as f:
+        os.mkdir("{}/{}".format(REAL_TIME_UPLOADS ,file_id))
+        with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id), 'w') as f:
             f.write(filename)
             f.write('\n')
             f.write(str(number_of_chunks))
-        os.mkdir("results/{}".format(file_id))
+        os.mkdir("{}/{}".format(REAL_TIME_RESULTS, file_id))
 
         return {"Result": "OK",
                 "File_ID": file_id}
@@ -212,9 +204,9 @@ def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, samp
     '''
     indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
 
-    chunk_dir =  "uploads/{}/{}.fastq".format(file_id, chunk_number)
-    results_dir = "results/{}/{}".format(file_id, chunk_number)
-    quant_dir = "results/{}/{}/quant.sf".format(file_id, chunk_number)
+    chunk_dir =  "{}/{}/{}/{}.fastq".format(REAL_TIME_UPLOADS, file_id, "chunk_data", chunk_number)
+    results_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, chunk_number)
+    quant_dir = "{}/{}/{}/quant.sf".format(REAL_TIME_RESULTS, file_id, chunk_number)
 
     commands = salmonconfig.commands(indexpath, chunk_dir, results_dir)  
     commands_lst.append(commands) 
@@ -225,7 +217,7 @@ def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, samp
     if os.path.isfile(quant_dir):
         metadata = realtime.metadata_load(METADATA_FOLDER, option)
         headers=['Name', 'NumReads']
-        output_dir = os.path.join(RESULTS_FOLDER, file_id, "out.csv")
+        output_dir = os.path.join(REAL_TIME_RESULTS, file_id, "out.csv")
         analyze_handler(headers, metadata, quant_dir, output_dir) 
     else:
         pass
@@ -245,8 +237,8 @@ async def upload_chunk(
     chosen_panel = "bacterial_index"
     sample_name = "test"
     indexpath = os.path.join(INDEX_FOLDER, chosen_panel) 
-    chunk_dir =  "uploads/{}/{}.fastq".format(file_id, chunk_number)
-    results_dir = "results/{}/{}".format(file_id, chunk_number) 
+    chunk_dir =  "{}/{}/{}/{}.fastq".format(REAL_TIME_UPLOADS, file_id, "chunk_data", chunk_number)
+    results_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, chunk_number) 
     
     if chunk_number > 0:
         content_before = None
@@ -260,12 +252,13 @@ async def upload_chunk(
 
         await f.write(content_after)
     if chunk_number > 0:
-        prev_chunk_dir = "uploads/{}/{}.fastq".format(file_id, chunk_number-1)
+        prev_chunk_dir = "{}/{}/{}/{}.fastq".format(REAL_TIME_UPLOADS, file_id, "chunk_data", chunk_number-1) 
         async with aiofiles.open(prev_chunk_dir, 'ab') as f:
             f.write(content_before)
 
     num_chunks = None
-    with open("uploads/{}/meta.txt".format(file_id)) as f:
+    
+    with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id)) as f:
         num_chunks = int(f.readlines()[1])
  
     if chunk_number > 0:  
@@ -274,76 +267,4 @@ async def upload_chunk(
     if chunk_number + 1 == num_chunks: 
         background_tasks.add_task(start_chunk_analysis, file_id, chunk_number, chosen_panel, [], sample_name, panel) 
 
-    return {"Result": "OK"} 
-
-# @router.post("/upload-chunk")
-# async def upload_chunk(
-#     background_tasks: BackgroundTasks,
-#     chunk_number: int = Form(...),
-#     file_id: str = Form(...),
-#     chunk_file: UploadFile = File(...),
-#     token: str = Form(...),
-# ):
-#     async with aiofiles.open("uploads/{}/{}.fastq".format(file_id, chunk_number), 'wb') as f:
-#         while content := await chunk_file.read(chunk_size):
-#             await f.write(content)
-
-#     num_chunks = None
-#     with open("uploads/{}/meta.txt".format(file_id)) as f:
-#         num_chunks = int(f.readlines()[1])
-
-#     if chunk_number + 1 == num_chunks:
-#         background_tasks.add_task(
-#             start_final_chunk_analysis, file_id, chunk_number)
-#     else:
-#         background_tasks.add_task(start_chunk_analysis, file_id, chunk_number)
-
-#     return {"Result": "OK"}
-
-
-# def start_final_chunk_analysis(file_id, chunk_number):
-#     start_chunk_analysis(file_id, chunk_number)
-#     finish_file_analysis(file_id)
-
-
-
-
-    # dist = []
-
-    # with open("uploads/{}/{}.fastq".format(file_id, chunk_number)) as f:
-    #     while content := f.read(chunk_size):
-    #         chunk_dist = analyze(content)
-    #         dist.append(chunk_dist)
-
-    # dist = pd.DataFrame(dist).sum()
-    # dist.to_csv("results/{}/{}.txt".format(file_id, chunk_number), sep='\t')
-
-    # os.remove("uploads/{}/{}.fastq".format(file_id, chunk_number))
-
-
-# def finish_file_analysis(file_id):
-#     dist = []
-
-#     num_chunks = None
-#     with open("uploads/{}/meta.txt".format(file_id)) as f:
-#         num_chunks = int(f.readlines()[1])
-
-#     for i in range(num_chunks):
-#         chunk_dist = pd.read_csv(
-#             "results/{}/{}.txt".format(file_id, i), sep='\t')["0"]
-#         dist.append(chunk_dist)
-
-#     dist = pd.DataFrame(dist)
-#     dist = dist.sum()
-
-#     dist.to_csv("results/{}/final.csv".format(file_id))
-
-
-# @router.get("/results/{file_id}")
-# async def get_results(file_id: str):
-#     if not os.path.isfile("results/{}/final.csv".format(file_id)):
-#         return 404
-
-#     dist = pd.read_csv("results/{}/final.csv".format(file_id))
-
-#     return {"Results": dist.to_dict()}
+    return {"Result": "OK"}  
