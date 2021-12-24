@@ -1,11 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
-import {WEBSOCKET_URL } from '../services/Config';
+import {WEBSOCKET_URL, RT_RES_STATUS} from '../services/Config';
 import Barchart from '../components/BarChart';
 import { Link } from 'react-router-dom';
 import ResultCard from '../components/ResultCard.js';
-import { Section } from '../components/PageElement';
+import { Section } from '../components/PageElement'; 
 
 const LiveResults = () => {
     try { 
@@ -15,19 +15,39 @@ const LiveResults = () => {
 	} 
 
     const [data, setData] = useState(null);
-    const [sample, setSample] = useState(null);
+    const [sample, setSample] = useState("");
     const [pathogens, setPathogens] = useState(null); 
-    const [getLoad, setGetLoad] = useState(true);
+    const [getLoad, setGetLoad] = useState(true); 
 
-    useEffect(() => {
-      const ws = new WebSocket(WEBSOCKET_URL + '/' + url_id)
-      setGetLoad(false)
-      ws.onmessage = function(event) {
-          console.log(event.data)
-          setData(event.data)
-          setSample(event.data.sample)
-          setPathogens(event.data.pathogens)
-      }
+    const connectWebsocket = async () => {
+        try {
+            const res = await axios.get(RT_RES_STATUS + '/' + url_id); 
+            console.log(res.data)
+            if (res.data.result === "pending"){ 
+                connectWebsocket();
+            }
+            else {
+                const ws = new WebSocket(WEBSOCKET_URL + '/' + url_id)
+                setGetLoad(false)
+                ws.onmessage = function(event) {
+                    console.log("connection established")
+                    console.log(event.data)
+                    setData(event.data)
+                    setSample(event.data.sample)
+                    setPathogens(event.data.pathogens)
+            } 
+        }} 
+        
+        catch (err) {
+            // Handle Error Here
+            console.log("error")
+            console.error(err);  
+        }
+    };
+
+    useEffect(() => {  
+       connectWebsocket();
+        
     }, [])
 
     return (
@@ -40,15 +60,15 @@ const LiveResults = () => {
                 <Row>
                     <h1 className="result-container__title">Sample: {sample} for {pathogens}</h1>
                 </Row>
-                <Row>
+                {/* <Row>
                     {data.map(d => {
                         return (
                             <ResultCard detection={d.detected}>
                                 <Row style={{padding: "25px"}}>
                                 <Col style={{padding: "25px"}}>
-                                        {/* <div className = 'barGraph'>
+                                        <div className = 'barGraph'>
                                             <Barchart data={d} yLabel={d.ylabel} xLabel={d.xlabel} col="coverage"/>  
-                                        </div>   */}
+                                        </div>  
                                 </Col> 
                                 <Col style={{padding: "25px"}}> 
                                         <div>
@@ -64,7 +84,7 @@ const LiveResults = () => {
                             </ResultCard>
                         )
                     })}
-                </Row>
+                </Row> */}
                 <Row>
                     <Col>
                         <button className="resultPageBtn saveResultBtn">Save Results</button>

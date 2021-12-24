@@ -76,23 +76,44 @@ const Result = () => {
     const [sample, setSample] = useState(null);
     const [pathogens, setPathogens] = useState(null); 
     const [getLoad, setGetLoad] = useState(true);
+    const sendGetRequest = async () => {
+        try {
+            const res = await axios.get(RESULT_URL + '/' + url_id);   
+            console.log(res.data)
+            setData([res.data])
+            setGetLoad(false)
+            setPathogens(res.data.pathogens)
+            setSample(res.data.sample) 
+        } 
+        
+        catch (err) {
+            // Handle Error Here
+            console.error(err); 
+            console.log('Error')
+            setData(dummyData)
+            setSample("SRR11365240")
+            setPathogens("Sars CoV-2")
+            setGetLoad(false) 
+        }
+    };
 
     useEffect(() => {
-      axios.get(RESULT_URL + '/' + url_id)
-          .then(res => {
-              console.log(res.data)
-              setData([res.data])
-              setGetLoad(false)
-              setPathogens(res.data.pathogens)
-              setSample(res.data.sample)
-          })
-          .catch(() => {
-            console.log('Error')
-              setData(dummyData)
-              setSample("SRR11365240")
-              setPathogens("Sars CoV-2")
-              setGetLoad(false)
-          })
+        sendGetRequest()
+    //   axios.get(RESULT_URL + '/' + url_id)
+    //       .then(res => {
+    //           console.log(res.data)
+    //           setData([res.data])
+    //           setGetLoad(false)
+    //           setPathogens(res.data.pathogens)
+    //           setSample(res.data.sample)
+    //       })
+    //       .catch(() => {
+    //         console.log('Error')
+    //           setData(dummyData)
+    //           setSample("SRR11365240")
+    //           setPathogens("Sars CoV-2")
+    //           setGetLoad(false)
+    //       })
     }, [])
 
     return (

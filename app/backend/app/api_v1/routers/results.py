@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket
+from fastapi import APIRouter, WebSocket 
 import os
 from datetime import datetime 
 import asyncio
@@ -59,21 +59,45 @@ async def standard_results(token: str):
     headers=['Name', 'TPM'] 
     panel = query['panel']
     file_id = str(query['id'])
+
     metadata = analyze.metadata_load(METADATA_FOLDER, panel)
     sample_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
     quant_dir = os.path.join(sample_dir,'quant.sf')   
     return  analyze_handler(sample_name, headers, metadata, quant_dir)
+
+def killsignal(chunkdir, num_chunks):
+    if sum(os.path.isdir(i) for i in os.listdir(chunkdir)) == num_chunks:
+        False
+    else:
+        True
+
+@router.get('/rt-res-status/{token}')
+async def standard_results(token: str):   
+    query = await ModelSample.get_token(token) 
+    file_id = str(query['id'])
+    csv_dir = os.path.join(REAL_TIME_RESULTS, file_id, "out.csv")
+    if os.path.isfile(csv_dir):
+        return {"result": "ready"}
+    else:
+        return {"result": "pending"}
 
 @router.websocket('/livegraphs/{token}') 
 async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
     query = await ModelSample.get_token(token) 
     file_id = str(query['id'])
     sample_name = query['sample']
-    output_dir = os.path.join(REAL_TIME_RESULTS, file_id, "out.csv")
-    print("Check")
+
+    results_dir = os.path.join(REAL_TIME_RESULTS, file_id)
+    uploads_dir = os.path.join(REAL_TIME_UPLOADS, file_id) 
+    chunk_dir = os.path.join(uploads_dir, "chunk_data")
+    csv_dir = os.path.join(results_dir, "out.csv")
+
+    with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id)) as f:
+        num_chunks = int(f.readlines()[1]) 
+
     await websocket.accept()
-    while True:
+    while True: 
         await asyncio.sleep(1)
-        data = realtime.data_loader(output_dir, sample_name)
+        data = realtime.data_loader(csv_dir, sample_name)
         await websocket.send_json(data)
-          
+        killsignal(chunk_dir, num_chunks)

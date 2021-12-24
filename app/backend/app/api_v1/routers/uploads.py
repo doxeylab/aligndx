@@ -41,8 +41,8 @@ async def fileretrieve(token: str):
     print(id)
     return {'token': id} 
 
-@router.post("/uploads/")
-async def fileupload( 
+@router.post("/uploads")
+async def fileupload(  
     token: str = Form(...),
     files: List[UploadFile] = File(...), 
     panel: List[str] = Form(...), 
@@ -84,27 +84,21 @@ async def fileupload(
             
             indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
             filename = file.filename.split('.')[1]
-            results_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
+            results_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name) 
 
             commands = salmonconfig.commands(indexpath, file_location, results_dir)
-            x = requests.post("http://salmon:80/", json = commands ) 
-            try: 
-                shutil.rmtree(sample_folder)
-            except:
-                print("File couldn't be deleted")
-
-            if email == "" or email == None:
-              print("No email")
+            requests.post("http://salmon:80/", json = commands)
+            shutil.rmtree(sample_folder)
+            if email == "" or email == None: 
               pass
-            else:
-              print(email)
-              email_feature.send_email(email, sample_name)
+            else: 
+              email_feature.send_email(email, sample_name)  
 
     return {"run": "complete"}
 
 
 
-@router.post("/test_salmon_container/")
+@router.post("/test_salmon_container")
 async def fileupload():
     try:
         commands = {"commands": ["salmon"]}
@@ -141,6 +135,7 @@ async def start_file(
         query = await ModelSample.create(**response)
 
         os.mkdir("{}/{}".format(REAL_TIME_UPLOADS ,file_id))
+        os.mkdir("{}/{}/{}".format(REAL_TIME_UPLOADS ,file_id, "chunk_data"))
         with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id), 'w') as f:
             f.write(filename)
             f.write('\n')
@@ -164,7 +159,6 @@ async def start_file(
 #     for response in responses:
 #         results.append(await response.json())
 #     await session.close()  
-
 
 def call_salmon(commands_lst):
     # session = aiohttp.ClientSession()
