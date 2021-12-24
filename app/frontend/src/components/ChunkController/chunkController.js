@@ -26,10 +26,33 @@ const postChunk = (chunkNumber, fileId, chunkFile, token) => {
   });
 };
 
-const startChunk = async (chunkNumber, fileId, file, token) => {
-  let chunkFile = readChunk(chunkNumber, file);
+const firstpostChunk = (chunkNumber, fileId, chunkFile, token, numberOfChunks) => {
+  let formData = new FormData();
+  formData.append("chunk_number", chunkNumber);
+  formData.append("file_id", fileId);
+  formData.append("chunk_file", chunkFile);
+  formData.append("token", token);
 
-  return await postChunk(chunkNumber, fileId, chunkFile, token);
+  return axios.post(UPLOAD_CHUNK_URL, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      "Content-Encoding": "gzip",
+    },
+  })
+  .then(() => {
+    window.location.href = "/liveresults/#/?id=" + token
+    })
+  ;    
+};
+
+const startChunk = async (chunkNumber, fileId, file, token, numberOfChunks) => {
+  let chunkFile = readChunk(chunkNumber, file);
+  if (chunkNumber === 1) {
+    return await firstpostChunk(chunkNumber, fileId, chunkFile, token, numberOfChunks);
+  }
+  else {
+    return await postChunk(chunkNumber, fileId, chunkFile, token);
+  }
 };
 
 const postFileProcess = (filename, numberOfChunks, token, option, email) =>
@@ -47,7 +70,7 @@ const startFile = async (file, token, panel, email) => {
   const fileId = res.data.File_ID;
 
   for (let i = 0; i < numberOfChunks; i++) {
-    const res = await startChunk(i, fileId, file, token);
+    const res = await startChunk(i, fileId, file, token, numberOfChunks);
     if (res.data.Result != "OK") {
       break;
     }
