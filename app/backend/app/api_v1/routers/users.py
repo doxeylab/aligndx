@@ -11,7 +11,8 @@ from pydantic import BaseModel
 
 router = APIRouter()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme_auto_error = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
@@ -34,6 +35,7 @@ class TokenData(BaseModel):
 
 # Base model user information the frontend needs
 class User(BaseModel):
+    id: int
     email: str
     name: str
 
@@ -88,7 +90,7 @@ async def authenticate_user(email: str, password: str):
     user = UserInDB(**user_res)
     if not verify_password(password, user.hashed_password):
         return False
-    return user
+    return User(**user_res)
 
 
 # Returns the generated access token after user has been authenticated
@@ -140,6 +142,50 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+# Returns the current logged in user if any, raises unauthorized error otherwise
+async def get_current_user(token: str = Depends(oauth2_scheme_auto_error)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        token_data = TokenData(email=email)
+    except JWTError:
+        raise credentials_exception
+
+    user = await UserRepo.get(token_data.email)
+    if user is None:
+        raise credentials_exception
+
+    return user
+
+
+# Returns the current logged in user if any, returns None otherwise
+async def get_current_user_no_exception(token: str = Depends(oauth2_scheme)):
+    if not token:
+        return None
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            return None
+        token_data = TokenData(email=email)
+    except JWTError:
+        return None
+
+    user = await UserRepo.get(token_data.email)
+    if user is None:
+        return None
+
+    return User(**user)
 
 
 @router.get("/users/me", response_model=User)
