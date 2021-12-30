@@ -1,7 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 import os
 from datetime import datetime
-from app.api_v1.routers.users import is_authenticated
+from app.api_v1.routers.users import User, get_current_user_no_exception
 
 from app.scripts import data_tb, analyze
 
@@ -75,7 +75,7 @@ router = APIRouter()
 
 
 @router.get("/results/{token}")
-async def analyze_quants(token: str):
+async def analyze_quants(token: str, current_user: User = Depends(get_current_user_no_exception)):
     results = {}
     query = await ModelSample.get_token(token)
     sample_name = query["sample"]
@@ -103,9 +103,6 @@ async def analyze_quants(token: str):
         detected,
     )
 
-    authenticated = is_authenticated()
-
-    if authenticated:
-        # TODO: remove hardcode user_id
-        await ModelSample.save_result(token, json.dumps(result), 1)
+    if current_user:
+        await ModelSample.save_result(token, json.dumps(result), current_user.id)
     return result
