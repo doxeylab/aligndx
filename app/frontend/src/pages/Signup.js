@@ -3,7 +3,7 @@ import { Col, Container, Row } from 'react-bootstrap';
 import Fade from 'react-reveal/Fade';
 import SignUpImg from "../assets/SignUpImg.svg";
 import { SignUpAuth } from '../components/Authentication';
-import { Section } from '../components/PageElement';
+import { Section } from '../components/Common/PageElement';
 
 const SignUp = () => {
     return (

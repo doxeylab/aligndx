@@ -1,17 +1,12 @@
 import React from 'react';
-import { 
-    Bar,
-    Foot, 
-    FooterLogo, 
-    FooterMenu, 
-    FooterCenterCol, 
-    FooterLink, 
-    FooterA, 
-    FooterCopyright 
-} from './StyledFooter';
 import { Container, Row } from 'react-bootstrap';
+import AlignDx from '../../assets/Common/AlignDx.svg';
 import { FooterItems } from './FooterItems';
-import AlignDx from '../../assets/AlignDx.svg'
+import {
+    Bar,
+    Foot, FooterA, FooterCenterCol, FooterCopyright, FooterLink, FooterLogo,
+    FooterMenu
+} from './StyledFooter';
 
 const Footer = () => {
     return (
@@ -20,7 +15,7 @@ const Footer = () => {
                 <Row>
                     <FooterCenterCol>
                         <FooterLogo to="/">
-                            <img src={AlignDx} style={{width:'150px',height:'auto'}} alt="AlignDx"/>
+                            <img src={AlignDx} style={{ width: '150px', height: 'auto' }} alt="AlignDx" />
                         </FooterLogo>
                     </FooterCenterCol>
                 </Row>
@@ -30,8 +25,8 @@ const Footer = () => {
                             {FooterItems.map((items) => {
                                 return (
                                     <>
-                                    <FooterLink to={items.url}>{items.title}</FooterLink>
-                                    <Bar></Bar>
+                                        <FooterLink to={items.url}>{items.title}</FooterLink>
+                                        <Bar></Bar>
                                     </>
                                 )
                             })}

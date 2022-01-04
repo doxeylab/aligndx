@@ -1,8 +1,8 @@
 import React from 'react';
-import {FaMapMarkerAlt, FaPhone, FaEnvelope} from 'react-icons/fa';
-import { Container, Row, Col } from 'react-bootstrap';
-import {Title, Section} from '../../components/PageElement'
-import {Header, ContactWrapper, ContactItem, ContactIcon, ContactText, ContactTitle, ContactInfo} from './ContactElement';
+import { Col, Container, Row } from 'react-bootstrap';
+import { FaEnvelope, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
+import { Section, Title } from '../../components/Common/PageElement';
+import { ContactIcon, ContactInfo, ContactItem, ContactText, ContactTitle, ContactWrapper, Header } from './ContactElement';
 
 const Contact = () => {
     return (
@@ -23,7 +23,7 @@ const Contact = () => {
                         <ContactWrapper>
                             <ContactItem>
                                 <ContactIcon>
-                                    <FaMapMarkerAlt/>
+                                    <FaMapMarkerAlt />
                                 </ContactIcon>
                                 <ContactText>
                                     <ContactTitle>Address</ContactTitle>
@@ -32,7 +32,7 @@ const Contact = () => {
                             </ContactItem>
                             <ContactItem>
                                 <ContactIcon>
-                                    <FaPhone/>
+                                    <FaPhone />
                                 </ContactIcon>
                                 <ContactText>
                                     <ContactTitle>Phone</ContactTitle>
@@ -41,7 +41,7 @@ const Contact = () => {
                             </ContactItem>
                             <ContactItem>
                                 <ContactIcon>
-                                    <FaEnvelope/>
+                                    <FaEnvelope />
                                 </ContactIcon>
                                 <ContactText>
                                     <ContactTitle>Email</ContactTitle>
