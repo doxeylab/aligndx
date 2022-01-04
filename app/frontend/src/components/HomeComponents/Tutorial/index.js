@@ -1,16 +1,11 @@
 // React
 import React from 'react';
 // Packages
-import { Container, Row, Col } from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 // Components
-import { Section, Title } from '../../PageElement';
-import {
-    TutorialItem,
-    TutorialBody,
-    TutorialTitle,
-    TutorialText,
-    } from './StyledTutorial';
-import {TutorialContent} from './TutorialContent';
+import { Section, Title } from '../../Common/PageElement';
+import { TutorialBody, TutorialItem, TutorialText, TutorialTitle } from './StyledTutorial';
+import { TutorialContent } from './TutorialContent';
 
 function Tutorial() {
     return (

@@ -17,6 +17,7 @@ export const Dropzone = styled.div`
   cursor: pointer;
   height: 200px;
   width: 100%;
+  border-radius: 1.6rem;
   border: 4px ${props => props.active ? `solid` : `dashed`} #4aa1f3;
   transition: 0.3s;
   ${props => props.active ? `background-color: #e8f7fe;` : ``}

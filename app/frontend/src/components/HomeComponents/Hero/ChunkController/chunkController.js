@@ -1,6 +1,10 @@
 import axios from "axios";
+// import { CHUNK_SIZE, START_FILE_URL, UPLOAD_CHUNK_URL } from "../config/Config";
 
-import { CHUNK_SIZE, UPLOAD_CHUNK_URL, START_FILE_URL } from "../config/Config";
+// TEMP
+const CHUNK_SIZE = 10000;
+const START_FILE_URL = "temp";
+const UPLOAD_CHUNK_URL = "temp"
 
 const readChunk = (chunkNumber, file) => {
   let chunkFile = file.slice(

@@ -7,7 +7,7 @@ import Hirota from '../assets/Team/JHirota.png';
 import Linda from '../assets/Team/Linda.jpeg';
 import Manjot from '../assets/Team/Manjot.png';
 import William from '../assets/Team/William.png';
-import { Section, Title } from '../components/PageElement';
+import { Section, Title } from '../components/Common/PageElement';
 import TeamCard from '../components/TeamCard';
 
 const Team = () => {

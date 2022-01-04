@@ -1,14 +1,14 @@
 export const NavbarItems = [
     {
-        title: "ABOUT",
+        title: "About",
         url: "/about"
     },
     {
-        title: "TEAM",
+        title: "Team",
         url: "/team"
     },
     {
-        title: "CONTACT",
+        title: "Contact",
         url: "/contact"
     },
 ]
