@@ -96,8 +96,9 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
         num_chunks = int(f.readlines()[1]) 
 
     await websocket.accept()
-    while True: 
+    while killsignal(chunk_dir, num_chunks): 
         await asyncio.sleep(1)
-        data = realtime.data_loader(csv_dir, sample_name)
-        await websocket.send_json(data)
-        killsignal(chunk_dir, num_chunks)
+        if os.path.isfile(csv_dir):
+            data = realtime.data_loader(csv_dir, sample_name)
+            await websocket.send_json(data) 
+        

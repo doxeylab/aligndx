@@ -79,27 +79,26 @@ def detection(df):
       detected = "Negative"
     return pathogens, detected
 
-def data_loader(output_dir, sample_name): 
-    df = pd.read_csv(output_dir, index_col='Pathogen')
-    df.reset_index(inplace=True)
-    pathogens = df['Pathogen'].unique().tolist()
-    df_list={} 
-    for pathogen in pathogens:
-      df_list[pathogen] = df.loc[df.Pathogen==pathogen][['Name', 'NumReads']].to_dict(orient="records")
-    c = df.copy()
-    c = c.groupby(["Pathogen","Coverage"]).count().drop(['Name','NumReads'], axis=1)  
-    c = c.index.to_frame(index=False)
-    pathogens, detected = detection(c)
-    c = c.to_dict(orient="records")
-
-    d3_data = {
-        # "all": df_list,
-        "coverage": c,
-        "pathogens": pathogens, 
-        "detected": detected,
-        "sample": sample_name,
-        'title': "Transcriptome Coverage Estimate",
-        'xlabel': "Pathogens",
-        'ylabel': "Coverage (%)"
-    }   
-    return d3_data
+def data_loader(output_dir, sample_name):  
+  df = pd.read_csv(output_dir, index_col='Pathogen')
+  df.reset_index(inplace=True)
+  pathogens = df['Pathogen'].unique().tolist()
+  df_list={} 
+  for pathogen in pathogens:
+    df_list[pathogen] = df.loc[df.Pathogen==pathogen][['Name', 'NumReads']].to_dic(orient="records")
+  c = df.copy()
+  c = c.groupby(["Pathogen","Coverage"]).count().drop(['Name','NumReads'], axis=1)  
+  c = c.index.to_frame(index=False)
+  pathogens, detected = detection(c)
+  c = c.to_dict(orient="records")
+  d3_data = {
+      # "all": df_list,
+      "coverage": c,
+      "pathogens": pathogens, 
+      "detected": detected,
+      "sample": sample_name,
+      'title': "Transcriptome Coverage Estimate",
+      'xlabel': "Pathogens",
+      'ylabel': "Coverage (%)"
+  }   
+  return d3_data
