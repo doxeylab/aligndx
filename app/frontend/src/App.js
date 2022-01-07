@@ -13,6 +13,7 @@ import Result from './pages/Result';
 import Signup from './pages/Signup';
 import Team from './pages/Team';
 import LiveResults from './pages/LiveResults';
+import RealTime from './pages/RealTime';
 
 function App() {
 
@@ -31,6 +32,7 @@ function App() {
                     <Route path='/login' component={Login} />
                     <Route path='/USER_ID' component={Profile} />
                     <Route path='/liveresults' component={LiveResults} />
+                    <Route path='/realtime' component={RealTime} />
                 </Switch>
                 <Background />
                 <Footer />

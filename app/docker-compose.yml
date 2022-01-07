@@ -80,15 +80,6 @@ services:
       - ./backend/indexes:/app/indexes
       - ./backend/metadata:/app/metadata
 
-  redis:
-    image: redis:latest
-    ports:
-        - 6379:6379
-    volumes:
-        - ./redis/redis.conf:/redis.conf
-        - redis-data:/data
-    command: [ "redis-server", "/redis.conf" ]
-
 volumes:
   db-data:
   pgadmin-data: 
