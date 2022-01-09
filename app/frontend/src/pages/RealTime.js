@@ -6,13 +6,19 @@ import Barchart from '../components/BarChart';
 import { Link } from 'react-router-dom';
 import ResultCard from '../components/ResultCard.js';
 import { Section } from '../components/PageElement'; 
+import { TokenService } from '../services/Token';
+import startFile from '../components/ChunkController/chunkController';
+import Fade from 'react-reveal/Fade';
+import UploadComponent from '../components/UploadComponent';
+import SelectMenu from '../components/SelectMenu';
+import Button from '../components/Button';
+import { HeroImage } from '../components/HomeComponents/Hero/StyledHero';
+import HomePageArt from '../assets/HomePageArt.svg';
+
 
 const RealTime = () => {
-    try { 
-		var url_id = window.location.href.split('#/?')[1].split('&')[0].slice('id='.length)
-	} catch(err) {
-		var url_id = undefined
-	} 
+    
+    const token = TokenService(40);
 
     const [data, setData] = useState(null);
     const [sample, setSample] = useState("");
@@ -42,18 +48,55 @@ const RealTime = () => {
         console.log(optiondata);
         setOption(optiondata);
     }
-     
+
+    // const connectWebsocket = async () => {
+    //     try {
+    //         const res = await axios.get(RT_RES_STATUS + '/' + token); 
+    //         console.log(res.data)
+    //         if (res.data.result === "pending"){ 
+    //             console.log("pending")
+    //             connectWebsocket();
+    //         }
+    //         else {
+    //             const ws = new WebSocket(WEBSOCKET_URL + '/' + token)
+    //             setGetLoad(false)
+    //             ws.onmessage = function(event) {
+    //                 console.log("connection established")
+    //                 console.log(event.data)
+    //                 setData(event.data)
+    //                 setSample(event.data.sample)
+    //                 setPathogens(event.data.pathogens)
+    //         } 
+    //     }} 
+        
+    //     catch (err) {
+    //         // Handle Error Here
+    //         console.log("error")
+    //         console.error(err);  
+    //     }
+    // };
+
     const connectWebsocket = async () => {
         try {
-            const ws = new WebSocket(WEBSOCKET_URL + '/' + url_id)
+            const ws = new WebSocket(WEBSOCKET_URL + '/' + token)
+            console.log("connection established")
             setGetLoad(false)
             ws.onmessage = function (event) {
-                console.log("connection established")
-                console.log(event.data)
-                setData(event.data)
-                setSample(event.data.sample)
-                setPathogens(event.data.pathogens)
+                if (event.data == "complete"){
+                    ws.close();
+                }
+                else {
+                    console.log(event.data)
+                    setData(event.data)
+                    setSample(event.data.sample)
+                    setPathogens(event.data.pathogens)
+                }
             }
+            window.addEventListener("unload", () => {
+                if(ws.readyState == WebSocket.OPEN) {
+                    ws.close();
+                }
+            }) 
         }
 
         catch (err) {
@@ -63,23 +106,21 @@ const RealTime = () => {
         }
     };
 
-    const uploadChunked = () => {
+    const uploadChunked = async () => {
         setGetLoad(true)
-        const token = TokenService(40);
         const option_lst = []
         option.forEach(x => option_lst.push(x.title))
         console.log(option_lst)
-        startFile(dataFiles[0], token, option_lst, email);
-        connectWebsocket()
+        await startFile(dataFiles[0], token, option_lst, email); 
+        await connectWebsocket()
     }
+     
  
     return (
         <>
         {getLoad ?
             <Section id="hero" center>
             <Container>
-                <Row>
-                    <Col md={6} sm={12}>
                         <Fade left duration={1000} delay={600} distance="30px">
                         <Container>
                                 <Row style={{ marginBottom: '1.5rem' }}>
@@ -101,15 +142,6 @@ const RealTime = () => {
                                 </Row>
                             </Container>
                         </Fade>
-                    </Col>
-                    <Col md={6} sm={12}>
-                        <Fade right duration={1000} delay={600} distance="30px">
-                            <HeroImage>
-                                <img className="Art" src={HomePageArt} alt="Art" />
-                            </HeroImage>
-                        </Fade>
-                    </Col>
-                </Row>
             </Container>
         </Section>
         :

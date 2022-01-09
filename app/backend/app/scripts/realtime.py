@@ -85,7 +85,7 @@ def data_loader(output_dir, sample_name):
   pathogens = df['Pathogen'].unique().tolist()
   df_list={} 
   for pathogen in pathogens:
-    df_list[pathogen] = df.loc[df.Pathogen==pathogen][['Name', 'NumReads']].to_dic(orient="records")
+    df_list[pathogen] = df.loc[df.Pathogen==pathogen][['Name', 'NumReads']].to_dict(orient="records")
   c = df.copy()
   c = c.groupby(["Pathogen","Coverage"]).count().drop(['Name','NumReads'], axis=1)  
   c = c.index.to_frame(index=False)

@@ -230,12 +230,13 @@ async def upload_chunk(
     panel = "bacterial"
     chosen_panel = "bacterial_index"
     sample_name = "test"
-    indexpath = os.path.join(INDEX_FOLDER, chosen_panel) 
+    indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
     chunk_dir =  "{}/{}/{}/{}.fastq".format(REAL_TIME_UPLOADS, file_id, "chunk_data", chunk_number)
     results_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, chunk_number) 
     
     if chunk_number > 0:
         content_before = None
+        
     async with aiofiles.open(chunk_dir, 'wb') as f:
         #while content := await chunk_file.read(memory_batch_size):
         content = await chunk_file.read()
@@ -245,11 +246,12 @@ async def upload_chunk(
         content_after = content[start_location:]
 
         await f.write(content_after)
+        
     if chunk_number > 0:
         prev_chunk_dir = "{}/{}/{}/{}.fastq".format(REAL_TIME_UPLOADS, file_id, "chunk_data", chunk_number-1) 
         async with aiofiles.open(prev_chunk_dir, 'ab') as f:
             f.write(content_before)
-
+    
     num_chunks = None
     
     with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id)) as f:

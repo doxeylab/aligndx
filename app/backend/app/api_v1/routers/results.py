@@ -81,6 +81,14 @@ async def standard_results(token: str):
     else:
         return {"result": "pending"}
 
+# async def check_status(csv_dir, sample_name):
+#     if os.path.isfile(csv_dir):
+#         return realtime.data_loader(csv_dir, sample_name)
+#     else:
+#         await asyncio.sleep(1)
+#         check_status(csv_dir, sample_name)
+
+
 @router.websocket('/livegraphs/{token}') 
 async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
     query = await ModelSample.get_token(token) 
@@ -96,9 +104,37 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
         num_chunks = int(f.readlines()[1]) 
 
     await websocket.accept()
-    while killsignal(chunk_dir, num_chunks): 
-        await asyncio.sleep(1)
+    while True: 
         if os.path.isfile(csv_dir):
-            data = realtime.data_loader(csv_dir, sample_name)
+            await asyncio.sleep(1) 
+            data = realtime.data_loader(csv_dir, sample_name)   
             await websocket.send_json(data) 
+        else:
+            await asyncio.sleep(1) 
+            data = {"result": "pending"}   
+            await websocket.send_json(data)
+
+
+# @router.websocket('/livegraphs/{token}') 
+# async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
+#     query = await ModelSample.get_token(token) 
+#     file_id = str(query['id'])
+#     sample_name = query['sample']
+
+#     results_dir = os.path.join(REAL_TIME_RESULTS, file_id)
+#     uploads_dir = os.path.join(REAL_TIME_UPLOADS, file_id) 
+#     chunk_dir = os.path.join(uploads_dir, "chunk_data")
+#     csv_dir = os.path.join(results_dir, "out.csv")
+
+#     with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id)) as f:
+#         num_chunks = int(f.readlines()[1]) 
+
+#     await websocket.accept()
+#     while True: 
+#         await asyncio.sleep(1)
+#         # if os.path.isfile(csv_dir):
+#             # data = realtime.data_loader(csv_dir, sample_name)
+#         # data = {"test": "t1",
+#         #         "follow" : "t2"}
+#         await websocket.send_json(data) 
         

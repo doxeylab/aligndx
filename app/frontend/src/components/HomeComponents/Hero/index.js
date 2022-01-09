@@ -56,6 +56,10 @@ const Hero = () => {
         startFile(dataFiles[0], token, option_lst, email);
     }
 
+    const routeToRealTime = () => {
+        window.location.href = "/realtime"
+    }
+
     const upload = () => {
         setGetLoad(true)
         const token = TokenService(40);
@@ -118,6 +122,7 @@ const Hero = () => {
                                             <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined RNA-seq pipeline using either our standard or quick detect workflows. Alternatively, go through our examples for sample results.</HeroText>
                                             <HeroBtns>
                                                 <Button onClick={handleShowStandard}>Standard</Button>
+                                                <Button onClick={routeToRealTime}>Real Time</Button>
                                                 <Button onClick={handleShowQuickDetect}>Quick Detect</Button>
                                                 <Button fill to="/result">Examples</Button>
                                             </HeroBtns>
