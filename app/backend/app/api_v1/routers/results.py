@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect 
 import os
 from datetime import datetime 
 import asyncio
@@ -83,12 +83,37 @@ async def standard_results(token: str):
 #         await asyncio.sleep(1)
 #         check_status(csv_dir, sample_name)
 
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_data(self, data: dict, websocket: WebSocket):
+        await websocket.send_json(data)
+
+    async def send_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+manager = ConnectionManager()
 
 def killsignal(chunkdir, num_chunks):
     if sum(os.path.isdir(i) for i in os.listdir(chunkdir)) == num_chunks:
         True
     else:
         False
+
+def counter(chunkdir):
+    return sum(os.path.isdir(i) for i in os.listdir(chunkdir))
 
 @router.websocket('/livegraphs/{token}') 
 async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
@@ -104,24 +129,27 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
     with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id)) as f:
         num_chunks = int(f.readlines()[1]) 
 
-    await websocket.accept()
+    await manager.connect(websocket)
     try:
         while True: 
             if os.path.isfile(csv_dir):
                 await asyncio.sleep(1) 
                 data = realtime.data_loader(csv_dir, sample_name) 
-                await websocket.send_json(data) 
-            if killsignal(results_dir, num_chunks):
+                await manager.send_message(str(counter(results_dir)), websocket)
+                await manager.send_data(data, websocket) 
+            # if killsignal(results_dir, num_chunks):
+            if counter(results_dir) == num_chunks:
                 end_signal = {"result": "complete"} 
-                await websocket.send_json(end_signal)
+                await manager.send_data(end_signal, websocket)
                 websocket.close()
                 break
             else:
                 await asyncio.sleep(1) 
                 data = {"result": "pending"}   
-                await websocket.send_json(data)
+                await manager.send_data(data, websocket)
     except WebSocketDisconnect:
-        websocket.close()
+        manager.disconnect(websocket)
+        await manager.broadcast(f"Client #{token} disconnected")
 
  
 # @router.websocket('/livegraphs/{token}') 

@@ -86,7 +86,7 @@ const RealTime = () => {
                     ws.close();
                 }
                 if (event.data == {"result":"pending"}){
-                    console.log(event.data)
+                    //pass
                 }
                 else {
                     console.log(event.data)
@@ -98,6 +98,7 @@ const RealTime = () => {
             window.addEventListener("unload", () => {
                 if(ws.readyState == WebSocket.OPEN) {
                     ws.close();
+                    console.log("disconnected")
                 }
             }) 
         }
@@ -114,7 +115,12 @@ const RealTime = () => {
         const option_lst = []
         option.forEach(x => option_lst.push(x.title))
         console.log(option_lst)
-        await startFile(dataFiles[0], token, option_lst, email); 
+        try {
+            await startFile(dataFiles[0], token, option_lst, email); 
+        }
+        catch(e) {
+            console.log(e)
+        }
         await connectWebsocket() 
     }
      
@@ -153,7 +159,7 @@ const RealTime = () => {
                 <Row>
                     <h1 className="result-container__title">Sample: {sample} for {pathogens}</h1>
                 </Row> 
-                <Row>
+                {/* <Row>
                     {data.map(d => {
                         return (
                             <ResultCard detection={d.detected}>
@@ -177,7 +183,7 @@ const RealTime = () => {
                             </ResultCard>
                         )
                     })}
-                </Row>
+                </Row> */}
                 <Row>
                     <Col>
                         <button className="resultPageBtn saveResultBtn">Save Results</button>
