@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket 
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import os
 from datetime import datetime 
 import asyncio
@@ -65,11 +65,6 @@ async def standard_results(token: str):
     quant_dir = os.path.join(sample_dir,'quant.sf')   
     return  analyze_handler(sample_name, headers, metadata, quant_dir)
 
-def killsignal(chunkdir, num_chunks):
-    if sum(os.path.isdir(i) for i in os.listdir(chunkdir)) == num_chunks:
-        False
-    else:
-        True
 
 @router.get('/rt-res-status/{token}')
 async def standard_results(token: str):   
@@ -89,6 +84,12 @@ async def standard_results(token: str):
 #         check_status(csv_dir, sample_name)
 
 
+def killsignal(chunkdir, num_chunks):
+    if sum(os.path.isdir(i) for i in os.listdir(chunkdir)) == num_chunks:
+        True
+    else:
+        False
+
 @router.websocket('/livegraphs/{token}') 
 async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
     query = await ModelSample.get_token(token) 
@@ -104,17 +105,25 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
         num_chunks = int(f.readlines()[1]) 
 
     await websocket.accept()
-    while True: 
-        if os.path.isfile(csv_dir):
-            await asyncio.sleep(1) 
-            data = realtime.data_loader(csv_dir, sample_name)   
-            await websocket.send_json(data) 
-        else:
-            await asyncio.sleep(1) 
-            data = {"result": "pending"}   
-            await websocket.send_json(data)
+    try:
+        while True: 
+            if os.path.isfile(csv_dir):
+                await asyncio.sleep(1) 
+                data = realtime.data_loader(csv_dir, sample_name) 
+                await websocket.send_json(data) 
+            if killsignal(results_dir, num_chunks):
+                end_signal = {"result": "complete"} 
+                await websocket.send_json(end_signal)
+                websocket.close()
+                break
+            else:
+                await asyncio.sleep(1) 
+                data = {"result": "pending"}   
+                await websocket.send_json(data)
+    except WebSocketDisconnect:
+        websocket.close()
 
-
+ 
 # @router.websocket('/livegraphs/{token}') 
 # async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
 #     query = await ModelSample.get_token(token) 

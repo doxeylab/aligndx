@@ -82,8 +82,11 @@ const RealTime = () => {
             console.log("connection established")
             setGetLoad(false)
             ws.onmessage = function (event) {
-                if (event.data == "complete"){
+                if (event.data == {"result":"complete"}){
                     ws.close();
+                }
+                if (event.data == {"result":"pending"}){
+                    console.log(event.data)
                 }
                 else {
                     console.log(event.data)
@@ -112,7 +115,7 @@ const RealTime = () => {
         option.forEach(x => option_lst.push(x.title))
         console.log(option_lst)
         await startFile(dataFiles[0], token, option_lst, email); 
-        await connectWebsocket()
+        await connectWebsocket() 
     }
      
  
@@ -150,7 +153,7 @@ const RealTime = () => {
                 <Row>
                     <h1 className="result-container__title">Sample: {sample} for {pathogens}</h1>
                 </Row> 
-                {/* <Row>
+                <Row>
                     {data.map(d => {
                         return (
                             <ResultCard detection={d.detected}>
@@ -174,7 +177,7 @@ const RealTime = () => {
                             </ResultCard>
                         )
                     })}
-                </Row> */}
+                </Row>
                 <Row>
                     <Col>
                         <button className="resultPageBtn saveResultBtn">Save Results</button>

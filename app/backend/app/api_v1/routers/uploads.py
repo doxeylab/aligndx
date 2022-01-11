@@ -206,7 +206,7 @@ def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, samp
     commands_lst.append(commands) 
 
     # await call_salmon(commands_lst)
-    call_salmon(commands_lst)
+    call_salmon(commands_lst) 
 
     if os.path.isfile(quant_dir):
         metadata = realtime.metadata_load(METADATA_FOLDER, option)
