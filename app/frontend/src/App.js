@@ -14,6 +14,8 @@ import Profile from './pages/Profile';
 import Result from './pages/Result';
 import Signup from './pages/Signup';
 import Team from './pages/Team';
+import LiveResults from './pages/LiveResults';
+import RealTime from './pages/RealTime';
 import GlobalStyle from './StyledGlobal';
 
 const theme = createTheme({
@@ -47,6 +49,8 @@ function App() {
                                     <Route path='/signup' component={Signup} />
                                     <Route path='/login' component={Login} />
                                     <Route path='/USER_ID' component={Profile} />
+                                    <Route path='/liveresults' component={LiveResults} />
+                                    <Route path='/realtime' component={RealTime} />
                                 </Switch>
                                 <Footer />
                             </LoadContext.Provider>

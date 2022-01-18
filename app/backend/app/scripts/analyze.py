@@ -85,7 +85,7 @@ def detection(df):
       detected = "Negative"
       return pathogens, detected
     else: 
-      pathogens = df.index[df['coverage'] > 50].to_list()
+      pathogens = df.index[df['coverage'] > 0].to_list()
       if pathogens:
         detected = "Positive"
       else:
@@ -105,5 +105,8 @@ def d3_compatible_data(df, sample, hits, all, pathogens, detected):
     data_dict['hits'] = hits
     data_dict['all'] = all
     data_dict['pathogens'] = pathogens
-    data_dict['detected'] = detected
+    data_dict['detected'] = detected 
+    data_dict['title'] = "Transcriptome Coverage Estimate"
+    data_dict['xlabel'] = "Pathogens"
+    data_dict['ylabel'] = "Coverage (%)"
     return data_dict
