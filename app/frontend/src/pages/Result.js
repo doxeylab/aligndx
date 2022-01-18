@@ -1,26 +1,28 @@
-import React, {useState, useEffect} from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
-import { RESULT_URL } from '../services/Config';
-import Barchart from '../components/BarChart';
+import React, { useEffect, useState } from 'react';
+import { Col, Container, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import Barchart from '../components/BarChart';
+import { Section } from '../components/Common/PageElement';
 import ResultCard from '../components/ResultCard.js';
-import { Section } from '../components/PageElement';
+import { RESULT_URL } from '../services/Config';
 
 const Result = () => {
     try {
-		var url_id = window.location.href.split('#/?')[1].split('&')[0].slice('id='.length)
-	} catch(err) {
-		var url_id = undefined
-	}
-    
+        var url_id = window.location.href.split('#/?')[1].split('&')[0].slice('id='.length)
+    } catch (err) {
+        var url_id = undefined
+    }
+
     // const [data, setData] = useState([{ "index": "TEST1", "column_category": 6 },
     // { "index": "TEST2", "column_category": 12 },
     // { "index": "TEST3", "column_category": 3 } ])
 
-    var dummyData = [{detection: "Positive", 
-        pathogen_hits : 
-            {data: [
+    var dummyData = [{
+        detection: "Positive",
+        pathogen_hits:
+        {
+            data: [
                 { "index": "TEST1", "NumReads": 6 },
                 { "index": "TEST2", "NumReads": 12 },
                 { "index": "TEST3", "NumReads": 3 },
@@ -29,24 +31,11 @@ const Result = () => {
                 { "index": "TEST6", "NumReads": 15 },
                 { "index": "TEST7", "NumReads": 8 },
                 { "index": "TEST8", "NumReads": 4 }
-                ]
-            },
-        host_hits : 
-            {data: [
-                { "index": "TEST1", "NumReads": 6 },
-                { "index": "TEST2", "NumReads": 12 },
-                { "index": "TEST3", "NumReads": 3 },
-                { "index": "TEST4", "NumReads": 1 },
-                { "index": "TEST5", "NumReads": 0 },
-                { "index": "TEST6", "NumReads": 15 },
-                { "index": "TEST7", "NumReads": 8 },
-                { "index": "TEST8", "NumReads": 4 }
-                ]
-            }
+            ]
         },
-        {detection: "Negative", 
-        pathogen_hits : 
-            {data: [
+        host_hits:
+        {
+            data: [
                 { "index": "TEST1", "NumReads": 6 },
                 { "index": "TEST2", "NumReads": 12 },
                 { "index": "TEST3", "NumReads": 3 },
@@ -55,21 +44,38 @@ const Result = () => {
                 { "index": "TEST6", "NumReads": 15 },
                 { "index": "TEST7", "NumReads": 8 },
                 { "index": "TEST8", "NumReads": 4 }
-                ]
-            },
-        host_hits : 
-            {data: [
-                { "index": "TEST1", "NumReads": 6 },
-                { "index": "TEST2", "NumReads": 12 },
-                { "index": "TEST3", "NumReads": 3 },
-                { "index": "TEST4", "NumReads": 1 },
-                { "index": "TEST5", "NumReads": 0 },
-                { "index": "TEST6", "NumReads": 15 },
-                { "index": "TEST7", "NumReads": 8 },
-                { "index": "TEST8", "NumReads": 4 }
-                ]
-            }
+            ]
         }
+    },
+    {
+        detection: "Negative",
+        pathogen_hits:
+        {
+            data: [
+                { "index": "TEST1", "NumReads": 6 },
+                { "index": "TEST2", "NumReads": 12 },
+                { "index": "TEST3", "NumReads": 3 },
+                { "index": "TEST4", "NumReads": 1 },
+                { "index": "TEST5", "NumReads": 0 },
+                { "index": "TEST6", "NumReads": 15 },
+                { "index": "TEST7", "NumReads": 8 },
+                { "index": "TEST8", "NumReads": 4 }
+            ]
+        },
+        host_hits:
+        {
+            data: [
+                { "index": "TEST1", "NumReads": 6 },
+                { "index": "TEST2", "NumReads": 12 },
+                { "index": "TEST3", "NumReads": 3 },
+                { "index": "TEST4", "NumReads": 1 },
+                { "index": "TEST5", "NumReads": 0 },
+                { "index": "TEST6", "NumReads": 15 },
+                { "index": "TEST7", "NumReads": 8 },
+                { "index": "TEST8", "NumReads": 4 }
+            ]
+        }
+    }
     ]
 
     const [data, setData] = useState(null);
@@ -175,17 +181,17 @@ const Result = () => {
                     <Col>
                         <button className="resultPageBtn saveResultBtn">Save Results</button>
 
-                        <Link to="/home">
-                            <button className="resultPageBtn upload-btn">Upload New</button>
-                        </Link>
-                    </Col>
+                                <Link to="/home">
+                                    <button className="resultPageBtn upload-btn">Upload New</button>
+                                </Link>
+                            </Col>
 
-                </Row>
-            </Container>
-        </Section>
-        }
+                        </Row>
+                    </Container>
+                </Section>
+            }
         </>
     );
-  }
-   
+}
+
 export default Result;

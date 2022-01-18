@@ -1,3 +1,5 @@
+import sys
+import math
 from array import ArrayType
 from uuid import uuid4
 import aiofiles, asyncio, aiohttp 
@@ -16,7 +18,10 @@ from app.db.models import Sample as ModelSample
 # from app.db.models import create, get
 from app.db.schema import Sample as SchemaSample
 
-memory_batch_size = 400000
+read_batch_size = 4096
+salmon_chunk_size = math.floor(8e6)
+upload_chunk_size = 4e6
+chunk_ratio = salmon_chunk_size / upload_chunk_size
 
 UPLOAD_FOLDER = './uploads' 
 RESULTS_FOLDER = './results'
@@ -222,45 +227,105 @@ async def upload_chunk(
     chunk_number: int = Form(...),
     file_id: str = Form(...),
     chunk_file: UploadFile = File(...),
-    token: str = Form(...)
-):  
-    # query = await ModelSample.get_token(token)  
-    # panel = query['panel']
-    # chosen_panel = str(panel.lower()) + "_index"
-    panel = "bacterial"
-    chosen_panel = "bacterial_index"
-    sample_name = "test"
-    indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
-    chunk_dir =  "{}/{}/{}/{}.fastq".format(REAL_TIME_UPLOADS, file_id, "chunk_data", chunk_number)
-    results_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, chunk_number) 
-    
-    if chunk_number > 0:
-        content_before = None
-        
-    async with aiofiles.open(chunk_dir, 'wb') as f:
-        #while content := await chunk_file.read(memory_batch_size):
-        content = await chunk_file.read()
-        start_location = content.index("@".encode("utf8"))
+    token: str = Form(...),
+):
+    async with aiofiles.open("uploads/{}/{}.fastq".format(file_id, chunk_number), 'wb') as f:
+        while content := await chunk_file.read(read_batch_size):
+            await f.write(content)
 
-        content_before = content[:start_location]
-        content_after = content[start_location:]
-
-        await f.write(content_after)
-        
-    if chunk_number > 0:
-        prev_chunk_dir = "{}/{}/{}/{}.fastq".format(REAL_TIME_UPLOADS, file_id, "chunk_data", chunk_number-1) 
-        async with aiofiles.open(prev_chunk_dir, 'ab') as f:
-            f.write(content_before)
-    
     num_chunks = None
-    
-    with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id)) as f:
+    with open("uploads/{}/meta.txt".format(file_id)) as f:
         num_chunks = int(f.readlines()[1])
- 
-    if chunk_number > 0:  
-        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number-1, chosen_panel, [], sample_name, panel)
 
-    if chunk_number + 1 == num_chunks: 
-        background_tasks.add_task(start_chunk_analysis, file_id, chunk_number, chosen_panel, [], sample_name, panel) 
+    background_tasks.add_task(process_salmon_chunks, file_id)
+
+    # if chunk_number + 1 == num_chunks:
+    #     background_tasks.add_task(
+    #         start_final_chunk_analysis, file_id, chunk_number)
+    # else:
+    #     background_tasks.add_task(start_chunk_analysis, file_id, chunk_number)
+
+    return {"Result": "OK"}
+
+
+def process_salmon_chunks(file_id):
+    upload_chunk_nums = [int(fname.split('.')[0]) for fname in os.listdir(
+        'uploads/{}'.format(file_id)) if fname.split('.')[0].isnumeric()]
+    salmon_chunk_nums = [int(fname.split('.')[0]) for fname in os.listdir(
+        'chunks/{}'.format(file_id)) if fname.split('.')[0].isnumeric()]
+
+    chunks_to_assemble = range(max(salmon_chunk_nums) if len(salmon_chunk_nums) > 0 else 1,
+                               math.ceil(max(upload_chunk_nums) / chunk_ratio) + 1)
+
+    for salmon_chunk_num in chunks_to_assemble:
+        start_num = math.ceil((salmon_chunk_num - 1) * chunk_ratio) + 1
+        end_num = math.ceil(salmon_chunk_num * chunk_ratio) + 1
+
+        upload_chunk_range = range(start_num, end_num)
+
+        if set(upload_chunk_range).issubset(set(upload_chunk_nums)):
+            make_salmon_chunk(file_id, salmon_chunk_num, upload_chunk_range)
+
+
+def make_salmon_chunk(file_id, salmon_chunk_number, upload_chunk_range):
+    next_chunk_data = b''
+
+    with open('chunks/{}/{}.fastq'.format(file_id, salmon_chunk_number), 'ab') as salmon_chunk:
+        fsize = 0
+        for upload_chunk_number in upload_chunk_range:
+            with open('uploads/{}/{}.fastq'.format(file_id, upload_chunk_number), 'rb') as upload_chunk:
+                data = upload_chunk.read()
+                fsize += sys.getsizeof(data)
+
+                if fsize > salmon_chunk_size:
+                    lines = data.decode('utf8').split('\n')
+                    firstchars = [line[0] for indx, line in enumerate(
+                        lines) if indx > 0 and indx < len(lines)]
+
+                    atsign_linenum = None
+                    for i in range(4):
+                        if all([firstchar == ['@', firstchar, '+', firstchar][(indx + i) % 4] for
+                                indx, firstchar in enumerate(firstchars)]):
+                            atsign_linenum = i + 1
+                    print(atsign_linenum)
+
+                    salmon_chunk.write(
+                        '\n'.join(
+                            lines[:atsign_linenum]).encode('utf8').strip())
+                    next_chunk_data = '\n'.join(
+                        lines[atsign_linenum:]).encode('utf8').strip()
+                else:
+                    salmon_chunk.write(data)
+
+    with open('chunks/{}/{}.fastq'.format(file_id, salmon_chunk_number + 1), 'wb') as salmon_chunk:
+        salmon_chunk.write(next_chunk_data)
+
+
+def start_final_chunk_analysis(file_id, chunk_number):
+    start_chunk_analysis(file_id, chunk_number)
+    # finish_file_analysis(file_id)
+
+
+def start_chunk_analysis(file_id, chunk_number):
+    commands_lst = salmonconfig.commands(
+        sample='{}_{}'.format(file_id, chunk_number),
+        indexpath="indexes/bacterial_index",
+        filepath="chunks/{}/{}.fastq".format(
+            file_id, chunk_number),
+        resultspath="results/{}/{}".format(
+            file_id, chunk_number)
+    )
+
+    requests.post("http://localhost:8002/", json=commands_lst)
+
+    os.remove("chunks/{}/{}.fastq".format(file_id, chunk_number))
+
+
+@router.get("/results/{file_id}")
+async def get_results(file_id: str):
+    if not os.path.isfile("results/{}/final.csv".format(file_id)):
+        return 404
+
+    dist = pd.read_csv("results/{}/final.csv".format(file_id))
 
     return {"Result": "OK"}  

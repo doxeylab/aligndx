@@ -1,12 +1,7 @@
-import React, { useEffect } from 'react'
 import Aos from "aos";
-import { Link } from 'react-router-dom';
-import OurGoals from '../assets/OurGoals.svg';
-import DiversityImage from '../assets/DiversityImage.svg';
-import blueWaveTop from '../assets/blueWaveTop.svg';
-import blueWaveBottom from '../assets/blueWaveBottom.svg';
-import { Section, Title } from '../components/PageElement';
-import { Container, Row, Col } from 'react-bootstrap';
+import React, { useEffect } from 'react';
+import { Container } from 'react-bootstrap';
+import { Section, Title } from '../components/Common/PageElement';
 
 export default function About() {
 
@@ -16,8 +11,9 @@ export default function About() {
 
     //Uses the Aos library//
     useEffect(() => {
-        Aos.init({ duration: 2000, 
-        once:true  
+        Aos.init({
+            duration: 2000,
+            once: true
         });
     }, []);
 

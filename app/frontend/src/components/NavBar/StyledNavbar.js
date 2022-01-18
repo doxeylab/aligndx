@@ -1,3 +1,4 @@
+// import Button from '@mui/material/Button';
 import { Container } from 'react-bootstrap';
 import { NavLink as Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -41,12 +42,12 @@ export const MobileIcon = styled.div`
   @media screen and (max-width: ${max_width}) {
     display: block;
     justify-self: end;
-    font-size: 3rem;
     cursor: pointer;
     z-index: 1;
 
     svg {
       fill: #333;
+      font-size: 3rem;
     }
   }
 `
