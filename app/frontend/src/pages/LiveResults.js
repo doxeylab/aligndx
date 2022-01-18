@@ -5,7 +5,7 @@ import {WEBSOCKET_URL, RT_RES_STATUS} from '../services/Config';
 import Barchart from '../components/BarChart';
 import { Link } from 'react-router-dom';
 import ResultCard from '../components/ResultCard.js';
-import { Section } from '../components/PageElement'; 
+import { Section } from '../components/Common/PageElement'; 
 
 const LiveResults = () => {
     try { 

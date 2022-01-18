@@ -5,12 +5,11 @@ import {WEBSOCKET_URL, RT_RES_STATUS} from '../services/Config';
 import Barchart from '../components/BarChart';
 import { Link } from 'react-router-dom';
 import ResultCard from '../components/ResultCard.js';
-import { Section } from '../components/PageElement'; 
+import { Section } from '../components/Common/PageElement'; 
 import { TokenService } from '../services/Token';
 import startFile from '../components/ChunkController/chunkController';
 import Fade from 'react-reveal/Fade';
-import UploadComponent from '../components/UploadComponent';
-import SelectMenu from '../components/SelectMenu';
+import UploadComponent from '../components/UploadComponent'; 
 import Button from '../components/Button';
 import { HeroImage } from '../components/HomeComponents/Hero/StyledHero';
 import HomePageArt from '../assets/HomePageArt.svg';
@@ -129,29 +128,52 @@ const RealTime = () => {
         <>
         {getLoad ?
             <Section id="hero" center>
-            <Container>
-                        <Fade left duration={1000} delay={600} distance="30px">
-                        <Container>
-                                <Row style={{ marginBottom: '1.5rem' }}>
-                                    <Col>
-                                        <UploadComponent
-                                            fileCallback={dataFileCallback}
-                                            selectedFiles={dataFiles}
-                                            removeCallback={dataRemoveFileCallback}
-                                        />
-                                    </Col>
-                                </Row>    
-                                <Row>
-                                    <Col>
-                                        <SelectMenu grabOption = {grabOption}/>
-                                    </Col> 
-                                    <Col>
-                                        <Button fill disabled={dataFiles.length === 0 || option.length == 0 ? true : false} onClick={() => uploadChunked()}>Analyze</Button>
-                                    </Col>
-                                </Row>
-                            </Container>
-                        </Fade>
-            </Container>
+             <Container>
+                        <Row style={{ marginBottom: '1.5rem' }}>
+                            <Col>
+                                <UploadComponent
+                                    fileCallback={dataFileCallback}
+                                    selectedFiles={dataFiles}
+                                    removeCallback={dataRemoveFileCallback}
+                                />
+                            </Col>
+                        </Row>
+                        {errorMsg ?
+                            <Row>
+                                <Col sm={{ span: 6, offset: 6 }}>
+                                    <p style={{ color: "#FF0000" }}>Invalid Email!</p>
+                                </Col>
+                            </Row>
+                            :
+                            ``
+                        }
+                        <Row style={{ marginBottom: '1.5rem' }}>
+                            <Col sm={6}>
+                                <DropdownMenu
+                                    options={selectmenuoptions}
+                                    val="value"
+                                    label="label"
+                                    category="category"
+                                    valueCallback={detectionCallback}
+                                    placeholder="Select your pathogen(s)"
+                                />
+                            </Col>
+                            <Col sm={6}>
+                                <TextField
+                                    placeholder="Enter your email"
+                                    valueCallback={emailCallback}
+                                    type="email"
+                                    errorCallback={handleEmailError}
+                                    errorMsg={errorMsg}
+                                />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <Button fill disabled={dataFiles.length === 0 || selectedDetections.length === 0 ? true : false} onClick={() => uploadChunked()}>Analyze</Button>
+                            </Col>
+                        </Row>
+                    </Container>
         </Section>
         :
         <Section full id="results">
