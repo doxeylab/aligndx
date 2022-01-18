@@ -212,7 +212,7 @@ const Hero = () => {
                                     label="label"
                                     category="category"
                                     valueCallback={detectionCallback}
-                                    placeholder="Select your pathogen detection(s)"
+                                    placeholder="Select your pathogen(s)"
                                 />
                             </Col>
                             <Col sm={6}>
@@ -227,7 +227,7 @@ const Hero = () => {
                         </Row>
                         <Row>
                             <Col>
-                                <Button fill disabled={dataFiles.length === 0 || selectedDetections.length === 0 ? true : false} onClick={() => uploadChunked()}>Analyze</Button>
+                                <Button fill disabled={dataFiles.length === 0 || selectedDetections.length === 0 ? true : false} onClick={() => upload()}>Analyze</Button>
                             </Col>
                         </Row>
                     </Container>
