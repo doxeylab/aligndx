@@ -5,7 +5,7 @@ import {WEBSOCKET_URL, RT_RES_STATUS} from '../services/Config';
 import Barchart from '../components/BarChart';
 import { Link } from 'react-router-dom';
 import ResultCard from '../components/ResultCard.js';
-import { Section } from '../components/PageElement'; 
+import { Section } from '../components/Common/PageElement'; 
 
 const LiveResults = () => {
     try { 
@@ -18,32 +18,6 @@ const LiveResults = () => {
     const [sample, setSample] = useState("");
     const [pathogens, setPathogens] = useState(null); 
     const [getLoad, setGetLoad] = useState(true); 
-
-    // const connectWebsocket = async () => {
-    //     try {
-    //         const res = await axios.get(RT_RES_STATUS + '/' + url_id); 
-    //         console.log(res.data)
-    //         if (res.data.result === "pending"){ 
-    //             connectWebsocket();
-    //         }
-    //         else {
-    //             const ws = new WebSocket(WEBSOCKET_URL + '/' + url_id)
-    //             setGetLoad(false)
-    //             ws.onmessage = function(event) {
-    //                 console.log("connection established")
-    //                 console.log(event.data)
-    //                 setData(event.data)
-    //                 setSample(event.data.sample)
-    //                 setPathogens(event.data.pathogens)
-    //         } 
-    //     }} 
-        
-    //     catch (err) {
-    //         // Handle Error Here
-    //         console.log("error")
-    //         console.error(err);  
-    //     }
-    // };
 
     const connectWebsocket = async () => {
         try {

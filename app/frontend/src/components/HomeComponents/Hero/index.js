@@ -67,7 +67,7 @@ const Hero = () => {
     }
 
     const detectionCallback = (detections) => {
-        setSelectedDetections(detections)
+        setSelectedDetections(detections) 
     }
 
     const emailCallback = (mail) => {
@@ -82,7 +82,7 @@ const Hero = () => {
         setLoad(true)
         const token = TokenService(40);
         const option_lst = []
-        option.forEach(x => option_lst.push(x.title))
+        selectedDetections.forEach(x => option_lst.push(x))
         console.log(option_lst)
         startFile(dataFiles[0], token, option_lst, email);
     }
@@ -105,8 +105,9 @@ const Hero = () => {
         })
 
         selectedDetections.forEach(x => {
-            formData.append("panel", x.title)
+            formData.append("panel", x)
         })
+         
 
         axios.post(UPLOAD_URL, formData)
             .then(() => {
@@ -133,7 +134,7 @@ const Hero = () => {
             });
     }
 
-    const handleShow = () => setShow(false);
+    const handleShow = () => setShow(true);
     const handleClose = () => setShow(false);
  
 
@@ -165,7 +166,7 @@ const Hero = () => {
                         <HeroCol>
                             <Fade left duration={1000} delay={600} distance="30px">
                                 <HeroBtns2>
-                                    <Button onClick={handleShow}>Analyze</Button>
+                                    <Button onClick={handleShow}>Standard</Button>
                                     <Button onClick={routeToRealTime}>Real Time</Button>
                                     <Button fill to="/result">Example</Button>
                                 </HeroBtns2>

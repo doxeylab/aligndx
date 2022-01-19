@@ -1,33 +1,70 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useContext} from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
 import {WEBSOCKET_URL, RT_RES_STATUS} from '../services/Config';
 import Barchart from '../components/BarChart';
 import { Link } from 'react-router-dom';
 import ResultCard from '../components/ResultCard.js';
-import { Section } from '../components/PageElement'; 
+import { Section } from '../components/Common/PageElement'; 
 import { TokenService } from '../services/Token';
 import startFile from '../components/ChunkController/chunkController';
 import Fade from 'react-reveal/Fade';
-import UploadComponent from '../components/UploadComponent';
-import SelectMenu from '../components/SelectMenu';
+import UploadComponent from '../components/UploadComponent'; 
 import Button from '../components/Button';
 import { HeroImage } from '../components/HomeComponents/Hero/StyledHero';
 import HomePageArt from '../assets/HomePageArt.svg';
+import { DropdownMenu, TextField } from '../components/Form';
+import { LoadContext } from '../LoadContext';
 
+
+const selectmenuoptions = [
+    {
+        id: "panel",
+        category: "Panel",
+        opts: [
+            { value: "bacterial", label: "Bacterial" },
+            { value: "viral", label: "Viral" }
+        ]
+    },
+    {
+        id: "bacteria",
+        category: "Bacteria",
+        opts: [
+            { value: "streptococcus_pneumoniae", label: "Streptococcus pneumoniae" },
+            { value: "moraxella_catarrhalis", label: "Moraxella Catarrhalis" },
+            { value: "haemophilus_influenzae", label: "Haemophilus Influenzae" },
+        ]
+    },
+    {
+        id: "virus",
+        category: "Virus",
+        opts: [
+            { value: "influenza", label: "Influenza" },
+            { value: "sars_cov_2", label: "Sars-Cov-2" }
+        ]
+    }
+];
 
 const RealTime = () => {
     
     const token = TokenService(40);
 
+    const [show, setShow] = useState(false);
+    const [emailError, setEmailError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(false);
+    const [dataFiles, setDataFiles] = useState([]);
+    const { setLoad } = useContext(LoadContext);
+    const [email, setEmail] = useState("");
+    const [selectedDetections, setSelectedDetections] = useState([]);
+     
     const [data, setData] = useState(null);
     const [sample, setSample] = useState("");
     const [pathogens, setPathogens] = useState(null); 
     const [getLoad, setGetLoad] = useState(true);  
-
-    const [dataFiles, setDataFiles] = useState([]);
-    const [email, setEmail] = useState('');
-    const [option,setOption] = useState([]);
+ 
+    const handleEmailError = (err) => {
+        setEmailError(err)
+    }
 
     const dataFileCallback = (file) => {
         setDataFiles(prevFiles => [...prevFiles, file])
@@ -37,44 +74,15 @@ const RealTime = () => {
         const dataFileIndex = dataFiles.findIndex(e => e.name === fileName);
         dataFiles.splice(dataFileIndex, 1);
         setDataFiles([...dataFiles]);
+    }  
+
+    const detectionCallback = (detections) => {
+        setSelectedDetections(detections)
     }
 
-    const grabEmail = (emaildata) => { 
-        console.log(emaildata);
-        setEmail(emaildata);
+    const emailCallback = (mail) => {
+        setEmail(mail)
     }
-
-    const grabOption = (optiondata) => { 
-        console.log(optiondata);
-        setOption(optiondata);
-    }
-
-    // const connectWebsocket = async () => {
-    //     try {
-    //         const res = await axios.get(RT_RES_STATUS + '/' + token); 
-    //         console.log(res.data)
-    //         if (res.data.result === "pending"){ 
-    //             console.log("pending")
-    //             connectWebsocket();
-    //         }
-    //         else {
-    //             const ws = new WebSocket(WEBSOCKET_URL + '/' + token)
-    //             setGetLoad(false)
-    //             ws.onmessage = function(event) {
-    //                 console.log("connection established")
-    //                 console.log(event.data)
-    //                 setData(event.data)
-    //                 setSample(event.data.sample)
-    //                 setPathogens(event.data.pathogens)
-    //         } 
-    //     }} 
-        
-    //     catch (err) {
-    //         // Handle Error Here
-    //         console.log("error")
-    //         console.error(err);  
-    //     }
-    // };
 
     const connectWebsocket = async () => {
         try {
@@ -113,7 +121,7 @@ const RealTime = () => {
     const uploadChunked = async () => {
         setGetLoad(true)
         const option_lst = []
-        option.forEach(x => option_lst.push(x.title))
+        selectedDetections.forEach(x => option_lst.push(x))
         console.log(option_lst)
         try {
             await startFile(dataFiles[0], token, option_lst, email); 
@@ -129,29 +137,52 @@ const RealTime = () => {
         <>
         {getLoad ?
             <Section id="hero" center>
-            <Container>
-                        <Fade left duration={1000} delay={600} distance="30px">
-                        <Container>
-                                <Row style={{ marginBottom: '1.5rem' }}>
-                                    <Col>
-                                        <UploadComponent
-                                            fileCallback={dataFileCallback}
-                                            selectedFiles={dataFiles}
-                                            removeCallback={dataRemoveFileCallback}
-                                        />
-                                    </Col>
-                                </Row>    
-                                <Row>
-                                    <Col>
-                                        <SelectMenu grabOption = {grabOption}/>
-                                    </Col> 
-                                    <Col>
-                                        <Button fill disabled={dataFiles.length === 0 || option.length == 0 ? true : false} onClick={() => uploadChunked()}>Analyze</Button>
-                                    </Col>
-                                </Row>
-                            </Container>
-                        </Fade>
-            </Container>
+             <Container>
+                        <Row style={{ marginBottom: '1.5rem' }}>
+                            <Col>
+                                <UploadComponent
+                                    fileCallback={dataFileCallback}
+                                    selectedFiles={dataFiles}
+                                    removeCallback={dataRemoveFileCallback}
+                                />
+                            </Col>
+                        </Row>
+                        {errorMsg ?
+                            <Row>
+                                <Col sm={{ span: 6, offset: 6 }}>
+                                    <p style={{ color: "#FF0000" }}>Invalid Email!</p>
+                                </Col>
+                            </Row>
+                            :
+                            ``
+                        }
+                        <Row style={{ marginBottom: '1.5rem' }}>
+                            <Col sm={6}>
+                                <DropdownMenu
+                                    options={selectmenuoptions}
+                                    val="value"
+                                    label="label"
+                                    category="category"
+                                    valueCallback={detectionCallback}
+                                    placeholder="Select your pathogen(s)"
+                                />
+                            </Col>
+                            <Col sm={6}>
+                                <TextField
+                                    placeholder="Enter your email"
+                                    valueCallback={emailCallback}
+                                    type="email"
+                                    errorCallback={handleEmailError}
+                                    errorMsg={errorMsg}
+                                />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <Button fill disabled={dataFiles.length === 0 || selectedDetections.length === 0 ? true : false} onClick={() => uploadChunked()}>Analyze</Button>
+                            </Col>
+                        </Row>
+                    </Container>
         </Section>
         :
         <Section full id="results">

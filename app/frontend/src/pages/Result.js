@@ -6,6 +6,7 @@ import Barchart from '../components/BarChart';
 import { Section } from '../components/Common/PageElement';
 import ResultCard from '../components/ResultCard.js';
 import { RESULT_URL } from '../services/Config';
+import example_dataset from '../assets/example_dataset.json'
 
 const Result = () => {
     try {
@@ -18,67 +19,9 @@ const Result = () => {
     // { "index": "TEST2", "column_category": 12 },
     // { "index": "TEST3", "column_category": 3 } ])
 
-    var dummyData = [{
-        detection: "Positive",
-        pathogen_hits:
-        {
-            data: [
-                { "index": "TEST1", "NumReads": 6 },
-                { "index": "TEST2", "NumReads": 12 },
-                { "index": "TEST3", "NumReads": 3 },
-                { "index": "TEST4", "NumReads": 1 },
-                { "index": "TEST5", "NumReads": 0 },
-                { "index": "TEST6", "NumReads": 15 },
-                { "index": "TEST7", "NumReads": 8 },
-                { "index": "TEST8", "NumReads": 4 }
-            ]
-        },
-        host_hits:
-        {
-            data: [
-                { "index": "TEST1", "NumReads": 6 },
-                { "index": "TEST2", "NumReads": 12 },
-                { "index": "TEST3", "NumReads": 3 },
-                { "index": "TEST4", "NumReads": 1 },
-                { "index": "TEST5", "NumReads": 0 },
-                { "index": "TEST6", "NumReads": 15 },
-                { "index": "TEST7", "NumReads": 8 },
-                { "index": "TEST8", "NumReads": 4 }
-            ]
-        }
-    },
-    {
-        detection: "Negative",
-        pathogen_hits:
-        {
-            data: [
-                { "index": "TEST1", "NumReads": 6 },
-                { "index": "TEST2", "NumReads": 12 },
-                { "index": "TEST3", "NumReads": 3 },
-                { "index": "TEST4", "NumReads": 1 },
-                { "index": "TEST5", "NumReads": 0 },
-                { "index": "TEST6", "NumReads": 15 },
-                { "index": "TEST7", "NumReads": 8 },
-                { "index": "TEST8", "NumReads": 4 }
-            ]
-        },
-        host_hits:
-        {
-            data: [
-                { "index": "TEST1", "NumReads": 6 },
-                { "index": "TEST2", "NumReads": 12 },
-                { "index": "TEST3", "NumReads": 3 },
-                { "index": "TEST4", "NumReads": 1 },
-                { "index": "TEST5", "NumReads": 0 },
-                { "index": "TEST6", "NumReads": 15 },
-                { "index": "TEST7", "NumReads": 8 },
-                { "index": "TEST8", "NumReads": 4 }
-            ]
-        }
-    }
-    ]
+    var dummyData = example_dataset
 
-    const [data, setData] = useState(null);
+    const [data, setData] = useState(null); 
     const [sample, setSample] = useState(null);
     const [pathogens, setPathogens] = useState(null); 
     const [getLoad, setGetLoad] = useState(true);
@@ -104,22 +47,22 @@ const Result = () => {
     };
 
     useEffect(() => {
-        sendGetRequest()
-    //   axios.get(RESULT_URL + '/' + url_id)
-    //       .then(res => {
-    //           console.log(res.data)
-    //           setData([res.data])
-    //           setGetLoad(false)
-    //           setPathogens(res.data.pathogens)
-    //           setSample(res.data.sample)
-    //       })
-    //       .catch(() => {
-    //         console.log('Error')
-    //           setData(dummyData)
-    //           setSample("SRR11365240")
-    //           setPathogens("Sars CoV-2")
-    //           setGetLoad(false)
-    //       })
+        // sendGetRequest();
+      axios.get(RESULT_URL + '/' + url_id)
+          .then(res => {
+              console.log(res.data)
+              setData([res.data])
+              setGetLoad(false)
+              setPathogens(res.data.pathogens)
+              setSample(res.data.sample)
+          })
+          .catch(() => {
+            console.log('Error')
+              setData(dummyData)
+              setSample("SRR11365240")
+              setPathogens("Sars CoV-2")
+              setGetLoad(false)
+          })
     }, [])
 
     return (
