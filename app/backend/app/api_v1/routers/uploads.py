@@ -229,15 +229,21 @@ async def upload_chunk(
     chunk_file: UploadFile = File(...),
     token: str = Form(...),
 ):
-    async with aiofiles.open("uploads/{}/{}.fastq".format(file_id, chunk_number), 'wb') as f:
+
+    rt_dir =  "{}/{}/{}/{}.fastq".format(REAL_TIME_UPLOADS, file_id) 
+    upload_data=  "{}/{}/{}.fastq".format(rt_dir, "upload_data", chunk_number) 
+    salmon_data=  "{}/{}.fastq".format(rt_dir, "salmon_data") 
+    
+
+    async with aiofiles.open(upload_data, 'wb') as f:
         while content := await chunk_file.read(read_batch_size):
             await f.write(content)
 
     num_chunks = None
-    with open("uploads/{}/meta.txt".format(file_id)) as f:
+    with open("{}/meta.txt".format(rt_dir)) as f:
         num_chunks = int(f.readlines()[1])
 
-    background_tasks.add_task(process_salmon_chunks, file_id)
+    background_tasks.add_task(process_salmon_chunks, upload_data,salmon_data)
 
     # if chunk_number + 1 == num_chunks:
     #     background_tasks.add_task(
@@ -248,11 +254,11 @@ async def upload_chunk(
     return {"Result": "OK"}
 
 
-def process_salmon_chunks(file_id):
+def process_salmon_chunks(upload_data, salmon_data):
     upload_chunk_nums = [int(fname.split('.')[0]) for fname in os.listdir(
-        'uploads/{}'.format(file_id)) if fname.split('.')[0].isnumeric()]
+        upload_data) if fname.split('.')[0].isnumeric()]
     salmon_chunk_nums = [int(fname.split('.')[0]) for fname in os.listdir(
-        'chunks/{}'.format(file_id)) if fname.split('.')[0].isnumeric()]
+        salmon_data) if fname.split('.')[0].isnumeric()]
 
     chunks_to_assemble = range(max(salmon_chunk_nums) if len(salmon_chunk_nums) > 0 else 1,
                                math.ceil(max(upload_chunk_nums) / chunk_ratio) + 1)
@@ -264,16 +270,16 @@ def process_salmon_chunks(file_id):
         upload_chunk_range = range(start_num, end_num)
 
         if set(upload_chunk_range).issubset(set(upload_chunk_nums)):
-            make_salmon_chunk(file_id, salmon_chunk_num, upload_chunk_range)
+            make_salmon_chunk(salmon_data, salmon_chunk_num, upload_chunk_range)
 
 
-def make_salmon_chunk(file_id, salmon_chunk_number, upload_chunk_range):
+def make_salmon_chunk(salmon_data, salmon_chunk_number, upload_chunk_range):
     next_chunk_data = b''
 
-    with open('chunks/{}/{}.fastq'.format(file_id, salmon_chunk_number), 'ab') as salmon_chunk:
+    with open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number), 'ab') as salmon_chunk:
         fsize = 0
         for upload_chunk_number in upload_chunk_range:
-            with open('uploads/{}/{}.fastq'.format(file_id, upload_chunk_number), 'rb') as upload_chunk:
+            with open('{}/{}.fastq'.format(salmon_data, upload_chunk_number), 'rb') as upload_chunk:
                 data = upload_chunk.read()
                 fsize += sys.getsizeof(data)
 
@@ -297,7 +303,7 @@ def make_salmon_chunk(file_id, salmon_chunk_number, upload_chunk_range):
                 else:
                     salmon_chunk.write(data)
 
-    with open('chunks/{}/{}.fastq'.format(file_id, salmon_chunk_number + 1), 'wb') as salmon_chunk:
+    with open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number + 1), 'wb') as salmon_chunk:
         salmon_chunk.write(next_chunk_data)
 
 
