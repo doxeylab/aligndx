@@ -121,7 +121,7 @@ const RealTime = () => {
     const uploadChunked = async () => {
         setGetLoad(true)
         const option_lst = []
-        selectedDetections.forEach(x => option_lst.push(x.title))
+        selectedDetections.forEach(x => option_lst.push(x))
         console.log(option_lst)
         try {
             await startFile(dataFiles[0], token, option_lst, email); 

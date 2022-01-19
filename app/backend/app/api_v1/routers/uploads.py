@@ -301,31 +301,31 @@ def make_salmon_chunk(file_id, salmon_chunk_number, upload_chunk_range):
         salmon_chunk.write(next_chunk_data)
 
 
-def start_final_chunk_analysis(file_id, chunk_number):
-    start_chunk_analysis(file_id, chunk_number)
-    # finish_file_analysis(file_id)
+# def start_final_chunk_analysis(file_id, chunk_number):
+#     start_chunk_analysis(file_id, chunk_number)
+#     # finish_file_analysis(file_id)
 
 
-def start_chunk_analysis(file_id, chunk_number):
-    commands_lst = salmonconfig.commands(
-        sample='{}_{}'.format(file_id, chunk_number),
-        indexpath="indexes/bacterial_index",
-        filepath="chunks/{}/{}.fastq".format(
-            file_id, chunk_number),
-        resultspath="results/{}/{}".format(
-            file_id, chunk_number)
-    )
+# def start_chunk_analysis(file_id, chunk_number):
+#     commands_lst = salmonconfig.commands(
+#         sample='{}_{}'.format(file_id, chunk_number),
+#         indexpath="indexes/bacterial_index",
+#         filepath="chunks/{}/{}.fastq".format(
+#             file_id, chunk_number),
+#         resultspath="results/{}/{}".format(
+#             file_id, chunk_number)
+#     )
 
-    requests.post("http://localhost:8002/", json=commands_lst)
+#     requests.post("http://localhost:8002/", json=commands_lst)
 
-    os.remove("chunks/{}/{}.fastq".format(file_id, chunk_number))
+#     os.remove("chunks/{}/{}.fastq".format(file_id, chunk_number))
 
 
-@router.get("/results/{file_id}")
-async def get_results(file_id: str):
-    if not os.path.isfile("results/{}/final.csv".format(file_id)):
-        return 404
+# @router.get("/results/{file_id}")
+# async def get_results(file_id: str):
+#     if not os.path.isfile("results/{}/final.csv".format(file_id)):
+#         return 404
 
-    dist = pd.read_csv("results/{}/final.csv".format(file_id))
+#     dist = pd.read_csv("results/{}/final.csv".format(file_id))
 
-    return {"Result": "OK"}  
+#     return {"Result": "OK"}  

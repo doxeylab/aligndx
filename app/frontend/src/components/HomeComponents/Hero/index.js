@@ -67,7 +67,7 @@ const Hero = () => {
     }
 
     const detectionCallback = (detections) => {
-        setSelectedDetections(detections)
+        setSelectedDetections(detections) 
     }
 
     const emailCallback = (mail) => {
@@ -82,7 +82,7 @@ const Hero = () => {
         setLoad(true)
         const token = TokenService(40);
         const option_lst = []
-        selectedDetections.forEach(x => option_lst.push(x.title))
+        selectedDetections.forEach(x => option_lst.push(x))
         console.log(option_lst)
         startFile(dataFiles[0], token, option_lst, email);
     }
@@ -105,8 +105,9 @@ const Hero = () => {
         })
 
         selectedDetections.forEach(x => {
-            formData.append("panel", x.title)
+            formData.append("panel", x)
         })
+         
 
         axios.post(UPLOAD_URL, formData)
             .then(() => {

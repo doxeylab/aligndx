@@ -8,5 +8,5 @@ COPY . .
 
 RUN npm install
 
-# ENTRYPOINT ["/bin/bash", "/app/run.sh"]
-# CMD ["start"]
+ENTRYPOINT ["/bin/bash", "/app/run.sh"]
+CMD ["start"]
