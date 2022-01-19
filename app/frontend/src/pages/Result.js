@@ -104,22 +104,22 @@ const Result = () => {
     };
 
     useEffect(() => {
-        sendGetRequest()
-    //   axios.get(RESULT_URL + '/' + url_id)
-    //       .then(res => {
-    //           console.log(res.data)
-    //           setData([res.data])
-    //           setGetLoad(false)
-    //           setPathogens(res.data.pathogens)
-    //           setSample(res.data.sample)
-    //       })
-    //       .catch(() => {
-    //         console.log('Error')
-    //           setData(dummyData)
-    //           setSample("SRR11365240")
-    //           setPathogens("Sars CoV-2")
-    //           setGetLoad(false)
-    //       })
+        // sendGetRequest();
+      axios.get(RESULT_URL + '/' + url_id)
+          .then(res => {
+              console.log(res.data)
+              setData([res.data])
+              setGetLoad(false)
+              setPathogens(res.data.pathogens)
+              setSample(res.data.sample)
+          })
+          .catch(() => {
+            console.log('Error')
+              setData(dummyData)
+              setSample("SRR11365240")
+              setPathogens("Sars CoV-2")
+              setGetLoad(false)
+          })
     }, [])
 
     return (
