@@ -1,13 +1,12 @@
 FROM node:14.16.0
 
-ADD package.json /package.json
+WORKDIR /app 
+ 
+ENV PATH=$PATH:./node_modules/.bin
 
-ENV NODE_PATH=/node_modules
-ENV PATH=$PATH:/node_modules/.bin
+COPY . .
+
 RUN npm install
 
-WORKDIR /app
-ADD . /app 
-
-ENTRYPOINT ["/bin/bash", "/app/run.sh"]
-CMD ["start"]
+# ENTRYPOINT ["/bin/bash", "/app/run.sh"]
+# CMD ["start"]

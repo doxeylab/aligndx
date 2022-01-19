@@ -27,12 +27,12 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile
-    stdin_open: true
+    stdin_open: true 
     ports:
       - "80:3000"
     volumes:
-      - ./frontend:/app
-      # - ./frontend/node_modules:/app/node_modules
+      - ./frontend:/app/
+      # - ./frontend:/app/node_modules
     environment:
       - NODE_ENV=development
       - REACT_APP_BACKEND_ACCESS_URL=${REACT_APP_BACKEND_ACCESS_URL} 

@@ -3,8 +3,8 @@ FROM combinelab/salmon
 WORKDIR /app/
 
 COPY requirements.txt ./
-RUN apt-get install python3.8 -y \
-    && apt-get update \
+RUN apt-get update \
+    && apt-get install python3.8 -y \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1\ 
     && python --version \
     && apt install python3-pip -y \
