@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends
+from app.backend.app.api_v1.routers.users import get_current_user_no_exception
+from app.backend.app.db.models import User
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 import os
-from datetime import datetime
-from app.api_v1.routers.users import User, get_current_user_no_exception
+from datetime import datetime 
+import asyncio
 
 from app.scripts import data_tb, analyze, realtime
 
@@ -53,77 +55,130 @@ def analyze_handler(sample_name, headers, metadata, quant_dir):
     return analyze.d3_compatible_data(coverage, sample_name, analyze.df_to_dict(hits_df), analyze.df_to_dict(all_df), pathogens, detected)
 
 @router.get('/results/{token}') 
-async def standard_results(token: str):   
+async def standard_results(token: str, current_user: User = Depends(get_current_user_no_exception)):   
     query = await ModelSample.get_token(token)  
     sample_name = query['sample']
     headers=['Name', 'TPM'] 
     panel = query['panel']
     file_id = str(query['id'])
 
-# @router.get("/results/{token}")
-# async def quantify_chunks(token: str):
-#     category = "NumReads"
-#     results = {}
-#     query = await ModelSample.get_token(token)
-#     sample_name = query['sample']
-#     sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
-#     # for subdir, dirs,files in os.walk(sample_dir):
-#         # print(subdir, dirs, files)
-#         # for dir in dirs:
-#     quant_dir = os.path.join(sample_dir,'quant.sf')
-#     raw_df = data_tb.producedataframe(quant_dir,'NumReads')
-#     hits_df = raw_df[raw_df.NumReads > 0]
-#     pathogen_hits =raw_df[raw_df.index.isin(sequences.values())]
-#     pathogen_biomarkers = raw_df[raw_df.index.isin(host_biomarkers.keys())]
-#     # sample_df = data_tb.producedataframe(quant_dir,category)
-#     # detected_pathogen = 'SARS-CoV-2'
-
-#     # raw_table = data_tb.intojson(raw_df)
-#     hits_table = data_tb.intojson(hits_df)
-
-#     pathogen_table = data_tb.intojson(pathogen_hits)
-#     host_table = data_tb.intojson(pathogen_biomarkers)
-
-#     detection_result = data_tb.ispositive(raw_df)
-#     result = {
-#         "sample": sample_name,
-#         "detected": detection_result,
-#         "pathogen": "SARS-CoV-2",
-#         "pathogen_hits": pathogen_table,
-#         "host_hits": host_table,
-#         "all_hits": hits_table,
-#     }
-
-
-@router.get("/results/{token}")
-async def analyze_quants(token: str, current_user: User = Depends(get_current_user_no_exception)):
-    results = {}
-    query = await ModelSample.get_token(token)
-    sample_name = query["sample"]
-
-    headers = ["Name", "TPM"]
-    panel = query["panel"]
     metadata = analyze.metadata_load(METADATA_FOLDER, panel)
-    sample_dir = os.path.join(RESULTS_FOLDER, token, sample_name)
-    quant_dir = os.path.join(sample_dir, "quant.sf")
-
-    hits_df = analyze.expression_hits_and_misses(
-        quant_dir, headers, metadata, hits=True
-    )
-    all_df = analyze.expression_hits_and_misses(
-        quant_dir, headers, metadata, hits=False
-    )
-    coverage = analyze.coverage_cal(hits_df, all_df)
-    pathogens, detected = analyze.detection(coverage)
-    result = analyze.d3_compatible_data(
-        coverage,
-        sample_name,
-        analyze.df_to_dict(hits_df),
-        analyze.df_to_dict(all_df),
-        pathogens,
-        detected,
-    )
+    sample_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
+    quant_dir = os.path.join(sample_dir,'quant.sf')   
+    result = analyze_handler(sample_name, headers, metadata, quant_dir)
 
     if current_user:
         await ModelSample.save_result(token, json.dumps(result), current_user.id)
+    
     return result
+
+
+
+@router.get('/rt-res-status/{token}')
+async def standard_results(token: str):   
+    query = await ModelSample.get_token(token) 
+    file_id = str(query['id'])
+    csv_dir = os.path.join(REAL_TIME_RESULTS, file_id, "out.csv")
+    if os.path.isfile(csv_dir):
+        return {"result": "ready"}
+    else:
+        return {"result": "pending"}
+
+# async def check_status(csv_dir, sample_name):
+#     if os.path.isfile(csv_dir):
+#         return realtime.data_loader(csv_dir, sample_name)
+#     else:
+#         await asyncio.sleep(1)
+#         check_status(csv_dir, sample_name)
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_data(self, data: dict, websocket: WebSocket):
+        await websocket.send_json(data)
+
+    async def send_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+manager = ConnectionManager()
+
+def killsignal(chunkdir, num_chunks):
+    if sum(os.path.isdir(i) for i in os.listdir(chunkdir)) == num_chunks:
+        True
+    else:
+        False
+
+def counter(chunkdir):
+    return sum(os.path.isdir(i) for i in os.listdir(chunkdir))
+
+@router.websocket('/livegraphs/{token}') 
+async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
+    query = await ModelSample.get_token(token) 
+    file_id = str(query['id'])
+    sample_name = query['sample']
+
+    results_dir = os.path.join(REAL_TIME_RESULTS, file_id)
+    uploads_dir = os.path.join(REAL_TIME_UPLOADS, file_id) 
+    chunk_dir = os.path.join(uploads_dir, "chunk_data")
+    csv_dir = os.path.join(results_dir, "out.csv")
+
+    with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id)) as f:
+        num_chunks = int(f.readlines()[1]) 
+
+    await manager.connect(websocket)
+    try:
+        while True: 
+            if os.path.isfile(csv_dir):
+                await asyncio.sleep(1) 
+                data = realtime.data_loader(csv_dir, sample_name) 
+                await manager.send_message(str(counter(results_dir)), websocket)
+                await manager.send_data(data, websocket) 
+            # if killsignal(results_dir, num_chunks):
+            if counter(results_dir) == num_chunks:
+                end_signal = {"result": "complete"} 
+                await manager.send_data(end_signal, websocket)
+                websocket.close()
+                break
+            else:
+                await asyncio.sleep(1) 
+                data = {"result": "pending"}   
+                await manager.send_data(data, websocket)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        await manager.broadcast(f"Client #{token} disconnected")
+
+ 
+# @router.websocket('/livegraphs/{token}') 
+# async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
+#     query = await ModelSample.get_token(token) 
+#     file_id = str(query['id'])
+#     sample_name = query['sample']
+
+#     results_dir = os.path.join(REAL_TIME_RESULTS, file_id)
+#     uploads_dir = os.path.join(REAL_TIME_UPLOADS, file_id) 
+#     chunk_dir = os.path.join(uploads_dir, "chunk_data")
+#     csv_dir = os.path.join(results_dir, "out.csv")
+
+#     with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id)) as f:
+#         num_chunks = int(f.readlines()[1]) 
+
+#     await websocket.accept()
+#     while True: 
+#         await asyncio.sleep(1)
+#         # if os.path.isfile(csv_dir):
+#             # data = realtime.data_loader(csv_dir, sample_name)
+#         # data = {"test": "t1",
+#         #         "follow" : "t2"}
+#         await websocket.send_json(data) 
