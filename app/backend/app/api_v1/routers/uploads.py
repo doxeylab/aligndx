@@ -19,7 +19,7 @@ from app.db.models import Sample as ModelSample
 from app.db.schema import Sample as SchemaSample
 
 read_batch_size = 4096
-salmon_chunk_size = math.floor(4 e6)
+salmon_chunk_size = math.floor(4e6)
 upload_chunk_size = 8e5
 chunk_ratio = salmon_chunk_size / upload_chunk_size
 
@@ -250,7 +250,8 @@ async def upload_chunk(
     with open("{}/meta.txt".format(rt_dir)) as f:
         num_chunks = int(f.readlines()[1])
 
-    background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir)
+    if chunk_number % math.floor(chunk_ratio) == 0:
+        background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir)
 
     # if chunk_number + 1 == num_chunks:
     #     background_tasks.add_task(
@@ -267,12 +268,12 @@ def process_salmon_chunks(upload_data, salmon_data):
     salmon_chunk_nums = [int(fname.split('.')[0]) for fname in os.listdir(
         salmon_data) if fname.split('.')[0].isnumeric()]
 
-    chunks_to_assemble = range(max(salmon_chunk_nums) if len(salmon_chunk_nums) > 0 else 1,
+    chunks_to_assemble = range(max(salmon_chunk_nums) if len(salmon_chunk_nums) > 0 else 0,
                                math.ceil(max(upload_chunk_nums) / chunk_ratio) + 1)
 
     for salmon_chunk_num in chunks_to_assemble:
-        start_num = math.ceil((salmon_chunk_num - 1) * chunk_ratio) + 1
-        end_num = math.ceil(salmon_chunk_num * chunk_ratio) + 1
+        start_num = math.ceil(salmon_chunk_num * chunk_ratio)
+        end_num = math.ceil((salmon_chunk_num + 1) * chunk_ratio)
 
         upload_chunk_range = range(start_num, end_num)
 
@@ -295,11 +296,12 @@ def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chun
                     firstchars = [line[0] for indx, line in enumerate(
                         lines) if indx > 0 and indx < len(lines)]
 
-                    atsign_linenum = None
-                    for i in range(4):
-                        if all([firstchar == ['@', firstchar, '+', firstchar][(indx + i) % 4] for
-                                indx, firstchar in enumerate(firstchars)]):
-                            atsign_linenum = i + 1 
+                    atsign_indices = [i for i, c in enumerate(firstchars) if c == '@']
+
+                    for atsign_indx in atsign_indices:
+                        if not all([atsign_indx + 4*i in atsign_indices for i in range(5)]):
+                            atsign_indices.remove(atsign_indx)
+                    atsign_linenum = atsign_indices[0] + 1
 
                     salmon_chunk.write(
                         '\n'.join(
