@@ -19,8 +19,8 @@ from app.db.models import Sample as ModelSample
 from app.db.schema import Sample as SchemaSample
 
 read_batch_size = 4096
-salmon_chunk_size = math.floor(8e6)
-upload_chunk_size = 4e6
+salmon_chunk_size = math.floor(4 e6)
+upload_chunk_size = 8e5
 chunk_ratio = salmon_chunk_size / upload_chunk_size
 
 UPLOAD_FOLDER = './uploads' 
@@ -282,13 +282,13 @@ def process_salmon_chunks(upload_data, salmon_data):
 
 def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chunk_range):
     next_chunk_data = b''
-
+    
     with open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number), 'ab') as salmon_chunk:
         fsize = 0
         for upload_chunk_number in upload_chunk_range:
             with open('{}/{}.fastq'.format(upload_data, upload_chunk_number), 'rb') as upload_chunk:
                 data = upload_chunk.read()
-                fsize += sys.getsizeof(data)
+                fsize += sys.getsizeof(data) 
 
                 if fsize > salmon_chunk_size:
                     lines = data.decode('utf8').split('\n')
@@ -299,8 +299,7 @@ def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chun
                     for i in range(4):
                         if all([firstchar == ['@', firstchar, '+', firstchar][(indx + i) % 4] for
                                 indx, firstchar in enumerate(firstchars)]):
-                            atsign_linenum = i + 1
-                    print(atsign_linenum)
+                            atsign_linenum = i + 1 
 
                     salmon_chunk.write(
                         '\n'.join(
