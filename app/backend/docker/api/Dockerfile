@@ -50,10 +50,21 @@ WORKDIR /app/
 RUN apt update \
     && apt install -y postgresql-client gcc  
 
-COPY requirements.txt ./
+COPY requirements.txt /app
 RUN pip install -U pip \
     && pip install --no-cache-dir -r requirements.txt 
 
-WORKDIR /app/indexes/sars_with_human_decoys/
-WORKDIR /app/ 
+# set up the wait script
+RUN apt-get update \
+  && apt-get install -y netcat \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY bin/wait-for/ ./bin/wait-for/
+RUN chmod u+x ./bin/wait-for/wait-for.sh
+
 ENV PYTHONPATH=/app
+
+# copy source files
+COPY . .
+
+WORKDIR /app/
