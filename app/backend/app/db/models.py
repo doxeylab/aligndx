@@ -1,6 +1,7 @@
+from sqlalchemy.sql.sqltypes import JSON
 from app.db.database import database, metadata
 
-from sqlalchemy import Column, DateTime, String, Table, BigInteger, func
+from sqlalchemy import Column, DateTime, String, Table, BigInteger, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 
 from uuid import uuid4
@@ -23,14 +24,16 @@ submissions = Table(
     Column("token", String(50), nullable=False),
     Column("sample", String(50)),
     Column("panel", String(50), nullable=True),
-    Column("email", String(50)),
+    Column("email", String(50), nullable=True),
+    Column("result", JSON),
+    Column("user_id", Integer, ForeignKey("users.id"), nullable=True),
     Column("created_date", DateTime, nullable=False)
 )
 
 users = Table(
     "users",
     metadata,
-    Column("id", BigInteger, primary_key=True),
+    Column("id", Integer, primary_key=True),
     Column("name", String(50)),
     Column("email", String(50)),
     Column("hashed_password", String(250)),
@@ -57,6 +60,15 @@ class Sample:
         sample_id = await database.execute(query)
         return sample_id
 
+    @classmethod
+    async def save_result(cls, token, result, user_id):
+        query = (
+            submissions.update()
+            .where(submissions.c.token == token)
+            .values(result=result, user_id=user_id)
+        )
+        sample = await database.execute(query)
+        return sample
 
 class User:
     @classmethod
