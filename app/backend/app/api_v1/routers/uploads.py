@@ -138,13 +138,19 @@ async def start_file(
                    }
 
         query = await ModelSample.create(**response)
+        
+        rt_dir = "{}/{}".format(REAL_TIME_UPLOADS ,file_id)
+        os.mkdir(rt_dir)
+        os.mkdir("{}/{}".format(rt_dir, "upload_data"))
+        os.mkdir("{}/{}".format(rt_dir,"salmon_data"))
 
-        os.mkdir("{}/{}".format(REAL_TIME_UPLOADS ,file_id))
-        os.mkdir("{}/{}/{}".format(REAL_TIME_UPLOADS ,file_id, "chunk_data"))
-        with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id), 'w') as f:
+        
+ 
+        with open("{}/meta.txt".format(rt_dir), 'w') as f:
             f.write(filename)
             f.write('\n')
             f.write(str(number_of_chunks))
+
         os.mkdir("{}/{}".format(REAL_TIME_RESULTS, file_id))
 
         return {"Result": "OK",
@@ -218,7 +224,7 @@ def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, samp
         headers=['Name', 'NumReads']
         output_dir = os.path.join(REAL_TIME_RESULTS, file_id, "out.csv")
         analyze_handler(headers, metadata, quant_dir, output_dir) 
-    else:
+    else: 
         pass
 
 @router.post("/upload-chunk")
@@ -228,11 +234,12 @@ async def upload_chunk(
     file_id: str = Form(...),
     chunk_file: UploadFile = File(...),
     token: str = Form(...),
-):
+):  
 
-    rt_dir =  "{}/{}/{}/{}.fastq".format(REAL_TIME_UPLOADS, file_id) 
-    upload_data=  "{}/{}/{}.fastq".format(rt_dir, "upload_data", chunk_number) 
-    salmon_data=  "{}/{}.fastq".format(rt_dir, "salmon_data") 
+    rt_dir =  "{}/{}".format(REAL_TIME_UPLOADS, file_id) 
+    upload_data=  "{}/{}/{}.fastq".format(rt_dir, "upload_data", chunk_number)
+    upload_chunk_dir=  "{}/{}".format(rt_dir, "upload_data") 
+    salmon_chunk_dir=  "{}/{}".format(rt_dir, "salmon_data") 
     
 
     async with aiofiles.open(upload_data, 'wb') as f:
@@ -243,7 +250,7 @@ async def upload_chunk(
     with open("{}/meta.txt".format(rt_dir)) as f:
         num_chunks = int(f.readlines()[1])
 
-    background_tasks.add_task(process_salmon_chunks, upload_data,salmon_data)
+    background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir)
 
     # if chunk_number + 1 == num_chunks:
     #     background_tasks.add_task(
@@ -270,16 +277,16 @@ def process_salmon_chunks(upload_data, salmon_data):
         upload_chunk_range = range(start_num, end_num)
 
         if set(upload_chunk_range).issubset(set(upload_chunk_nums)):
-            make_salmon_chunk(salmon_data, salmon_chunk_num, upload_chunk_range)
+            make_salmon_chunk(upload_data, salmon_data, salmon_chunk_num, upload_chunk_range)
 
 
-def make_salmon_chunk(salmon_data, salmon_chunk_number, upload_chunk_range):
+def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chunk_range):
     next_chunk_data = b''
 
     with open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number), 'ab') as salmon_chunk:
         fsize = 0
         for upload_chunk_number in upload_chunk_range:
-            with open('{}/{}.fastq'.format(salmon_data, upload_chunk_number), 'rb') as upload_chunk:
+            with open('{}/{}.fastq'.format(upload_data, upload_chunk_number), 'rb') as upload_chunk:
                 data = upload_chunk.read()
                 fsize += sys.getsizeof(data)
 

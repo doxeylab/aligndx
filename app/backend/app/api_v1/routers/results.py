@@ -115,41 +115,42 @@ def killsignal(chunkdir, num_chunks):
 def counter(chunkdir):
     return sum(os.path.isdir(i) for i in os.listdir(chunkdir))
 
-@router.websocket('/livegraphs/{token}') 
-async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
-    query = await ModelSample.get_token(token) 
-    file_id = str(query['id'])
-    sample_name = query['sample']
+# @router.websocket('/livegraphs/{token}') 
+# async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
+#     query = await ModelSample.get_token(token) 
+#     file_id = str(query['id'])
+#     sample_name = query['sample']
 
-    results_dir = os.path.join(REAL_TIME_RESULTS, file_id)
-    uploads_dir = os.path.join(REAL_TIME_UPLOADS, file_id) 
-    chunk_dir = os.path.join(uploads_dir, "chunk_data")
-    csv_dir = os.path.join(results_dir, "out.csv")
+    # results_dir = os.path.join(REAL_TIME_RESULTS, file_id)
+    # uploads_dir = os.path.join(REAL_TIME_UPLOADS, file_id) 
+    
+    # chunk_dir = os.path.join(uploads_dir, "chunk_data")
+    # csv_dir = os.path.join(results_dir, "out.csv")
 
-    with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id)) as f:
-        num_chunks = int(f.readlines()[1]) 
+    # with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id)) as f:
+    #     num_chunks = int(f.readlines()[1]) 
 
-    await manager.connect(websocket)
-    try:
-        while True: 
-            if os.path.isfile(csv_dir):
-                await asyncio.sleep(1) 
-                data = realtime.data_loader(csv_dir, sample_name) 
-                await manager.send_message(str(counter(results_dir)), websocket)
-                await manager.send_data(data, websocket) 
-            # if killsignal(results_dir, num_chunks):
-            if counter(results_dir) == num_chunks:
-                end_signal = {"result": "complete"} 
-                await manager.send_data(end_signal, websocket)
-                websocket.close()
-                break
-            else:
-                await asyncio.sleep(1) 
-                data = {"result": "pending"}   
-                await manager.send_data(data, websocket)
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        await manager.broadcast(f"Client #{token} disconnected")
+    # await manager.connect(websocket)
+    # try:
+    #     while True: 
+    #         if os.path.isfile(csv_dir):
+    #             await asyncio.sleep(1) 
+    #             data = realtime.data_loader(csv_dir, sample_name) 
+    #             await manager.send_message(str(counter(results_dir)), websocket)
+    #             await manager.send_data(data, websocket) 
+    #         # if killsignal(results_dir, num_chunks):
+    #         if counter(results_dir) == num_chunks:
+    #             end_signal = {"result": "complete"} 
+    #             await manager.send_data(end_signal, websocket)
+    #             websocket.close()
+    #             break
+    #         else:
+    #             await asyncio.sleep(1) 
+    #             data = {"result": "pending"}   
+    #             await manager.send_data(data, websocket)
+    # except WebSocketDisconnect:
+    #     manager.disconnect(websocket)
+    #     await manager.broadcast(f"Client #{token} disconnected") 
 
  
 # @router.websocket('/livegraphs/{token}') 
