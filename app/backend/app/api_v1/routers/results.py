@@ -1,6 +1,6 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect 
+from app.api_v1.routers.users import UserDTO, get_current_user_no_exception
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 import os
-from datetime import datetime 
 import asyncio
 
 from app.scripts import data_tb, analyze, realtime
@@ -53,7 +53,7 @@ def analyze_handler(sample_name, headers, metadata, quant_dir):
     return analyze.d3_compatible_data(coverage, sample_name, analyze.df_to_dict(hits_df), analyze.df_to_dict(all_df), pathogens, detected)
 
 @router.get('/results/{token}') 
-async def standard_results(token: str):   
+async def standard_results(token: str, current_user: UserDTO = Depends(get_current_user_no_exception)):   
     query = await ModelSample.get_token(token)  
     sample_name = query['sample']
     headers=['Name', 'TPM'] 
@@ -63,7 +63,10 @@ async def standard_results(token: str):
     metadata = analyze.metadata_load(METADATA_FOLDER, panel)
     sample_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
     quant_dir = os.path.join(sample_dir,'quant.sf')   
-    return  analyze_handler(sample_name, headers, metadata, quant_dir)
+    result = analyze_handler(sample_name, headers, metadata, quant_dir)
+    if current_user:
+        await ModelSample.save_result(token, json.dumps(result), current_user.id)
+    return result
 
 
 @router.get('/rt-res-status/{token}')

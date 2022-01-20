@@ -25,7 +25,6 @@ services:
       SECRET_KEY: ${SECRET_KEY}
 
   frontend:
-    platform: linux/amd64
     build:
       context: frontend
       dockerfile: Dockerfile
