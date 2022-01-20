@@ -2,7 +2,8 @@ from app.api_v1.routers import uploads, results, users
 from app.db.database import database
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import os
+import os, asyncio, importlib
+import app.worker as worker
 
 tags_metadata = [
     {
@@ -70,8 +71,23 @@ async def root():
 async def startup():
     await database.connect()
 
+    # set up the faust app
+    worker.set_faust_app_for_api()
+
+    faust_app = worker.get_faust_app()
+
+    # start the faust app in client mode
+    asyncio.create_task(
+        faust_app.start_client()
+    )
+
 
 # closes database connection
 @app.on_event("shutdown")
 async def shutdown():
     await database.disconnect()
+
+    faust_app = worker.get_faust_app()
+
+    # graceful shutdown
+    await faust_app.stop()
