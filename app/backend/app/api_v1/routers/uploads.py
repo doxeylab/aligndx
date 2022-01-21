@@ -1,3 +1,4 @@
+import chunk
 import sys
 import math
 from array import ArrayType
@@ -213,7 +214,7 @@ def process_salmon_chunks(upload_chunk_dir, salmon_chunk_dir, file_id, panel):
 
         if set(upload_chunk_range).issubset(set(upload_chunk_nums)):
             make_salmon_chunk(upload_chunk_dir, salmon_chunk_dir, salmon_chunk_num, upload_chunk_range)  
-            start_chunk_analysis(salmon_chunk_dir, file_id, salmon_chunk_num, panel, [])
+            start_chunk_analysis(salmon_chunk_dir, file_id, salmon_chunk_num, panel, [], chunks_to_assemble)
 
 def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chunk_range):
     next_chunk_data = None
@@ -264,7 +265,7 @@ def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chun
 #         results.append(await response.json())
 #     await session.close()  
 
-def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst):
+def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst, chunks_to_assemble):
     '''
     Note* This function cannot be run asynchronously due to the blocking implementation of long computation (salmon). Starlette (which is the underlying framework of FastApi) has implemented background tasks in a manner that is async. Since salmon is synchronous, this means it will block the event loop if implemented in async (which is why they are now no longer implemented via async).
 
@@ -284,7 +285,7 @@ def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst):
     
     headers=['Name', 'NumReads']
     metadata = realtime.metadata_load(METADATA_FOLDER, panel)
-    stream_analyzer(headers, metadata, file_id)
+    stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, chunks_to_assemble)
     
     # if os.path.isfile(quant_dir):
     #     metadata = realtime.metadata_load(METADATA_FOLDER, panel)
@@ -304,15 +305,25 @@ def call_salmon(commands_lst):
             s.post("http://salmon:80/", json = commands)
 
 import importlib 
+from fastapi import BaseModel
 
-async def stream_analyzer(headers, metadata, quant_dir, file_id):
+class Chunk(BaseModel):
+    account_id: str
+    chunk_number: int
+    total_chunks: int
+    data: bytes
+    
+class Chunk_id(BaseModel):
+    account_id: str
+
+async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, chunks_to_assemble):
     get_current_chunk_task = importlib.import_module(
         "app.worker.tasks.get_curr_chunk"
     )
     increment_task = importlib.import_module(
         "app.worker.tasks.add_chunk",
     ) 
-    current_chunk = await get_current_chunk_task.agent.ask(file_id)
+    current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(file_id).dict())
     current_chunk.pop("__faust")
 
     if not current_chunk:
@@ -323,7 +334,9 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id):
         next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
         accumulated_results = realtime.update_analysis(current_chunk, next_chunk, 'NumReads')  
         accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results)
-        await increment_task.agent.ask(accumulated_results)
+        
+        # pass chunk number somehow
+        await increment_task.agent.ask(Chunk(file_id, chunk_number, chunks_to_assemble, accumulated_results))
         
 # def analyze_handler(headers, metadata, quant_dir, output_dir):
 #     if os.path.isfile(output_dir):  
