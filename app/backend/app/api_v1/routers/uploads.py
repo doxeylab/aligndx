@@ -18,6 +18,8 @@ from app.db.models import Sample as ModelSample
 # from app.db.models import create, get
 from app.db.schema import Sample as SchemaSample
 
+from app.scripts import realtime 
+
 read_batch_size = 4096
 salmon_chunk_size = math.floor(4e6)
 upload_chunk_size = 8e5
@@ -277,8 +279,13 @@ def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst):
     commands_lst.append(commands) 
 
     # await call_salmon(commands_lst)
-    call_salmon(commands_lst) 
-
+    call_salmon(commands_lst)
+    # os.remove(chunk)
+    
+    headers=['Name', 'NumReads']
+    metadata = realtime.metadata_load(METADATA_FOLDER, panel)
+    stream_analyzer(headers, metadata, file_id)
+    
     # if os.path.isfile(quant_dir):
     #     metadata = realtime.metadata_load(METADATA_FOLDER, panel)
     #     headers=['Name', 'NumReads']
@@ -296,19 +303,39 @@ def call_salmon(commands_lst):
         for commands in commands_lst:
             s.post("http://salmon:80/", json = commands)
 
-from app.scripts import realtime 
+import importlib 
 
-def analyze_handler(headers, metadata, quant_dir, output_dir):
-    if os.path.isfile(output_dir):  
-        current_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
-        previous_chunk = pd.read_csv(output_dir, index_col='Pathogen')
-        accumulated_results = realtime.update_analysis(previous_chunk, current_chunk, 'NumReads')  
-        accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results) 
-        accumulated_results.to_csv(output_dir)
-    else:
+async def stream_analyzer(headers, metadata, quant_dir, file_id):
+    get_current_chunk_task = importlib.import_module(
+        "app.worker.tasks.get_curr_chunk"
+    )
+    increment_task = importlib.import_module(
+        "app.worker.tasks.add_chunk",
+    ) 
+    current_chunk = await get_current_chunk_task.agent.ask(file_id)
+    current_chunk.pop("__faust")
+
+    if not current_chunk:
         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
         first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
-        first_chunk.to_csv(output_dir)
+        await increment_task.agent.ask(first_chunk)
+    else:
+        next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
+        accumulated_results = realtime.update_analysis(current_chunk, next_chunk, 'NumReads')  
+        accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results)
+        await increment_task.agent.ask(accumulated_results)
+        
+# def analyze_handler(headers, metadata, quant_dir, output_dir):
+#     if os.path.isfile(output_dir):  
+#         current_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
+#         previous_chunk = pd.read_csv(output_dir, index_col='Pathogen')
+#         accumulated_results = realtime.update_analysis(previous_chunk, current_chunk, 'NumReads')  
+#         accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results) 
+#         accumulated_results.to_csv(output_dir)
+#     else:
+#         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
+#         first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
+#         first_chunk.to_csv(output_dir)
     
 # def start_final_chunk_analysis(file_id, chunk_number):
 #     start_chunk_analysis(file_id, chunk_number)
