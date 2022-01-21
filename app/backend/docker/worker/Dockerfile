@@ -28,6 +28,7 @@ RUN chmod u+x ./bin/wait-for/wait-for.sh
 ENV PYTHONPATH=/app
 
 # copy source files
+
 COPY . .
 
 WORKDIR /app/

@@ -85,11 +85,10 @@ services:
   worker:
     build:
       context: backend
-      dockerfile: docker/worker/Dockerfile
-    working_dir: /fastapi-faust-example/
+      dockerfile: docker/worker/Dockerfile 
+    tty: true 
     command: sh -c "sh ./bin/wait-for/wait-for.sh kafka:29092 --timeout=20 && python -m app.worker worker -l info"
-    environment:
-      PYTHONPATH: "/fastapi-faust-example/"
+    environment: 
       FAUST_BROKER_URL: "kafka://kafka:29092"
     depends_on:
       - kafka
