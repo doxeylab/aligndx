@@ -305,6 +305,7 @@ def call_salmon(commands_lst):
             s.post("http://salmon:80/", json = commands)
 
 import importlib 
+import pickle
 from fastapi import BaseModel
 
 class Chunk(BaseModel):
@@ -335,8 +336,9 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, c
         accumulated_results = realtime.update_analysis(current_chunk, next_chunk, 'NumReads')  
         accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results)
         
+        data = pickle.dumps(accumulated_results, protocol=4)
         # pass chunk number somehow
-        await increment_task.agent.ask(Chunk(file_id, chunk_number, chunks_to_assemble, accumulated_results))
+        await increment_task.agent.ask(Chunk(file_id, chunk_number, chunks_to_assemble, data))
         
 # def analyze_handler(headers, metadata, quant_dir, output_dir):
 #     if os.path.isfile(output_dir):  
