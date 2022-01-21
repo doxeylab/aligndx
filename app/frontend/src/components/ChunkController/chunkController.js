@@ -12,12 +12,13 @@ const readChunk = (chunkNumber, file) => {
   return chunkFile;
 };
 
-const postChunk = (chunkNumber, fileId, chunkFile, token) => {
+const postChunk = (chunkNumber, fileId, chunkFile, token, panel) => {
   let formData = new FormData();
   formData.append("chunk_number", chunkNumber);
   formData.append("file_id", fileId);
   formData.append("chunk_file", chunkFile);
   formData.append("token", token);
+  formData.append("panel", panel);
 
   return axios.post(UPLOAD_CHUNK_URL, formData, {
     headers: {
@@ -26,35 +27,7 @@ const postChunk = (chunkNumber, fileId, chunkFile, token) => {
     },
   });
 };
-
-// const firstpostChunk = (chunkNumber, fileId, chunkFile, token, numberOfChunks) => {
-//   let formData = new FormData();
-//   formData.append("chunk_number", chunkNumber);
-//   formData.append("file_id", fileId);
-//   formData.append("chunk_file", chunkFile);
-//   formData.append("token", token);
-
-//   return axios.post(UPLOAD_CHUNK_URL, formData, {
-//     headers: {
-//       "Content-Type": "multipart/form-data",
-//       "Content-Encoding": "gzip",
-//     },
-//   })
-//   .then(() => {
-//     window.location.href = "/liveresults/#/?id=" + token 
-//     })
-//   ;    
-// };
-
-// const startChunk = async (chunkNumber, fileId, file, token, numberOfChunks) => {
-//   let chunkFile = readChunk(chunkNumber, file);
-//   if (chunkNumber === 1) {
-//     return await firstpostChunk(chunkNumber, fileId, chunkFile, token, numberOfChunks);
-//   }
-//   else {
-//     return await postChunk(chunkNumber, fileId, chunkFile, token);
-//   }
-// };
+ 
 
 const startChunk = async (chunkNumber, fileId, file, token, panel) => {
   let chunkFile = readChunk(chunkNumber, file); 

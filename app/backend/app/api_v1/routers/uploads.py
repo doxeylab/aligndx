@@ -306,7 +306,7 @@ def call_salmon(commands_lst):
 
 import importlib 
 import pickle
-from fastapi import BaseModel
+from pydantic import BaseModel
 
 class Chunk(BaseModel):
     account_id: str
@@ -330,15 +330,21 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, c
     if not current_chunk:
         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
         first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
-        await increment_task.agent.ask(first_chunk)
+
+        data = pickle.dumps(first_chunk, protocol=4)
+        task = await increment_task.agent.ask(Chunk(file_id, chunk_number, chunks_to_assemble, data))
+        print(task)
     else:
         next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
-        accumulated_results = realtime.update_analysis(current_chunk, next_chunk, 'NumReads')  
+        previous_chunk = pickle.loads(current_chunk.data)
+
+        accumulated_results = realtime.update_analysis(previous_chunk, next_chunk, 'NumReads')  
         accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results)
         
         data = pickle.dumps(accumulated_results, protocol=4)
         # pass chunk number somehow
-        await increment_task.agent.ask(Chunk(file_id, chunk_number, chunks_to_assemble, data))
+        task2 = await increment_task.agent.ask(Chunk(file_id, chunk_number, chunks_to_assemble, data))
+        print(task2)
         
 # def analyze_handler(headers, metadata, quant_dir, output_dir):
 #     if os.path.isfile(output_dir):  

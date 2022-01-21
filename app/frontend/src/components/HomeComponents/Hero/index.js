@@ -11,7 +11,7 @@ import Button from '../../Button';
 import { Section } from '../../Common/PageElement';
 import { DropdownMenu, TextField } from '../../Form';
 import UploadComponent from '../../UploadComponent';
-import startFile from './ChunkController/chunkController';
+import startFile from '../../ChunkController/chunkController';
 import './CustomModal.css';
 import { HeroBody, HeroBtns, HeroBtns2, HeroCol, HeroImage, HeroText, HeroTitle } from './StyledHero';
 
