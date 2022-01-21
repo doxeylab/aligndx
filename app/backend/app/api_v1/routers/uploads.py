@@ -250,7 +250,7 @@ async def upload_chunk(
     with open("{}/meta.txt".format(rt_dir)) as f:
         num_chunks = int(f.readlines()[1])
 
-    if chunk_number % math.floor(chunk_ratio) == 0:
+    if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
         background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir)
 
     # if chunk_number + 1 == num_chunks:
@@ -282,7 +282,7 @@ def process_salmon_chunks(upload_data, salmon_data):
 
 
 def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chunk_range):
-    next_chunk_data = b''
+    next_chunk_data = None
     
     with open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number), 'ab') as salmon_chunk:
         fsize = 0
@@ -294,7 +294,7 @@ def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chun
                 if fsize > salmon_chunk_size:
                     lines = data.decode('utf8').split('\n')
                     firstchars = [line[0] for indx, line in enumerate(
-                        lines) if indx > 0 and indx < len(lines)]
+                        lines) if indx > 0 and indx < len(lines) - 1]
 
                     atsign_indices = [i for i, c in enumerate(firstchars) if c == '@']
 
@@ -310,9 +310,10 @@ def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chun
                         lines[atsign_linenum:]).encode('utf8').strip()
                 else:
                     salmon_chunk.write(data)
-
-    with open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number + 1), 'wb') as salmon_chunk:
-        salmon_chunk.write(next_chunk_data)
+    
+    if next_chunk_data is not None:
+        with open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number + 1), 'wb') as salmon_chunk:
+            salmon_chunk.write(next_chunk_data)
 
 
 # def start_final_chunk_analysis(file_id, chunk_number):
