@@ -10,7 +10,7 @@ RUN apt update \
     && apt-get install -y $ROCKSDB_DEPENDENCIES \  
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt ./
+COPY /dependencies/worker/requirements.txt ./
 RUN pip install -U pip \
     && pip install --no-cache-dir -r requirements.txt \
     && pip install python-rocksdb==0.7.0 

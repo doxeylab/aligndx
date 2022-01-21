@@ -50,7 +50,7 @@ WORKDIR /app/
 RUN apt update \
     && apt install -y postgresql-client gcc  
 
-COPY requirements.txt /app
+COPY /dependencies/api/requirements.txt /app
 RUN pip install -U pip \
     && pip install --no-cache-dir -r requirements.txt 
 
