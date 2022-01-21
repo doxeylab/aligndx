@@ -101,8 +101,6 @@ async def fileupload(
 
     return {"run": "complete"}
 
-
-
 @router.post("/test_salmon_container")
 async def fileupload():
     try:
@@ -112,7 +110,6 @@ async def fileupload():
         return x.text 
     except Exception as e:
         return e
-
 
 @router.post("/start-file")
 async def start_file(
@@ -156,84 +153,14 @@ async def start_file(
         return {"Result": "OK",
                 "File_ID": file_id}
 
-# def gather_tasks(commands_lst, session):
-#     tasks = []
-#     for commands in commands_lst:
-#         tasks.append(asyncio.create_task(session.post("http://salmon:80/", json = commands, ssl=False)))
-#     return tasks
-
-# async def call_salmon(commands_lst):
-#     results = [] 
-#     session = aiohttp.ClientSession()
-#     tasks = gather_tasks(commands_lst, session) 
-#     responses = await asyncio.gather(*tasks)
-#     for response in responses:
-#         results.append(await response.json())
-#     await session.close()  
-
-def call_salmon(commands_lst):
-    # session = aiohttp.ClientSession()
-    # for commands in commands_lst:
-    #     await session.post("http://salmon:80/", json = commands, ssl=False)
-    # await session.close()
-    with requests.Session() as s:
-        for commands in commands_lst:
-            s.post("http://salmon:80/", json = commands)
-
-from app.scripts import realtime 
-
-def analyze_handler(headers, metadata, quant_dir, output_dir):
-    if os.path.isfile(output_dir):  
-        current_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
-        previous_chunk = pd.read_csv(output_dir, index_col='Pathogen')
-        accumulated_results = realtime.update_analysis(previous_chunk, current_chunk, 'NumReads')  
-        accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results) 
-        accumulated_results.to_csv(output_dir)
-    else:
-        first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
-        first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
-        first_chunk.to_csv(output_dir)
-    
-def start_chunk_analysis(file_id, chunk_number, chosen_panel, commands_lst, sample_name, option):
-    '''
-    file_id : 
-    chunk_number:
-    chosen_panel: 
-    commands_lst: 
-    sample_name:
-    analyze_result:
-    option:
-
-    Note* This function cannot be run asynchronously due to the blocking implementation of long computation (salmon). Starlette (which is the underlying framework of FastApi) has implemented background tasks in a manner that is async. Since salmon is synchronous, this means it will block the event loop if implemented in async (which is why they are now no longer implemented via async).
-
-    '''
-    indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
-
-    chunk_dir =  "{}/{}/{}/{}.fastq".format(REAL_TIME_UPLOADS, file_id, "chunk_data", chunk_number)
-    results_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, chunk_number)
-    quant_dir = "{}/{}/{}/quant.sf".format(REAL_TIME_RESULTS, file_id, chunk_number)
-
-    commands = salmonconfig.commands(indexpath, chunk_dir, results_dir)  
-    commands_lst.append(commands) 
-
-    # await call_salmon(commands_lst)
-    call_salmon(commands_lst) 
-
-    if os.path.isfile(quant_dir):
-        metadata = realtime.metadata_load(METADATA_FOLDER, option)
-        headers=['Name', 'NumReads']
-        output_dir = os.path.join(REAL_TIME_RESULTS, file_id, "out.csv")
-        analyze_handler(headers, metadata, quant_dir, output_dir) 
-    else: 
-        pass
-
 @router.post("/upload-chunk")
 async def upload_chunk(
     background_tasks: BackgroundTasks,
     chunk_number: int = Form(...),
     file_id: str = Form(...),
     chunk_file: UploadFile = File(...),
-    token: str = Form(...),
+    panel: str = Form(...),
+    token: str = Form(...)
 ):  
 
     rt_dir =  "{}/{}".format(REAL_TIME_UPLOADS, file_id) 
@@ -251,7 +178,10 @@ async def upload_chunk(
         num_chunks = int(f.readlines()[1])
 
     if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
-        background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir)
+        background_tasks.add_task(real_time_pipeline, upload_chunk_dir,salmon_chunk_dir, file_id, panel)
+
+    # if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
+    #     background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir)
 
     # if chunk_number + 1 == num_chunks:
     #     background_tasks.add_task(
@@ -261,12 +191,14 @@ async def upload_chunk(
 
     return {"Result": "OK"}
 
+def real_time_pipeline(upload_chunk_dir,salmon_chunk_dir, file_id, panel): 
+    process_salmon_chunks(upload_chunk_dir,salmon_chunk_dir, file_id, panel)
 
-def process_salmon_chunks(upload_data, salmon_data):
+def process_salmon_chunks(upload_chunk_dir, salmon_chunk_dir, file_id, panel):
     upload_chunk_nums = [int(fname.split('.')[0]) for fname in os.listdir(
-        upload_data) if fname.split('.')[0].isnumeric()]
+        upload_chunk_dir) if fname.split('.')[0].isnumeric()]
     salmon_chunk_nums = [int(fname.split('.')[0]) for fname in os.listdir(
-        salmon_data) if fname.split('.')[0].isnumeric()]
+        salmon_chunk_dir) if fname.split('.')[0].isnumeric()]
 
     chunks_to_assemble = range(max(salmon_chunk_nums) if len(salmon_chunk_nums) > 0 else 0,
                                math.ceil(max(upload_chunk_nums) / chunk_ratio) + 1)
@@ -278,8 +210,8 @@ def process_salmon_chunks(upload_data, salmon_data):
         upload_chunk_range = range(start_num, end_num)
 
         if set(upload_chunk_range).issubset(set(upload_chunk_nums)):
-            make_salmon_chunk(upload_data, salmon_data, salmon_chunk_num, upload_chunk_range)
-
+            make_salmon_chunk(upload_chunk_dir, salmon_chunk_dir, salmon_chunk_num, upload_chunk_range)  
+            start_chunk_analysis(salmon_chunk_dir, file_id, salmon_chunk_num, panel, [])
 
 def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chunk_range):
     next_chunk_data = None
@@ -315,7 +247,69 @@ def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chun
         with open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number + 1), 'wb') as salmon_chunk:
             salmon_chunk.write(next_chunk_data)
 
+# def gather_tasks(commands_lst, session):
+#     tasks = []
+#     for commands in commands_lst:
+#         tasks.append(asyncio.create_task(session.post("http://salmon:80/", json = commands, ssl=False)))
+#     return tasks
 
+# async def call_salmon(commands_lst):
+#     results = [] 
+#     session = aiohttp.ClientSession()
+#     tasks = gather_tasks(commands_lst, session) 
+#     responses = await asyncio.gather(*tasks)
+#     for response in responses:
+#         results.append(await response.json())
+#     await session.close()  
+
+def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst):
+    '''
+    Note* This function cannot be run asynchronously due to the blocking implementation of long computation (salmon). Starlette (which is the underlying framework of FastApi) has implemented background tasks in a manner that is async. Since salmon is synchronous, this means it will block the event loop if implemented in async (which is why they are now no longer implemented via async).
+
+    '''
+    indexpath = os.path.join(INDEX_FOLDER, panel + "_index")
+
+    chunk =  "{}/{}.fastq".format(chunk_dir, chunk_number)
+    results_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, chunk_number)
+    quant_dir = "{}/{}/quant.sf".format(results_dir, chunk_number)
+
+    commands = salmonconfig.commands(indexpath, chunk, results_dir)  
+    commands_lst.append(commands) 
+
+    # await call_salmon(commands_lst)
+    call_salmon(commands_lst) 
+
+    # if os.path.isfile(quant_dir):
+    #     metadata = realtime.metadata_load(METADATA_FOLDER, panel)
+    #     headers=['Name', 'NumReads']
+    #     output_dir = os.path.join(REAL_TIME_RESULTS, file_id, "out.csv")
+    #     analyze_handler(headers, metadata, quant_dir, output_dir) 
+    # else: 
+    #     pass
+
+def call_salmon(commands_lst):
+    # session = aiohttp.ClientSession()
+    # for commands in commands_lst:
+    #     await session.post("http://salmon:80/", json = commands, ssl=False)
+    # await session.close()
+    with requests.Session() as s:
+        for commands in commands_lst:
+            s.post("http://salmon:80/", json = commands)
+
+from app.scripts import realtime 
+
+def analyze_handler(headers, metadata, quant_dir, output_dir):
+    if os.path.isfile(output_dir):  
+        current_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
+        previous_chunk = pd.read_csv(output_dir, index_col='Pathogen')
+        accumulated_results = realtime.update_analysis(previous_chunk, current_chunk, 'NumReads')  
+        accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results) 
+        accumulated_results.to_csv(output_dir)
+    else:
+        first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
+        first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
+        first_chunk.to_csv(output_dir)
+    
 # def start_final_chunk_analysis(file_id, chunk_number):
 #     start_chunk_analysis(file_id, chunk_number)
 #     # finish_file_analysis(file_id)

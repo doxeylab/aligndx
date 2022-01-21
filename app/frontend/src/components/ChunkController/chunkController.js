@@ -56,9 +56,9 @@ const postChunk = (chunkNumber, fileId, chunkFile, token) => {
 //   }
 // };
 
-const startChunk = async (chunkNumber, fileId, file, token, numberOfChunks) => {
+const startChunk = async (chunkNumber, fileId, file, token, panel) => {
   let chunkFile = readChunk(chunkNumber, file); 
-  return await postChunk(chunkNumber, fileId, chunkFile, token); 
+  return await postChunk(chunkNumber, fileId, chunkFile, token, panel); 
 };
 
 const postFileProcess = (filename, numberOfChunks, token, option, email) =>
@@ -76,7 +76,7 @@ const startFile = async (file, token, panel, email) => {
   const fileId = res.data.File_ID;
   
   for (let i = 0; i < numberOfChunks; i++) {
-    const res = await startChunk(i, fileId, file, token, numberOfChunks);
+    const res = await startChunk(i, fileId, file, token, panel);
     if (res.data.Result != "OK") {
       break;
     } 
