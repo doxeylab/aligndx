@@ -127,11 +127,12 @@ manager = ConnectionManager()
 #         while True: 
 #             current_chunk = await get_current_chunk_task.agent.ask(file_id)
 #             current_chunk.pop("__faust")
+#             print(current_chunk)
 
 #             if not current_chunk:
 #                 data = {"result": "pending"} 
-#                 await asyncio.sleep(1) 
 #                 await manager.send_data(data, websocket)
+#                 await asyncio.sleep(5) 
 
 #             if current_chunk.chunk_number != current_chunk.total_chunks: 
 #                 await manager.send_data(current_chunk, websocket) 

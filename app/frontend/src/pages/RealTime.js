@@ -86,8 +86,7 @@ const RealTime = () => {
 
     const connectWebsocket = async () => {
         try {
-            const ws = new WebSocket(WEBSOCKET_URL + '/' + token)
-            console.log("connection established")
+            const ws = new WebSocket(WEBSOCKET_URL + '/' + token) 
             setGetLoad(false)
             ws.onmessage = function (event) {
                 if (event.data == {"result":"complete"}){
@@ -123,13 +122,13 @@ const RealTime = () => {
         const option_lst = []
         selectedDetections.forEach(x => option_lst.push(x))
         console.log(option_lst)
+        // await connectWebsocket() 
         try {
             await startFile(dataFiles[0], token, option_lst, email); 
         }
         catch(e) {
             console.log(e)
         }
-        await connectWebsocket() 
     }
      
  
