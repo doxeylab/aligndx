@@ -181,21 +181,11 @@ async def upload_chunk(
         num_chunks = int(f.readlines()[1])
 
     if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
-        background_tasks.add_task(real_time_pipeline, upload_chunk_dir,salmon_chunk_dir, file_id, panel)
-
-    # if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
-    #     background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir)
-
-    # if chunk_number + 1 == num_chunks:
-    #     background_tasks.add_task(
-    #         start_final_chunk_analysis, file_id, chunk_number)
-    # else:
-    #     background_tasks.add_task(start_chunk_analysis, file_id, chunk_number)
+        background_tasks.add_task(real_time_pipeline, upload_chunk_dir,salmon_chunk_dir, file_id, panel) 
 
     return {"Result": "OK"}
 
-async def real_time_pipeline(upload_chunk_dir,salmon_chunk_dir, file_id, panel): 
-    print("real_time_pipeline")
+async def real_time_pipeline(upload_chunk_dir,salmon_chunk_dir, file_id, panel):  
     await process_salmon_chunks(upload_chunk_dir,salmon_chunk_dir, file_id, panel)
 
 async def process_salmon_chunks(upload_chunk_dir, salmon_chunk_dir, file_id, panel):
@@ -285,8 +275,7 @@ async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands
     # os.remove(chunk)
     
     headers=['Name', 'NumReads']
-    metadata = realtime.metadata_load(METADATA_FOLDER, panel)
-    print("start_chunk_analysis")
+    metadata = realtime.metadata_load(METADATA_FOLDER, panel) 
     await stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, chunks_to_assemble)
     
     # if os.path.isfile(quant_dir):
@@ -327,8 +316,7 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, c
         "app.worker.tasks.add_chunk",
     ) 
     current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
-    current_chunk.pop("__faust")
-    print("stream_analyzer")
+    current_chunk.pop("__faust") 
     print(current_chunk)
     if current_chunk:
         next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
