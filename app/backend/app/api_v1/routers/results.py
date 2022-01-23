@@ -125,17 +125,18 @@ manager = ConnectionManager()
 #     await manager.connect(websocket)
 #     try:
 #         while True: 
-#             current_chunk = await get_current_chunk_task.agent.ask(file_id)
-#             current_chunk.pop("__faust")
-#             print(current_chunk)
+#             current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+#             current_chunk.pop("__faust") 
+#             current_chunk.pop("data")
 
 #             if not current_chunk:
-#                 data = {"result": "pending"} 
-#                 await manager.send_data(data, websocket)
+#                 message = {"result": "pending"} 
+#                 await manager.send_data(message, websocket)
 #                 await asyncio.sleep(5) 
 
-#             if current_chunk.chunk_number != current_chunk.total_chunks: 
-#                 await manager.send_data(current_chunk, websocket) 
+#             if current_chunk.chunk_number != current_chunk.total_chunks + 1:
+#                 data = pickle.loads(current_chunk.data)
+#                 await manager.send_data(data, websocket) 
 #                 await asyncio.sleep(1) 
 
 #             else: 

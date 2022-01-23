@@ -181,18 +181,19 @@ async def upload_chunk(
         num_chunks = int(f.readlines()[1])
 
     if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
-        background_tasks.add_task(real_time_pipeline, upload_chunk_dir,salmon_chunk_dir, file_id, panel) 
+        background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir, file_id, panel) 
 
     return {"Result": "OK"}
 
-async def real_time_pipeline(upload_chunk_dir,salmon_chunk_dir, file_id, panel):  
-    await process_salmon_chunks(upload_chunk_dir,salmon_chunk_dir, file_id, panel)
+# async def real_time_pipeline(upload_chunk_dir,salmon_chunk_dir, file_id, panel):  
+#     await process_salmon_chunks(upload_chunk_dir,salmon_chunk_dir, file_id, panel)
+
 
 async def process_salmon_chunks(upload_chunk_dir, salmon_chunk_dir, file_id, panel):
     upload_chunk_nums = [int(fname.split('.')[0]) for fname in os.listdir(
         upload_chunk_dir) if fname.split('.')[0].isnumeric()]
     salmon_chunk_nums = [int(fname.split('.')[0]) for fname in os.listdir(
-        salmon_chunk_dir) if fname.split('.')[0].isnumeric()]
+        salmon_chunk_dir) if fname.split('.')[0].isnumeric()] 
 
     chunks_to_assemble = range(max(salmon_chunk_nums) if len(salmon_chunk_nums) > 0 else 0,
                                math.ceil(max(upload_chunk_nums) / chunk_ratio) + 1)
@@ -204,17 +205,17 @@ async def process_salmon_chunks(upload_chunk_dir, salmon_chunk_dir, file_id, pan
         upload_chunk_range = range(start_num, end_num)
 
         if set(upload_chunk_range).issubset(set(upload_chunk_nums)):
-            make_salmon_chunk(upload_chunk_dir, salmon_chunk_dir, salmon_chunk_num, upload_chunk_range)  
+            await make_salmon_chunk(upload_chunk_dir, salmon_chunk_dir, salmon_chunk_num, upload_chunk_range)  
             await start_chunk_analysis(salmon_chunk_dir, file_id, salmon_chunk_num, panel, [], chunks_to_assemble)
 
-def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chunk_range):
+async def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chunk_range):
     next_chunk_data = None
-    
-    with open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number), 'ab') as salmon_chunk:
+
+    async with aiofiles.open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number), 'ab') as salmon_chunk: 
         fsize = 0
         for upload_chunk_number in upload_chunk_range:
-            with open('{}/{}.fastq'.format(upload_data, upload_chunk_number), 'rb') as upload_chunk:
-                data = upload_chunk.read()
+            async with aiofiles.open('{}/{}.fastq'.format(upload_data, upload_chunk_number), 'rb') as upload_chunk:
+                data = await upload_chunk.read()
                 fsize += sys.getsizeof(data) 
 
                 if fsize > salmon_chunk_size:
@@ -229,17 +230,46 @@ def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chun
                             atsign_indices.remove(atsign_indx)
                     atsign_linenum = atsign_indices[0] + 1
 
-                    salmon_chunk.write(
+                    await salmon_chunk.write(
                         '\n'.join(
                             lines[:atsign_linenum]).encode('utf8').strip())
                     next_chunk_data = '\n'.join(
                         lines[atsign_linenum:]).encode('utf8').strip()
                 else:
-                    salmon_chunk.write(data)
+                    await salmon_chunk.write(data) 
     
     if next_chunk_data is not None:
-        with open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number + 1), 'wb') as salmon_chunk:
-            salmon_chunk.write(next_chunk_data)
+        async with aiofiles.open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number + 1), 'wb') as salmon_chunk:
+            await salmon_chunk.write(next_chunk_data)
+     
+import logging
+
+async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst, chunks_to_assemble):
+    '''
+    Note* This function cannot be run asynchronously due to the blocking implementation of long computation (salmon). Starlette (which is the underlying framework of FastApi) has implemented background tasks in a manner that is async. Since salmon is synchronous, this means it will block the event loop if implemented in async (which is why they are now no longer implemented via async). Therefore we are running salmon in the loops default executor. For Fastapi, this is threadpoolexecutor. 
+
+    ''' 
+    indexpath = os.path.join(INDEX_FOLDER, panel + "_index")
+
+    chunk =  "{}/{}.fastq".format(chunk_dir, chunk_number)
+    results_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, chunk_number)
+    quant_dir = "{}/quant.sf".format(results_dir, chunk_number)
+
+    commands = salmonconfig.commands(indexpath, chunk, results_dir)  
+    commands_lst.append(commands) 
+
+    loop = asyncio.get_event_loop()
+    loop.set_debug(True)
+    loop.slow_callback_duration = 10
+    logging.basicConfig(level=logging.DEBUG)
+    # await call_salmon(commands_lst)
+    await loop.run_in_executor(None, call_salmon,commands_lst)
+    # os.remove(chunk)
+    
+    headers=['Name', 'NumReads']
+    metadata = realtime.metadata_load(METADATA_FOLDER, panel) 
+    await stream_analyzer(headers, metadata, quant_dir, file_id, int(chunk_number), max(value for value in (chunks_to_assemble)))
+  
 
 # def gather_tasks(commands_lst, session):
 #     tasks = []
@@ -255,36 +285,6 @@ def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chun
 #     for response in responses:
 #         results.append(await response.json())
 #     await session.close()  
-
-async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst, chunks_to_assemble):
-    '''
-    Note* This function cannot be run asynchronously due to the blocking implementation of long computation (salmon). Starlette (which is the underlying framework of FastApi) has implemented background tasks in a manner that is async. Since salmon is synchronous, this means it will block the event loop if implemented in async (which is why they are now no longer implemented via async).
-
-    '''
-    indexpath = os.path.join(INDEX_FOLDER, panel + "_index")
-
-    chunk =  "{}/{}.fastq".format(chunk_dir, chunk_number)
-    results_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, chunk_number)
-    quant_dir = "{}/{}/quant.sf".format(results_dir, chunk_number)
-
-    commands = salmonconfig.commands(indexpath, chunk, results_dir)  
-    commands_lst.append(commands) 
-
-    # await call_salmon(commands_lst)
-    call_salmon(commands_lst)
-    # os.remove(chunk)
-    
-    headers=['Name', 'NumReads']
-    metadata = realtime.metadata_load(METADATA_FOLDER, panel) 
-    await stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, chunks_to_assemble)
-    
-    # if os.path.isfile(quant_dir):
-    #     metadata = realtime.metadata_load(METADATA_FOLDER, panel)
-    #     headers=['Name', 'NumReads']
-    #     output_dir = os.path.join(REAL_TIME_RESULTS, file_id, "out.csv")
-    #     analyze_handler(headers, metadata, quant_dir, output_dir) 
-    # else: 
-    #     pass
 
 def call_salmon(commands_lst): 
     # session = aiohttp.ClientSession()
@@ -307,6 +307,7 @@ class Chunk(BaseModel):
     
 class Chunk_id(BaseModel):
     account_id: str
+ 
 
 async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, chunks_to_assemble):
     get_current_chunk_task = importlib.import_module(
@@ -314,11 +315,17 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, c
     )
     increment_task = importlib.import_module(
         "app.worker.tasks.add_chunk",
-    ) 
-    current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
-    current_chunk.pop("__faust") 
-    print(current_chunk)
-    if current_chunk:
+    )  
+    # current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+
+    # doesn't execute for some reason
+    # current_chunk.pop("__faust") 
+
+    # print(current_chunk)
+
+    if chunk_number > 0:
+        current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+        print(current_chunk)
         next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
         previous_chunk = pickle.loads(current_chunk.data)
 
@@ -328,13 +335,12 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, c
         data = pickle.dumps(accumulated_results, protocol=4)
         # pass chunk number somehow
         task2 = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=chunks_to_assemble, data=data).dict())
-        print(task2)
-    else:
+    else: 
         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
         first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
 
         data = pickle.dumps(first_chunk, protocol=4)
-        task = await increment_task.agent.ask(Chunk(file_id, chunk_number, chunks_to_assemble, data))
+        task = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=chunks_to_assemble, data=data).dict())
         print(task)
         
 # def analyze_handler(headers, metadata, quant_dir, output_dir):

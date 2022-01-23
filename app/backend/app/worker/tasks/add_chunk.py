@@ -12,6 +12,7 @@ async def agent(chunks):
     async for chunk in chunks.group_by(Chunk.account_id):
         id = chunk.account_id
         chunk_table[id] = chunk
-
-        print(f'Adding:\n Chunk data for {id}\n {chunk_table[id]}')
+        chunk_number = chunk_table[id].chunk_number
+        total_chunks = chunk_table[id].total_chunks
+        print(f'Adding:\n Chunk {chunk_number} data of {total_chunks} for {id}\n')
         yield chunk_table[id]
