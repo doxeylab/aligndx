@@ -1,5 +1,6 @@
 from app.api_v1.routers.users import UserDTO, get_current_user_no_exception
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from typing import List 
 import os
 import asyncio
 
@@ -111,6 +112,13 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+import pandas as pd 
+from pydantic import BaseModel
+    
+class Chunk_id(BaseModel):
+    account_id: str
+
+
 @router.websocket('/livegraphs/{token}') 
 async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
     query = await ModelSample.get_token(token) 
@@ -130,6 +138,7 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
             if current_chunk:
                 df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
                 data = realtime.data_loader(df, sample_name)
+                # data = df.to_dict(orient="records")
                 await manager.send_data(data, websocket) 
                 await asyncio.sleep(1)
             
@@ -145,8 +154,12 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast(f"Client #{token} disconnected") 
-
+        print(f"Client #{token} disconnected") 
+    
+    except Exception as e:
+        manager.disconnect(websocket)
+        print(f"Client #{token} disconnected")
+ 
  
 # @router.websocket('/livegraphs/{token}') 
 # async def live_graph_ws_endpoint(websocket: WebSocket, token: str):

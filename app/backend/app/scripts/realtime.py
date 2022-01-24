@@ -34,6 +34,13 @@ def coverage_calc(df):
 
   return coverage.to_frame("Coverage")
 
+def coverage_summarizer(df):   
+  c = df.copy()
+  c = c.groupby(["Pathogen","Coverage"]).count().drop(['Name','NumReads'], axis=1)  
+  c = c.index.to_frame(index=False) 
+  c = c.to_dict(orient="records") 
+  return c
+
 def realtime_quant_analysis(sample_name, headers, metadata): 
 
   # Read in quant.sf file into pandas, grab chosen headers and drop na values
@@ -82,7 +89,7 @@ def detection(df):
 
 def data_loader(df, sample_name):  
   # df = pd.read_csv(output_dir, index_col='Pathogen')
-  # df.reset_index(inplace=True)
+  df.reset_index(inplace=True)
   pathogens = df['Pathogen'].unique().tolist()
   df_list={} 
   for pathogen in pathogens:

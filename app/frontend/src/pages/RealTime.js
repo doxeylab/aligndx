@@ -86,14 +86,29 @@ const RealTime = () => {
 
     const connectWebsocket = async () => {
         try {
+            console.log("trying websocket connection")
             const ws = new WebSocket(WEBSOCKET_URL + '/' + token) 
             setGetLoad(false)
+            ws.onerror = function (event) {
+                console.log("didn't work")
+                console.log(event)
+            }
+            ws.onopen = function (event) {
+                console.log("opened")
+                console.log(event)
+            }
+            ws.onclose = function (event) {
+                console.log("socket closed")
+                console.log(event)
+            }
             ws.onmessage = function (event) {
+                console.log(event)
                 if (event.data == {"result":"complete"}){
-                    ws.close();
+                    console.log(event.data)
+                    // ws.close();
                 }
                 if (event.data == {"result":"pending"}){
-                    //pass
+                    console.log(event.data)
                 }
                 else {
                     console.log(event.data)
@@ -102,12 +117,6 @@ const RealTime = () => {
                     setPathogens(event.data.pathogens)
                 }
             }
-            window.addEventListener("unload", () => {
-                if(ws.readyState == WebSocket.OPEN) {
-                    ws.close();
-                    console.log("disconnected")
-                }
-            }) 
         }
 
         catch (err) {
@@ -121,10 +130,9 @@ const RealTime = () => {
         setGetLoad(true)
         const option_lst = []
         selectedDetections.forEach(x => option_lst.push(x))
-        console.log(option_lst)
-        // await connectWebsocket() 
+        console.log(option_lst) 
         try {
-            await startFile(dataFiles[0], token, option_lst, email); 
+            await startFile(dataFiles[0], token, option_lst, email, connectWebsocket); 
         }
         catch(e) {
             console.log(e)

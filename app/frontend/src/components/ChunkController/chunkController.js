@@ -43,10 +43,11 @@ const postFileProcess = (filename, numberOfChunks, token, option, email) =>
     email
   });
 
-const startFile = async (file, token, panel, email) => {
+const startFile = async (file, token, panel, email, connectWebsocket) => {
   const numberOfChunks = Math.ceil(file.size / CHUNK_SIZE);
   const res = await postFileProcess(file.name, numberOfChunks, token, panel, email); 
-  const fileId = res.data.File_ID;
+  const fileId = res.data.File_ID;  
+  await connectWebsocket()
   
   for (let i = 0; i < numberOfChunks; i++) {
     const res = await startChunk(i, fileId, file, token, panel);

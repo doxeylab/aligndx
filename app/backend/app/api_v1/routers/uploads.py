@@ -329,7 +329,7 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, c
 
         next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
         previous_chunk = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-        print(previous_chunk["Coverage"])
+        print(realtime.coverage_summarizer(previous_chunk))
 
         accumulated_results = realtime.update_analysis(previous_chunk, next_chunk, 'NumReads')  
         accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results)
