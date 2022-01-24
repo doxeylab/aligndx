@@ -1,5 +1,6 @@
 from app.api_v1.routers.users import UserDTO, get_current_user_no_exception
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from typing import List 
 import os
 import asyncio
 
@@ -10,6 +11,8 @@ from app.db.models import Sample as ModelSample
 
 # from app.db.models import create, get
 from app.db.schema import Sample as SchemaSample
+
+import importlib 
 
 # sequences = {
 #     "lcl|NC_045512.2_cds_YP_009725255.1_12": "ORF10",
@@ -109,52 +112,54 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-def killsignal(chunkdir, num_chunks):
-    if sum(os.path.isdir(i) for i in os.listdir(chunkdir)) == num_chunks:
-        True
-    else:
-        False
-
-def counter(chunkdir):
-    return sum(os.path.isdir(i) for i in os.listdir(chunkdir))
-
-# @router.websocket('/livegraphs/{token}') 
-# async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
-#     query = await ModelSample.get_token(token) 
-#     file_id = str(query['id'])
-#     sample_name = query['sample']
-
-    # results_dir = os.path.join(REAL_TIME_RESULTS, file_id)
-    # uploads_dir = os.path.join(REAL_TIME_UPLOADS, file_id) 
+import pandas as pd 
+from pydantic import BaseModel
     
-    # chunk_dir = os.path.join(uploads_dir, "chunk_data")
-    # csv_dir = os.path.join(results_dir, "out.csv")
+class Chunk_id(BaseModel):
+    account_id: str
 
-    # with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id)) as f:
-    #     num_chunks = int(f.readlines()[1]) 
 
-    # await manager.connect(websocket)
-    # try:
-    #     while True: 
-    #         if os.path.isfile(csv_dir):
-    #             await asyncio.sleep(1) 
-    #             data = realtime.data_loader(csv_dir, sample_name) 
-    #             await manager.send_message(str(counter(results_dir)), websocket)
-    #             await manager.send_data(data, websocket) 
-    #         # if killsignal(results_dir, num_chunks):
-    #         if counter(results_dir) == num_chunks:
-    #             end_signal = {"result": "complete"} 
-    #             await manager.send_data(end_signal, websocket)
-    #             websocket.close()
-    #             break
-    #         else:
-    #             await asyncio.sleep(1) 
-    #             data = {"result": "pending"}   
-    #             await manager.send_data(data, websocket)
-    # except WebSocketDisconnect:
-    #     manager.disconnect(websocket)
-    #     await manager.broadcast(f"Client #{token} disconnected") 
+@router.websocket('/livegraphs/{token}') 
+async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
+    query = await ModelSample.get_token(token) 
+    file_id = str(query['id'])
+    sample_name = query['sample']
 
+    results_dir = os.path.join(REAL_TIME_RESULTS, file_id) 
+
+    get_current_chunk_task = importlib.import_module(
+        "app.worker.tasks.get_curr_chunk"
+    )
+    await manager.connect(websocket)
+    try:
+        while True: 
+            current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+
+            if current_chunk:
+                df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
+                data = realtime.data_loader(df, sample_name)
+                # data = df.to_dict(orient="records")
+                await manager.send_data(data, websocket) 
+                await asyncio.sleep(1)
+            
+            if current_chunk and current_chunk["chunk_number"] > current_chunk["total_chunks"]:
+                end_signal = {"result": "complete"} 
+                await manager.send_data(end_signal, websocket)
+                websocket.close() 
+
+            else:
+                message = {"result": "pending"} 
+                await manager.send_data(message, websocket)
+                await asyncio.sleep(5)  
+
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        print(f"Client #{token} disconnected") 
+    
+    except Exception as e:
+        manager.disconnect(websocket)
+        print(f"Client #{token} disconnected")
+ 
  
 # @router.websocket('/livegraphs/{token}') 
 # async def live_graph_ws_endpoint(websocket: WebSocket, token: str):

@@ -3,11 +3,12 @@ services:
   backend: 
     build:
       context: backend
-      dockerfile: Dockerfile
-    command: uvicorn app.main:app --workers 4 --host 0.0.0.0 --port 8080
+      dockerfile: docker/api/Dockerfile
+    command: sh -c " sh ./bin/wait-for/wait-for.sh kafka:29092 --timeout=20 && uvicorn app.main:app --workers 4 --host 0.0.0.0 --port 8080"
     tty: true
     depends_on:
       - postgres
+      - kafka
     ports:
       - "8080:8080"
     volumes:
@@ -22,6 +23,7 @@ services:
       DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
       ORIGINS: ${ORIGINS}
       SECRET_KEY: ${SECRET_KEY}
+      FAUST_BROKER_URL: "kafka://kafka:29092"
 
   frontend: 
     build:
@@ -80,7 +82,47 @@ services:
       - ./backend/indexes:/app/indexes
       - ./backend/metadata:/app/metadata
 
+  worker:
+    build:
+      context: backend
+      dockerfile: docker/worker/Dockerfile 
+    command: sh -c "sh ./bin/wait-for/wait-for.sh kafka:29092 --timeout=20 && python -m app.worker worker -l info"
+    tty: true 
+    environment: 
+      FAUST_BROKER_URL: "kafka://kafka:29092"
+    depends_on:
+      - kafka
+
+  kafka:
+    image: confluentinc/cp-kafka:6.0.0
+    ports:
+      - "29092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:32181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+      - kafka-secrets:/etc/kafka/secrets
+    depends_on:
+      - zookeeper
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.0.0
+    ports:
+      - "32181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 32181
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
+      - zookeeper-secrets:/etc/zookeeper/secrets
+
 volumes:
   db-data:
   pgadmin-data: 
-  redis-data:
+  kafka-data:
+  kafka-secrets:
+  zookeeper-data:
+  zookeeper-log:
+  zookeeper-secrets:

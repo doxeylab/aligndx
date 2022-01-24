@@ -12,7 +12,7 @@ isal==0.8.0
 Mako==1.1.4
 MarkupSafe==1.1.1
 numpy==1.20.1
-pandas==1.2.3
+pandas==1.4
 passlib==1.7.4
 psycopg2==2.8.6 
 python-dateutil==2.8.1
@@ -37,4 +37,4 @@ watchdog==2.1.6
 aiohttp
 asgiref==3.4.1
 gunicorn==20.1.0
-redis
+faust==1.10.4

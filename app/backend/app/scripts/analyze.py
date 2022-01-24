@@ -27,7 +27,7 @@ def expression_hits_and_misses(sample_name, headers, metadata, hits):
   df_list = []
   for col in metadata:
     sample = df.copy()
-    sample['Name'] = sample[sample['Name'].isin(metadata[col])]
+    sample= sample[sample['Name'].isin(metadata[col])]
     sample = sample.dropna()       
     sample = sample.reset_index(drop=True)  
 

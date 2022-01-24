@@ -1,5 +1,5 @@
 from typing import Dict
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess
 
@@ -52,15 +52,18 @@ async def root():
 
 @app.post("/")
 def runsalmon(command : Dict[str, list]):  
-    try:
-        commands = command['commands']  
-        process = subprocess.Popen(commands, stdout=subprocess.PIPE)
-        logs = process.communicate()[0]
-        logs_decoded = logs.decode("utf-8") 
-        print(logs_decoded)
-        return logs_decoded 
-    except:
-        return "Error"
+    commands = command['commands'] 
+    execute_salmon(commands)  
+    # background_tasks.add_task(execute_salmon, commands) 
+    return {"Result": "OK"}
+
+
+def execute_salmon(commands):
+    process = subprocess.Popen(commands, stdout=subprocess.PIPE)
+    logs = process.communicate()[0]
+    logs_decoded = logs.decode("utf-8") 
+    print(logs_decoded) 
+
 
 # import asyncio 
 
