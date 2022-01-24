@@ -111,42 +111,41 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-# @router.websocket('/livegraphs/{token}') 
-# async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
-#     query = await ModelSample.get_token(token) 
-#     file_id = str(query['id'])
-#     sample_name = query['sample']
+@router.websocket('/livegraphs/{token}') 
+async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
+    query = await ModelSample.get_token(token) 
+    file_id = str(query['id'])
+    sample_name = query['sample']
 
-#     results_dir = os.path.join(REAL_TIME_RESULTS, file_id) 
+    results_dir = os.path.join(REAL_TIME_RESULTS, file_id) 
 
-#     get_current_chunk_task = importlib.import_module(
-#         "app.worker.tasks.get_curr_chunk"
-#     )
-#     await manager.connect(websocket)
-#     try:
-#         while True: 
-#             current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
-#             current_chunk.pop("__faust") 
-#             current_chunk.pop("data")
+    get_current_chunk_task = importlib.import_module(
+        "app.worker.tasks.get_curr_chunk"
+    )
+    await manager.connect(websocket)
+    try:
+        while True: 
+            current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
 
-#             if not current_chunk:
-#                 message = {"result": "pending"} 
-#                 await manager.send_data(message, websocket)
-#                 await asyncio.sleep(5) 
+            if current_chunk:
+                df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
+                data = realtime.data_loader(df, sample_name)
+                await manager.send_data(data, websocket) 
+                await asyncio.sleep(1)
+            
+            if current_chunk and current_chunk["chunk_number"] > current_chunk["total_chunks"]:
+                end_signal = {"result": "complete"} 
+                await manager.send_data(end_signal, websocket)
+                websocket.close() 
 
-#             if current_chunk.chunk_number != current_chunk.total_chunks + 1:
-#                 data = pickle.loads(current_chunk.data)
-#                 await manager.send_data(data, websocket) 
-#                 await asyncio.sleep(1) 
+            else:
+                message = {"result": "pending"} 
+                await manager.send_data(message, websocket)
+                await asyncio.sleep(5)  
 
-#             else: 
-#                 end_signal = {"result": "complete"} 
-#                 await manager.send_data(end_signal, websocket)
-#                 websocket.close() 
-
-#     except WebSocketDisconnect:
-#         manager.disconnect(websocket)
-#         await manager.broadcast(f"Client #{token} disconnected") 
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        await manager.broadcast(f"Client #{token} disconnected") 
 
  
 # @router.websocket('/livegraphs/{token}') 

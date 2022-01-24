@@ -15,4 +15,7 @@ async def agent(chunks):
         chunk_number = chunk_table[id].chunk_number
         total_chunks = chunk_table[id].total_chunks
         print(f'Adding:\n Chunk {chunk_number} data of {total_chunks} for {id}\n')
+        print(f'Data sent as type {type(chunk.data)}')
+        print(f'Data stored as type {type(chunk_table[id].data)}')
+
         yield chunk_table[id]

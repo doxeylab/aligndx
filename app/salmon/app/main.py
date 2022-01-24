@@ -51,13 +51,14 @@ async def root():
     return {"message": "This is the salmon container!"}
 
 @app.post("/")
-def runsalmon(command : Dict[str, list], background_tasks : BackgroundTasks):  
-    commands = command['commands']   
-    background_tasks.add_task(execute_salmon, commands) 
-    return {"Result": "Pending"}
+def runsalmon(command : Dict[str, list]):  
+    commands = command['commands'] 
+    execute_salmon(commands)  
+    # background_tasks.add_task(execute_salmon, commands) 
+    return {"Result": "OK"}
 
 
-def execute_salmon(command):
+def execute_salmon(commands):
     process = subprocess.Popen(commands, stdout=subprocess.PIPE)
     logs = process.communicate()[0]
     logs_decoded = logs.decode("utf-8") 

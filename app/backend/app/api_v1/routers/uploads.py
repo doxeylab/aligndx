@@ -259,16 +259,18 @@ async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands
     commands_lst.append(commands) 
 
     loop = asyncio.get_event_loop()
-    loop.set_debug(True)
-    loop.slow_callback_duration = 10
-    logging.basicConfig(level=logging.DEBUG)
+
     # await call_salmon(commands_lst)
-    await loop.run_in_executor(None, call_salmon,commands_lst)
+    # await loop.run_in_executor(None, call_salmon,commands_lst)
+    call_salmon(commands_lst)
     # os.remove(chunk)
     
     headers=['Name', 'NumReads']
     metadata = realtime.metadata_load(METADATA_FOLDER, panel) 
+    # if os.path.isfile(quant_dir):
     await stream_analyzer(headers, metadata, quant_dir, file_id, int(chunk_number), max(value for value in (chunks_to_assemble)))
+    # else:
+        # print(f'quant_dir does not exist yet for chunk {int(chunk_number)}')
   
 
 # def gather_tasks(commands_lst, session):
@@ -296,14 +298,13 @@ def call_salmon(commands_lst):
             s.post("http://salmon:80/", json = commands)
 
 import importlib 
-import pickle
 from pydantic import BaseModel
 
 class Chunk(BaseModel):
     account_id: str
     chunk_number: int
     total_chunks: int
-    data: bytes
+    data: dict
     
 class Chunk_id(BaseModel):
     account_id: str
@@ -316,32 +317,34 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, c
     increment_task = importlib.import_module(
         "app.worker.tasks.add_chunk",
     )  
-    # current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+    current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
 
     # doesn't execute for some reason
-    # current_chunk.pop("__faust") 
+    if current_chunk:
+        # current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+        current_chunk.pop("__faust") 
 
-    # print(current_chunk)
+        print(f'Retrieving chunk {current_chunk["chunk_number"]}')
+        print(f'Recieved data of type {type(current_chunk["data"])}')
 
-    if chunk_number > 0:
-        current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
-        print(current_chunk)
         next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
-        previous_chunk = pickle.loads(current_chunk.data)
+        previous_chunk = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
+        print(previous_chunk["Coverage"])
 
         accumulated_results = realtime.update_analysis(previous_chunk, next_chunk, 'NumReads')  
         accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results)
         
-        data = pickle.dumps(accumulated_results, protocol=4)
-        # pass chunk number somehow
+        data = accumulated_results.to_dict(orient="tight")
+
         task2 = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=chunks_to_assemble, data=data).dict())
-    else: 
+    else:
         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
         first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
-
-        data = pickle.dumps(first_chunk, protocol=4)
+        data = first_chunk.to_dict(orient="tight")
+        print(f'Adding data of type {type(data)}')
         task = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=chunks_to_assemble, data=data).dict())
-        print(task)
+        print(f'Added chunk {task["chunk_number"]}')
+        print(f'{type(task["data"])} was added') 
         
 # def analyze_handler(headers, metadata, quant_dir, output_dir):
 #     if os.path.isfile(output_dir):  

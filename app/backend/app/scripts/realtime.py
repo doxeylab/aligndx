@@ -46,7 +46,8 @@ def realtime_quant_analysis(sample_name, headers, metadata):
 
     # match samples to metadata to subset pathogen hits
     sample = df.copy()
-    sample['Name'] = sample[sample['Name'].isin(metadata[col])]
+    # sample['Name'] = sample[sample['Name'].isin(metadata[col])]
+    sample = sample[sample['Name'].isin(metadata[col])]
     sample = sample.dropna()       
     sample = sample.reset_index(drop=True)
     sample['Pathogen'] = col
@@ -79,9 +80,9 @@ def detection(df):
       detected = "Negative"
     return pathogens, detected
 
-def data_loader(output_dir, sample_name):  
-  df = pd.read_csv(output_dir, index_col='Pathogen')
-  df.reset_index(inplace=True)
+def data_loader(df, sample_name):  
+  # df = pd.read_csv(output_dir, index_col='Pathogen')
+  # df.reset_index(inplace=True)
   pathogens = df['Pathogen'].unique().tolist()
   df_list={} 
   for pathogen in pathogens:

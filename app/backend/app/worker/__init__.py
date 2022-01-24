@@ -24,13 +24,6 @@ def set_faust_app_for_worker() -> Optional[faust.App]:
 
     return _faust_app
 
-class MyTopic(faust.Topic):
-
-    def __init__(self, *args, **kwargs):
-        if kwargs.get('replicas') == 0:
-            kwargs['replicas'] = 1
-        super().__init__(*args, **kwargs)
-
 def set_faust_app_for_api() -> Optional[faust.App]:
     global _faust_app
 
@@ -43,7 +36,6 @@ def set_faust_app_for_api() -> Optional[faust.App]:
         origin="app.worker",
         loop=asyncio.get_running_loop(),
         reply_create_topic=True,
-        Topic=MyTopic
     )
 
     return _faust_app
