@@ -206,7 +206,7 @@ async def process_salmon_chunks(upload_chunk_dir, salmon_chunk_dir, file_id, pan
 
         if set(upload_chunk_range).issubset(set(upload_chunk_nums)):
             await make_salmon_chunk(upload_chunk_dir, salmon_chunk_dir, salmon_chunk_num, upload_chunk_range)  
-            await start_chunk_analysis(salmon_chunk_dir, file_id, salmon_chunk_num, panel, [], chunks_to_assemble)
+            # await start_chunk_analysis(salmon_chunk_dir, file_id, salmon_chunk_num, panel, [], chunks_to_assemble)
 
 async def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chunk_range):
     next_chunk_data = None
@@ -232,9 +232,9 @@ async def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, uploa
 
                     await salmon_chunk.write(
                         '\n'.join(
-                            lines[:atsign_linenum]).encode('utf8').strip())
+                            lines[:atsign_linenum]).encode('utf8'))
                     next_chunk_data = '\n'.join(
-                        lines[atsign_linenum:]).encode('utf8').strip()
+                        lines[atsign_linenum:]).encode('utf8')  
                 else:
                     await salmon_chunk.write(data) 
     
