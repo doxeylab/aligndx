@@ -259,16 +259,18 @@ async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands
     commands_lst.append(commands) 
 
     loop = asyncio.get_event_loop()
-
-    # await call_salmon(commands_lst)
-    # await loop.run_in_executor(None, call_salmon,commands_lst)
-    call_salmon(commands_lst)
-    # os.remove(chunk)
     
     headers=['Name', 'NumReads']
     metadata = realtime.metadata_load(METADATA_FOLDER, panel) 
+
+    # await call_salmon(commands_lst)
+    await loop.run_in_executor(None, call_salmon, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number), max(value for value in (chunks_to_assemble)))
+
+    # call_salmon(commands_lst)
+    # os.remove(chunk)
+    
     # if os.path.isfile(quant_dir):
-    await stream_analyzer(headers, metadata, quant_dir, file_id, int(chunk_number), max(value for value in (chunks_to_assemble)))
+    # await stream_analyzer(headers, metadata, quant_dir, file_id, int(chunk_number), max(value for value in (chunks_to_assemble)))
     # else:
         # print(f'quant_dir does not exist yet for chunk {int(chunk_number)}')
   
@@ -288,7 +290,7 @@ async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands
 #         results.append(await response.json())
 #     await session.close()  
 
-def call_salmon(commands_lst): 
+def call_salmon(commands_lst, loop, headers,metadata,quant_dir, file_id, chunk_number, chunks_to_assemble): 
     # session = aiohttp.ClientSession()
     # for commands in commands_lst:
     #     await session.post("http://salmon:80/", json = commands, ssl=False)
@@ -296,6 +298,7 @@ def call_salmon(commands_lst):
     with requests.Session() as s:
         for commands in commands_lst:
             s.post("http://salmon:80/", json = commands)
+            asyncio.run_coroutine_threadsafe(stream_analyzer(headers,metadata,quant_dir, file_id, chunk_number, chunks_to_assemble), loop)
 
 import importlib 
 from pydantic import BaseModel
