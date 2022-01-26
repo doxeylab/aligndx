@@ -118,7 +118,11 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
             current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
 
             if current_chunk:
-                if current_chunk["chunk_number"] > current_chunk["total_chunks"]:
+                if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
+                    df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
+                    data = realtime.data_loader(df, sample_name)
+                    await manager.send_data(data, websocket) 
+                    await asyncio.sleep(1)
                     end_signal = {"result": "complete"} 
                     await manager.send_data(end_signal, websocket)
                     websocket.close() 
@@ -127,7 +131,6 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
                     data = realtime.data_loader(df, sample_name)
                     await manager.send_data(data, websocket) 
                     await asyncio.sleep(1)
-                
             else:
                 message = {"result": "pending"} 
                 await manager.send_data(message, websocket)
