@@ -181,8 +181,9 @@ async def upload_chunk(
     num_chunks = None
     total_salmon_chunks = None
     with open("{}/meta.txt".format(rt_dir)) as f:
-        num_chunks = int(f.readlines()[1])
-        total_salmon_chunks = int(f.readlines()[2])
+        data = f.readlines()
+        num_chunks = int(data[1])
+        total_salmon_chunks = int(data[2])
 
     if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
         background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir, file_id, panel, total_salmon_chunks) 
@@ -261,7 +262,7 @@ async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands
     headers=['Name', 'NumReads']
     metadata = realtime.metadata_load(METADATA_FOLDER, panel) 
 
-    future = await loop.run_in_executor(None, call_salmon, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number), total_chunks, chunk_dir)  
+    future = await loop.run_in_executor(None, call_salmon, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number), total_chunks, chunk)  
         
 import traceback
 import sys

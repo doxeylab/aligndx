@@ -125,7 +125,7 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
                     await asyncio.sleep(1)
                     end_signal = {"result": "complete"} 
                     await manager.send_data(end_signal, websocket)
-                    websocket.close() 
+                    await websocket.close() 
                 else:
                     df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
                     data = realtime.data_loader(df, sample_name)
