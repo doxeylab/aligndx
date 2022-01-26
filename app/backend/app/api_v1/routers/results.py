@@ -71,24 +71,6 @@ async def standard_results(token: str, current_user: UserDTO = Depends(get_curre
         await ModelSample.save_result(token, json.dumps(result), current_user.id)
     return result
 
-
-@router.get('/rt-res-status/{token}')
-async def standard_results(token: str):   
-    query = await ModelSample.get_token(token) 
-    file_id = str(query['id'])
-    csv_dir = os.path.join(REAL_TIME_RESULTS, file_id, "out.csv")
-    if os.path.isfile(csv_dir):
-        return {"result": "ready"}
-    else:
-        return {"result": "pending"}
-
-# async def check_status(csv_dir, sample_name):
-#     if os.path.isfile(csv_dir):
-#         return realtime.data_loader(csv_dir, sample_name)
-#     else:
-#         await asyncio.sleep(1)
-#         check_status(csv_dir, sample_name)
-
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
@@ -136,17 +118,16 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
             current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
 
             if current_chunk:
-                df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                data = realtime.data_loader(df, sample_name)
-                # data = df.to_dict(orient="records")
-                await manager.send_data(data, websocket) 
-                await asyncio.sleep(1)
-            
-            if current_chunk and current_chunk["chunk_number"] > current_chunk["total_chunks"]:
-                end_signal = {"result": "complete"} 
-                await manager.send_data(end_signal, websocket)
-                websocket.close() 
-
+                if current_chunk["chunk_number"] > current_chunk["total_chunks"]:
+                    end_signal = {"result": "complete"} 
+                    await manager.send_data(end_signal, websocket)
+                    websocket.close() 
+                else:
+                    df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
+                    data = realtime.data_loader(df, sample_name)
+                    await manager.send_data(data, websocket) 
+                    await asyncio.sleep(1)
+                
             else:
                 message = {"result": "pending"} 
                 await manager.send_data(message, websocket)
@@ -160,27 +141,4 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
         manager.disconnect(websocket)
         print(f"Client #{token} disconnected")
  
- 
-# @router.websocket('/livegraphs/{token}') 
-# async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
-#     query = await ModelSample.get_token(token) 
-#     file_id = str(query['id'])
-#     sample_name = query['sample']
-
-#     results_dir = os.path.join(REAL_TIME_RESULTS, file_id)
-#     uploads_dir = os.path.join(REAL_TIME_UPLOADS, file_id) 
-#     chunk_dir = os.path.join(uploads_dir, "chunk_data")
-#     csv_dir = os.path.join(results_dir, "out.csv")
-
-#     with open("{}/{}/meta.txt".format(REAL_TIME_UPLOADS, file_id)) as f:
-#         num_chunks = int(f.readlines()[1]) 
-
-#     await websocket.accept()
-#     while True: 
-#         await asyncio.sleep(1)
-#         # if os.path.isfile(csv_dir):
-#             # data = realtime.data_loader(csv_dir, sample_name)
-#         # data = {"test": "t1",
-#         #         "follow" : "t2"}
-#         await websocket.send_json(data) 
-        
+  
