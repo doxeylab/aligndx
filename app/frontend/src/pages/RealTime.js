@@ -105,7 +105,8 @@ const RealTime = () => {
                 console.log(event)
                 if (event.data == {"result":"complete"}){
                     console.log(event.data)
-                    // ws.close();
+                    console.log("closing")
+                    ws.close();
                 }
                 if (event.data == {"result":"pending"}){
                     console.log(event.data)

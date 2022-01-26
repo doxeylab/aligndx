@@ -123,9 +123,8 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
                     await manager.send_data(data, websocket) 
                     await asyncio.sleep(1)
                     end_signal = {"result": "complete"} 
-                    await manager.send_data(end_signal, websocket)
-                    print("disconnecting")
-                    manager.disconnect(websocket) 
+                    await manager.send_data(end_signal, websocket) 
+                    manager.disconnect(websocket)
                 else:
                     df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
                     data = realtime.data_loader(df, sample_name, headers)
@@ -138,7 +137,7 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        print(f"Client #{token} disconnected") 
+        print(f"The Client #{token} disconnected") 
 
     except Exception as e: 
         print(e)

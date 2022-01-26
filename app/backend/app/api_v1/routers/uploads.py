@@ -237,7 +237,8 @@ async def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, uploa
                     next_chunk_data = '\n'.join(
                         lines[atsign_linenum:]).encode('utf8')  
                 else:
-                    await salmon_chunk.write(data) 
+                    await salmon_chunk.write(data)
+            os.remove('{}/{}.fastq'.format(upload_data, upload_chunk_number))
     
     if next_chunk_data is not None:
         async with aiofiles.open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number + 1), 'wb') as salmon_chunk:
@@ -318,27 +319,31 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, t
     if current_chunk:
         print(f'Retrieving chunk {current_chunk["chunk_number"]}') 
 
-        next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
-        next_chunk['Coverage'] = realtime.coverage_calc(next_chunk)
+        # read data from previous quant file; already has coverage
         previous_chunk = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-        
         print(realtime.coverage_summarizer(previous_chunk, headers))
 
+        # read data from quant file and calculate coverage
+        next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
+        next_chunk['Coverage'] = realtime.coverage_calc(next_chunk, headers[1])
+
         accumulated_results = realtime.update_analysis(previous_chunk, next_chunk, headers[1])  
-        accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results)
+        accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results, headers[1])
         
+        print(realtime.coverage_summarizer(accumulated_results, headers))
+
         data = accumulated_results.to_dict(orient="tight")
 
         task = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=total_chunks, data=data).dict())
 
         print(f'Added chunk {task["chunk_number"]} of {task["total_chunks"]}')
 
-        if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
-            for f in glob.glob(upload_chunk_path):
-                os.remove(f)
+        # if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
+        #     for f in glob.glob(upload_chunk_path):
+        #         os.remove(f)
     else:
         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
-        first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
+        first_chunk['Coverage'] = realtime.coverage_calc(first_chunk, headers[1])
         
         data = first_chunk.to_dict(orient="tight")
         task = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=total_chunks, data=data).dict())

@@ -18,14 +18,10 @@ def metadata_load(dir, panel):
   metadata = metadata.fillna('')   
   return metadata
  
-def coverage_calc(df):
-
-  mask_cols = df.select_dtypes(include=['float64']).columns 
+def coverage_calc(df, header):
   hits = df.copy()
 
-  mask = hits[mask_cols] > 0
-  hits[mask_cols] = hits[mask_cols][mask]
-  hits = hits.dropna()   
+  hits = hits[hits[header] > 0] 
 
   all_count = df.groupby(["Pathogen"])['Name'].apply(np.count_nonzero)
   hits_count = hits.groupby(["Pathogen"])['Name'].apply(np.count_nonzero)
