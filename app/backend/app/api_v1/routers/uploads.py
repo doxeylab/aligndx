@@ -145,14 +145,13 @@ async def start_file(
         os.mkdir("{}/{}".format(rt_dir, "upload_data"))
         os.mkdir("{}/{}".format(rt_dir,"salmon_data"))
 
-        
- 
+        # subtracting 1 from salmon_chunks since it starts at 0
         with open("{}/meta.txt".format(rt_dir), 'w') as f:
             f.write(filename)
             f.write('\n')
             f.write(str(number_of_chunks))
             f.write('\n')
-            f.write(str(math.ceil(number_of_chunks/chunk_ratio)))
+            f.write(str(math.ceil(number_of_chunks/chunk_ratio) - 1))
 
         os.mkdir("{}/{}".format(REAL_TIME_RESULTS, file_id))
 
@@ -262,32 +261,31 @@ async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands
     headers=['Name', 'NumReads']
     metadata = realtime.metadata_load(METADATA_FOLDER, panel) 
 
-    future = await loop.run_in_executor(None, call_salmon, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number) + 1, max(value for value in (total_chunks))) 
-    
-    # call_salmon(commands_lst)
-    # os.remove(chunk)
-    
-    # if os.path.isfile(quant_dir):
-    # await stream_analyzer(headers, metadata, quant_dir, file_id, int(chunk_number), max(value for value in (chunks_to_assemble)))
-    # else:
-        # print(f'quant_dir does not exist yet for chunk {int(chunk_number)}')
+    future = await loop.run_in_executor(None, call_salmon, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number), total_chunks, chunk_dir)  
         
 import traceback
 import sys
 
-def call_salmon(commands_lst, loop, headers,metadata,quant_dir, file_id, chunk_number, total_chunks):  
+def call_salmon(commands_lst, loop, headers, metadata, quant_dir, file_id, chunk_number, total_chunks, chunk_dir):  
+
     with requests.Session() as s:
         for commands in commands_lst:
             s.post("http://salmon:80/", json = commands)
+    os.remove(chunk_dir)
+
     future = asyncio.run_coroutine_threadsafe(stream_analyzer(headers,metadata,quant_dir, file_id, chunk_number, total_chunks), loop)
+
     try:
         result = future.result()
+
     except asyncio.TimeoutError:
         print('The coroutine took too long, cancelling the task ...')
         future.cancel()
+
     except Exception as exc:
         print('The coroutine raised an  exception : {!r}'.format(exc))
         traceback.print_exception(*sys.exc_info())
+        
     else:
         print('The coroutine returned: {!r}'.format(result))
 
@@ -319,6 +317,7 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, t
 
         next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
         previous_chunk = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
+        
         print(realtime.coverage_summarizer(previous_chunk))
 
         accumulated_results = realtime.update_analysis(previous_chunk, next_chunk, 'NumReads')  
@@ -326,12 +325,15 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, t
         
         data = accumulated_results.to_dict(orient="tight")
 
-        task2 = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=total_chunks, data=data).dict())
+        task = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=total_chunks, data=data).dict())
+
+        print(f'Added chunk {task["chunk_number"]} of {task["total_chunks"]}')
+
     else:
         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
         first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
+        
         data = first_chunk.to_dict(orient="tight")
-        print(f'Adding data of type {type(data)}')
         task = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=total_chunks, data=data).dict())
-        print(f'Added chunk {task["chunk_number"]}')
-        print(f'{type(task["data"])} was added')  
+        
+        print(f'Added chunk {task["chunk_number"]} of {task["total_chunks"]}')
