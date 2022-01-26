@@ -207,7 +207,7 @@ async def process_salmon_chunks(upload_chunk_dir, salmon_chunk_dir, file_id, pan
 
         if set(upload_chunk_range).issubset(set(upload_chunk_nums)):
             await make_salmon_chunk(upload_chunk_dir, salmon_chunk_dir, salmon_chunk_num, upload_chunk_range)  
-            await start_chunk_analysis(salmon_chunk_dir, file_id, salmon_chunk_num, panel, [], total_chunks)
+            await start_chunk_analysis(salmon_chunk_dir, file_id, salmon_chunk_num, panel, [], total_chunks, upload_chunk_dir)
 
 async def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chunk_range):
     next_chunk_data = None
@@ -243,7 +243,7 @@ async def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, uploa
         async with aiofiles.open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number + 1), 'wb') as salmon_chunk:
             await salmon_chunk.write(next_chunk_data)
      
-async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst, total_chunks):
+async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst, total_chunks, upload_chunk_dir):
     '''
     Note* This function cannot be run asynchronously due to the blocking implementation of long computation (salmon). Starlette (which is the underlying framework of FastApi) has implemented background tasks in a manner that is async. Since salmon is synchronous, this means it will block the event loop if implemented in async (which is why they are now no longer implemented via async). Therefore we are running salmon in the loops default executor. For Fastapi, this is threadpoolexecutor. 
 
@@ -253,28 +253,29 @@ async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands
     chunk =  "{}/{}.fastq".format(chunk_dir, chunk_number)
     results_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, chunk_number)
     quant_dir = "{}/quant.sf".format(results_dir, chunk_number)
+    upload_dir = "{}/*".format(upload_chunk_dir)
 
     commands = salmonconfig.commands(indexpath, chunk, results_dir)  
     commands_lst.append(commands) 
 
     loop = asyncio.get_running_loop()
     
-    headers=['Name', 'NumReads']
-    metadata = realtime.metadata_load(METADATA_FOLDER, panel) 
+    headers=['Name', 'TPM']
+    metadata = realtime.metadata_load(METADATA_FOLDER, panel)  
 
-    future = await loop.run_in_executor(None, call_salmon, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number), total_chunks, chunk)  
+    future = await loop.run_in_executor(None, call_salmon, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number), int(total_chunks), chunk, upload_dir)  
         
 import traceback
 import sys
 
-def call_salmon(commands_lst, loop, headers, metadata, quant_dir, file_id, chunk_number, total_chunks, chunk_dir):  
+def call_salmon(commands_lst, loop, headers, metadata, quant_dir, file_id, chunk_number, total_chunks, chunk_dir, upload_chunk_path):  
 
     with requests.Session() as s:
         for commands in commands_lst:
             s.post("http://salmon:80/", json = commands)
     os.remove(chunk_dir)
 
-    future = asyncio.run_coroutine_threadsafe(stream_analyzer(headers,metadata,quant_dir, file_id, chunk_number, total_chunks), loop)
+    future = asyncio.run_coroutine_threadsafe(stream_analyzer(headers,metadata,quant_dir, file_id, chunk_number, total_chunks, upload_chunk_path), loop)
 
     try:
         result = future.result()
@@ -292,6 +293,7 @@ def call_salmon(commands_lst, loop, headers, metadata, quant_dir, file_id, chunk
 
 
 import importlib 
+import glob
 from pydantic import BaseModel
 
 class Chunk(BaseModel):
@@ -304,7 +306,7 @@ class Chunk_id(BaseModel):
     account_id: str
  
 
-async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, total_chunks):
+async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, total_chunks, upload_chunk_path):
     get_current_chunk_task = importlib.import_module(
         "app.worker.tasks.get_curr_chunk"
     )
@@ -317,11 +319,12 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, t
         print(f'Retrieving chunk {current_chunk["chunk_number"]}') 
 
         next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
+        next_chunk['Coverage'] = realtime.coverage_calc(next_chunk)
         previous_chunk = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
         
-        print(realtime.coverage_summarizer(previous_chunk))
+        print(realtime.coverage_summarizer(previous_chunk, headers))
 
-        accumulated_results = realtime.update_analysis(previous_chunk, next_chunk, 'NumReads')  
+        accumulated_results = realtime.update_analysis(previous_chunk, next_chunk, headers[1])  
         accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results)
         
         data = accumulated_results.to_dict(orient="tight")
@@ -330,6 +333,9 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, t
 
         print(f'Added chunk {task["chunk_number"]} of {task["total_chunks"]}')
 
+        if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
+            for f in glob.glob(upload_chunk_path):
+                os.remove(f)
     else:
         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
         first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)

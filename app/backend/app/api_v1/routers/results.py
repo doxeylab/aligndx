@@ -107,8 +107,7 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
     file_id = str(query['id'])
     sample_name = query['sample']
 
-    results_dir = os.path.join(REAL_TIME_RESULTS, file_id) 
-
+    headers=['Name', 'TPM']
     get_current_chunk_task = importlib.import_module(
         "app.worker.tasks.get_curr_chunk"
     )
@@ -120,15 +119,16 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
             if current_chunk:
                 if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
                     df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                    data = realtime.data_loader(df, sample_name)
+                    data = realtime.data_loader(df, sample_name, headers)
                     await manager.send_data(data, websocket) 
                     await asyncio.sleep(1)
                     end_signal = {"result": "complete"} 
                     await manager.send_data(end_signal, websocket)
-                    await websocket.close() 
+                    print("disconnecting")
+                    manager.disconnect(websocket) 
                 else:
                     df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                    data = realtime.data_loader(df, sample_name)
+                    data = realtime.data_loader(df, sample_name, headers)
                     await manager.send_data(data, websocket) 
                     await asyncio.sleep(1)
             else:
@@ -139,9 +139,9 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         print(f"Client #{token} disconnected") 
-    
-    except Exception as e:
-        manager.disconnect(websocket)
-        print(f"Client #{token} disconnected")
+
+    except Exception as e: 
+        print(e)
+        print(f"Exception occured so client #{token} disconnected")
  
   
