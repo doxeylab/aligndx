@@ -1,9 +1,10 @@
 import chunk
+from socket import timeout
 import sys
 import math
 from array import ArrayType
 from uuid import uuid4
-import aiofiles, asyncio, aiohttp 
+import aiofiles, asyncio 
 from fastapi import APIRouter, BackgroundTasks, File, UploadFile, Form, Body
 from typing import List 
 import shutil, os, requests
@@ -144,12 +145,13 @@ async def start_file(
         os.mkdir("{}/{}".format(rt_dir, "upload_data"))
         os.mkdir("{}/{}".format(rt_dir,"salmon_data"))
 
-        
- 
+        # subtracting 1 from salmon_chunks since it starts at 0
         with open("{}/meta.txt".format(rt_dir), 'w') as f:
             f.write(filename)
             f.write('\n')
             f.write(str(number_of_chunks))
+            f.write('\n')
+            f.write(str(math.ceil(number_of_chunks/chunk_ratio) - 1))
 
         os.mkdir("{}/{}".format(REAL_TIME_RESULTS, file_id))
 
@@ -177,19 +179,18 @@ async def upload_chunk(
             await f.write(content)
 
     num_chunks = None
+    total_salmon_chunks = None
     with open("{}/meta.txt".format(rt_dir)) as f:
-        num_chunks = int(f.readlines()[1])
+        data = f.readlines()
+        num_chunks = int(data[1])
+        total_salmon_chunks = int(data[2])
 
     if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
-        background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir, file_id, panel) 
+        background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir, file_id, panel, total_salmon_chunks) 
 
-    return {"Result": "OK"}
+    return {"Result": "OK"} 
 
-# async def real_time_pipeline(upload_chunk_dir,salmon_chunk_dir, file_id, panel):  
-#     await process_salmon_chunks(upload_chunk_dir,salmon_chunk_dir, file_id, panel)
-
-
-async def process_salmon_chunks(upload_chunk_dir, salmon_chunk_dir, file_id, panel):
+async def process_salmon_chunks(upload_chunk_dir, salmon_chunk_dir, file_id, panel, total_chunks):
     upload_chunk_nums = [int(fname.split('.')[0]) for fname in os.listdir(
         upload_chunk_dir) if fname.split('.')[0].isnumeric()]
     salmon_chunk_nums = [int(fname.split('.')[0]) for fname in os.listdir(
@@ -206,7 +207,7 @@ async def process_salmon_chunks(upload_chunk_dir, salmon_chunk_dir, file_id, pan
 
         if set(upload_chunk_range).issubset(set(upload_chunk_nums)):
             await make_salmon_chunk(upload_chunk_dir, salmon_chunk_dir, salmon_chunk_num, upload_chunk_range)  
-            # await start_chunk_analysis(salmon_chunk_dir, file_id, salmon_chunk_num, panel, [], chunks_to_assemble)
+            await start_chunk_analysis(salmon_chunk_dir, file_id, salmon_chunk_num, panel, [], total_chunks, upload_chunk_dir)
 
 async def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chunk_range):
     next_chunk_data = None
@@ -236,15 +237,14 @@ async def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, uploa
                     next_chunk_data = '\n'.join(
                         lines[atsign_linenum:]).encode('utf8')  
                 else:
-                    await salmon_chunk.write(data) 
+                    await salmon_chunk.write(data)
+            os.remove('{}/{}.fastq'.format(upload_data, upload_chunk_number))
     
     if next_chunk_data is not None:
         async with aiofiles.open('{}/{}.fastq'.format(salmon_data, salmon_chunk_number + 1), 'wb') as salmon_chunk:
             await salmon_chunk.write(next_chunk_data)
      
-import logging
-
-async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst, chunks_to_assemble):
+async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst, total_chunks, upload_chunk_dir):
     '''
     Note* This function cannot be run asynchronously due to the blocking implementation of long computation (salmon). Starlette (which is the underlying framework of FastApi) has implemented background tasks in a manner that is async. Since salmon is synchronous, this means it will block the event loop if implemented in async (which is why they are now no longer implemented via async). Therefore we are running salmon in the loops default executor. For Fastapi, this is threadpoolexecutor. 
 
@@ -254,50 +254,47 @@ async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands
     chunk =  "{}/{}.fastq".format(chunk_dir, chunk_number)
     results_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, chunk_number)
     quant_dir = "{}/quant.sf".format(results_dir, chunk_number)
+    upload_dir = "{}/*".format(upload_chunk_dir)
 
     commands = salmonconfig.commands(indexpath, chunk, results_dir)  
     commands_lst.append(commands) 
 
-    loop = asyncio.get_event_loop()
-
-    # await call_salmon(commands_lst)
-    # await loop.run_in_executor(None, call_salmon,commands_lst)
-    call_salmon(commands_lst)
-    # os.remove(chunk)
+    loop = asyncio.get_running_loop()
     
-    headers=['Name', 'NumReads']
-    metadata = realtime.metadata_load(METADATA_FOLDER, panel) 
-    # if os.path.isfile(quant_dir):
-    await stream_analyzer(headers, metadata, quant_dir, file_id, int(chunk_number), max(value for value in (chunks_to_assemble)))
-    # else:
-        # print(f'quant_dir does not exist yet for chunk {int(chunk_number)}')
-  
+    headers=['Name', 'TPM']
+    metadata = realtime.metadata_load(METADATA_FOLDER, panel)  
 
-# def gather_tasks(commands_lst, session):
-#     tasks = []
-#     for commands in commands_lst:
-#         tasks.append(asyncio.create_task(session.post("http://salmon:80/", json = commands, ssl=False)))
-#     return tasks
+    future = await loop.run_in_executor(None, call_salmon, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number), int(total_chunks), chunk, upload_dir)  
+        
+import traceback
+import sys
 
-# async def call_salmon(commands_lst):
-#     results = [] 
-#     session = aiohttp.ClientSession()
-#     tasks = gather_tasks(commands_lst, session) 
-#     responses = await asyncio.gather(*tasks)
-#     for response in responses:
-#         results.append(await response.json())
-#     await session.close()  
+def call_salmon(commands_lst, loop, headers, metadata, quant_dir, file_id, chunk_number, total_chunks, chunk_dir, upload_chunk_path):  
 
-def call_salmon(commands_lst): 
-    # session = aiohttp.ClientSession()
-    # for commands in commands_lst:
-    #     await session.post("http://salmon:80/", json = commands, ssl=False)
-    # await session.close()
     with requests.Session() as s:
         for commands in commands_lst:
             s.post("http://salmon:80/", json = commands)
+    os.remove(chunk_dir)
+
+    future = asyncio.run_coroutine_threadsafe(stream_analyzer(headers,metadata,quant_dir, file_id, chunk_number, total_chunks, upload_chunk_path), loop)
+
+    try:
+        result = future.result()
+
+    except asyncio.TimeoutError:
+        print('The coroutine took too long, cancelling the task ...')
+        future.cancel()
+
+    except Exception as exc:
+        print('The coroutine raised an  exception : {!r}'.format(exc))
+        traceback.print_exception(*sys.exc_info())
+        
+    else:
+        print('The coroutine returned: {!r}'.format(result))
+
 
 import importlib 
+import glob
 from pydantic import BaseModel
 
 class Chunk(BaseModel):
@@ -310,7 +307,7 @@ class Chunk_id(BaseModel):
     account_id: str
  
 
-async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, chunks_to_assemble):
+async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, total_chunks, upload_chunk_path):
     get_current_chunk_task = importlib.import_module(
         "app.worker.tasks.get_curr_chunk"
     )
@@ -319,70 +316,36 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, c
     )  
     current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
 
-    # doesn't execute for some reason
     if current_chunk:
-        # current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
-        current_chunk.pop("__faust") 
+        print(f'Retrieving chunk {current_chunk["chunk_number"]}') 
 
-        print(f'Retrieving chunk {current_chunk["chunk_number"]}')
-        print(f'Recieved data of type {type(current_chunk["data"])}')
-
-        next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
+        # read data from previous quant file; already has coverage
         previous_chunk = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-        print(realtime.coverage_summarizer(previous_chunk))
+        print(realtime.coverage_summarizer(previous_chunk, headers))
 
-        accumulated_results = realtime.update_analysis(previous_chunk, next_chunk, 'NumReads')  
-        accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results)
+        # read data from quant file and calculate coverage
+        next_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
+        next_chunk['Coverage'] = realtime.coverage_calc(next_chunk, headers[1])
+
+        accumulated_results = realtime.update_analysis(previous_chunk, next_chunk, headers[1])  
+        accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results, headers[1])
         
+        print(realtime.coverage_summarizer(accumulated_results, headers))
+
         data = accumulated_results.to_dict(orient="tight")
 
-        task2 = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=chunks_to_assemble, data=data).dict())
+        task = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=total_chunks, data=data).dict())
+
+        print(f'Added chunk {task["chunk_number"]} of {task["total_chunks"]}')
+
+        # if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
+        #     for f in glob.glob(upload_chunk_path):
+        #         os.remove(f)
     else:
         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
-        first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
-        data = first_chunk.to_dict(orient="tight")
-        print(f'Adding data of type {type(data)}')
-        task = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=chunks_to_assemble, data=data).dict())
-        print(f'Added chunk {task["chunk_number"]}')
-        print(f'{type(task["data"])} was added') 
+        first_chunk['Coverage'] = realtime.coverage_calc(first_chunk, headers[1])
         
-# def analyze_handler(headers, metadata, quant_dir, output_dir):
-#     if os.path.isfile(output_dir):  
-#         current_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
-#         previous_chunk = pd.read_csv(output_dir, index_col='Pathogen')
-#         accumulated_results = realtime.update_analysis(previous_chunk, current_chunk, 'NumReads')  
-#         accumulated_results['Coverage'] = realtime.coverage_calc(accumulated_results) 
-#         accumulated_results.to_csv(output_dir)
-#     else:
-#         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
-#         first_chunk['Coverage'] = realtime.coverage_calc(first_chunk)
-#         first_chunk.to_csv(output_dir)
-    
-# def start_final_chunk_analysis(file_id, chunk_number):
-#     start_chunk_analysis(file_id, chunk_number)
-#     # finish_file_analysis(file_id)
-
-
-# def start_chunk_analysis(file_id, chunk_number):
-#     commands_lst = salmonconfig.commands(
-#         sample='{}_{}'.format(file_id, chunk_number),
-#         indexpath="indexes/bacterial_index",
-#         filepath="chunks/{}/{}.fastq".format(
-#             file_id, chunk_number),
-#         resultspath="results/{}/{}".format(
-#             file_id, chunk_number)
-#     )
-
-#     requests.post("http://localhost:8002/", json=commands_lst)
-
-#     os.remove("chunks/{}/{}.fastq".format(file_id, chunk_number))
-
-
-# @router.get("/results/{file_id}")
-# async def get_results(file_id: str):
-#     if not os.path.isfile("results/{}/final.csv".format(file_id)):
-#         return 404
-
-#     dist = pd.read_csv("results/{}/final.csv".format(file_id))
-
-#     return {"Result": "OK"}  
+        data = first_chunk.to_dict(orient="tight")
+        task = await increment_task.agent.ask(Chunk(account_id=file_id, chunk_number=chunk_number, total_chunks=total_chunks, data=data).dict())
+        
+        print(f'Added chunk {task["chunk_number"]} of {task["total_chunks"]}')

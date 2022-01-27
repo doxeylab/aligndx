@@ -18,25 +18,21 @@ def metadata_load(dir, panel):
   metadata = metadata.fillna('')   
   return metadata
  
-def coverage_calc(df):
-
-  mask_cols = df.select_dtypes(include=['float64']).columns 
+def coverage_calc(df, header):
   hits = df.copy()
 
-  mask = hits[mask_cols] > 0
-  hits[mask_cols] = hits[mask_cols][mask]
-  hits = hits.dropna()   
+  hits = hits[hits[header] > 0] 
 
   all_count = df.groupby(["Pathogen"])['Name'].apply(np.count_nonzero)
   hits_count = hits.groupby(["Pathogen"])['Name'].apply(np.count_nonzero)
-  coverage = np.round(hits_count/all_count * 100, decimals=2)
+  coverage = np.round(hits_count.astype(np.double)/all_count.astype(np.double) * 100, decimals=2)
   coverage.fillna(0, inplace=True)
 
   return coverage.to_frame("Coverage")
 
-def coverage_summarizer(df):   
+def coverage_summarizer(df, headers):   
   c = df.copy()
-  c = c.groupby(["Pathogen","Coverage"]).count().drop(['Name','NumReads'], axis=1)  
+  c = c.groupby(["Pathogen","Coverage"]).count().drop(headers, axis=1)  
   c = c.index.to_frame(index=False) 
   c = c.to_dict(orient="records") 
   return c
@@ -69,7 +65,7 @@ def realtime_quant_analysis(sample_name, headers, metadata):
   return matches_df
 
 def update_analysis(previous_chunk, current_chunk, header):
-  df = previous_chunk.copy()
+  df = current_chunk.copy()
   summed_reads = current_chunk[header] + previous_chunk[header]
   df[header] = summed_reads
   return df
@@ -87,15 +83,15 @@ def detection(df):
       detected = "Negative"
     return pathogens, detected
 
-def data_loader(df, sample_name):  
+def data_loader(df, sample_name, headers):  
   # df = pd.read_csv(output_dir, index_col='Pathogen')
   df.reset_index(inplace=True)
   pathogens = df['Pathogen'].unique().tolist()
   df_list={} 
   for pathogen in pathogens:
-    df_list[pathogen] = df.loc[df.Pathogen==pathogen][['Name', 'NumReads']].to_dict(orient="records")
+    df_list[pathogen] = df.loc[df.Pathogen==pathogen][headers].to_dict(orient="records")
   c = df.copy()
-  c = c.groupby(["Pathogen","Coverage"]).count().drop(['Name','NumReads'], axis=1)  
+  c = c.groupby(["Pathogen","Coverage"]).count().drop(headers, axis=1)  
   c = c.index.to_frame(index=False)
   pathogens, detected = detection(c)
   c = c.to_dict(orient="records")
