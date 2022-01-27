@@ -20,6 +20,7 @@ uploads
 
 # secrets
 .env
+config.ps1
 
 # misc
 /app/.DS_Store

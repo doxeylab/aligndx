@@ -20,7 +20,7 @@ from uuid import uuid4
 submissions = Table(
     "submissions",
     metadata,
-    Column("id", UUID(), primary_key=True, nullable = False, default=uuid4),
+    Column("id", UUID(), primary_key=True, nullable=False, default=uuid4),
     Column("token", String(50), nullable=False),
     Column("sample", String(50)),
     Column("panel", String(50), nullable=True),
@@ -39,6 +39,23 @@ users = Table(
     Column("hashed_password", String(250)),
 )
 
+upload_logs = Table(
+    "upload_logs",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("submission_id", UUID(), ForeignKey("submissions.id"), nullable=False),
+    Column("start_kilobytes", Integer, nullable=False),
+    Column("size_kilobytes", Integer, nullable=False),
+)
+
+deletion_logs = Table(
+    "deletion_logs",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("upload_id", Integer, ForeignKey("upload_logs.id"), nullable=False),
+    Column("deletion_time", DateTime, nullable=False),
+)
+
 
 # REPOSITORIES
 class Sample:
@@ -52,7 +69,7 @@ class Sample:
     async def get_sample(cls, panel):
         query = submissions.select().where(submissions.c.panel == panel)
         sample = await database.fetch_one(query)
-        return panel 
+        return panel
 
     @classmethod
     async def create(cls, **sample):
@@ -70,6 +87,7 @@ class Sample:
         sample = await database.execute(query)
         return sample
 
+
 class User:
     @classmethod
     async def create(cls, user):
@@ -82,3 +100,17 @@ class User:
         query = users.select().where(users.c.email == email)
         user = await database.fetch_one(query)
         return user
+
+
+class Logs:
+    @classmethod
+    async def log_upload(cls, **log):
+        query = upload_logs.insert().values(**log)
+        log = await database.execute(query)
+        return log
+
+    @classmethod
+    async def log_deletion(cls, **log):
+        query = deletion_logs.insert().values(**log)
+        log = await database.execute(query)
+        return log

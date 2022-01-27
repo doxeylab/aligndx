@@ -16,6 +16,7 @@ from app.scripts import email_feature, salmonconfig
 
 # from app.db.database import database
 from app.db.models import Sample as ModelSample
+from app.db.models import Logs as LogsModel
 
 # from app.db.models import create, get
 from app.db.schema import Sample as SchemaSample
@@ -187,6 +188,12 @@ async def upload_chunk(
 
     if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
         background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir, file_id, panel, total_salmon_chunks) 
+
+    logs = await LogsModel.log_upload(
+        submission_id = file_id,
+        start_kilobytes = math.ceil(chunk_number * upload_chunk_size / 1024),
+        size_kilobytes = math.ceil(upload_chunk_size / 1024)
+    )    
 
     return {"Result": "OK"} 
 
