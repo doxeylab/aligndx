@@ -13,8 +13,7 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Result from './pages/Result';
 import Signup from './pages/Signup';
-import Team from './pages/Team';
-import LiveResults from './pages/LiveResults';
+import Team from './pages/Team'; 
 import RealTime from './pages/RealTime';
 import GlobalStyle from './StyledGlobal';
 
@@ -48,8 +47,7 @@ function App() {
                                     <Route path='/results' component={Result} />
                                     <Route path='/signup' component={Signup} />
                                     <Route path='/login' component={Login} />
-                                    <Route path='/USER_ID' component={Profile} />
-                                    <Route path='/liveresults' component={LiveResults} />
+                                    <Route path='/USER_ID' component={Profile} /> 
                                     <Route path='/realtime' component={RealTime} />
                                 </Switch>
                                 <Footer />
