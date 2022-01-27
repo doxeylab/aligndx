@@ -1,20 +1,41 @@
-import React, {useState, useContext} from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+// Styling Libraries
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import Typography from '@mui/material/Typography';
+import { Col, Container, Row } from 'react-bootstrap';
+
+// React
 import axios from 'axios';
-import {WEBSOCKET_URL, RT_RES_STATUS} from '../services/Config';
-import Barchart from '../components/BarChart';
-import { Link } from 'react-router-dom';
-import ResultCard from '../components/ResultCard.js';
-import { Section } from '../components/Common/PageElement'; 
-import { TokenService } from '../services/Token';
-import startFile from '../components/ChunkController/chunkController';
-import Fade from 'react-reveal/Fade';
-import UploadComponent from '../components/UploadComponent'; 
-import Button from '../components/Button';
-import { HeroImage } from '../components/HomeComponents/Hero/StyledHero';
-import HomePageArt from '../assets/HomePageArt.svg';
-import { DropdownMenu, TextField } from '../components/Form';
-import { LoadContext } from '../LoadContext';
+import React, { useState, useContext } from 'react';
+
+// Components
+//// Core components
+import startFile from '../../components/ChunkController/chunkController';
+import UploadComponent from '../../components/UploadComponent';
+
+//// Styling
+import { Section, Title } from '../../components/Common/PageElement';
+import { DropdownMenu, TextField } from '../../components/Form';
+import Barchart from '../../components/BarChart';
+import Button from '../../components/Button';
+import { ResultAccordianTitle, ResultAccordionImg, ResultTitle } from './StyledResult'; 
+
+// Assets
+import Green_Check from '../../assets/Green_Check.png';
+import Red_X from '../../assets/Red_X.png';
+
+// Config
+import { LoadContext } from '../../LoadContext';
+
+// Testing
+import example_dataset from '../../assets/example_dataset.json';
+
+// Services
+import { TokenService } from '../../services/Token';
+import {WEBSOCKET_URL, RT_RES_STATUS} from '../../services/Config';
+ 
 
 
 const selectmenuoptions = [
@@ -193,48 +214,53 @@ const RealTime = () => {
                     </Container>
         </Section>
         :
-        <Section full id="results">
-            <Container className="result-container">
-                <Row>
-                    <h1 className="result-container__title">Sample: {sample} for {pathogens}</h1>
-                </Row> 
-                {/* <Row>
-                    {data.map(d => {
-                        return (
-                            <ResultCard detection={d.detected}>
-                                <Row style={{padding: "25px"}}>
-                                <Col style={{padding: "25px"}}>
-                                        <div className = 'barGraph'>
-                                            <Barchart data={d} yLabel={d.ylabel} xLabel={d.xlabel} col="coverage"/>  
-                                        </div>  
-                                </Col> 
-                                <Col style={{padding: "25px"}}> 
-                                        <div>
-                                            <h1>
-                                                {d.title}
-                                            </h1> 
-                                            <p>
-                                                {d.text }
-                                            </p>
-                                        </div> 
-                                </Col>
-                                </Row>
-                            </ResultCard>
-                        )
-                    })}
-                </Row> */}
-                <Row>
-                    <Col>
-                        <button className="resultPageBtn saveResultBtn">Save Results</button>
-
-                        <Link to="/home">
-                            <button className="resultPageBtn upload-btn">Upload New</button>
-                        </Link>
-                    </Col>
-
-                </Row>
-            </Container>
-        </Section>
+        <Section id="result">
+                    <Container>
+                        <Row>
+                            <Col>
+                                <Title>Result</Title>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <ResultTitle>Sample: {sample} for {pathogens}</ResultTitle>
+                        </Row>
+                        <Row>
+                            {data.map((d) => (
+                                <Accordion style={{ width: "100%" }}>
+                                    <AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="panel1a-content"
+                                        id="panel1a-header"
+                                    >
+                                        <ResultAccordionImg src={d.detected === "Negative" ? Red_X : Green_Check}></ResultAccordionImg>
+                                        <ResultAccordianTitle detection={d.detected}>{d.detected}</ResultAccordianTitle>
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                        <Typography>
+                                            <Row style={{ padding: "25px" }}>
+                                                <Col style={{ padding: "25px" }}>
+                                                    <div className='barGraph'>
+                                                        <Barchart data={d} yLabel={d.ylabel} xLabel={d.xlabel} col="coverage" />
+                                                    </div>
+                                                </Col>
+                                                <Col style={{ padding: "25px" }}>
+                                                    <div>
+                                                        <h1>
+                                                            {d.title}
+                                                        </h1>
+                                                        <p>
+                                                            {d.text}
+                                                        </p>
+                                                    </div>
+                                                </Col>
+                                            </Row>
+                                        </Typography>
+                                    </AccordionDetails>
+                                </Accordion>
+                            ))}
+                        </Row>
+                    </Container>
+                </Section>
         }
         </>
     );
