@@ -14,7 +14,7 @@ import Profile from './pages/Profile';
 import Result from './pages/Result';
 import Signup from './pages/Signup';
 import Team from './pages/Team'; 
-import RealTime from './pages/RealTime/RealTime.js';
+import RealTime from './pages/RealTime/';
 import GlobalStyle from './StyledGlobal';
 
 const theme = createTheme({

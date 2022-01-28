@@ -119,19 +119,16 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
             if current_chunk:
                 if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
                     df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                    data = realtime.data_loader(df, sample_name, headers)
-                    await manager.send_data(data, websocket) 
-                    await asyncio.sleep(1)
-                    end_signal = {"result": "complete"} 
-                    await manager.send_data(end_signal, websocket) 
+                    data = realtime.data_loader(df, sample_name, headers, status="complete")
+                    await manager.send_data(data, websocket)  
                     manager.disconnect(websocket)
                 else:
                     df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                    data = realtime.data_loader(df, sample_name, headers)
+                    data = realtime.data_loader(df, sample_name, headers, status="ready")
                     await manager.send_data(data, websocket) 
                     await asyncio.sleep(1)
             else:
-                message = {"result": "pending"} 
+                message = {"status": "pending"} 
                 await manager.send_data(message, websocket)
                 await asyncio.sleep(5)  
 

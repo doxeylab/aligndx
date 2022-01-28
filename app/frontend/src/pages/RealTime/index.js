@@ -1,81 +1,231 @@
+// Styling Libraries
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
-import example_dataset from '../../assets/example_dataset.json';
+
+// React
+import axios from 'axios';
+import React, { useState, useContext } from 'react';
+
+// Components
+//// Core components
+import startFile from '../../components/ChunkController/chunkController';
+import UploadComponent from '../../components/UploadComponent';
+
+//// Styling
+import { Section, Title } from '../../components/Common/PageElement';
+import { DropdownMenu, TextField } from '../../components/Form';
+import RTBarchart from '../../components/RTBarChart';
+import Button from '../../components/Button';
+import { ResultAccordianTitle, ResultAccordionImg, ResultTitle } from './StyledResult'; 
+
+// Assets
 import Green_Check from '../../assets/Green_Check.png';
 import Red_X from '../../assets/Red_X.png';
-import Barchart from '../../components/BarChart';
-import { Section, Title } from '../../components/Common/PageElement';
-import { RESULT_URL } from '../../services/Config';
-import { ResultAccordianTitle, ResultAccordionImg, ResultTitle } from './StyledResult';
+
+// Config
+import { LoadContext } from '../../LoadContext';
+
+// Testing
+import example_dataset from '../../assets/example_dataset.json';
+
+// Services
+import { TokenService } from '../../services/Token';
+import {WEBSOCKET_URL, RT_RES_STATUS} from '../../services/Config';
+ 
 
 
-const Result = () => {
-    try {
-        var url_id = window.location.href.split('#/?')[1].split('&')[0].slice('id='.length)
-    } catch (err) {
-        var url_id = undefined
+const selectmenuoptions = [
+    {
+        id: "panel",
+        category: "Panel",
+        opts: [
+            { value: "bacterial", label: "Bacterial" },
+            { value: "viral", label: "Viral" }
+        ]
+    },
+    {
+        id: "bacteria",
+        category: "Bacteria",
+        opts: [
+            { value: "streptococcus_pneumoniae", label: "Streptococcus pneumoniae" },
+            { value: "moraxella_catarrhalis", label: "Moraxella Catarrhalis" },
+            { value: "haemophilus_influenzae", label: "Haemophilus Influenzae" },
+        ]
+    },
+    {
+        id: "virus",
+        category: "Virus",
+        opts: [
+            { value: "influenza", label: "Influenza" },
+            { value: "sars_cov_2", label: "Sars-Cov-2" }
+        ]
+    }
+];
+
+const RealTime = () => {
+    
+    const token = TokenService(40);
+
+    const [show, setShow] = useState(false);
+    const [emailError, setEmailError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(false);
+    const [dataFiles, setDataFiles] = useState([]);
+    const { setLoad } = useContext(LoadContext);
+    const [email, setEmail] = useState("");
+    const [selectedDetections, setSelectedDetections] = useState([]);
+     
+    const [data, setData] = useState(null);
+    const [sample, setSample] = useState("");
+    const [pathogens, setPathogens] = useState(null); 
+    const [getLoad, setGetLoad] = useState(true);  
+ 
+    const handleEmailError = (err) => {
+        setEmailError(err)
     }
 
-    // const [data, setData] = useState([{ "index": "TEST1", "column_category": 6 },
-    // { "index": "TEST2", "column_category": 12 },
-    // { "index": "TEST3", "column_category": 3 } ])
+    const dataFileCallback = (file) => {
+        setDataFiles(prevFiles => [...prevFiles, file])
+    }
 
-    var dummyData = example_dataset
+    const dataRemoveFileCallback = (fileName) => {
+        const dataFileIndex = dataFiles.findIndex(e => e.name === fileName);
+        dataFiles.splice(dataFileIndex, 1);
+        setDataFiles([...dataFiles]);
+    }  
 
-    const [data, setData] = useState(null);
-    const [sample, setSample] = useState(null);
-    const [pathogens, setPathogens] = useState(null);
-    const [getLoad, setGetLoad] = useState(true);
-    const sendGetRequest = async () => {
+    const detectionCallback = (detections) => {
+        setSelectedDetections(detections)
+    }
+
+    const emailCallback = (mail) => {
+        setEmail(mail)
+    }
+
+    const connectWebsocket = async () => {
         try {
-            const res = await axios.get(RESULT_URL + '/' + url_id);
-            console.log(res.data)
-            setData([res.data])
-            setGetLoad(false)
-            setPathogens(res.data.pathogens)
-            setSample(res.data.sample)
+            console.log("trying websocket connection")
+            const ws = new WebSocket(WEBSOCKET_URL + '/' + token) 
+            ws.onerror = function (event) {
+                console.log("didn't work")
+                console.log(event)
+            }
+            ws.onopen = function (event) {
+                console.log("opened")
+                console.log(event)
+            }
+            ws.onclose = function (event) {
+                console.log("socket closed")
+                console.log(event)
+            }
+            ws.onmessage = function (event) {
+                const obj = JSON.parse(event.data)
+                if (obj.status == "complete"){
+                    console.log(`Transaction status is ${obj.status}`)  
+                    setData(event.data)
+                    setSample(event.data.sample)
+                    setPathogens(event.data.pathogens)
+                    ws.close();
+                }
+                if (obj.status == "pending"){
+                    console.log(`Transaction status is ${obj.status}`)  
+                }
+
+                if (obj.status == "ready"){
+                    console.log(`Transaction status is ${obj.status}`)  
+                    console.log(event.data)
+
+                    setLoad(false)
+                    setGetLoad(false)
+                    setData(event.data)
+                    setSample(event.data.sample)
+                    setPathogens(event.data.pathogens)
+                } 
+                else { 
+                    console.log(typeof obj)
+                    console.log(Object.keys(obj))
+                    console.log(`something went wrong. Check this data out: ${obj}`)
+                }
+            }
         }
 
         catch (err) {
             // Handle Error Here
+            console.log("error")
             console.error(err);
-            console.log('Error')
-            setData(dummyData)
-            setSample("SRR11365240")
-            setPathogens("Sars CoV-2")
-            setGetLoad(false)
         }
     };
 
-    useEffect(() => {
-        // sendGetRequest();
-        axios.get(RESULT_URL + '/' + url_id)
-            .then(res => {
-                console.log(res.data)
-                setData([res.data])
-                setGetLoad(false)
-                setPathogens(res.data.pathogens)
-                setSample(res.data.sample)
-            })
-            .catch(() => {
-                console.log('Error')
-                setData(dummyData)
-                setSample("SRR11365240")
-                setPathogens("Sars CoV-2")
-                setGetLoad(false)
-            })
-    }, [])
-
+    const uploadChunked = async () => {
+        setLoad(true)
+        const option_lst = []
+        selectedDetections.forEach(x => option_lst.push(x))
+        console.log(option_lst) 
+        try {
+            await startFile(dataFiles[0], token, option_lst, email, connectWebsocket); 
+        }
+        catch(e) {
+            console.log(e)
+        }
+    }
+     
+ 
     return (
         <>
-            {data ?
-                <Section id="result">
+        {getLoad ?
+            <Section id="hero" center>
+             <Container>
+                        <Row style={{ marginBottom: '1.5rem' }}>
+                            <Col>
+                                <UploadComponent
+                                    fileCallback={dataFileCallback}
+                                    selectedFiles={dataFiles}
+                                    removeCallback={dataRemoveFileCallback}
+                                />
+                            </Col>
+                        </Row>
+                        {errorMsg ?
+                            <Row>
+                                <Col sm={{ span: 6, offset: 6 }}>
+                                    <p style={{ color: "#FF0000" }}>Invalid Email!</p>
+                                </Col>
+                            </Row>
+                            :
+                            ``
+                        }
+                        <Row style={{ marginBottom: '1.5rem' }}>
+                            <Col sm={6}>
+                                <DropdownMenu
+                                    options={selectmenuoptions}
+                                    val="value"
+                                    label="label"
+                                    category="category"
+                                    valueCallback={detectionCallback}
+                                    placeholder="Select your pathogen(s)"
+                                />
+                            </Col>
+                            <Col sm={6}>
+                                <TextField
+                                    placeholder="Enter your email"
+                                    valueCallback={emailCallback}
+                                    type="email"
+                                    errorCallback={handleEmailError}
+                                    errorMsg={errorMsg}
+                                />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <Button fill disabled={dataFiles.length === 0 || selectedDetections.length === 0 ? true : false} onClick={() => uploadChunked()}>Analyze</Button>
+                            </Col>
+                        </Row>
+                    </Container>
+        </Section>
+        :
+        <Section id="result">
                     <Container>
                         <Row>
                             <Col>
@@ -101,7 +251,7 @@ const Result = () => {
                                             <Row style={{ padding: "25px" }}>
                                                 <Col style={{ padding: "25px" }}>
                                                     <div className='barGraph'>
-                                                        <Barchart data={d} yLabel={d.ylabel} xLabel={d.xlabel} col="coverage" />
+                                                        <RTBarchart data={d} yLabel={d.ylabel} xLabel={d.xlabel} col="coverage" />
                                                     </div>
                                                 </Col>
                                                 <Col style={{ padding: "25px" }}>
@@ -122,11 +272,9 @@ const Result = () => {
                         </Row>
                     </Container>
                 </Section>
-                :
-                <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>LOADING...</h1>
-            }
+        }
         </>
-    )
-}
-
-export default Result
+    );
+  }
+   
+export default RealTime;
