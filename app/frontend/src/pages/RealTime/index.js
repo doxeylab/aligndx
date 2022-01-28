@@ -70,19 +70,24 @@ const RealTime = () => {
     
     const token = TokenService(40);
 
-    const [show, setShow] = useState(false);
+    // upload state
     const [emailError, setEmailError] = useState(false);
     const [errorMsg, setErrorMsg] = useState(false);
     const [dataFiles, setDataFiles] = useState([]);
-    const { setLoad } = useContext(LoadContext);
     const [email, setEmail] = useState("");
     const [selectedDetections, setSelectedDetections] = useState([]);
-     
+
+    // results state
     const [data, setData] = useState(null);
     const [sample, setSample] = useState("");
     const [pathogens, setPathogens] = useState(null); 
-    const [getLoad, setGetLoad] = useState(true);  
- 
+
+    // config state
+    const { setLoad } = useContext(LoadContext);
+    const [getResult, setGetResult] = useState(true);  
+
+
+    // state handlers
     const handleEmailError = (err) => {
         setEmailError(err)
     }
@@ -105,29 +110,33 @@ const RealTime = () => {
         setEmail(mail)
     }
 
+    // websocket handler
+
     const connectWebsocket = async () => {
         try {
             console.log("trying websocket connection")
             const ws = new WebSocket(WEBSOCKET_URL + '/' + token) 
-            ws.onerror = function (event) {
-                console.log("didn't work")
-                console.log(event)
-            }
-            ws.onopen = function (event) {
-                console.log("opened")
-                console.log(event)
-            }
-            ws.onclose = function (event) {
-                console.log("socket closed")
-                console.log(event)
-            }
+            
+            // ws.onerror = function (event) {
+            //     console.log("didn't work")
+            //     console.log(event)
+            // }
+            // ws.onopen = function (event) {
+            //     console.log("opened")
+            //     console.log(event)
+            // }
+            // ws.onclose = function (event) {
+            //     console.log("socket closed")
+            //     console.log(event)
+            // }
+
             ws.onmessage = function (event) {
                 const obj = JSON.parse(event.data)
                 if (obj.status == "complete"){
                     console.log(`Transaction status is ${obj.status}`)  
-                    setData(event.data)
-                    setSample(event.data.sample)
-                    setPathogens(event.data.pathogens)
+                    // setData(event.data)
+                    // setSample(event.data.sample)
+                    // setPathogens(event.data.pathogens)
                     ws.close();
                 }
                 if (obj.status == "pending"){
@@ -138,16 +147,15 @@ const RealTime = () => {
                     console.log(`Transaction status is ${obj.status}`)  
                     console.log(event.data)
 
-                    setLoad(false)
-                    setGetLoad(false)
-                    setData(event.data)
-                    setSample(event.data.sample)
-                    setPathogens(event.data.pathogens)
+                    // setLoad(true)
+                    // setGetResult(false)
+                    // setData(event.data)
+                    // setSample(event.data.sample)
+                    // setPathogens(event.data.pathogens)
                 } 
                 else { 
-                    console.log(typeof obj)
+                    console.log(obj)
                     console.log(Object.keys(obj))
-                    console.log(`something went wrong. Check this data out: ${obj}`)
                 }
             }
         }
@@ -175,7 +183,7 @@ const RealTime = () => {
  
     return (
         <>
-        {getLoad ?
+        {getResult ?
             <Section id="hero" center>
              <Container>
                         <Row style={{ marginBottom: '1.5rem' }}>
