@@ -1,10 +1,20 @@
-import app.auth.auth_dependencies as auth 
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
-from app.auth.models import UserTemp, Token, User
+# python libraries
 from datetime import timedelta
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# FastAPI
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+
+# auth components
+import app.auth.auth_dependencies as auth
+from app.auth.models import UserTemp, Token, User
+
+# settings
+from app.config.settings import UserSettings
+
+# config setup
+settings = UserSettings()
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter()
  

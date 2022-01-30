@@ -38,3 +38,6 @@ class UploadSettings(FolderSettings):
 # Inherits foldersettings
 class ResultSettings(FolderSettings):
     pass  
+
+class UserSettings(BaseSettings):
+    ACCESS_TOKEN_EXPIRE_MINUTES = 30

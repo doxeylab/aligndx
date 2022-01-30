@@ -1,23 +1,25 @@
+# python libraries
+import os, asyncio, importlib, json
+from typing import List 
+import pandas as pd 
+from pydantic import BaseModel
+
+# FastAPI
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+
+# auth components
 from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user_no_exception
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
-from typing import List 
-import os
-import asyncio
 
-from app.scripts import data_tb, analyze, realtime
-
-# from app.db.database import database
+# db components
 from app.db.models import Sample as ModelSample
-
-# from app.db.models import create, get
 from app.db.schema import Sample as SchemaSample
 
-from app.config.settings import ResultSettings
+# core scripts
+from app.scripts import analyze, realtime
 
-import importlib 
- 
-import json
+# settings
+from app.config.settings import ResultSettings 
 
 # config
 settings = ResultSettings()
@@ -84,12 +86,8 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-import pandas as pd 
-from pydantic import BaseModel
-    
 class Chunk_id(BaseModel):
     account_id: str
-
 
 @router.websocket('/livegraphs/{token}') 
 async def live_graph_ws_endpoint(websocket: WebSocket, token: str):

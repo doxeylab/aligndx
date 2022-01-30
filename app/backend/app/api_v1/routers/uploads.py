@@ -1,27 +1,40 @@
-import chunk
-from socket import timeout
-import sys
-import math
-from array import ArrayType
-from uuid import uuid4
-import aiofiles, asyncio 
-from fastapi import APIRouter, BackgroundTasks, File, UploadFile, Form, Body
-from typing import List 
-import shutil, os, requests
-from datetime import datetime
+# python libraries
+## system utils
+import sys, os, shutil, math, traceback, importlib
 
+## async
+import aiofiles, asyncio 
+
+## networking
+import requests
+
+## types
+from uuid import uuid4
+from datetime import datetime
+from pydantic import BaseModel
+
+## styling
+from typing import List 
+
+## data manipulation
 import pandas as pd
 
-from app.scripts import email_feature, salmonconfig
+# FastAPI
+from fastapi import APIRouter, BackgroundTasks, File, UploadFile, Form, Body
 
-# from app.db.database import database
+
+# core scripts
+from app.scripts import email_feature, salmonconfig, realtime
+
+# db
+## from app.db.database import database
 from app.db.models import Sample as ModelSample
 from app.db.models import Logs as LogsModel
 
-# from app.db.models import create, get
+## from app.db.models import create, get
 from app.db.schema import Sample as SchemaSample
 
-from app.scripts import realtime 
+# settings
 from app.config.settings import UploadSettings
 
 # config
@@ -276,8 +289,6 @@ async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands
 
     future = await loop.run_in_executor(None, call_salmon, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number), int(total_chunks), chunk, upload_dir)  
         
-import traceback
-import sys
 
 def call_salmon(commands_lst, loop, headers, metadata, quant_dir, file_id, chunk_number, total_chunks, chunk_dir, upload_chunk_path):  
 
@@ -303,9 +314,6 @@ def call_salmon(commands_lst, loop, headers, metadata, quant_dir, file_id, chunk
         print('The coroutine returned: {!r}'.format(result))
 
 
-import importlib 
-import glob
-from pydantic import BaseModel
 
 class Chunk(BaseModel):
     account_id: str
@@ -348,9 +356,6 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, t
 
         print(f'Added chunk {task["chunk_number"]} of {task["total_chunks"]}')
 
-        # if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
-        #     for f in glob.glob(upload_chunk_path):
-        #         os.remove(f)
     else:
         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
         first_chunk['Coverage'] = realtime.coverage_calc(first_chunk, headers[1])
