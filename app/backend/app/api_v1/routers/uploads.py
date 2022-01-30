@@ -22,21 +22,24 @@ from app.db.models import Logs as LogsModel
 from app.db.schema import Sample as SchemaSample
 
 from app.scripts import realtime 
+from app.config.settings import UploadSettings
 
-read_batch_size = 4096
-salmon_chunk_size = math.floor(4e6)
-upload_chunk_size = 8e5
-chunk_ratio = salmon_chunk_size / upload_chunk_size
+# config
+settings = UploadSettings()
 
-UPLOAD_FOLDER = './uploads' 
-RESULTS_FOLDER = './results'
-INDEX_FOLDER = './indexes' 
-METADATA_FOLDER = "./metadata"
+read_batch_size = settings.read_batch_size
+salmon_chunk_size = settings.salmon_chunk_size
+upload_chunk_size = settings.upload_chunk_size
+chunk_ratio = settings.chunk_ratio
 
-STANDARD_UPLOADS = UPLOAD_FOLDER + '/standard'
-STANDARD_RESULTS = RESULTS_FOLDER + '/standard'
-REAL_TIME_UPLOADS = UPLOAD_FOLDER + '/real_time'
-REAL_TIME_RESULTS = RESULTS_FOLDER + '/real_time' 
+UPLOAD_FOLDER = settings.UPLOAD_FOLDER
+RESULTS_FOLDER = settings.RESULTS_FOLDER
+INDEX_FOLDER = settings.INDEX_FOLDER
+METADATA_FOLDER = settings.METADATA_FOLDER
+STANDARD_UPLOADS = settings.STANDARD_UPLOADS
+STANDARD_RESULTS = settings.STANDARD_RESULTS
+REAL_TIME_UPLOADS = settings.REAL_TIME_UPLOADS
+REAL_TIME_RESULTS = settings.REAL_TIME_RESULTS
 
 for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULTS,  REAL_TIME_UPLOADS, REAL_TIME_RESULTS):
     if not os.path.isdir(dirname):

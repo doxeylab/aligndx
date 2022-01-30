@@ -1,4 +1,5 @@
-from app.api_v1.routers.users import UserDTO, get_current_user_no_exception
+from app.auth.models import UserDTO
+from app.auth.auth_dependencies import get_current_user_no_exception
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from typing import List 
 import os
@@ -12,34 +13,23 @@ from app.db.models import Sample as ModelSample
 # from app.db.models import create, get
 from app.db.schema import Sample as SchemaSample
 
+from app.config.settings import ResultSettings
+
 import importlib 
-
-# sequences = {
-#     "lcl|NC_045512.2_cds_YP_009725255.1_12": "ORF10",
-#     "lcl|NC_045512.2_cds_YP_009724397.2_11": "nucleocapsid phosphoprotein",
-#     "lcl|NC_045512.2_cds_YP_009725295.1_2": "ORF1a",
-#     "lcl|NC_045512.2_cds_YP_009725318.1_9": "ORF7b",
-#     "lcl|NC_045512.2_cds_YP_009724389.1_1": "ORF1ab",
-#     "lcl|NC_045512.2_cds_YP_009724391.1_4": "ORF3a",
-#     "lcl|NC_045512.2_cds_YP_009724392.1_5": "envelope",
-#     "lcl|NC_045512.2_cds_YP_009724393.1_6": "membrane",
-#     "lcl|NC_045512.2_cds_YP_009724390.1_3": "surface",
-#     "lcl|NC_045512.2_cds_YP_009724394.1_7": "ORF6",
-#     "lcl|NC_045512.2_cds_YP_009724396.1_10": "ORF8",
-#     "lcl|NC_045512.2_cds_YP_009724395.1_8": "ORF7a",
-# } 
-
+ 
 import json
 
-UPLOAD_FOLDER = './uploads' 
-RESULTS_FOLDER = './results'
-INDEX_FOLDER = './indexes' 
-METADATA_FOLDER = "./metadata"
+# config
+settings = ResultSettings()
 
-STANDARD_UPLOADS = UPLOAD_FOLDER + '/standard'
-STANDARD_RESULTS = RESULTS_FOLDER + '/standard'
-REAL_TIME_UPLOADS = UPLOAD_FOLDER + '/real_time'
-REAL_TIME_RESULTS = RESULTS_FOLDER + '/real_time' 
+UPLOAD_FOLDER = settings.UPLOAD_FOLDER
+RESULTS_FOLDER = settings.RESULTS_FOLDER
+INDEX_FOLDER = settings.INDEX_FOLDER
+METADATA_FOLDER = settings.METADATA_FOLDER
+STANDARD_UPLOADS = settings.STANDARD_UPLOADS
+STANDARD_RESULTS = settings.STANDARD_RESULTS
+REAL_TIME_UPLOADS = settings.REAL_TIME_UPLOADS
+REAL_TIME_RESULTS = settings.REAL_TIME_RESULTS
 
 for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULTS,  REAL_TIME_UPLOADS, REAL_TIME_RESULTS):
     if not os.path.isdir(dirname):
