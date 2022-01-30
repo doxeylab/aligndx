@@ -1,9 +1,22 @@
-from app.api_v1.routers import uploads, results, users
-from app.db.database import database
+# python
+import os, asyncio 
+
+# fastapi
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import os, asyncio, importlib
+
+# routers
+from app.api_v1.routers import uploads, results, users
+
+# db
+from app.db.database import database
+
+# streaming worker
 import app.worker as worker
+
+# settings
+from app.config.settings import get_settings
+
 
 tags_metadata = [
     {
@@ -69,6 +82,10 @@ async def root():
 # starts database connection
 @app.on_event("startup")
 async def startup():
+    # initialize settings
+    get_settings()
+
+    # connect to the db
     await database.connect()
 
     # set up the faust app

@@ -21,8 +21,7 @@ import pandas as pd
 
 # FastAPI
 from fastapi import APIRouter, BackgroundTasks, File, UploadFile, Form, Body
-
-
+from fastapi import Depends
 # core scripts
 from app.scripts import email_feature, salmonconfig, realtime
 
@@ -34,11 +33,14 @@ from app.db.models import Logs as LogsModel
 ## from app.db.models import create, get
 from app.db.schema import Sample as SchemaSample
 
-# settings
-from app.config.settings import UploadSettings
+# settings 
+from app.config.settings import get_settings
+
+router = APIRouter()
 
 # config
-settings = UploadSettings()
+app_settings = get_settings()
+settings = app_settings.UploadSettings()
 
 read_batch_size = settings.read_batch_size
 salmon_chunk_size = settings.salmon_chunk_size
@@ -57,9 +59,6 @@ REAL_TIME_RESULTS = settings.REAL_TIME_RESULTS
 for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULTS,  REAL_TIME_UPLOADS, REAL_TIME_RESULTS):
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
-
-
-router = APIRouter()
 
 @router.get("/uploads/{token}")
 async def fileretrieve(token: str):

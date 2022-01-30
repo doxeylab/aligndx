@@ -7,10 +7,11 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status 
 from jose import JWTError, jwt
 
-from app.config.settings import AuthSettings
+from app.config.settings import get_settings
 
 # config
-settings = AuthSettings()
+app_settings = get_settings()
+settings = app_settings.AuthSettings()
 
 oauth2_scheme_auto_error = settings.oauth2_scheme_auto_error
 oauth2_scheme = settings.oauth2_scheme

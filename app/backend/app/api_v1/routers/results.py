@@ -19,10 +19,11 @@ from app.db.schema import Sample as SchemaSample
 from app.scripts import analyze, realtime
 
 # settings
-from app.config.settings import ResultSettings 
+from app.config.settings import get_settings
 
 # config
-settings = ResultSettings()
+app_settings = get_settings()
+settings = app_settings.ResultSettings()
 
 UPLOAD_FOLDER = settings.UPLOAD_FOLDER
 RESULTS_FOLDER = settings.RESULTS_FOLDER

@@ -10,10 +10,12 @@ import app.auth.auth_dependencies as auth
 from app.auth.models import UserTemp, Token, User
 
 # settings
-from app.config.settings import UserSettings
+from app.config.settings import get_settings
 
 # config setup
-settings = UserSettings()
+app_settings = get_settings()
+settings = app_settings.UserSettings()
+
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter()

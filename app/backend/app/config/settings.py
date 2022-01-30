@@ -2,42 +2,50 @@ from pydantic import BaseSettings
 from fastapi.security import OAuth2PasswordBearer 
 from passlib.context import CryptContext
 
+from functools import lru_cache
+
 import os, math
 
-#  -- Auth --
-class AuthSettings(BaseSettings):
-    oauth2_scheme_auto_error = OAuth2PasswordBearer(tokenUrl="token")
-    oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    SECRET_KEY = os.getenv("SECRET_KEY")
-    ALGORITHM = "HS256"
+class AppSettings(BaseSettings):
 
-#  -- Default directory tree --
-class FolderSettings(BaseSettings):
-    # folders
-    INDEX_FOLDER = './indexes' 
+    #  -- Auth --
+    class AuthSettings():
+        oauth2_scheme_auto_error = OAuth2PasswordBearer(tokenUrl="token")
+        oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        SECRET_KEY = os.getenv("SECRET_KEY")
+        ALGORITHM = "HS256"
 
-    UPLOAD_FOLDER = './uploads' 
-    RESULTS_FOLDER = './results'
-    METADATA_FOLDER = "./metadata"  
+    #  -- Default directory tree --
+    class FolderSettings():
+        # folders
+        INDEX_FOLDER = './indexes' 
 
-    STANDARD_UPLOADS = UPLOAD_FOLDER + '/standard'
-    STANDARD_RESULTS = RESULTS_FOLDER + '/standard'
+        UPLOAD_FOLDER = './uploads' 
+        RESULTS_FOLDER = './results'
+        METADATA_FOLDER = "./metadata"  
 
-    REAL_TIME_UPLOADS = UPLOAD_FOLDER + '/real_time'
-    REAL_TIME_RESULTS = RESULTS_FOLDER + '/real_time' 
+        STANDARD_UPLOADS = UPLOAD_FOLDER + '/standard'
+        STANDARD_RESULTS = RESULTS_FOLDER + '/standard'
 
-# Inherits from above and adds chunk config
-class UploadSettings(FolderSettings):
-    # chunk settings
-    read_batch_size = 4096
-    salmon_chunk_size = math.floor(4e6)
-    upload_chunk_size = 8e5
-    chunk_ratio = salmon_chunk_size / upload_chunk_size   
+        REAL_TIME_UPLOADS = UPLOAD_FOLDER + '/real_time'
+        REAL_TIME_RESULTS = RESULTS_FOLDER + '/real_time' 
 
-# Inherits foldersettings
-class ResultSettings(FolderSettings):
-    pass  
+    # Inherits from above and adds chunk config
+    class UploadSettings(FolderSettings):
+        # chunk settings
+        read_batch_size = 4096
+        salmon_chunk_size = math.floor(4e6)
+        upload_chunk_size = 8e5
+        chunk_ratio = salmon_chunk_size / upload_chunk_size   
 
-class UserSettings(BaseSettings):
-    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    # Inherits foldersettings
+    class ResultSettings(FolderSettings):
+        pass  
+
+    class UserSettings():
+        ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+@lru_cache()
+def get_settings():
+    return AppSettings()
