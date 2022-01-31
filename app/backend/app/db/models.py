@@ -85,7 +85,7 @@ class Sample:
             .values(result=result, user_id=user_id)
         )
         sample = await database.execute(query)
-        return sample
+        return sample 
 
 
 class User:
@@ -100,8 +100,8 @@ class User:
         query = users.select().where(users.c.email == email)
         user = await database.fetch_one(query)
         return user
-
-
+      
+      
 class Logs:
     @classmethod
     async def log_upload(cls, **log):

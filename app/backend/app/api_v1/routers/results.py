@@ -5,18 +5,19 @@ import pandas as pd
 from pydantic import BaseModel
 
 # FastAPI
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Request
 
 # auth components
 from app.auth.models import UserDTO
-from app.auth.auth_dependencies import get_current_user_no_exception
+from app.auth.auth_dependencies import get_current_user, get_current_user_no_exception
 
 # db components
 from app.db.models import Sample as ModelSample
 from app.db.schema import Sample as SchemaSample
 
 # core scripts
-from app.scripts import analyze, realtime
+from app.scripts import analyze, realtime 
+from app.scripts.web_socket.manager import ConnectionManager
 
 # settings
 from app.config.settings import get_settings
@@ -48,7 +49,7 @@ def analyze_handler(sample_name, headers, metadata, quant_dir):
     pathogens, detected = analyze.detection(coverage)
     return analyze.d3_compatible_data(coverage, sample_name, analyze.df_to_dict(hits_df), analyze.df_to_dict(all_df), pathogens, detected)
 
-@router.get('/results/{token}') 
+@router.get('/standard/{token}') 
 async def standard_results(token: str, current_user: UserDTO = Depends(get_current_user_no_exception)):   
     query = await ModelSample.get_token(token)  
     sample_name = query['sample']
@@ -64,26 +65,9 @@ async def standard_results(token: str, current_user: UserDTO = Depends(get_curre
         await ModelSample.save_result(token, json.dumps(result), current_user.id)
     return result
 
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: List[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-
-    async def send_data(self, data: dict, websocket: WebSocket):
-        await websocket.send_json(data)
-
-    async def send_message(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
-
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
+@router.get('/standard/submissions{token}')
+async def get_standard_submissions(token: str, current_user: UserDTO = Depends(get_current_user_no_exception)):
+    return 
 
 manager = ConnectionManager()
 
@@ -91,7 +75,7 @@ class Chunk_id(BaseModel):
     account_id: str
 
 @router.websocket('/livegraphs/{token}') 
-async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
+async def live_graph_ws_endpoint(websocket: WebSocket, token: str, request: Request):
     query = await ModelSample.get_token(token) 
     file_id = str(query['id'])
     sample_name = query['sample']
@@ -123,10 +107,10 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str):
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        print(f"The Client #{token} disconnected") 
+        print(f"The Client {request.scope['client']} disconnected") 
 
     except Exception as e: 
         print(e)
-        print(f"Exception occured so client #{token} disconnected")
+        print(f"Exception occured so client {request.scope['client']} disconnected")
  
   

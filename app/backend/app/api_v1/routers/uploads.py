@@ -22,6 +22,11 @@ import pandas as pd
 # FastAPI
 from fastapi import APIRouter, BackgroundTasks, File, UploadFile, Form, Body
 from fastapi import Depends
+
+# auth components
+from app.auth.models import UserDTO
+from app.auth.auth_dependencies import get_current_user_no_exception
+
 # core scripts
 from app.scripts import email_feature, salmonconfig, realtime
 
@@ -60,25 +65,25 @@ for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULT
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
 
-@router.get("/uploads/{token}")
-async def fileretrieve(token: str):
-    id = await ModelSample.get(token)
-    print(id)
-    return {'token': id} 
+# @router.get("/{token}")
+# async def fileretrieve(token: str):
+#     id = await ModelSample.get(token)
+#     print(id)
+#     return {'token': id} 
 
-@router.post("/uploads")
+@router.post("/")
 async def fileupload(  
     token: str = Form(...),
     files: List[UploadFile] = File(...), 
     panel: List[str] = Form(...), 
-    email: str = Form("")
+    email: str = Form(""),
     ):
     for file in files:
         for option in panel:
             # get file name
             sample_name = file.filename.split('.')[0]
             chosen_panel = str(option.lower()) + "_index"
-
+            
             id = uuid4()
             file_id = str(id)
             now = datetime.now()

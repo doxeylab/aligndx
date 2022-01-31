@@ -37,7 +37,8 @@ async def create_user(user: UserTemp):
         hashed_password=hashed_password,
     )
     await UserRepo.create(db_user)
-    return {"status": status.HTTP_201_CREATED}
+    return {"status": status.HTTP_201_CREATED,
+            "message": "User successfully created"}
 
 # Authenticate the user: verify user exists and password is correct
 async def authenticate_user(email: str, password: str):
@@ -109,3 +110,5 @@ async def get_current_user_no_exception(token: str = Depends(oauth2_scheme)):
         return None
 
     return UserDTO(**user)
+
+ 

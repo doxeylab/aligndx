@@ -2,8 +2,12 @@
 import os, asyncio 
 
 # fastapi
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+
+# auth
+from app.auth.auth_dependencies import get_current_user 
 
 # routers
 from app.api_v1.routers import uploads, results, users
@@ -54,29 +58,47 @@ app.add_middleware(
 
 app.include_router(
     uploads.router,
+    prefix="/uploads",
     tags=["uploads"],
     responses={408: {"description": "Ain't gonna work buddy"}},
 )
 app.include_router(
     results.router,
+    prefix="/results",
     tags=["results"],
     responses={408: {"description": "Ain't gonna work buddy"}},
 )
 app.include_router(
     users.router,
+    prefix="/users",
     tags=["users"],
     responses={408: {"description": "Ain't gonna work buddy"}},
 )
 
+app.include_router(
+    uploads.router,
+    prefix="/auth",
+    tags=["auth uploads"],
+    dependencies=[Depends(get_current_user)],
+    responses={418: {"description": "I'm a teapot"}},
+)
+
+app.include_router(
+    results.router,
+    prefix="/auth",
+    tags=["auth results"],
+    dependencies=[Depends(get_current_user)],
+    responses={418: {"description": "I'm a teapot"}},
+)
 
 @app.get("/")
 async def root():
-    return {"message": "The root of the onion!"}
+    return RedirectResponse(url='/docs')
 
 
 @app.get("/api/v1")
 async def root():
-    return {"message": "This is the root endpoint for version 1 of the api"}
+    return RedirectResponse(url='/docs')
 
 
 # starts database connection
