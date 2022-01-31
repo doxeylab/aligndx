@@ -34,8 +34,7 @@ import { LoadContext } from '../../LoadContext';
 import example_dataset from '../../assets/example_dataset.json';
 
 // Services
-import { TokenService } from '../../services/Token';
-import {WEBSOCKET_URL, RT_RES_STATUS} from '../../services/Config';
+import {WEBSOCKET_URL} from '../../services/Config';
  
 
 
@@ -68,9 +67,7 @@ const selectmenuoptions = [
 ];
 
 const RealTime = () => {
-    
-    const token = TokenService(40);
-
+     
     // upload state
     const [dataFiles, setDataFiles] = useState([]);
     const [selectedDetections, setSelectedDetections] = useState([]);
@@ -164,7 +161,7 @@ const RealTime = () => {
         selectedDetections.forEach(x => option_lst.push(x))
         console.log(option_lst) 
         try {
-            await StartFile(dataFiles[0], token, option_lst, email, connectWebsocket); 
+            await StartFile(dataFiles[0], token, option_lst, connectWebsocket); 
         }
         catch(e) {
             console.log(e)

@@ -189,7 +189,7 @@ async def upload_chunk(
     chunk_number: int = Form(...),
     file_id: str = Form(...),
     chunk_file: UploadFile = File(...),
-    panel: str = Form(...), 
+    panels: str = Form(...), 
 ):  
 
     rt_dir =  "{}/{}".format(REAL_TIME_UPLOADS, file_id) 
@@ -214,7 +214,7 @@ async def upload_chunk(
         total_salmon_chunks = int(data[2])
 
     if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
-        background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir, file_id, panel, total_salmon_chunks) 
+        background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir, file_id, panels, total_salmon_chunks) 
 
     logs = await LogsModel.log_upload(
         submission_id = file_id,

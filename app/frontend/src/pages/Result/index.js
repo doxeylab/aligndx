@@ -1,19 +1,38 @@
+// React
+import React, { useEffect, useState } from 'react';
+
+// external libraries
+import axios from 'axios';
+
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
-import example_dataset from '../../assets/example_dataset.json';
-import Green_Check from '../../assets/Green_Check.png';
-import Red_X from '../../assets/Red_X.png';
+
+// Components
 import Barchart from '../../components/BarChart';
 import { Section, Title } from '../../components/Common/PageElement';
-import { STANDARD_RESULTS } from '../../services/Config';
+
+// Styling
 import { ResultAccordianTitle, ResultAccordionImg, ResultTitle } from './StyledResult';
+
+// Assets
+import Green_Check from '../../assets/Green_Check.png';
+import Red_X from '../../assets/Red_X.png';
+
+// Context
 import {useGlobalContext} from "../../context-provider"
+
+// testing
+import example_dataset from '../../assets/example_dataset.json';
+
+// Config
+import { STANDARD_RESULTS } from '../../services/Config';
+
+
+
 
 const Result = () => {
     try {
