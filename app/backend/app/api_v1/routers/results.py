@@ -1,11 +1,11 @@
 # python libraries
 import os, asyncio, importlib, json
-from typing import List 
+from typing import Optional
 import pandas as pd 
 from pydantic import BaseModel
 
 # FastAPI
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Request
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Request, Body
 
 # auth components
 from app.auth.models import UserDTO
@@ -41,42 +41,45 @@ for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULT
 
 
 router = APIRouter()
- 
-def analyze_handler(sample_name, headers, metadata, quant_dir):
-    hits_df = analyze.expression_hits_and_misses(quant_dir, headers, metadata, hits=True) 
-    all_df = analyze.expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
-    coverage = analyze.coverage_cal(hits_df,all_df)
-    pathogens, detected = analyze.detection(coverage)
-    return analyze.d3_compatible_data(coverage, sample_name, analyze.df_to_dict(hits_df), analyze.df_to_dict(all_df), pathogens, detected)
 
-@router.get('/standard/{token}') 
-async def standard_results(token: str, current_user: UserDTO = Depends(get_current_user_no_exception)):   
-    query = await ModelSample.get_token(token)  
+# -- Standard upload results --
+ 
+@router.get('/standard/{file_id}') 
+async def standard_results(file_id: str, current_user: UserDTO = Depends(get_current_user_no_exception)):
+    query = await ModelSample.get_sample_info(file_id)  
+
     sample_name = query['sample']
-    headers=['Name', 'TPM'] 
     panel = query['panel']
     file_id = str(query['id'])
+    headers=['Name', 'TPM'] 
 
     metadata = analyze.metadata_load(METADATA_FOLDER, panel)
     sample_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
     quant_dir = os.path.join(sample_dir,'quant.sf')   
-    result = analyze_handler(sample_name, headers, metadata, quant_dir)
-    if current_user:
-        await ModelSample.save_result(token, json.dumps(result), current_user.id)
+    result = analyze.analyze_handler(sample_name, headers, metadata, quant_dir)
+    
+    await ModelSample.save_result(file_id, json.dumps(result), current_user.id)
+    
     return result
 
-@router.get('/standard/submissions{token}')
-async def get_standard_submissions(token: str, current_user: UserDTO = Depends(get_current_user_no_exception)):
-    return 
+@router.get('/standard/submissions/')
+async def get_standard_submissions(current_user: UserDTO = Depends(get_current_user_no_exception)):
+    if current_user:
+        query = await ModelSample.get_user_submissions(current_user.id)
+        return query
+    else:
+        return {"message":"Unauthorized"} 
+
+# -- Realtime upload results --
 
 manager = ConnectionManager()
 
 class Chunk_id(BaseModel):
     account_id: str
 
-@router.websocket('/livegraphs/{token}') 
-async def live_graph_ws_endpoint(websocket: WebSocket, token: str, request: Request):
-    query = await ModelSample.get_token(token) 
+@router.websocket('/livegraphs/{file_id}') 
+async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, request: Request):
+    query = await ModelSample.get_sample_info(file_id) 
     file_id = str(query['id'])
     sample_name = query['sample']
 
@@ -113,4 +116,27 @@ async def live_graph_ws_endpoint(websocket: WebSocket, token: str, request: Requ
         print(e)
         print(f"Exception occured so client {request.scope['client']} disconnected")
  
-  
+# @router.get('/rt/submissions{token}')
+# async def get_rt_submissions(file_id: "str", current_user: UserDTO = Depends(get_current_user_no_exception)):
+#     if current_user:
+        
+#         # query database using UserDTO and get list of submissions.Then 
+
+#         get_current_chunk_task = importlib.import_module(
+#         "app.worker.tasks.get_curr_chunk"
+#         )
+#         current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+#         if current_chunk:
+#             if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
+#                 df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
+#                 data = realtime.data_loader(df, sample_name, headers, status="complete") 
+#                 return data
+#             else:
+#                 df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
+#                 data = realtime.data_loader(df, sample_name, headers, status="ready")
+#                 return data
+#         else:
+#             message = {"status": "pending"} 
+#             return message
+#     else:
+#         return

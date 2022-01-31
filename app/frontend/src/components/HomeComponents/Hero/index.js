@@ -1,19 +1,30 @@
-import axios from 'axios';
+// React
 import React, { useContext, useState } from 'react';
-import { Col, Container, Row } from 'react-bootstrap';
+
+// external libraries
+import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 import Fade from 'react-reveal/Fade';
-import HomePageArt from '../../../assets/HomePageArt.svg';
-import { LoadContext } from '../../../LoadContext';
-import { UPLOAD_URL } from '../../../services/Config';
-import { TokenService } from '../../../services/Token';
-import Button from '../../Button';
+
+// Components
 import { Section } from '../../Common/PageElement';
 import { DropdownMenu, TextField } from '../../Form';
 import UploadComponent from '../../UploadComponent';
-import startFile from '../../ChunkController/chunkController';
+import Button from '../../Button';
+
+// Styling
+import { Col, Container, Row } from 'react-bootstrap';
+import HomePageArt from '../../../assets/HomePageArt.svg';
 import './CustomModal.css';
 import { HeroBody, HeroBtns, HeroBtns2, HeroCol, HeroImage, HeroText, HeroTitle } from './StyledHero';
+
+// Context
+import { LoadContext } from '../../../LoadContext';
+import {useGlobalContext} from "../../../context-provider";
+
+// Config
+import { UPLOAD_URL} from '../../../services/Config';
+
 
 const selectmenuoptions = [
     {
@@ -44,17 +55,12 @@ const selectmenuoptions = [
 ];
 
 const Hero = () => {
+    const context = useGlobalContext();
+
     const [show, setShow] = useState(false);
-    const [emailError, setEmailError] = useState(false);
-    const [errorMsg, setErrorMsg] = useState(false);
     const [dataFiles, setDataFiles] = useState([]);
     const { setLoad } = useContext(LoadContext);
-    const [email, setEmail] = useState("");
     const [selectedDetections, setSelectedDetections] = useState([]);
-
-    const handleEmailError = (err) => {
-        setEmailError(err)
-    }
 
     const dataFileCallback = (file) => {
         setDataFiles(prevFiles => [...prevFiles, file])
@@ -69,69 +75,58 @@ const Hero = () => {
     const detectionCallback = (detections) => {
         setSelectedDetections(detections) 
     }
-
-    const emailCallback = (mail) => {
-        setEmail(mail)
-    }
-
-    const uploadChunked = () => {
-        if (emailError) {
-            setErrorMsg(true)
-            return
-        }
-        setLoad(true)
-        const token = TokenService(40);
-        const option_lst = []
-        selectedDetections.forEach(x => option_lst.push(x))
-        console.log(option_lst)
-        startFile(dataFiles[0], token, option_lst, email);
-    }
-
+ 
     const routeToRealTime = () => {
         window.location.href = "/realtime"
     }
 
     const upload = () => {
-        setLoad(true)
-        const token = TokenService(40);
-        const formData = new FormData();
+        setLoad(true) 
 
-        formData.append("token", token)
-
-        formData.append("email", email)
-
-        dataFiles.forEach(file => {
-            formData.append('files', file)
-        })
-
-        selectedDetections.forEach(x => {
-            formData.append("panel", x)
-        })
-         
-
-        axios.post(UPLOAD_URL, formData)
-            .then(() => {
-                setLoad(false)
-                window.location.href = "/results/#/?id=" + token
+        if (context.authenticated == true) {
+            const formData = new FormData();
+  
+            dataFiles.forEach(file => {
+                formData.append('files', file)
             })
-            .catch(function (error) {
-                if (error.response) {
-                    // The request was made and the server responded with a status code
-                    // that falls out of the range of 2xx
-                    console.log(error.response.data);
-                    console.log(error.response.status);
-                    console.log(error.response.headers);
-                } else if (error.request) {
-                    // The request was made but no response was received
-                    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                    // http.ClientRequest in node.js
-                    console.log(error.request);
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    console.log('Error', error.message);
-                }
-                console.log(error.config);
-            });
+            selectedDetections.forEach(x => {
+                formData.append("panel", x)
+            })
+
+            var resource = UPLOAD_URL
+            var token = localStorage.getItem("accessToken")
+
+            axios.post(resource, formData, {headers: {
+                'Authorization': `Bearer ${token}`
+            }})
+                .then((res) => {
+                    setLoad(false)
+                    const fileId = res.data.File_ID;  
+                    window.location.href = "/results/#/?id=" + fileId 
+                })
+                .catch(function (error) {
+                    if (error.response) {
+                        // The request was made and the server responded with a status code
+                        // that falls out of the range of 2xx
+                        console.log(error.response.data);
+                        console.log(error.response.status);
+                        console.log(error.response.headers);
+                    } else if (error.request) {
+                        // The request was made but no response was received
+                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                        // http.ClientRequest in node.js
+                        console.log(error.request);
+                    } else {
+                        // Something happened in setting up the request that triggered an Error
+                        console.log('Error', error.message);
+                    }
+                    console.log(error.config);
+                });
+        }
+        else {  
+            alert("You do not have permission to do that.")
+        }  
+         
     }
 
     const handleShow = () => setShow(true);
@@ -196,17 +191,7 @@ const Hero = () => {
                                 />
                             </Col>
                         </Row>
-                        {errorMsg ?
-                            <Row>
-                                <Col sm={{ span: 6, offset: 6 }}>
-                                    <p style={{ color: "#FF0000" }}>Invalid Email!</p>
-                                </Col>
-                            </Row>
-                            :
-                            ``
-                        }
                         <Row style={{ marginBottom: '1.5rem' }}>
-                            <Col sm={6}>
                                 <DropdownMenu
                                     options={selectmenuoptions}
                                     val="value"
@@ -215,16 +200,6 @@ const Hero = () => {
                                     valueCallback={detectionCallback}
                                     placeholder="Select your pathogen(s)"
                                 />
-                            </Col>
-                            <Col sm={6}>
-                                <TextField
-                                    placeholder="Enter your email"
-                                    valueCallback={emailCallback}
-                                    type="email"
-                                    errorCallback={handleEmailError}
-                                    errorMsg={errorMsg}
-                                />
-                            </Col>
                         </Row>
                         <Row>
                             <Col>

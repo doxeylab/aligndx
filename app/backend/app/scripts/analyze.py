@@ -102,11 +102,18 @@ def d3_compatible_data(df, sample, hits, all, pathogens, detected):
     data_dict = {}
     data_dict['coverage'] = data
     data_dict['sample'] = sample
-    data_dict['hits'] = hits
-    data_dict['all'] = all
+    # data_dict['hits'] = hits
+    # data_dict['all'] = all
     data_dict['pathogens'] = pathogens
     data_dict['detected'] = detected 
     data_dict['title'] = "Transcriptome Coverage Estimate"
     data_dict['xlabel'] = "Pathogens"
     data_dict['ylabel'] = "Coverage (%)"
     return data_dict
+
+def analyze_handler(sample_name, headers, metadata, quant_dir):
+    hits_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=True) 
+    all_df = expression_hits_and_misses(quant_dir, headers, metadata, hits=False) 
+    coverage = coverage_cal(hits_df,all_df)
+    pathogens, detected = detection(coverage)
+    return d3_compatible_data(coverage, sample_name, df_to_dict(hits_df), df_to_dict(all_df), pathogens, detected)

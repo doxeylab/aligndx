@@ -50,11 +50,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 async def read_users_me(current_user: User = Depends(auth.get_current_user)):
     return current_user
 
-# retrieves user submissions
-@router.get("/submissions")
-async def retrieve_sub(current_user: User = Depends(auth.get_current_user)):
-    print(dict(current_user.items()))
-
 # -- Cookies attempt --
 
 

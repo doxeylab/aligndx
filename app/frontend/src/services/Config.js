@@ -1,17 +1,26 @@
-// export const UPLOAD_URL = 'http://206.12.123.7:8080/uploads';
-// export const RESULT_URL = 'http://206.12.123.7:8080/results';
-// export const UPLOAD_URL = 'http://localhost:8080/uploads';
-// export const RESULT_URL = 'http://localhost:8080/results';
-
 export const URL = process.env.REACT_APP_BACKEND_ACCESS_URL
-export const UPLOAD_URL = URL + "uploads"
-export const RESULT_URL = URL + "results"
-export const LOGIN_URL = URL + "token"
-export const SIGNUP_URL = URL + "create_user"
-export const ACCESS_TOKEN_URL = URL + "users/me" 
-export const UPLOAD_CHUNK_URL = URL + "upload-chunk" 
-export const START_FILE_URL = URL + "start-file"
+
+// -- Uploads --
+// -- Regular --
+export const UPLOAD_URL = URL + "uploads/"
+export const UPLOAD_CHUNK_URL = UPLOAD_URL + "upload-chunk" 
+export const START_FILE_URL = UPLOAD_URL + "start-file" 
+
+// -- Results --
+// -- Regular --
+export const RESULT_URL = URL + "results/"
+export const STANDARD_RESULTS = RESULT_URL + "standard/"
+export const STANDARD_SUBMISSIONS_URL = STANDARD_RESULTS +  "submissions"
+export const RT_SUBMISSIONS_URL = RESULT_URL +  "rt/" + "submissions" 
+
+// -- Users --
+// const USERS = URL + "users/"
+const USERS = URL
+export const LOGIN_URL = USERS + "token"
+export const SIGNUP_URL = USERS + "create_user"
+export const ACCESS_TOKEN_URL = USERS + "me" 
+
+// miscellaneous for now
 export const CHUNK_SIZE = 800000
 export const WEBSOCKET_URL = "ws://aligndx.uwaterloo.ca:8080/livegraphs"
 // export const WEBSOCKET_URL = "ws://localhost:8080/livegraphs"
-export const RT_RES_STATUS = URL + "rt-res-status"

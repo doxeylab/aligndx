@@ -83,15 +83,13 @@ async def ping_salmon():
 
 
 @router.post("/")
-async def file_upload(
-    current_user: UserDTO = Depends(get_current_user_no_exception),
-    temp_token: Optional[str] = Form(""),
-    email: Optional[str] = Form(""),
+async def file_upload( 
     files: List[UploadFile] = File(...), 
     panel: List[str] = Form(...), 
     ): 
 
     for file in files:
+        
         for option in panel:
             # get file name
             sample_name = file.filename.split('.')[0]
@@ -100,15 +98,16 @@ async def file_upload(
             id = uuid4()
             file_id = str(id)
             now = datetime.now()
+            submission_type = "standard"
             response = {
                     'id': id,
-                    'temp_token': temp_token,
                     'sample': sample_name,
                     'panel': option.lower(),
-                    'email': email,
-                    'created_date': now 
+                    'created_date': now,
+                    'submission_type': submission_type,
                        }
-            query = await ModelSample.create(**response) 
+
+            query = await ModelSample.create_sample(**response) 
     
             # for deleting
             sample_folder = os.path.join(STANDARD_UPLOADS, file_id)
@@ -131,39 +130,39 @@ async def file_upload(
 
             commands = salmonconfig.commands(indexpath, file_location, results_dir)
             requests.post("http://salmon:80/", json = commands)
-            shutil.rmtree(sample_folder)
-            if email == "" or email == None: 
-              pass
-            else: 
-              email_feature.send_email(email, sample_name)  
+            shutil.rmtree(sample_folder) 
 
-    return {"run": "complete"}
+    return {"Result": "OK",
+            "File_ID": file_id}
 
 @router.post("/start-file")
 async def start_file(
     current_user: UserDTO = Depends(get_current_user_no_exception),
     filename: str = Body(...),
     number_of_chunks: int = Body(...),
-    temp_token: Optional[str] = Form(""),
     panels: List[str] = Body(...), 
-    email: Optional[str] = Form("")
 ):
     for option in panels:
         
         # it's worth noting that uuid4 generates random numbers, but the possibility of having a collision is so low, it's been estimated that it would take 90 years for such to occur.
- 
+
+        if current_user:
+            # check if file with name exists under users submissions
+            # if it does, then write to meta.txt how many have chunks passed
+            # grab that number and skip analyzing those chunks
+            pass
+
         id = uuid4()
         file_id = str(id)
         now = datetime.now()
-        response = {'temp_token': temp_token,
+        response = { 
                  'sample': filename,
                  'id': id,
-                 'panel': option.lower(),
-                 'email': email,
+                 'panel': option.lower(), 
                  'created_date': now
                    }
 
-        query = await ModelSample.create(**response)
+        query = await ModelSample.create_sample(**response)
         
         rt_dir = "{}/{}".format(REAL_TIME_UPLOADS ,file_id)
         os.mkdir(rt_dir)
@@ -186,11 +185,11 @@ async def start_file(
 @router.post("/upload-chunk")
 async def upload_chunk(
     background_tasks: BackgroundTasks,
+    current_user: UserDTO = Depends(get_current_user_no_exception),
     chunk_number: int = Form(...),
     file_id: str = Form(...),
     chunk_file: UploadFile = File(...),
-    panel: str = Form(...),
-    token: str = Form(...)
+    panel: str = Form(...), 
 ):  
 
     rt_dir =  "{}/{}".format(REAL_TIME_UPLOADS, file_id) 
@@ -198,6 +197,10 @@ async def upload_chunk(
     upload_chunk_dir=  "{}/{}".format(rt_dir, "upload_data") 
     salmon_chunk_dir=  "{}/{}".format(rt_dir, "salmon_data") 
     
+    if current_user:
+        # keep returning until chunk number has reached where it left off
+        # return {"Result": "Skipped"} 
+        pass
 
     async with aiofiles.open(upload_data, 'wb') as f:
         while content := await chunk_file.read(read_batch_size):

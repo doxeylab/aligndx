@@ -11,9 +11,9 @@ import Green_Check from '../../assets/Green_Check.png';
 import Red_X from '../../assets/Red_X.png';
 import Barchart from '../../components/BarChart';
 import { Section, Title } from '../../components/Common/PageElement';
-import { RESULT_URL } from '../../services/Config';
+import { STANDARD_RESULTS } from '../../services/Config';
 import { ResultAccordianTitle, ResultAccordionImg, ResultTitle } from './StyledResult';
-
+import {useGlobalContext} from "../../context-provider"
 
 const Result = () => {
     try {
@@ -21,6 +21,8 @@ const Result = () => {
     } catch (err) {
         var url_id = undefined
     }
+    
+    const context = useGlobalContext();
 
     // const [data, setData] = useState([{ "index": "TEST1", "column_category": 6 },
     // { "index": "TEST2", "column_category": 12 },
@@ -31,31 +33,14 @@ const Result = () => {
     const [data, setData] = useState(null);
     const [sample, setSample] = useState(null);
     const [pathogens, setPathogens] = useState(null);
-    const [getLoad, setGetLoad] = useState(true);
-    const sendGetRequest = async () => {
-        try {
-            const res = await axios.get(RESULT_URL + '/' + url_id);
-            console.log(res.data)
-            setData([res.data])
-            setGetLoad(false)
-            setPathogens(res.data.pathogens)
-            setSample(res.data.sample)
-        }
-
-        catch (err) {
-            // Handle Error Here
-            console.error(err);
-            console.log('Error')
-            setData(dummyData)
-            setSample("SRR11365240")
-            setPathogens("Sars CoV-2")
-            setGetLoad(false)
-        }
-    };
-
+    const [getLoad, setGetLoad] = useState(true); 
+    
     useEffect(() => {
-        // sendGetRequest();
-        axios.get(RESULT_URL + '/' + url_id)
+ 
+        if (context.authenticated == true) {
+            var resource = STANDARD_RESULTS
+            var token = localStorage.getItem("accessToken")
+            axios.get(resource + url_id, {headers: {'Authorization': `Bearer ${token}`}})
             .then(res => {
                 console.log(res.data)
                 setData([res.data])
@@ -70,6 +55,11 @@ const Result = () => {
                 setPathogens("Sars CoV-2")
                 setGetLoad(false)
             })
+        }
+        else {  
+            alert("You do not have permission to do that")
+        }  
+        
     }, [])
 
     return (

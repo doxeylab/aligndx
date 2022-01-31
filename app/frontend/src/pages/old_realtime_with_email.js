@@ -72,7 +72,10 @@ const RealTime = () => {
     const token = TokenService(40);
 
     // upload state
+    const [emailError, setEmailError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(false);
     const [dataFiles, setDataFiles] = useState([]);
+    const [email, setEmail] = useState("");
     const [selectedDetections, setSelectedDetections] = useState([]);
 
     // results state
@@ -85,7 +88,10 @@ const RealTime = () => {
     const [getResult, setGetResult] = useState(true);  
 
 
-    // state handlers 
+    // state handlers
+    const handleEmailError = (err) => {
+        setEmailError(err)
+    }
 
     const dataFileCallback = (file) => {
         setDataFiles(prevFiles => [...prevFiles, file])
@@ -99,7 +105,11 @@ const RealTime = () => {
 
     const detectionCallback = (detections) => {
         setSelectedDetections(detections)
-    } 
+    }
+
+    const emailCallback = (mail) => {
+        setEmail(mail)
+    }
 
     // websocket handler
 
@@ -185,8 +195,18 @@ const RealTime = () => {
                                     removeCallback={dataRemoveFileCallback}
                                 />
                             </Col>
-                        </Row> 
-                        <Row style={{ marginBottom: '1.5rem' }}> 
+                        </Row>
+                        {errorMsg ?
+                            <Row>
+                                <Col sm={{ span: 6, offset: 6 }}>
+                                    <p style={{ color: "#FF0000" }}>Invalid Email!</p>
+                                </Col>
+                            </Row>
+                            :
+                            ``
+                        }
+                        <Row style={{ marginBottom: '1.5rem' }}>
+                            <Col sm={6}>
                                 <DropdownMenu
                                     options={selectmenuoptions}
                                     val="value"
@@ -194,7 +214,17 @@ const RealTime = () => {
                                     category="category"
                                     valueCallback={detectionCallback}
                                     placeholder="Select your pathogen(s)"
-                                /> 
+                                />
+                            </Col>
+                            <Col sm={6}>
+                                <TextField
+                                    placeholder="Enter your email"
+                                    valueCallback={emailCallback}
+                                    type="email"
+                                    errorCallback={handleEmailError}
+                                    errorMsg={errorMsg}
+                                />
+                            </Col>
                         </Row>
                         <Row>
                             <Col>
