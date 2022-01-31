@@ -78,7 +78,7 @@ app.include_router(
 app.include_router(
     uploads.router,
     prefix="/auth",
-    tags=["auth uploads"],
+    tags=["authenticated uploads"],
     dependencies=[Depends(get_current_user)],
     responses={418: {"description": "I'm a teapot"}},
 )
@@ -86,7 +86,7 @@ app.include_router(
 app.include_router(
     results.router,
     prefix="/auth",
-    tags=["auth results"],
+    tags=["authenticated results"],
     dependencies=[Depends(get_current_user)],
     responses={418: {"description": "I'm a teapot"}},
 )

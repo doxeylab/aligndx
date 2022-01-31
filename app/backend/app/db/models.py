@@ -21,7 +21,7 @@ submissions = Table(
     "submissions",
     metadata,
     Column("id", UUID(), primary_key=True, nullable=False, default=uuid4),
-    Column("token", String(50), nullable=False),
+    Column("temp_token", String(50), nullable=True),
     Column("sample", String(50)),
     Column("panel", String(50), nullable=True),
     Column("email", String(50), nullable=True),
@@ -101,7 +101,7 @@ class User:
         user = await database.fetch_one(query)
         return user
       
-      
+
 class Logs:
     @classmethod
     async def log_upload(cls, **log):

@@ -14,7 +14,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 ## styling
-from typing import List 
+from typing import List, Optional
 
 ## data manipulation
 import pandas as pd
@@ -71,25 +71,38 @@ for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULT
 #     print(id)
 #     return {'token': id} 
 
+@router.post("/test_salmon_container")
+async def ping_salmon():
+    try:
+        commands = {"commands": ["salmon"]}
+        x = requests.post("http://salmon:80/", json = commands )
+        print(x.text)
+        return x.text 
+    except Exception as e:
+        return e
+
+
 @router.post("/")
-async def fileupload(  
-    token: str = Form(...),
+async def file_upload(
+    current_user: UserDTO = Depends(get_current_user_no_exception),
+    temp_token: Optional[str] = Form(""),
+    email: Optional[str] = Form(""),
     files: List[UploadFile] = File(...), 
     panel: List[str] = Form(...), 
-    email: str = Form(""),
-    ):
+    ): 
+
     for file in files:
         for option in panel:
             # get file name
             sample_name = file.filename.split('.')[0]
             chosen_panel = str(option.lower()) + "_index"
-            
+
             id = uuid4()
             file_id = str(id)
             now = datetime.now()
             response = {
                     'id': id,
-                    'token': token,
+                    'temp_token': temp_token,
                     'sample': sample_name,
                     'panel': option.lower(),
                     'email': email,
@@ -126,35 +139,26 @@ async def fileupload(
 
     return {"run": "complete"}
 
-@router.post("/test_salmon_container")
-async def fileupload():
-    try:
-        commands = {"commands": ["salmon"]}
-        x = requests.post("http://salmon:80/", json = commands )
-        print(x.text)
-        return x.text 
-    except Exception as e:
-        return e
-
 @router.post("/start-file")
 async def start_file(
+    current_user: UserDTO = Depends(get_current_user_no_exception),
     filename: str = Body(...),
     number_of_chunks: int = Body(...),
-    token: str = Body(...),
-    option: List[  str] = Body(...), 
-    email: str = Body("")
+    temp_token: Optional[str] = Form(""),
+    panels: List[str] = Body(...), 
+    email: Optional[str] = Form("")
 ):
-    for panel in option:
+    for option in panels:
         
         # it's worth noting that uuid4 generates random numbers, but the possibility of having a collision is so low, it's been estimated that it would take 90 years for such to occur.
  
         id = uuid4()
         file_id = str(id)
         now = datetime.now()
-        response = {'token': token,
+        response = {'temp_token': temp_token,
                  'sample': filename,
                  'id': id,
-                 'panel': panel.lower(),
+                 'panel': option.lower(),
                  'email': email,
                  'created_date': now
                    }
