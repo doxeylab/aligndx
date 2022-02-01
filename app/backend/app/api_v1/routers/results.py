@@ -5,7 +5,9 @@ import pandas as pd
 from pydantic import BaseModel
 
 # FastAPI
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Request, Body
+from fastapi import APIRouter, Depends, Request, status
+from fastapi import WebSocket, WebSocketDisconnect 
+from fastapi import Cookie, Query
 
 # auth components
 from app.auth.models import UserDTO
@@ -48,7 +50,7 @@ router = APIRouter()
 async def standard_results(file_id: str, current_user: UserDTO = Depends(get_current_user_no_exception)):
     query = await ModelSample.get_sample_info(file_id)  
 
-    sample_name = query['sample']
+    sample_name = query['sample_name']
     panel = query['panel']
     file_id = str(query['id'])
     headers=['Name', 'TPM'] 
@@ -68,54 +70,8 @@ async def get_standard_submissions(current_user: UserDTO = Depends(get_current_u
         query = await ModelSample.get_user_submissions(current_user.id)
         return query
     else:
-        return {"message":"Unauthorized"} 
-
-# -- Realtime upload results --
-
-manager = ConnectionManager()
-
-class Chunk_id(BaseModel):
-    account_id: str
-
-@router.websocket('/livegraphs/{file_id}') 
-async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, request: Request):
-    query = await ModelSample.get_sample_info(file_id) 
-    file_id = str(query['id'])
-    sample_name = query['sample']
-
-    headers=['Name', 'TPM']
-    get_current_chunk_task = importlib.import_module(
-        "app.worker.tasks.get_curr_chunk"
-    )
-    await manager.connect(websocket)
-    try:
-        while True: 
-            current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
-
-            if current_chunk:
-                if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
-                    df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                    data = realtime.data_loader(df, sample_name, headers, status="complete")
-                    await manager.send_data(data, websocket)  
-                    manager.disconnect(websocket)
-                else:
-                    df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                    data = realtime.data_loader(df, sample_name, headers, status="ready")
-                    await manager.send_data(data, websocket) 
-                    await asyncio.sleep(1)
-            else:
-                message = {"status": "pending"} 
-                await manager.send_data(message, websocket)
-                await asyncio.sleep(5)  
-
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        print(f"The Client {request.scope['client']} disconnected") 
-
-    except Exception as e: 
-        print(e)
-        print(f"Exception occured so client {request.scope['client']} disconnected")
- 
+        return {"message":"Unauthorized"}  
+        
 # @router.get('/rt/submissions{token}')
 # async def get_rt_submissions(file_id: "str", current_user: UserDTO = Depends(get_current_user_no_exception)):
 #     if current_user:

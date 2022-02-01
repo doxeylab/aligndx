@@ -101,7 +101,7 @@ async def file_upload(
             submission_type = "standard"
             response = {
                     'id': id,
-                    'sample': sample_name,
+                    'sample_name': sample_name,
                     'panel': option.lower(),
                     'created_date': now,
                     'submission_type': submission_type,
@@ -152,14 +152,17 @@ async def start_file(
             # grab that number and skip analyzing those chunks
             pass
 
+          
         id = uuid4()
         file_id = str(id)
         now = datetime.now()
-        response = { 
-                 'sample': filename,
-                 'id': id,
-                 'panel': option.lower(), 
-                 'created_date': now
+        submission_type = "real-time"
+        response = {
+                'id': id,
+                'sample_name': filename,
+                'panel': option.lower(),
+                'created_date': now,
+                'submission_type': submission_type,
                    }
 
         query = await ModelSample.create_sample(**response)

@@ -77,7 +77,12 @@ const Hero = () => {
     }
  
     const routeToRealTime = () => {
-        window.location.href = "/realtime"
+        if (context.authenticated == true) {
+            window.location.href = "/realtime"
+        }
+        else {
+            alert("Please sign in to use this service")
+        }
     }
 
     const upload = () => {
@@ -94,7 +99,7 @@ const Hero = () => {
             })
 
             var resource = UPLOAD_URL
-            var token = localStorage.getItem("accessToken")
+            const token = localStorage.getItem("accessToken")
 
             axios.post(resource, formData, {headers: {
                 'Authorization': `Bearer ${token}`
@@ -124,12 +129,20 @@ const Hero = () => {
                 });
         }
         else {  
-            alert("You do not have permission to do that.")
+            alert("Please sign in to use this service")
+            setLoad(false) 
         }  
          
     }
 
-    const handleShow = () => setShow(true);
+    const handleShow = () => {
+        if (context.authenticated == true){
+            setShow(true);
+        }
+        else {
+            alert("Please sign in to use this service")
+        }
+    }
     const handleClose = () => setShow(false);
  
 

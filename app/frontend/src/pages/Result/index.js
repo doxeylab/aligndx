@@ -55,10 +55,10 @@ const Result = () => {
     const [getLoad, setGetLoad] = useState(true); 
     
     useEffect(() => {
- 
-        if (context.authenticated == true) {
+  
             var resource = STANDARD_RESULTS
-            var token = localStorage.getItem("accessToken")
+            const token = localStorage.getItem("accessToken")
+            console.log(token)
             axios.get(resource + url_id, {headers: {'Authorization': `Bearer ${token}`}})
             .then(res => {
                 console.log(res.data)
@@ -73,11 +73,7 @@ const Result = () => {
                 setSample("SRR11365240")
                 setPathogens("Sars CoV-2")
                 setGetLoad(false)
-            })
-        }
-        else {  
-            alert("You do not have permission to do that")
-        }  
+            }) 
         
     }, [])
 
@@ -92,7 +88,7 @@ const Result = () => {
                             </Col>
                         </Row>
                         <Row>
-                            <ResultTitle>Sample: {sample} for {pathogens}</ResultTitle>
+                            <ResultTitle>{sample}</ResultTitle>
                         </Row>
                         <Row>
                             {data.map((d) => (

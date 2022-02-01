@@ -111,4 +111,23 @@ async def get_current_user_no_exception(token: str = Depends(oauth2_scheme)):
 
     return UserDTO(**user)
 
- 
+
+# ws version
+async def get_current_user_ws(token: str = Depends(oauth2_scheme)):
+    if not token:
+        return None
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            return None
+        token_data = TokenData(email=email)
+    except JWTError:
+        return None
+
+    user = await UserRepo.get(token_data.email)
+    if user is None:
+        return None
+
+    return UserDTO(**user)

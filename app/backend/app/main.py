@@ -11,7 +11,7 @@ from fastapi.openapi.utils import get_openapi
 from app.auth.auth_dependencies import get_current_user 
 
 # routers
-from app.api_v1.routers import uploads, results, users
+from app.api_v1.routers import uploads, results, users, socket_resources
 
 # db
 from app.db.database import database
@@ -76,6 +76,10 @@ app.include_router(
     tags=["Results"],
     dependencies=[Depends(get_current_user)],
     responses={418: {"description": "I'm a teapot"}},
+)
+
+app.include_router(
+    socket_resources.router
 )
 
 @app.get("/")

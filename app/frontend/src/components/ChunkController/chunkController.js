@@ -55,10 +55,10 @@ const StartFile = async (token, file, panels, connectWebsocket) => {
   const numberOfChunks = Math.ceil(file.size / CHUNK_SIZE);
   const res = await postFileInitialize(start_resource, token, file.name, numberOfChunks, panels);
   const fileId = res.data.File_ID;
-  await connectWebsocket()
+  await connectWebsocket(fileId, token)
 
   for (let i = 0; i < numberOfChunks; i++) {
-    const res = await startChunk(upload_resource, i, fileId, file, panels);
+    const res = await startChunk(upload_resource, token, i, fileId, file, panels);
     if (res.data.Result != "OK") {
       break;
     }

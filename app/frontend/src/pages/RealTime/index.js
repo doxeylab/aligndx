@@ -28,6 +28,7 @@ import Red_X from '../../assets/Red_X.png';
 
 // Config
 import { LoadContext } from '../../LoadContext';
+import {useGlobalContext} from "../../context-provider"
 
 
 // Testing
@@ -67,7 +68,10 @@ const selectmenuoptions = [
 ];
 
 const RealTime = () => {
-     
+
+    // declare auth dependencies
+    const context = useGlobalContext();
+
     // upload state
     const [dataFiles, setDataFiles] = useState([]);
     const [selectedDetections, setSelectedDetections] = useState([]);
@@ -80,7 +84,6 @@ const RealTime = () => {
     // config state
     const { setLoad } = useContext(LoadContext);
     const [getResult, setGetResult] = useState(true);  
-
 
     // state handlers 
 
@@ -100,19 +103,19 @@ const RealTime = () => {
 
     // websocket handler
 
-    const connectWebsocket = async () => {
+    const connectWebsocket = async (file_id, token) => {
         try {
             console.log("trying websocket connection")
-            const ws = new WebSocket(WEBSOCKET_URL + '/' + token) 
+            const ws = new WebSocket(WEBSOCKET_URL + '/' + file_id) 
             
             // ws.onerror = function (event) {
             //     console.log("didn't work")
             //     console.log(event)
             // }
-            // ws.onopen = function (event) {
-            //     console.log("opened")
-            //     console.log(event)
-            // }
+            ws.onopen = function (event) {
+                ws.send(token) 
+            }
+            
             // ws.onclose = function (event) {
             //     console.log("socket closed")
             //     console.log(event)
@@ -155,18 +158,28 @@ const RealTime = () => {
         }
     };
 
+
     const uploadChunked = async () => {
-        setLoad(true)
-        const option_lst = []
-        selectedDetections.forEach(x => option_lst.push(x))
-        console.log(option_lst) 
-        try {
-            await StartFile(dataFiles[0], token, option_lst, connectWebsocket); 
+
+        if (context.authenticated == true) {
+            const token = localStorage.getItem("accessToken")
+            setLoad(true)
+            const option_lst = []
+            selectedDetections.forEach(x => option_lst.push(x))
+            console.log(option_lst)
+            try {
+                await StartFile(token, dataFiles[0], option_lst, connectWebsocket);
+            }
+            catch (e) {
+                console.log(e)
+            }
         }
-        catch(e) {
-            console.log(e)
+        else {
+            alert("Please sign in to use this service")
         }
     }
+
+        
      
  
     return (
