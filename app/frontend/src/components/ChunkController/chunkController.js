@@ -1,7 +1,6 @@
 import axios from "axios";
-
 import { CHUNK_SIZE, UPLOAD_CHUNK_URL, START_FILE_URL } from "../../services/Config";
- 
+
 
 const readChunk = (chunkNumber, file) => {
   let chunkFile = file.slice(
@@ -12,49 +11,58 @@ const readChunk = (chunkNumber, file) => {
   return chunkFile;
 };
 
-const postChunk = (chunkNumber, fileId, chunkFile, token, panel) => {
+// upload-chunk
+const postChunk = (resource, token, chunkNumber, fileId, chunkFile, panels) => {
   let formData = new FormData();
   formData.append("chunk_number", chunkNumber);
   formData.append("file_id", fileId);
   formData.append("chunk_file", chunkFile);
-  formData.append("token", token);
-  formData.append("panel", panel);
+  formData.append("panels", panels);
 
-  return axios.post(UPLOAD_CHUNK_URL, formData, {
+  return axios.post(resource, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
       "Content-Encoding": "gzip",
+      "Authorization":`Bearer ${token}`
     },
   });
 };
- 
 
-const startChunk = async (chunkNumber, fileId, file, token, panel) => {
-  let chunkFile = readChunk(chunkNumber, file); 
-  return await postChunk(chunkNumber, fileId, chunkFile, token, panel); 
+
+const startChunk = async (resource, token, chunkNumber, fileId, file, panels) => {
+  let chunkFile = readChunk(chunkNumber, file);
+  return await postChunk(resource, token, chunkNumber, fileId, chunkFile, panels);
 };
 
-const postFileProcess = (filename, numberOfChunks, token, option, email) =>
-  axios.post(START_FILE_URL, {
+// start file
+const postFileInitialize = (resource, token, filename, numberOfChunks, panels) =>
+  axios.post(
+    resource, {
     filename,
     number_of_chunks: numberOfChunks,
-    token,
-    option,
-    email
+    panels,
+    }, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
   });
 
-const startFile = async (file, token, panel, email, connectWebsocket) => {
+const StartFile = async (token, file, panels, connectWebsocket) => {
+
+  var upload_resource = UPLOAD_CHUNK_URL
+  var start_resource = START_FILE_URL
+
   const numberOfChunks = Math.ceil(file.size / CHUNK_SIZE);
-  const res = await postFileProcess(file.name, numberOfChunks, token, panel, email); 
-  const fileId = res.data.File_ID;  
-  await connectWebsocket()
-  
+  const res = await postFileInitialize(start_resource, token, file.name, numberOfChunks, panels);
+  const fileId = res.data.File_ID;
+  await connectWebsocket(fileId, token)
+
   for (let i = 0; i < numberOfChunks; i++) {
-    const res = await startChunk(i, fileId, file, token, panel);
+    const res = await startChunk(upload_resource, token, i, fileId, file, panels);
     if (res.data.Result != "OK") {
       break;
-    } 
+    }
   }
 };
 
-export default startFile;
+export default StartFile;
