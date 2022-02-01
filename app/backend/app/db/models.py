@@ -45,6 +45,7 @@ upload_logs = Table(
     Column("submission_id", UUID(), ForeignKey("submissions.id"), nullable=False),
     Column("start_kilobytes", Integer, nullable=False),
     Column("size_kilobytes", Integer, nullable=False),
+    Column("creation_time", DateTime, nullable=False)
 )
 
 deletion_logs = Table(
@@ -119,6 +120,15 @@ class Logs:
         query = upload_logs.insert().values(**log)
         log = await database.execute(query)
         return log
+
+    @classmethod
+    async def get_uploads_in_range(cls, submission_id, start_kilobyte, kilobyte_size):
+        query = upload_logs.select()\
+            .where(upload_logs.c.submission_id == submission_id)\
+            .where(upload_logs.c.start_kilobytes > start_kilobyte)\
+            .where(upload_logs.c.start_kilobytes < start_kilobyte + kilobyte_size)
+        logs = await database.fetch_all(query)
+        return logs
 
     @classmethod
     async def log_deletion(cls, **log):

@@ -222,7 +222,8 @@ async def upload_chunk(
     logs = await LogsModel.log_upload(
         submission_id = file_id,
         start_kilobytes = math.ceil(chunk_number * upload_chunk_size / 1024),
-        size_kilobytes = math.ceil(upload_chunk_size / 1024)
+        size_kilobytes = math.ceil(upload_chunk_size / 1024),
+        creation_time = datetime.now()
     )    
 
     return {"Result": "OK"} 
@@ -245,6 +246,17 @@ async def process_salmon_chunks(upload_chunk_dir, salmon_chunk_dir, file_id, pan
         if set(upload_chunk_range).issubset(set(upload_chunk_nums)):
             await make_salmon_chunk(upload_chunk_dir, salmon_chunk_dir, salmon_chunk_num, upload_chunk_range)  
             await start_chunk_analysis(salmon_chunk_dir, file_id, salmon_chunk_num, panel, [], total_chunks, upload_chunk_dir)
+
+            affected_uploads = await LogsModel.get_uploads_in_range(
+                file_id,
+                math.ceil(salmon_chunk_num * salmon_chunk_size / 1024),
+                math.ceil(salmon_chunk_size / 1024)
+            )
+            for upload in affected_uploads:
+                await LogsModel.log_deletion(
+                    upload_id = upload.get('id'),
+                    deletion_time = datetime.now()
+                )
 
 async def make_salmon_chunk(upload_data, salmon_data, salmon_chunk_number, upload_chunk_range):
     next_chunk_data = None
@@ -302,7 +314,6 @@ async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands
     metadata = realtime.metadata_load(METADATA_FOLDER, panel)  
 
     future = await loop.run_in_executor(None, call_salmon, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number), int(total_chunks), chunk, upload_dir)  
-        
 
 def call_salmon(commands_lst, loop, headers, metadata, quant_dir, file_id, chunk_number, total_chunks, chunk_dir, upload_chunk_path):  
 
