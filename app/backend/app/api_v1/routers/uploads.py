@@ -142,16 +142,26 @@ async def start_file(
     number_of_chunks: int = Body(...),
     panels: List[str] = Body(...), 
 ):
+    get_current_chunk_task = importlib.import_module(
+        "app.worker.tasks.get_curr_chunk"
+    )
+
     for option in panels:
         
         # it's worth noting that uuid4 generates random numbers, but the possibility of having a collision is so low, it's been estimated that it would take 90 years for such to occur.
 
-        if current_user:
-            # check if file with name exists under users submissions
-            # if it does, then write to meta.txt how many have chunks passed
-            # grab that number and skip analyzing those chunks
-            pass
+        query = ModelSample.does_file_exist(filename)
 
+        if query:
+            file_id = str(query["id"])
+            current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+            stop_point = current_chunk["chunk_number"]
+            total_chunks = current_chunk["total_chunks"]
+            chunks_left = total_chunks - stop_point
+            return {"Result" : "Restart available",
+                    "File_ID": file_id,
+                    "Last_chunk_processed":  stop_point,
+                    "Chunks_left": chunks_left}
           
         id = uuid4()
         file_id = str(id)

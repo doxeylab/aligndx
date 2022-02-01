@@ -55,14 +55,31 @@ const StartFile = async (token, file, panels, connectWebsocket) => {
   const numberOfChunks = Math.ceil(file.size / CHUNK_SIZE);
   const res = await postFileInitialize(start_resource, token, file.name, numberOfChunks, panels);
   const fileId = res.data.File_ID;
-  await connectWebsocket(fileId, token)
 
-  for (let i = 0; i < numberOfChunks; i++) {
-    const res = await startChunk(upload_resource, token, i, fileId, file, panels);
-    if (res.data.Result != "OK") {
-      break;
+  if (res.data.Result == "Restart available") {
+    await connectWebsocket(fileId, token)
+    
+    let last_chunk_processed = res.data.Last_chunk_processed + 1 
+
+    for (let i = last_chunk_processed; i < numberOfChunks; i++) {
+      const res = await startChunk(upload_resource, token, i, fileId, file, panels);
+      if (res.data.Result != "OK") {
+        break;
+      }
     }
   }
+  else {
+    await connectWebsocket(fileId, token)
+
+    for (let i = 0; i < numberOfChunks; i++) {
+      const res = await startChunk(upload_resource, token, i, fileId, file, panels);
+      if (res.data.Result != "OK") {
+        break;
+      }
+    }
+  }
+
+
 };
 
 export default StartFile;
