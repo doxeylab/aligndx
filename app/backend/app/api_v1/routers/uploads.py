@@ -150,8 +150,9 @@ async def start_file(
         
         # it's worth noting that uuid4 generates random numbers, but the possibility of having a collision is so low, it's been estimated that it would take 90 years for such to occur.
 
-        query = ModelSample.does_file_exist(filename)
+        query = ModelSample.does_file_exist(filename, current_user.id)
 
+        # sends restart policy if filename exists under users submissions
         if query:
             file_id = str(query["id"])
             current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
@@ -173,6 +174,7 @@ async def start_file(
                 'panel': option.lower(),
                 'created_date': now,
                 'submission_type': submission_type,
+                'user_id': current_user.id
                    }
 
         query = await ModelSample.create_sample(**response)
