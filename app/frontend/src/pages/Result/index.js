@@ -1,18 +1,37 @@
+// React
+import React, { useEffect, useState } from 'react';
+
+// external libraries
+import axios from 'axios';
+
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
-import example_dataset from '../../assets/example_dataset.json';
-import Green_Check from '../../assets/Green_Check.png';
-import Red_X from '../../assets/Red_X.png';
+
+// Components
 import Barchart from '../../components/BarChart';
 import { Section, Title } from '../../components/Common/PageElement';
-import { RESULT_URL } from '../../services/Config';
+
+// Styling
 import { ResultAccordianTitle, ResultAccordionImg, ResultTitle } from './StyledResult';
+
+// Assets
+import Green_Check from '../../assets/Green_Check.png';
+import Red_X from '../../assets/Red_X.png';
+
+// Context
+import {useGlobalContext} from "../../context-provider"
+
+// testing
+import example_dataset from '../../assets/example_dataset.json';
+
+// Config
+import { STANDARD_RESULTS } from '../../services/Config';
+
+
 
 
 const Result = () => {
@@ -21,6 +40,8 @@ const Result = () => {
     } catch (err) {
         var url_id = undefined
     }
+    
+    const context = useGlobalContext();
 
     // const [data, setData] = useState([{ "index": "TEST1", "column_category": 6 },
     // { "index": "TEST2", "column_category": 12 },
@@ -31,31 +52,14 @@ const Result = () => {
     const [data, setData] = useState(null);
     const [sample, setSample] = useState(null);
     const [pathogens, setPathogens] = useState(null);
-    const [getLoad, setGetLoad] = useState(true);
-    const sendGetRequest = async () => {
-        try {
-            const res = await axios.get(RESULT_URL + '/' + url_id);
-            console.log(res.data)
-            setData([res.data])
-            setGetLoad(false)
-            setPathogens(res.data.pathogens)
-            setSample(res.data.sample)
-        }
-
-        catch (err) {
-            // Handle Error Here
-            console.error(err);
-            console.log('Error')
-            setData(dummyData)
-            setSample("SRR11365240")
-            setPathogens("Sars CoV-2")
-            setGetLoad(false)
-        }
-    };
-
+    const [getLoad, setGetLoad] = useState(true); 
+    
     useEffect(() => {
-        // sendGetRequest();
-        axios.get(RESULT_URL + '/' + url_id)
+  
+            var resource = STANDARD_RESULTS
+            const token = localStorage.getItem("accessToken")
+            console.log(token)
+            axios.get(resource + url_id, {headers: {'Authorization': `Bearer ${token}`}})
             .then(res => {
                 console.log(res.data)
                 setData([res.data])
@@ -69,7 +73,8 @@ const Result = () => {
                 setSample("SRR11365240")
                 setPathogens("Sars CoV-2")
                 setGetLoad(false)
-            })
+            }) 
+        
     }, [])
 
     return (
@@ -83,7 +88,7 @@ const Result = () => {
                             </Col>
                         </Row>
                         <Row>
-                            <ResultTitle>Sample: {sample} for {pathogens}</ResultTitle>
+                            <ResultTitle>{sample}</ResultTitle>
                         </Row>
                         <Row>
                             {data.map((d) => (

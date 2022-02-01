@@ -21,11 +21,10 @@ submissions = Table(
     "submissions",
     metadata,
     Column("id", UUID(), primary_key=True, nullable=False, default=uuid4),
-    Column("token", String(50), nullable=False),
-    Column("sample", String(50)),
+    Column("sample_name", String(50)),
     Column("panel", String(50), nullable=True),
-    Column("email", String(50), nullable=True),
     Column("result", JSON),
+    Column("submission_type", String(50), nullable=False),
     Column("user_id", Integer, ForeignKey("users.id"), nullable=True),
     Column("created_date", DateTime, nullable=False)
 )
@@ -59,34 +58,46 @@ deletion_logs = Table(
 
 # REPOSITORIES
 class Sample:
-    @classmethod
-    async def get_token(cls, token):
-        query = submissions.select().where(submissions.c.token == token)
-        sample = await database.fetch_one(query)
-        return sample
 
     @classmethod
-    async def get_sample(cls, panel):
-        query = submissions.select().where(submissions.c.panel == panel)
-        sample = await database.fetch_one(query)
-        return panel
-
-    @classmethod
-    async def create(cls, **sample):
+    async def create_sample(cls, **sample):
         query = submissions.insert().values(**sample)
         sample_id = await database.execute(query)
         return sample_id
 
     @classmethod
-    async def save_result(cls, token, result, user_id):
+    async def get_sample_info(cls, file_id):
+        query = submissions.select().where(submissions.c.id == file_id)
+        info = await database.fetch_one(query)
+        return info
+
+    @classmethod
+    async def save_result(cls, file_id, result, user_id):
         query = (
             submissions.update()
-            .where(submissions.c.token == token)
+            .where(submissions.c.id == file_id)
             .values(result=result, user_id=user_id)
         )
         sample = await database.execute(query)
-        return sample
+        return sample 
 
+    @classmethod
+    async def get_user_submissions(cls, userid):
+        query = submissions.select().where(submissions.c.user_id == userid)
+        data = await database.fetch_all(query)
+        return data
+
+    # @classmethod
+    # async def get_token(cls, token):
+    #     query = submissions.select().where(submissions.c.temp_token == token)
+    #     sample = await database.fetch_one(query)
+    #     return sample
+
+    # @classmethod
+    # async def get_sample(cls, panel):
+    #     query = submissions.select().where(submissions.c.panel == panel)
+    #     sample = await database.fetch_one(query)
+    #     return panel
 
 class User:
     @classmethod
@@ -100,7 +111,7 @@ class User:
         query = users.select().where(users.c.email == email)
         user = await database.fetch_one(query)
         return user
-
+      
 
 class Logs:
     @classmethod

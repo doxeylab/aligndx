@@ -1,32 +1,35 @@
-from app.api_v1.routers import uploads, results, users
-from app.db.database import database
-from fastapi import FastAPI
+# python
+import os, asyncio 
+
+# fastapi
+from fastapi import FastAPI, Depends
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
-import os, asyncio, importlib
+from fastapi.openapi.utils import get_openapi
+
+# auth
+from app.auth.auth_dependencies import get_current_user 
+
+# routers
+from app.api_v1.routers import uploads, results, users, socket_resources
+
+# db
+from app.db.database import database
+
+# streaming worker
 import app.worker as worker
 
-tags_metadata = [
-    {
-        "name": "uploads",
-        "description": "Accepts .fastq and .fastq.gz files. The **chunking** logic is also here.",
-    },
-    {
-        "name": "results",
-        "description": "Salmon _quantification_ of chunks.",
-        "externalDocs": {
-            "description": "Salmon docs",
-            "url": "https://salmon.readthedocs.io/en/latest/index.html",
-        },
-    },
-    {"name": "users", "description": "User endpoint - Login, Signup, User info"},
-]
+# settings
+from app.config.settings import get_settings
+
+ 
 
 app = FastAPI(
     title="AlignDX",
     description="This is the restful API for the AlignDX application. Here you will find the auto docs genereated for the API endpoints",
-    version="1.0",
-    openapi_tags=tags_metadata,
+    version="1.0", 
 )
+ 
 
 lst_origins = os.getenv("ORIGINS")
 origins = lst_origins.replace(" ", "").split(",")  
@@ -39,36 +42,63 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(
-    uploads.router,
-    tags=["uploads"],
-    responses={408: {"description": "Ain't gonna work buddy"}},
-)
-app.include_router(
-    results.router,
-    tags=["results"],
-    responses={408: {"description": "Ain't gonna work buddy"}},
-)
+# app.include_router(
+#     uploads.router,
+#     prefix="/uploads",
+#     tags=["uploads"],
+#     responses={408: {"description": "Ain't gonna work buddy"}},
+# )
+# app.include_router(
+#     results.router,
+#     prefix="/results",
+#     tags=["results"],
+#     responses={408: {"description": "Ain't gonna work buddy"}},
+# )
+
+# don't prefix with users. it breaks swagger ui
 app.include_router(
     users.router,
     tags=["users"],
     responses={408: {"description": "Ain't gonna work buddy"}},
 )
 
+app.include_router(
+    uploads.router,
+    prefix="/uploads",
+    tags=["Uploads"],
+    dependencies=[Depends(get_current_user)],
+    responses={418: {"description": "I'm a teapot"}},
+)
+
+app.include_router(
+    results.router,
+    prefix="/results",
+    tags=["Results"],
+    dependencies=[Depends(get_current_user)],
+    responses={418: {"description": "I'm a teapot"}},
+)
+
+app.include_router(
+    socket_resources.router
+)
 
 @app.get("/")
 async def root():
-    return {"message": "The root of the onion!"}
+    return RedirectResponse(url='/docs')
 
 
 @app.get("/api/v1")
 async def root():
-    return {"message": "This is the root endpoint for version 1 of the api"}
+    return {"message": "API_v1"}
 
 
 # starts database connection
 @app.on_event("startup")
 async def startup():
+    # initialize settings
+    get_settings()
+
+    # connect to the db
     await database.connect()
 
     # set up the faust app

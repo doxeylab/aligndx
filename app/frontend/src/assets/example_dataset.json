@@ -14,7 +14,7 @@
                 "pathogen": "mcat"
             }
         ],
-        "sample": "sars_cov_2_iontorrent",
+        "sample": "dummy_sars_cov_2_iontorrent",
         "hits": [
             {
                 "spn": {

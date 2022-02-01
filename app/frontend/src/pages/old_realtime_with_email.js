@@ -28,14 +28,14 @@ import Red_X from '../../assets/Red_X.png';
 
 // Config
 import { LoadContext } from '../../LoadContext';
-import {useGlobalContext} from "../../context-provider"
 
 
 // Testing
 import example_dataset from '../../assets/example_dataset.json';
 
 // Services
-import {WEBSOCKET_URL} from '../../services/Config';
+import { TokenService } from '../../services/Token';
+import {WEBSOCKET_URL, RT_RES_STATUS} from '../../services/Config';
  
 
 
@@ -68,12 +68,14 @@ const selectmenuoptions = [
 ];
 
 const RealTime = () => {
-
-    // declare auth dependencies
-    const context = useGlobalContext();
+    
+    const token = TokenService(40);
 
     // upload state
+    const [emailError, setEmailError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(false);
     const [dataFiles, setDataFiles] = useState([]);
+    const [email, setEmail] = useState("");
     const [selectedDetections, setSelectedDetections] = useState([]);
 
     // results state
@@ -85,7 +87,11 @@ const RealTime = () => {
     const { setLoad } = useContext(LoadContext);
     const [getResult, setGetResult] = useState(true);  
 
-    // state handlers 
+
+    // state handlers
+    const handleEmailError = (err) => {
+        setEmailError(err)
+    }
 
     const dataFileCallback = (file) => {
         setDataFiles(prevFiles => [...prevFiles, file])
@@ -99,23 +105,27 @@ const RealTime = () => {
 
     const detectionCallback = (detections) => {
         setSelectedDetections(detections)
-    } 
+    }
+
+    const emailCallback = (mail) => {
+        setEmail(mail)
+    }
 
     // websocket handler
 
-    const connectWebsocket = async (file_id, token) => {
+    const connectWebsocket = async () => {
         try {
             console.log("trying websocket connection")
-            const ws = new WebSocket(WEBSOCKET_URL + '/' + file_id) 
+            const ws = new WebSocket(WEBSOCKET_URL + '/' + token) 
             
             // ws.onerror = function (event) {
             //     console.log("didn't work")
             //     console.log(event)
             // }
-            ws.onopen = function (event) {
-                ws.send(token) 
-            }
-            
+            // ws.onopen = function (event) {
+            //     console.log("opened")
+            //     console.log(event)
+            // }
             // ws.onclose = function (event) {
             //     console.log("socket closed")
             //     console.log(event)
@@ -158,28 +168,18 @@ const RealTime = () => {
         }
     };
 
-
     const uploadChunked = async () => {
-
-        if (context.authenticated == true) {
-            const token = localStorage.getItem("accessToken")
-            setLoad(true)
-            const option_lst = []
-            selectedDetections.forEach(x => option_lst.push(x))
-            console.log(option_lst)
-            try {
-                await StartFile(token, dataFiles[0], option_lst, connectWebsocket);
-            }
-            catch (e) {
-                console.log(e)
-            }
+        setLoad(true)
+        const option_lst = []
+        selectedDetections.forEach(x => option_lst.push(x))
+        console.log(option_lst) 
+        try {
+            await StartFile(dataFiles[0], token, option_lst, email, connectWebsocket); 
         }
-        else {
-            alert("Please sign in to use this service")
+        catch(e) {
+            console.log(e)
         }
     }
-
-        
      
  
     return (
@@ -195,8 +195,18 @@ const RealTime = () => {
                                     removeCallback={dataRemoveFileCallback}
                                 />
                             </Col>
-                        </Row> 
-                        <Row style={{ marginBottom: '1.5rem' }}> 
+                        </Row>
+                        {errorMsg ?
+                            <Row>
+                                <Col sm={{ span: 6, offset: 6 }}>
+                                    <p style={{ color: "#FF0000" }}>Invalid Email!</p>
+                                </Col>
+                            </Row>
+                            :
+                            ``
+                        }
+                        <Row style={{ marginBottom: '1.5rem' }}>
+                            <Col sm={6}>
                                 <DropdownMenu
                                     options={selectmenuoptions}
                                     val="value"
@@ -204,7 +214,17 @@ const RealTime = () => {
                                     category="category"
                                     valueCallback={detectionCallback}
                                     placeholder="Select your pathogen(s)"
-                                /> 
+                                />
+                            </Col>
+                            <Col sm={6}>
+                                <TextField
+                                    placeholder="Enter your email"
+                                    valueCallback={emailCallback}
+                                    type="email"
+                                    errorCallback={handleEmailError}
+                                    errorMsg={errorMsg}
+                                />
+                            </Col>
                         </Row>
                         <Row>
                             <Col>

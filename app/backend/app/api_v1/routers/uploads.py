@@ -1,64 +1,95 @@
-import chunk
-from socket import timeout
-import sys
-import math
-from array import ArrayType
-from uuid import uuid4
-import aiofiles, asyncio 
-from fastapi import APIRouter, BackgroundTasks, File, UploadFile, Form, Body
-from typing import List 
-import shutil, os, requests
-from datetime import datetime
+# python libraries
+## system utils
+import sys, os, shutil, math, traceback, importlib
 
+## async
+import aiofiles, asyncio 
+
+## networking
+import requests
+
+## types
+from uuid import uuid4
+from datetime import datetime
+from pydantic import BaseModel
+
+## styling
+from typing import List, Optional
+
+## data manipulation
 import pandas as pd
 
-from app.scripts import email_feature, salmonconfig
+# FastAPI
+from fastapi import APIRouter, BackgroundTasks, File, UploadFile, Form, Body
+from fastapi import Depends
 
-# from app.db.database import database
+# auth components
+from app.auth.models import UserDTO
+from app.auth.auth_dependencies import get_current_user_no_exception
+
+# core scripts
+from app.scripts import email_feature, salmonconfig, realtime
+
+# db
+## from app.db.database import database
 from app.db.models import Sample as ModelSample
 from app.db.models import Logs as LogsModel
 
-# from app.db.models import create, get
+## from app.db.models import create, get
 from app.db.schema import Sample as SchemaSample
 
-from app.scripts import realtime 
+# settings 
+from app.config.settings import get_settings
 
-read_batch_size = 4096
-salmon_chunk_size = math.floor(4e6)
-upload_chunk_size = 8e5
-chunk_ratio = salmon_chunk_size / upload_chunk_size
+router = APIRouter()
 
-UPLOAD_FOLDER = './uploads' 
-RESULTS_FOLDER = './results'
-INDEX_FOLDER = './indexes' 
-METADATA_FOLDER = "./metadata"
+# config
+app_settings = get_settings()
+settings = app_settings.UploadSettings()
 
-STANDARD_UPLOADS = UPLOAD_FOLDER + '/standard'
-STANDARD_RESULTS = RESULTS_FOLDER + '/standard'
-REAL_TIME_UPLOADS = UPLOAD_FOLDER + '/real_time'
-REAL_TIME_RESULTS = RESULTS_FOLDER + '/real_time' 
+read_batch_size = settings.read_batch_size
+salmon_chunk_size = settings.salmon_chunk_size
+upload_chunk_size = settings.upload_chunk_size
+chunk_ratio = settings.chunk_ratio
+
+UPLOAD_FOLDER = settings.UPLOAD_FOLDER
+RESULTS_FOLDER = settings.RESULTS_FOLDER
+INDEX_FOLDER = settings.INDEX_FOLDER
+METADATA_FOLDER = settings.METADATA_FOLDER
+STANDARD_UPLOADS = settings.STANDARD_UPLOADS
+STANDARD_RESULTS = settings.STANDARD_RESULTS
+REAL_TIME_UPLOADS = settings.REAL_TIME_UPLOADS
+REAL_TIME_RESULTS = settings.REAL_TIME_RESULTS
 
 for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULTS,  REAL_TIME_UPLOADS, REAL_TIME_RESULTS):
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
 
+# @router.get("/{token}")
+# async def fileretrieve(token: str):
+#     id = await ModelSample.get(token)
+#     print(id)
+#     return {'token': id} 
 
-router = APIRouter()
+@router.post("/test_salmon_container")
+async def ping_salmon():
+    try:
+        commands = {"commands": ["salmon"]}
+        x = requests.post("http://salmon:80/", json = commands )
+        print(x.text)
+        return x.text 
+    except Exception as e:
+        return e
 
-@router.get("/uploads/{token}")
-async def fileretrieve(token: str):
-    id = await ModelSample.get(token)
-    print(id)
-    return {'token': id} 
 
-@router.post("/uploads")
-async def fileupload(  
-    token: str = Form(...),
+@router.post("/")
+async def file_upload( 
     files: List[UploadFile] = File(...), 
     panel: List[str] = Form(...), 
-    email: str = Form("")
-    ):
+    ): 
+
     for file in files:
+        
         for option in panel:
             # get file name
             sample_name = file.filename.split('.')[0]
@@ -67,15 +98,16 @@ async def fileupload(
             id = uuid4()
             file_id = str(id)
             now = datetime.now()
+            submission_type = "standard"
             response = {
                     'id': id,
-                    'token': token,
-                    'sample': sample_name,
+                    'sample_name': sample_name,
                     'panel': option.lower(),
-                    'email': email,
-                    'created_date': now 
+                    'created_date': now,
+                    'submission_type': submission_type,
                        }
-            query = await ModelSample.create(**response) 
+
+            query = await ModelSample.create_sample(**response) 
     
             # for deleting
             sample_folder = os.path.join(STANDARD_UPLOADS, file_id)
@@ -98,48 +130,42 @@ async def fileupload(
 
             commands = salmonconfig.commands(indexpath, file_location, results_dir)
             requests.post("http://salmon:80/", json = commands)
-            shutil.rmtree(sample_folder)
-            if email == "" or email == None: 
-              pass
-            else: 
-              email_feature.send_email(email, sample_name)  
+            shutil.rmtree(sample_folder) 
 
-    return {"run": "complete"}
-
-@router.post("/test_salmon_container")
-async def fileupload():
-    try:
-        commands = {"commands": ["salmon"]}
-        x = requests.post("http://salmon:80/", json = commands )
-        print(x.text)
-        return x.text 
-    except Exception as e:
-        return e
+    return {"Result": "OK",
+            "File_ID": file_id}
 
 @router.post("/start-file")
 async def start_file(
+    current_user: UserDTO = Depends(get_current_user_no_exception),
     filename: str = Body(...),
     number_of_chunks: int = Body(...),
-    token: str = Body(...),
-    option: List[  str] = Body(...), 
-    email: str = Body("")
+    panels: List[str] = Body(...), 
 ):
-    for panel in option:
+    for option in panels:
         
         # it's worth noting that uuid4 generates random numbers, but the possibility of having a collision is so low, it's been estimated that it would take 90 years for such to occur.
- 
+
+        if current_user:
+            # check if file with name exists under users submissions
+            # if it does, then write to meta.txt how many have chunks passed
+            # grab that number and skip analyzing those chunks
+            pass
+
+          
         id = uuid4()
         file_id = str(id)
         now = datetime.now()
-        response = {'token': token,
-                 'sample': filename,
-                 'id': id,
-                 'panel': panel.lower(),
-                 'email': email,
-                 'created_date': now
+        submission_type = "real-time"
+        response = {
+                'id': id,
+                'sample_name': filename,
+                'panel': option.lower(),
+                'created_date': now,
+                'submission_type': submission_type,
                    }
 
-        query = await ModelSample.create(**response)
+        query = await ModelSample.create_sample(**response)
         
         rt_dir = "{}/{}".format(REAL_TIME_UPLOADS ,file_id)
         os.mkdir(rt_dir)
@@ -162,11 +188,11 @@ async def start_file(
 @router.post("/upload-chunk")
 async def upload_chunk(
     background_tasks: BackgroundTasks,
+    current_user: UserDTO = Depends(get_current_user_no_exception),
     chunk_number: int = Form(...),
     file_id: str = Form(...),
     chunk_file: UploadFile = File(...),
-    panel: str = Form(...),
-    token: str = Form(...)
+    panels: str = Form(...), 
 ):  
 
     rt_dir =  "{}/{}".format(REAL_TIME_UPLOADS, file_id) 
@@ -174,6 +200,10 @@ async def upload_chunk(
     upload_chunk_dir=  "{}/{}".format(rt_dir, "upload_data") 
     salmon_chunk_dir=  "{}/{}".format(rt_dir, "salmon_data") 
     
+    if current_user:
+        # keep returning until chunk number has reached where it left off
+        # return {"Result": "Skipped"} 
+        pass
 
     async with aiofiles.open(upload_data, 'wb') as f:
         while content := await chunk_file.read(read_batch_size):
@@ -187,7 +217,7 @@ async def upload_chunk(
         total_salmon_chunks = int(data[2])
 
     if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
-        background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir, file_id, panel, total_salmon_chunks) 
+        background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir, file_id, panels, total_salmon_chunks) 
 
     logs = await LogsModel.log_upload(
         submission_id = file_id,
@@ -273,8 +303,6 @@ async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands
 
     future = await loop.run_in_executor(None, call_salmon, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number), int(total_chunks), chunk, upload_dir)  
         
-import traceback
-import sys
 
 def call_salmon(commands_lst, loop, headers, metadata, quant_dir, file_id, chunk_number, total_chunks, chunk_dir, upload_chunk_path):  
 
@@ -300,9 +328,6 @@ def call_salmon(commands_lst, loop, headers, metadata, quant_dir, file_id, chunk
         print('The coroutine returned: {!r}'.format(result))
 
 
-import importlib 
-import glob
-from pydantic import BaseModel
 
 class Chunk(BaseModel):
     account_id: str
@@ -345,9 +370,6 @@ async def stream_analyzer(headers, metadata, quant_dir, file_id, chunk_number, t
 
         print(f'Added chunk {task["chunk_number"]} of {task["total_chunks"]}')
 
-        # if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
-        #     for f in glob.glob(upload_chunk_path):
-        #         os.remove(f)
     else:
         first_chunk = realtime.realtime_quant_analysis(quant_dir, headers, metadata) 
         first_chunk['Coverage'] = realtime.coverage_calc(first_chunk, headers[1])
