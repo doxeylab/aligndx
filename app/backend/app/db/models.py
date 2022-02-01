@@ -73,10 +73,11 @@ class Sample:
         return info
     
     @classmethod
-    async def does_file_exist(cls,file_id, user_id):
+    async def does_file_exist(cls,file_id, user_id, submission_type):
         query = (submissions.select()
                 .where(submissions.c.sample_name == file_id,
-                       submissions.c.user_id == user_id)
+                       submissions.c.user_id == user_id,
+                       submissions.c.submission_type == submission_type)
                 )
         info = await database.fetch_one(query)
         return info

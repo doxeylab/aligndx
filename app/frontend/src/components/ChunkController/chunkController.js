@@ -60,6 +60,7 @@ const StartFile = async (token, file, panels, connectWebsocket) => {
     await connectWebsocket(fileId, token)
     
     let last_chunk_processed = res.data.Last_chunk_processed + 1 
+    console.log(`Restarting at ${last_chunk_processed + 1}`)
 
     for (let i = last_chunk_processed; i < numberOfChunks; i++) {
       const res = await startChunk(upload_resource, token, i, fileId, file, panels);
