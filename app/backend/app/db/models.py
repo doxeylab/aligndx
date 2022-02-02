@@ -71,13 +71,23 @@ class Sample:
         query = submissions.select().where(submissions.c.id == file_id)
         info = await database.fetch_one(query)
         return info
+    
+    @classmethod
+    async def does_file_exist(cls,file_id, user_id, submission_type):
+        query = (submissions.select()
+                .where(submissions.c.sample_name == file_id,
+                       submissions.c.user_id == user_id,
+                       submissions.c.submission_type == submission_type)
+                )
+        info = await database.fetch_one(query)
+        return info
 
     @classmethod
-    async def save_result(cls, file_id, result, user_id):
+    async def save_result(cls, file_id, result):
         query = (
             submissions.update()
             .where(submissions.c.id == file_id)
-            .values(result=result, user_id=user_id)
+            .values(result=result)
         )
         sample = await database.execute(query)
         return sample 

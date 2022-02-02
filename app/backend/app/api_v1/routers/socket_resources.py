@@ -63,37 +63,39 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
         "app.worker.tasks.get_curr_chunk"
     )
     await manager.connect(websocket)
-    data = await websocket.receive_text()
-    # if current_user:
-    #     print(f"User {current_user.id} connected!")
-    try:
-        while True: 
-            current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+    token = await websocket.receive_text()
+    current_user = await get_current_user_ws(token)
 
-            if current_chunk:
-                if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
-                    df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                    data = realtime.data_loader(df, sample_name, headers, status="complete")
-                    await manager.send_data(data, websocket)  
-                    manager.disconnect(websocket)
+    if current_user:
+        print(f"User {current_user.id} connected!")
+        try:
+            while True: 
+                current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+
+                if current_chunk:
+                    if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
+                        df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
+                        data = realtime.data_loader(df, sample_name, headers, status="complete")
+                        await manager.send_data(data, websocket)  
+                        manager.disconnect(websocket)
+                    else:
+                        df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
+                        data = realtime.data_loader(df, sample_name, headers, status="ready")
+                        await manager.send_data(data, websocket) 
+                        await asyncio.sleep(1)
                 else:
-                    df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                    data = realtime.data_loader(df, sample_name, headers, status="ready")
-                    await manager.send_data(data, websocket) 
-                    await asyncio.sleep(1)
-            else:
-                message = {"status": "pending"} 
-                await manager.send_data(message, websocket)
-                await asyncio.sleep(5)  
+                    message = {"status": "pending"} 
+                    await manager.send_data(message, websocket)
+                    await asyncio.sleep(5)  
 
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        # print(f"User {current_user.id} disconnected!")
+        except WebSocketDisconnect:
+            manager.disconnect(websocket)
+            print(f"User {current_user.id} disconnected!")
 
-    except Exception as e: 
-        print(e)
-        # print(f"Exception occured so client {current_user.id}  disconnected")
-    # else:
-    #     manager.disconnect(websocket)  
-        # print(f"User not authenticated")
+        except Exception as e: 
+            print(e)
+            print(f"Exception occured so client {current_user.id}  disconnected")
+    else:
+        manager.disconnect(websocket)  
+        print(f"User could not be authenticated")
 

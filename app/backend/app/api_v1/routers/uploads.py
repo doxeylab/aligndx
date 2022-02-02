@@ -140,29 +140,49 @@ async def start_file(
     current_user: UserDTO = Depends(get_current_user_no_exception),
     filename: str = Body(...),
     number_of_chunks: int = Body(...),
-    panels: List[str] = Body(...), 
+    panels: List[str] = Body(...),
 ):
+    get_current_chunk_task = importlib.import_module(
+        "app.worker.tasks.get_curr_chunk"
+    )
+
     for option in panels:
+        
+        submission_type = "real-time"
+
+        query = await ModelSample.does_file_exist(filename, current_user.id, submission_type)
+
+        # sends restart policy if filename exists under users submissions
+        if query:
+            file_id = str(query["id"])
+            current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+            stop_point = current_chunk["chunk_number"]
+            total_chunks = current_chunk["total_chunks"]
+
+            # only sends restart message if chunks remain unprocessed
+            if stop_point < total_chunks:
+
+                print("User can restart!")
+                return {"Result" : "Restart available",
+                    "File_ID": file_id,
+                    "Last_chunk_processed":  stop_point,
+                    "Amount_processed": math.ceil(stop_point/total_chunks)}
+        else:
+            print("New submission")
+    
         
         # it's worth noting that uuid4 generates random numbers, but the possibility of having a collision is so low, it's been estimated that it would take 90 years for such to occur.
 
-        if current_user:
-            # check if file with name exists under users submissions
-            # if it does, then write to meta.txt how many have chunks passed
-            # grab that number and skip analyzing those chunks
-            pass
-
-          
         id = uuid4()
         file_id = str(id)
         now = datetime.now()
-        submission_type = "real-time"
         response = {
                 'id': id,
                 'sample_name': filename,
                 'panel': option.lower(),
                 'created_date': now,
                 'submission_type': submission_type,
+                'user_id': current_user.id
                    }
 
         query = await ModelSample.create_sample(**response)

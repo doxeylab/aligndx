@@ -113,7 +113,7 @@ async def get_current_user_no_exception(token: str = Depends(oauth2_scheme)):
 
 
 # ws version
-async def get_current_user_ws(token: str = Depends(oauth2_scheme)):
+async def get_current_user_ws(token: str):
     if not token:
         return None
 
