@@ -160,7 +160,7 @@ async def start_file(
             stop_point = current_chunk["chunk_number"]
             total_chunks = current_chunk["total_chunks"]
             chunks_left = total_chunks - stop_point
-            if stop_point != total_chunks:
+            if stop_point < total_chunks:
                 print("Restarting!")
                 return {"Result" : "Restart available",
                     "File_ID": file_id,
