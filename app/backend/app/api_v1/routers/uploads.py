@@ -155,18 +155,20 @@ async def start_file(
         query = await ModelSample.does_file_exist(filename, current_user.id, submission_type)
         # sends restart policy if filename exists under users submissions
         if query:
-            print("Restarting")
             file_id = str(query["id"])
             current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
             stop_point = current_chunk["chunk_number"]
             total_chunks = current_chunk["total_chunks"]
             chunks_left = total_chunks - stop_point
-            return {"Result" : "Restart available",
+            if stop_point != total_chunks:
+                print("Restarting!")
+                return {"Result" : "Restart available",
                     "File_ID": file_id,
                     "Last_chunk_processed":  stop_point,
                     "Chunks_left": chunks_left}
         else:
             print("New submission")
+    
         id = uuid4()
         file_id = str(id)
         now = datetime.now()
