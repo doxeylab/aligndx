@@ -64,7 +64,7 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
     )
     await manager.connect(websocket)
     token = await websocket.receive_text()
-    current_user = get_current_user_ws(token)
+    current_user = await get_current_user_ws(token)
 
     if current_user:
         print(f"User {current_user.id} connected!")
