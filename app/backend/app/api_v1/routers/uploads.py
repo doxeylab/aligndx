@@ -140,7 +140,7 @@ async def start_file(
     current_user: UserDTO = Depends(get_current_user_no_exception),
     filename: str = Body(...),
     number_of_chunks: int = Body(...),
-    panels: List[str] = Body(...)
+    panels: List[str] = Body(...),
 ):
     get_current_chunk_task = importlib.import_module(
         "app.worker.tasks.get_curr_chunk"
