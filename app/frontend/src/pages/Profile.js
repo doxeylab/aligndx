@@ -1,11 +1,31 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { Section, Title } from '../components/Common/PageElement';
 import { ResultHeader } from '../components/ProfileComponents/StyledProfile';
 import ResultCardComponent from '../components/ResultCardComponent';
+import { STANDARD_SUBMISSIONS_URL } from '../services/Config';
+import { useGlobalContext } from "../context-provider";
+
 
 
 const Profile = () => {
+    const [data, setData] = useState([]);
+    const context = useGlobalContext();
+
+    useEffect(async () => {
+        var token = localStorage.getItem('accessToken');;
+        if (context.authenticated) {
+
+        }
+        const res = await axios.get(STANDARD_SUBMISSIONS_URL, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        setData(res.data);
+    }, []);
+
     return (
         <Section id="profile">
             <Container>
@@ -28,13 +48,16 @@ const Profile = () => {
                             </h1>
                             <span></span>
                         </ResultHeader>
-                        <ResultCardComponent></ResultCardComponent>
-                        <ResultCardComponent></ResultCardComponent>
-                        <ResultCardComponent></ResultCardComponent>
-                        <ResultCardComponent></ResultCardComponent>
-                        <ResultCardComponent></ResultCardComponent>
-                        <ResultCardComponent></ResultCardComponent>
-                        <ResultCardComponent></ResultCardComponent>
+                        {data.map((result) => <ResultCardComponent name={result.sample_name} uploadDate={result.created_date} pathogenType={result.panel}></ResultCardComponent>)}
+                        {/*
+                        let userid; 
+                        for (let data = 1; data < fileid; data++) {
+                            element = array[data];*/}
+                        {/* <ResultCardComponent name = "Sample File" uploadDate = "01/02/2022" pathogenType = "sample" ></ResultCardComponent>
+                            <ResultCardComponent name = "Abc File" uploadDate = "03/02/2022" pathogenType = "abc" ></ResultCardComponent>   */}
+                        {/* }  */}
+
+
                     </Col>
                 </Row>
             </Container>
