@@ -26,7 +26,7 @@ import Red_X from '../../assets/Red_X.png';
 import {useGlobalContext} from "../../context-provider"
 
 // testing
-import example_dataset from '../../assets/example_dataset.json';
+import example_dataset from '../../assets/test_datasets/example_dataset.json';
 
 // Config
 import { STANDARD_RESULTS } from '../../services/Config';

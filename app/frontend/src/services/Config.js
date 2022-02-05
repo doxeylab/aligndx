@@ -24,3 +24,7 @@ export const ACCESS_TOKEN_URL = USERS + "me"
 export const CHUNK_SIZE = 800000
 export const WEBSOCKET_URL = "ws://aligndx.uwaterloo.ca:8080/livegraphs"
 // export const WEBSOCKET_URL = "ws://localhost:8080/livegraphs"
+
+// metadata
+export const METADATA_URL = URL + "metadata/"
+export const PANELS_URL = METADATA_URL + "panels"

@@ -60,7 +60,7 @@ async def standard_results(file_id: str, current_user: UserDTO = Depends(get_cur
     quant_dir = os.path.join(sample_dir,'quant.sf')   
     result = analyze.analyze_handler(sample_name, headers, metadata, quant_dir)
     
-    await ModelSample.save_result(file_id, json.dumps(result), current_user.id)
+    await ModelSample.save_result(file_id, json.dumps(result))
     
     return result
 
