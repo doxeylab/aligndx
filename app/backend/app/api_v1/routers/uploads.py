@@ -86,6 +86,7 @@ async def ping_salmon():
 async def file_upload( 
     files: List[UploadFile] = File(...), 
     panel: List[str] = Form(...), 
+    current_user: UserDTO = Depends(get_current_user_no_exception),
     ): 
 
     for file in files:
@@ -105,6 +106,7 @@ async def file_upload(
                     'panel': option.lower(),
                     'created_date': now,
                     'submission_type': submission_type,
+                    'user_id': current_user.id
                        }
 
             query = await ModelSample.create_sample(**response) 
