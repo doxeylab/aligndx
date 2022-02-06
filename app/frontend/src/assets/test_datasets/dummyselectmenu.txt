@@ -1,0 +1,27 @@
+[
+    {
+        id: "panel",
+        category: "Panel",
+        opts: [
+            { value: "bacterial", label: "Bacterial" },
+            { value: "viral", label: "Viral" }
+        ]
+    },
+    {
+        id: "bacteria",
+        category: "Bacteria",
+        opts: [
+            { value: "streptococcus_pneumoniae", label: "Streptococcus pneumoniae" },
+            { value: "moraxella_catarrhalis", label: "Moraxella Catarrhalis" },
+            { value: "haemophilus_influenzae", label: "Haemophilus Influenzae" },
+        ]
+    },
+    {
+        id: "virus",
+        category: "Virus",
+        opts: [
+            { value: "influenza", label: "Influenza" },
+            { value: "sars_cov_2", label: "Sars-Cov-2" }
+        ]
+    }
+]
