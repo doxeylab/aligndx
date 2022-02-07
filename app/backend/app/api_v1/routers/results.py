@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 # FastAPI
 from fastapi import APIRouter, Depends, Request, status
-from fastapi import WebSocket, WebSocketDisconnect 
 from fastapi import Cookie, Query
 
 # auth components
@@ -63,6 +62,38 @@ async def standard_results(file_id: str, current_user: UserDTO = Depends(get_cur
     await ModelSample.save_result(file_id, json.dumps(result))
     
     return result
+
+class Chunk_id(BaseModel):
+    account_id: str 
+
+@router.get('/standardplus/{file_id}')
+async def standard_plus(file_id: str, current_user: UserDTO = Depends(get_current_user_no_exception)):
+    if current_user:
+        query = await ModelSample.get_sample_info(file_id) 
+        file_id = str(query['id'])
+        sample_name = query['sample_name']
+
+        headers=['Name', 'TPM']
+        get_current_chunk_task = importlib.import_module(
+            "app.worker.tasks.get_curr_chunk"
+        )
+
+        while True: 
+            current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+            if current_chunk:
+                if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
+                    df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
+                    data = realtime.data_loader(df, sample_name, headers, status="complete")
+                    return data
+                else:
+                    continue
+            else:
+                message = {"status": "pending"} 
+                return message
+    else:
+        return {"message":"Unauthorized"}  
+
+        
 
 @router.get('/standard/submissions/')
 async def get_standard_submissions(current_user: UserDTO = Depends(get_current_user_no_exception)):
