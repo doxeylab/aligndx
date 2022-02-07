@@ -84,6 +84,8 @@ async def standard_plus(file_id: str, current_user: UserDTO = Depends(get_curren
                 if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
                     df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
                     data = realtime.data_loader(df, sample_name, headers, status="complete")
+                    # await ModelSample.save_result(file_id, json.dumps(data))
+
                     return data
                 else:
                     continue
