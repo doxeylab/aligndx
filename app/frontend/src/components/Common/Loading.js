@@ -16,18 +16,34 @@ export const LoadCol = styled(Col)`
 ` 
 
 const Loading = (props) => {
-    return (
-        <Section id="loading" full center>
+    const progress = props.progress;
+    if (progress) {
+        return (
+            <Section id="loading" full center>
             <Container>
                 <Row>
                     <LoadCol>
                         <img src={LoadingDNA} alt="loading-dna" width={500} />
-                        <ProgressBar now={props.progress} label={`Uploaded ${props.progress}%`} width={500}/>
+                        <ProgressBar now={progress} label={`Uploaded ${progress}%`} width={500}/>
                     </LoadCol>
                 </Row>
             </Container>
         </Section>
-    )
+        )
+    }
+    else {
+        return (
+            <Section id="loading" full center>
+            <Container>
+                <Row>
+                    <LoadCol>
+                        <img src={LoadingDNA} alt="loading-dna" width={500} />
+                    </LoadCol>
+                </Row>
+            </Container>
+        </Section>
+        )
+    } 
 }
 
 export default Loading;
