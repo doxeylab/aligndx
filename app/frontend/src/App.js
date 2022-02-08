@@ -43,29 +43,30 @@ function App() {
                             <Loading progress={progress} />
                             :
                             <LoadContext.Provider value={{ load, setLoad }}>
-                                <Navbar />
-                                <Switch>
-                                    {/* <Route path='/' exact component={Home} /> */}
-                                    <Route path='/' exact>
-                                        <Home changeProgress={changeProgress} />
-                                    </Route>
-                                    <Route path='/home' component={Home} />
-                                    <Route path='/about' component={About} />
-                                    <Route path='/contact' component={Contact} />
-                                    <Route path='/team' component={Team} />
-                                    <Route path='/results' component={Result} />
-                                    <Route path='/signup' component={Signup} />
-                                    <Route path='/login' component={Login} />
-                                    <Route path='/USER_ID' component={Profile} />
-                                    <Route path='/realtime' component={RealTime} />
-                                </Switch>
-                                <Footer />
+                                <Background>
+                                    <Navbar />
+                                    <Switch>
+                                        {/* <Route path='/' exact component={Home} /> */}
+                                        <Route path='/' exact>
+                                            <Home changeProgress={changeProgress} />
+                                        </Route>
+                                        <Route path='/home' component={Home} />
+                                        <Route path='/about' component={About} />
+                                        <Route path='/contact' component={Contact} />
+                                        <Route path='/team' component={Team} />
+                                        <Route path='/results' component={Result} />
+                                        <Route path='/signup' component={Signup} />
+                                        <Route path='/login' component={Login} />
+                                        <Route path='/USER_ID' component={Profile} />
+                                        <Route path='/realtime' component={RealTime} />
+                                    </Switch>
+                                    <Footer />
+                                </Background>
                             </LoadContext.Provider>
                         }
                     </GlobalContextProvider>
                 </Router>
             </ThemeProvider>
-            <Background />
         </Fragment>
     );
 }

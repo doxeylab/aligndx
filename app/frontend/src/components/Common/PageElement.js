@@ -40,7 +40,7 @@ export const Background = styled.div`
     top: 0;
     left: 0;
     width: 100%;
-    height: 1534px;
+    height: auto;
     background-position: top center;
     background-repeat: no-repeat;
     z-index: -10;
