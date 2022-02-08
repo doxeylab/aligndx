@@ -26,6 +26,11 @@ const theme = createTheme({
 
 function App() {
     const [load, setLoad] = useState(false)
+    const [progress, setProgress] = useState(0)
+
+    const changeProgress = (prog) => {
+        setProgress(prog)
+    }
 
     return (
         <Fragment>
@@ -34,12 +39,15 @@ function App() {
                 <Router>
                     <GlobalContextProvider>
                         {load ?
-                            <Loading />
+                            <Loading progress={progress}/>
                             :
                             <LoadContext.Provider value={{ load, setLoad }}>
                                 <Navbar />
                                 <Switch>
-                                    <Route path='/' exact component={Home} />
+                                    {/* <Route path='/' exact component={Home} /> */}
+                                    <Route path='/' exact>
+                                        <Home changeProgress={changeProgress} />
+                                    </Route>
                                     <Route path='/home' component={Home} />
                                     <Route path='/about' component={About} />
                                     <Route path='/contact' component={Contact} />

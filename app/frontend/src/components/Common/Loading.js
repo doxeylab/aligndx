@@ -1,4 +1,4 @@
-import { Col, Container, Row } from 'react-bootstrap';
+import { Col, Container, Row, ProgressBar } from 'react-bootstrap';
 import styled from "styled-components";
 import LoadingDNA from '../../assets/Common/LoadingDNA.gif';
 import { Section } from '../Common/PageElement';
@@ -8,16 +8,21 @@ export const LoadCol = styled(Col)`
     align-items: center;
     justify-content: center;
     flex-direction: column;
-`
+    .progress {
+        width: 400px;
+        max-width:100%;
+        height: 15px;
+    }
+` 
 
-const Loading = () => {
+const Loading = (props) => {
     return (
         <Section id="loading" full center>
             <Container>
                 <Row>
                     <LoadCol>
                         <img src={LoadingDNA} alt="loading-dna" width={500} />
-                        <h2>Loading...</h2>
+                        <ProgressBar now={props.progress} label={`Uploaded ${props.progress}%`} width={500}/>
                     </LoadCol>
                 </Row>
             </Container>

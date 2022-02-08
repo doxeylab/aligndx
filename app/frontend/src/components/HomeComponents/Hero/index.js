@@ -28,7 +28,7 @@ import {useGlobalContext} from "../../../context-provider";
 // Config
 import { UPLOAD_URL, PANELS_URL} from '../../../services/Config';
 
-const Hero = () => {
+const Hero = (props) => {
     const context = useGlobalContext();
 
     const [show, setShow] = useState(false);
@@ -91,7 +91,7 @@ const Hero = () => {
                 },
                 onUploadProgress: progressEvent => {
                 var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-                console.log(percentCompleted)
+                props.changeProgress(percentCompleted)
               }
             }
 
