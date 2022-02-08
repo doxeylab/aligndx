@@ -68,8 +68,15 @@ const Hero = () => {
         }
     }
 
+  
     const upload = () => {
         setLoad(true) 
+        
+        const uploadconfig = {onUploadProgress: function(progressEvent) {
+            var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            console.log(percentCompleted)
+          }
+        }
 
         if (context.authenticated == true) {
             const formData = new FormData();
@@ -86,7 +93,7 @@ const Hero = () => {
 
             axios.post(resource, formData, {headers: {
                 'Authorization': `Bearer ${token}`
-            }})
+            }}, uploadconfig)
                 .then((res) => {
                     setLoad(false)
                     const fileId = res.data.File_ID;  

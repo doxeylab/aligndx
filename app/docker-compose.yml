@@ -4,7 +4,7 @@ services:
     build:
       context: backend
       dockerfile: docker/api/Dockerfile
-    command: sh -c " sh ./bin/wait-for/wait-for.sh kafka:29092 --timeout=20 && uvicorn app.main:app --workers 4 --host 0.0.0.0 --port 8080"
+    command: sh -c " sh ./bin/wait-for/wait-for.sh kafka:29092 --timeout=20 && uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port 8080"
     tty: true
     depends_on:
       - postgres

@@ -89,6 +89,7 @@ async def file_upload(
     current_user: UserDTO = Depends(get_current_user_no_exception),
     ): 
 
+    commands_lst = []
     for file in files:
         
         for option in panel:
@@ -131,11 +132,22 @@ async def file_upload(
             results_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name) 
 
             commands = salmonconfig.commands(indexpath, file_location, results_dir)
-            requests.post("http://salmon:80/", json = commands)
-            shutil.rmtree(sample_folder) 
+            commands_lst.append(commands)
+            loop = asyncio.get_running_loop()
+            future = await loop.run_in_executor(None, call_salmon, commands_lst, sample_folder)  
+
+            # shutil.rmtree(sample_folder) 
 
     return {"Result": "OK",
             "File_ID": file_id}
+
+
+def call_salmon(commands_lst, file_dir):  
+
+    with requests.Session() as s:
+        for commands in commands_lst:
+            s.post("http://salmon:80/", json = commands)
+    shutil.rmtree(file_dir)
 
 @router.post("/start-file")
 async def start_file(
@@ -335,9 +347,9 @@ async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands
     headers=['Name', 'TPM']
     metadata = realtime.metadata_load(METADATA_FOLDER, panel)  
 
-    future = await loop.run_in_executor(None, call_salmon, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number), int(total_chunks), chunk, upload_dir)  
+    future = await loop.run_in_executor(None, post_process, commands_lst, loop, headers, metadata, quant_dir, file_id, int(chunk_number), int(total_chunks), chunk, upload_dir)  
 
-def call_salmon(commands_lst, loop, headers, metadata, quant_dir, file_id, chunk_number, total_chunks, chunk_dir, upload_chunk_path):  
+def post_process(commands_lst, loop, headers, metadata, quant_dir, file_id, chunk_number, total_chunks, chunk_dir, upload_chunk_path):  
 
     with requests.Session() as s:
         for commands in commands_lst:
