@@ -84,9 +84,10 @@ async def ping_salmon():
 
 @router.post("/")
 async def file_upload( 
+    background_tasks: BackgroundTasks,
     files: List[UploadFile] = File(...), 
     panel: List[str] = Form(...), 
-    current_user: UserDTO = Depends(get_current_user_no_exception),
+    current_user: UserDTO = Depends(get_current_user_no_exception)
     ): 
 
     commands_lst = []
@@ -133,14 +134,17 @@ async def file_upload(
 
             commands = salmonconfig.commands(indexpath, file_location, results_dir)
             commands_lst.append(commands)
-            loop = asyncio.get_running_loop()
-            future = await loop.run_in_executor(None, call_salmon, commands_lst, sample_folder)  
+
+            background_tasks.add_task(standard_process, commands_lst, sample_folder) 
 
             # shutil.rmtree(sample_folder) 
 
     return {"Result": "OK",
             "File_ID": file_id}
 
+async def standard_process(commands_lst, file_dir):
+    loop = asyncio.get_running_loop()
+    future = await loop.run_in_executor(None, call_salmon, commands_lst, file_dir)  
 
 def call_salmon(commands_lst, file_dir):  
 
