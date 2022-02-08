@@ -113,7 +113,7 @@ const BarChart = ({data, yLabel, xLabel, col}) => {
             .duration(800)
             .attr("y", function(d) { return y(d[`${col}`]); })
             .attr("height", function(d) { return height - y(d[`${col}`])})
-            .delay(function(d,i){console.log(i) ; return(i*100)})
+            .delay(function(d,i){return(i*100)})
 
 // eslint-disable-next-line
     }, [dimensions]);

@@ -28,7 +28,7 @@ import {useGlobalContext} from "../../../context-provider";
 // Config
 import { UPLOAD_URL, PANELS_URL} from '../../../services/Config';
 
-const Hero = () => {
+const Hero = (props) => {
     const context = useGlobalContext();
 
     const [show, setShow] = useState(false);
@@ -68,6 +68,7 @@ const Hero = () => {
         }
     }
 
+  
     const upload = () => {
         setLoad(true) 
 
@@ -84,9 +85,17 @@ const Hero = () => {
             var resource = UPLOAD_URL
             const token = localStorage.getItem("accessToken")
 
-            axios.post(resource, formData, {headers: {
-                'Authorization': `Bearer ${token}`
-            }})
+            const config = { 
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                onUploadProgress: progressEvent => {
+                var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                props.changeProgress(percentCompleted)
+              }
+            }
+
+            axios.post(resource, formData, config)
                 .then((res) => {
                     setLoad(false)
                     const fileId = res.data.File_ID;  

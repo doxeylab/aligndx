@@ -14,10 +14,10 @@ import Tutorial from '../components/HomeComponents/Tutorial';
 // import reportImage from '../assets/reportImage.svg';
 // import AnalyzeHomeBtn from '../components/AnalyzeHomeBtn/AnalyzeHomeBtn';
 
-const Home = () => {
+const Home = (props) => {
     return (
         <>
-            <Hero/>
+            <Hero changeProgress={props.changeProgress}/>
             <Tutorial/>
         </>
     );

@@ -58,10 +58,8 @@ const Result = () => {
   
             var resource = STANDARD_RESULTS
             const token = localStorage.getItem("accessToken")
-            console.log(token)
             axios.get(resource + url_id, {headers: {'Authorization': `Bearer ${token}`}})
             .then(res => {
-                console.log(res.data)
                 setData([res.data])
                 setGetLoad(false)
                 setPathogens(res.data.pathogens)
