@@ -41,6 +41,9 @@ from app.db.schema import Sample as SchemaSample
 # settings 
 from app.config.settings import get_settings
 
+# celery
+from app.celery.tasks import make_file_metadata, process_new_upload
+
 router = APIRouter()
 
 # config
@@ -220,6 +223,8 @@ async def start_file(
 
         os.mkdir("{}/{}".format(REAL_TIME_RESULTS, file_id))
 
+        make_file_metadata.delay(rt_dir, filename, upload_chunk_size, salmon_chunk_size)
+
         return {"Result": "OK",
                 "File_ID": file_id}
 
@@ -254,8 +259,10 @@ async def upload_chunk(
         num_chunks = int(data[1])
         total_salmon_chunks = int(data[2])
 
-    if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
-        background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir, file_id, panels, total_salmon_chunks) 
+    # if chunk_number % math.floor(chunk_ratio) == 0 or chunk_number + 1 == num_chunks:
+    #     background_tasks.add_task(process_salmon_chunks, upload_chunk_dir,salmon_chunk_dir, file_id, panels, total_salmon_chunks)
+
+    process_new_upload.delay(rt_dir, chunk_number)  
 
     logs = await LogsModel.log_upload(
         submission_id = file_id,
