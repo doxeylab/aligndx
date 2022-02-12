@@ -20,7 +20,7 @@ pwd_context = settings.pwd_context
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 
-# Creates user if it exists 
+# Creates user if it doesn't exist 
 async def create_user(user: UserTemp):
     user_from_db = await UserRepo.get(user.email)
 
@@ -39,6 +39,7 @@ async def create_user(user: UserTemp):
     await UserRepo.create(db_user)
     return {"status": status.HTTP_201_CREATED,
             "message": "User successfully created"}
+
 
 # Authenticate the user: verify user exists and password is correct
 async def authenticate_user(email: str, password: str):
@@ -67,6 +68,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
 
 # Returns the current logged in user if any, raises unauthorized error otherwise
 async def get_current_user(token: str = Depends(oauth2_scheme_auto_error)):
