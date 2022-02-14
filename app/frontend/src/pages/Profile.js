@@ -16,13 +16,12 @@ const Profile = () => {
     useEffect(async () => {
         var token = localStorage.getItem('accessToken');;
         if (context.authenticated) {
-
-        }
         const res = await axios.get(STANDARD_SUBMISSIONS_URL, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
+        }
         setData(res.data);
     }, []);
 
