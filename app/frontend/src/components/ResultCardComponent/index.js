@@ -3,12 +3,13 @@ import React from 'react';
 import {ResultCard, ResultName, UploadDate, PathogenType, ChevronIcon} from './StyledResultCard';
 import {FaChevronRight} from 'react-icons/fa';
 
-const ResultCardComponent = () => {
+const ResultCardComponent = (props) => {
+    
     return (
         <ResultCard>
-            <ResultName>SRR11365240</ResultName>
-            <UploadDate>Wed, Jun 30, 2021 12:07</UploadDate>
-            <PathogenType>Sars CoV-2</PathogenType>
+            <ResultName>{props.name}</ResultName>
+            <UploadDate>{props.uploadDate}</UploadDate>
+            <PathogenType>{props.pathogenType}</PathogenType>
             <ChevronIcon>
                 <FaChevronRight />
             </ChevronIcon>
