@@ -1,9 +1,12 @@
-import sys
+import os
 import json
-from tkinter import W
+
+import requests
 
 from celery import Celery
 from celery.contrib import rdb
+
+from app.scripts import salmonconfig
 
 app = Celery('tasks', broker='pyamqp://guest@localhost//')
 
@@ -24,7 +27,7 @@ def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_siz
     with open(meta_fname, 'w') as f:
         json.dump(metadata, f)
 
-    return True
+    return {'Success': True}
 
 
 @app.task
@@ -49,6 +52,8 @@ def process_new_upload(file_dir, new_chunk_number):
     analysis_chunk_fname = '{}/{}.fastq'.format(
         analysis_data_dir, current_analysis_chunk_number)
 
+    # Record if a new analysis chunk is produced to trigger salmon
+    chunk_to_analyze = False
     with open(analysis_chunk_fname, 'ab+') as analysis_chunk:
         with open(upload_chunk_fname, 'rb') as upload_chunk:
             data = upload_chunk.read()
@@ -64,6 +69,9 @@ def process_new_upload(file_dir, new_chunk_number):
                     data.split(b'\n')[lines_to_complete_record:])
 
                 analysis_chunk.write(data_to_complete_record)
+
+                # set chunk for salmon analysis
+                chunk_to_analyze = current_analysis_chunk_number
 
                 # write remaining data into the next analysis chunk
                 current_analysis_chunk_number += 1
@@ -90,7 +98,25 @@ def process_new_upload(file_dir, new_chunk_number):
     with open(meta_fname, 'w') as f:
         json.dump(metadata, f)
 
-    return True
+    return {'Success': True,
+            'Chunk_To_Analyze': chunk_to_analyze}
+
+
+@app.task
+def perform_chunk_analysis(upload_result, file_id, panel, index_folder, real_time_results):
+    chunk_number = upload_result['Chunk_To_Analyze']
+
+    if chunk_number is None:
+        return
+
+    indexpath = os.path.join(index_folder, panel + "_index")
+    chunk = "{}/{}/{}.fastq".format(file_id, chunk_number)
+    results_dir = "{}/{}/{}".format(real_time_results, file_id, chunk_number)
+
+    commands = salmonconfig.commands(indexpath, chunk, results_dir)
+
+    with requests.Session() as s:
+        s.post("http://salmon:80/", json=commands)
 
 
 if __name__ == '__main__':
