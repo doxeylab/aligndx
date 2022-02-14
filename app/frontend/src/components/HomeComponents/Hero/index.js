@@ -11,6 +11,7 @@ import { Section } from '../../Common/PageElement';
 import { DropdownMenu, TextField } from '../../Form';
 import UploadComponent from '../../UploadComponent';
 import Button from '../../Button';
+import UploadModal from '../../UploadModal';
 
 // Styling
 import { Col, Container, Row } from 'react-bootstrap';
@@ -22,45 +23,27 @@ import { HeroBody, HeroBtns, HeroBtns2, HeroCol, HeroImage, HeroText, HeroTitle 
 import { LoadContext } from '../../../LoadContext';
 import {useGlobalContext} from "../../../context-provider";
 
+// Testing  
+
 // Config
-import { UPLOAD_URL} from '../../../services/Config';
+import { UPLOAD_URL, PANELS_URL} from '../../../services/Config';
 
-
-const selectmenuoptions = [
-    {
-        id: "panel",
-        category: "Panel",
-        opts: [
-            { value: "bacterial", label: "Bacterial" },
-            { value: "viral", label: "Viral" }
-        ]
-    },
-    {
-        id: "bacteria",
-        category: "Bacteria",
-        opts: [
-            { value: "streptococcus_pneumoniae", label: "Streptococcus pneumoniae" },
-            { value: "moraxella_catarrhalis", label: "Moraxella Catarrhalis" },
-            { value: "haemophilus_influenzae", label: "Haemophilus Influenzae" },
-        ]
-    },
-    {
-        id: "virus",
-        category: "Virus",
-        opts: [
-            { value: "influenza", label: "Influenza" },
-            { value: "sars_cov_2", label: "Sars-Cov-2" }
-        ]
-    }
-];
-
-const Hero = () => {
+const Hero = (props) => {
     const context = useGlobalContext();
 
     const [show, setShow] = useState(false);
     const [dataFiles, setDataFiles] = useState([]);
     const { setLoad } = useContext(LoadContext);
     const [selectedDetections, setSelectedDetections] = useState([]);
+
+    const [options,setOptions] = useState([]);
+
+    const selectmenuoptions = () => {
+        axios.get(PANELS_URL)
+            .then((res) => {
+                setOptions(res.data)
+            })
+    }
 
     const dataFileCallback = (file) => {
         setDataFiles(prevFiles => [...prevFiles, file])
@@ -85,6 +68,7 @@ const Hero = () => {
         }
     }
 
+  
     const upload = () => {
         setLoad(true) 
 
@@ -101,9 +85,17 @@ const Hero = () => {
             var resource = UPLOAD_URL
             const token = localStorage.getItem("accessToken")
 
-            axios.post(resource, formData, {headers: {
-                'Authorization': `Bearer ${token}`
-            }})
+            const config = { 
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                onUploadProgress: progressEvent => {
+                var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                props.changeProgress(percentCompleted)
+              }
+            }
+
+            axios.post(resource, formData, config)
                 .then((res) => {
                     setLoad(false)
                     const fileId = res.data.File_ID;  
@@ -138,6 +130,7 @@ const Hero = () => {
     const handleShow = () => {
         if (context.authenticated == true){
             setShow(true);
+            selectmenuoptions();
         }
         else {
             alert("Please sign in to use this service")
@@ -183,7 +176,18 @@ const Hero = () => {
                     </Row>
                 </Container>
             </Section>
-            <Modal size="lg"
+            <UploadModal 
+            show={show}
+            onHide={handleClose}
+            dataFileCallback={dataFileCallback}
+            selectedFiles={dataFiles}
+            dataRemoveFileCallback={dataRemoveFileCallback}
+            options={options}
+            detectionCallback={detectionCallback}
+            selectedDetections={selectedDetections}
+            upload={upload}
+            ></UploadModal>
+            {/* <Modal size="lg"
                 aria-labelledby="contained-modal-title-vcenter"
                 centered
                 show={show}
@@ -206,7 +210,7 @@ const Hero = () => {
                         </Row>
                         <Row style={{ marginBottom: '1.5rem' }}>
                                 <DropdownMenu
-                                    options={selectmenuoptions}
+                                    options={options}
                                     val="value"
                                     label="label"
                                     category="category"
@@ -221,7 +225,7 @@ const Hero = () => {
                         </Row>
                     </Container>
                 </Modal.Body>
-            </Modal>
+            </Modal> */}
         </>
     );
 }

@@ -26,7 +26,7 @@ import Red_X from '../../assets/Red_X.png';
 import {useGlobalContext} from "../../context-provider"
 
 // testing
-import example_dataset from '../../assets/example_dataset.json';
+import example_dataset from '../../assets/test_datasets/example_dataset.json';
 
 // Config
 import { STANDARD_RESULTS } from '../../services/Config';
@@ -58,10 +58,8 @@ const Result = () => {
   
             var resource = STANDARD_RESULTS
             const token = localStorage.getItem("accessToken")
-            console.log(token)
             axios.get(resource + url_id, {headers: {'Authorization': `Bearer ${token}`}})
             .then(res => {
-                console.log(res.data)
                 setData([res.data])
                 setGetLoad(false)
                 setPathogens(res.data.pathogens)

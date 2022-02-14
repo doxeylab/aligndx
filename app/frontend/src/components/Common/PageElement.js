@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import BackgroundImg from '../../assets/Common/background.png';
 
 const handleTitleAlign = align => {
   switch (align) {
@@ -31,4 +32,16 @@ export const Section = styled.section`
     :
     `padding-top: 120px;`
   }
+`
+
+export const Background = styled.div`
+    background-image: url(${BackgroundImg});
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    background-position: top center;
+    background-repeat: no-repeat;
+    z-index: -10;
 `

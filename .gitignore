@@ -17,9 +17,10 @@ uploads
 
 # production
 /app/build
+/app/certbot/
 
 # secrets
-.env
+.env*
 config.ps1
 
 # misc
@@ -38,3 +39,4 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 **/.eslintcache*
+.vscode

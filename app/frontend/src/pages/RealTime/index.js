@@ -32,7 +32,7 @@ import {useGlobalContext} from "../../context-provider"
 
 
 // Testing
-import example_dataset from '../../assets/example_dataset.json';
+import example_dataset from '../../assets/test_datasets/example_dataset.json';
 
 // Services
 import {WEBSOCKET_URL} from '../../services/Config';
