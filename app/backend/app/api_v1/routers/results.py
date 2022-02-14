@@ -95,10 +95,9 @@ async def standard_plus(file_id: str, current_user: UserDTO = Depends(get_curren
     else:
         return {"message":"Unauthorized"}  
 
-        
 
-@router.get('/standard/submissions/')
-async def get_standard_submissions(current_user: UserDTO = Depends(get_current_user_no_exception)):
+@router.get('/submissions/')
+async def get_submissions(current_user: UserDTO = Depends(get_current_user_no_exception)):
     if current_user:
         query = await ModelSample.get_user_submissions(current_user.id)
         return query
