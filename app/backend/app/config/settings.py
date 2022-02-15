@@ -10,8 +10,8 @@ class AppSettings(BaseSettings):
 
     #  -- Auth --
     class AuthSettings():
-        oauth2_scheme_auto_error = OAuth2PasswordBearer(tokenUrl="token")
-        oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
+        oauth2_scheme_auto_error = OAuth2PasswordBearer(tokenUrl="users/token")
+        oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/token", auto_error=False)
         pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         SECRET_KEY = os.getenv("SECRET_KEY")
         ALGORITHM = "HS256"

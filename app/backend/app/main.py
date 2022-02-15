@@ -42,22 +42,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.include_router(
-#     uploads.router,
-#     prefix="/uploads",
-#     tags=["uploads"],
-#     responses={408: {"description": "Ain't gonna work buddy"}},
-# )
-# app.include_router(
-#     results.router,
-#     prefix="/results",
-#     tags=["results"],
-#     responses={408: {"description": "Ain't gonna work buddy"}},
-# )
-
-# don't prefix with users. it breaks swagger ui
 app.include_router(
     users.router,
+    prefix="/users",
     tags=["users"],
     responses={408: {"description": "Ain't gonna work buddy"}},
 )

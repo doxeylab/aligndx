@@ -10,6 +10,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 # auth components
 import app.auth.auth_dependencies as auth
 from app.auth.models import UserTemp, Token, User
+from app.auth.auth_dependencies import get_current_user_no_exception
+from app.auth.models import UserDTO
+
+# db components
+from app.db.models import Sample as ModelSample
 
 # settings
 from app.config.settings import get_settings
@@ -26,6 +31,7 @@ router = APIRouter()
 @router.post("/create_user", status_code=status.HTTP_201_CREATED)
 async def signup(user: UserTemp): 
     await auth.create_user(user)
+
 
 # Log in endpoint
 @router.post("/token", response_model=Token)
@@ -45,10 +51,22 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
     return {"access_token": access_token, "token_type": "bearer"}
 
-# check active user
+
+# Check active user
 @router.get("/me", response_model=User)
 async def read_users_me(current_user: User = Depends(auth.get_current_user)):
     return current_user
+
+
+# Get the submission results for the currently logged in user
+@router.get('/submissions/')
+async def get_standard_submissions(current_user: UserDTO = Depends(get_current_user_no_exception)):
+    if current_user:
+        submissions = await ModelSample.get_user_submissions(current_user.id)
+        return submissions
+    else:
+        return {"message":"Unauthorized"}  
+        
 
 # -- Cookies attempt --
 

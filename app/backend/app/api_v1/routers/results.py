@@ -10,7 +10,7 @@ from fastapi import Cookie, Query
 
 # auth components
 from app.auth.models import UserDTO
-from app.auth.auth_dependencies import get_current_user, get_current_user_no_exception
+from app.auth.auth_dependencies import get_current_user_no_exception
 
 # db components
 from app.db.models import Sample as ModelSample
@@ -47,21 +47,24 @@ router = APIRouter()
  
 @router.get('/standard/{file_id}') 
 async def standard_results(file_id: str, current_user: UserDTO = Depends(get_current_user_no_exception)):
-    query = await ModelSample.get_sample_info(file_id)  
+    if current_user:
+        query = await ModelSample.get_sample_info(file_id)  
 
-    sample_name = query['sample_name']
-    panel = query['panel']
-    file_id = str(query['id'])
-    headers=['Name', 'TPM'] 
+        sample_name = query['sample_name']
+        panel = query['panel']
+        file_id = str(query['id'])
+        headers=['Name', 'TPM'] 
 
-    metadata = analyze.metadata_load(METADATA_FOLDER, panel)
-    sample_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
-    quant_dir = os.path.join(sample_dir,'quant.sf')   
-    result = analyze.analyze_handler(sample_name, headers, metadata, quant_dir)
-    
-    await ModelSample.save_result(file_id, json.dumps(result))
-    
-    return result
+        metadata = analyze.metadata_load(METADATA_FOLDER, panel)
+        sample_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
+        quant_dir = os.path.join(sample_dir,'quant.sf')   
+        result = analyze.analyze_handler(sample_name, headers, metadata, quant_dir)
+        
+        await ModelSample.save_result(file_id, json.dumps(result))
+        
+        return result
+    else:
+        return {"message":"Unauthorized"}  
 
 class Chunk_id(BaseModel):
     account_id: str 
@@ -95,16 +98,7 @@ async def standard_plus(file_id: str, current_user: UserDTO = Depends(get_curren
     else:
         return {"message":"Unauthorized"}  
 
-        
 
-@router.get('/standard/submissions/')
-async def get_standard_submissions(current_user: UserDTO = Depends(get_current_user_no_exception)):
-    if current_user:
-        query = await ModelSample.get_user_submissions(current_user.id)
-        return query
-    else:
-        return {"message":"Unauthorized"}  
-        
 # @router.get('/rt/submissions{token}')
 # async def get_rt_submissions(file_id: "str", current_user: UserDTO = Depends(get_current_user_no_exception)):
 #     if current_user:
