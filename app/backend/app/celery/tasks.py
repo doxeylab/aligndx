@@ -8,8 +8,8 @@ from celery.contrib import rdb
 
 from app.scripts import salmonconfig
 
-app = Celery('tasks', broker='pyamqp://guest@localhost//')
-
+app = Celery('tasks')
+app.config_from_object('app.celery.celeryconfig')
 
 @app.task
 def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size):
@@ -110,7 +110,7 @@ def perform_chunk_analysis(upload_result, file_id, panel, index_folder, real_tim
         return
 
     indexpath = os.path.join(index_folder, panel + "_index")
-    chunk = "{}/{}/{}.fastq".format(file_id, chunk_number)
+    chunk = "uploads/{}/salmon_data/{}.fastq".format(file_id, chunk_number)
     results_dir = "{}/{}/{}".format(real_time_results, file_id, chunk_number)
 
     commands = salmonconfig.commands(indexpath, chunk, results_dir)
