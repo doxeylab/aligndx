@@ -108,14 +108,14 @@ async def startup():
     await database.connect()
 
     # set up the faust app
-    worker.set_faust_app_for_api()
+    # worker.set_faust_app_for_api()
 
-    faust_app = worker.get_faust_app()
+    # faust_app = worker.get_faust_app()
 
     # start the faust app in client mode
-    asyncio.create_task(
-        faust_app.start_client()
-    )
+    # asyncio.create_task(
+    #     faust_app.start_client()
+    # )
 
 
 # closes database connection
@@ -123,7 +123,7 @@ async def startup():
 async def shutdown():
     await database.disconnect()
 
-    faust_app = worker.get_faust_app()
+    # faust_app = worker.get_faust_app()
 
     # graceful shutdown
-    await faust_app.stop()
+    # await faust_app.stop()
