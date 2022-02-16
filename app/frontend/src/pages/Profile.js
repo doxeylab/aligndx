@@ -21,8 +21,8 @@ const Profile = () => {
                 'Authorization': `Bearer ${token}`
             }
         });
-        }
         setData(res.data);
+        }
     }, []);
 
     return (
