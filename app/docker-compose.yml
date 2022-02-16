@@ -118,6 +118,22 @@ services:
   #     - zookeeper-log:/var/lib/zookeeper/log
   #     - zookeeper-secrets:/etc/zookeeper/secrets
 
+  rabbitmq:
+    image: rabbitmq:3.9
+    ports:
+      - "5672"
+
+  celery_worker:
+    build:  
+      context: backend
+      dockerfile: docker/celery_worker/Dockerfile
+    # command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery -A app.celery.tasks worker --loglevel=DEBUG"
+    tty: true 
+    environment: 
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//   
+    volumes:
+      - ./backend/app/celery:/app/celery:ro
+
 volumes:
   db-data:
   pgadmin-data: 
