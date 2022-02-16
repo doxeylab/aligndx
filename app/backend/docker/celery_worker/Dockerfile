@@ -1,6 +1,9 @@
  # current dockerfile contents
 FROM python:3.8
  
+COPY bin/wait-for/ ./bin/wait-for/
+RUN chmod u+x ./bin/wait-for/wait-for.sh
+
 WORKDIR /app
 
 RUN apt update 
@@ -13,9 +16,6 @@ RUN pip install -U pip \
 RUN apt-get update \
   && apt-get install -y netcat \
   && rm -rf /var/lib/apt/lists/*
-
-COPY bin/wait-for/ ./bin/wait-for/
-RUN chmod u+x ./bin/wait-for/wait-for.sh
 
 ENV PYTHONPATH=/app \
   PYTHONDONTWRITEBYTECODE=1
