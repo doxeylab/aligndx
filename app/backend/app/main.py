@@ -17,7 +17,7 @@ from app.api_v1.routers import uploads, results, users, socket_resources, metada
 from app.db.database import database
 
 # streaming worker
-import app.worker as worker
+# import app.worker as worker
 
 # settings
 from app.config.settings import get_settings
