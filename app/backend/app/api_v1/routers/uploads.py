@@ -237,6 +237,8 @@ async def upload_chunk(
 
     rt_dir = "{}/{}".format(REAL_TIME_UPLOADS, file_id)
     upload_data = "{}/{}/{}.fastq".format(rt_dir, "upload_data", chunk_number)
+    analysis_data_folder = "{}/{}".format(rt_dir, "salmon_data")
+    results_dir = "{}/{}".format(REAL_TIME_RESULTS, file_id)
 
     if current_user:
         # keep returning until chunk number has reached where it left off
@@ -249,7 +251,7 @@ async def upload_chunk(
 
     tasks.process_new_upload.apply_async((rt_dir, chunk_number),
                                          link=tasks.perform_chunk_analysis.s(
-                                             file_id, panels, INDEX_FOLDER, REAL_TIME_RESULTS))
+                                            panels, INDEX_FOLDER, analysis_data_folder, results_dir))
 
     logs = await LogsModel.log_upload(
         submission_id=file_id,
