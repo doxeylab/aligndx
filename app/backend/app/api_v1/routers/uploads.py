@@ -25,7 +25,7 @@ from fastapi import Depends
 
 # auth components
 from app.auth.models import UserDTO
-from app.auth.auth_dependencies import get_current_user_no_exception
+from app.auth.auth_dependencies import get_current_user
 
 # core scripts
 from app.scripts import email_feature, salmonconfig, realtime
@@ -87,7 +87,7 @@ async def file_upload(
     background_tasks: BackgroundTasks,
     files: List[UploadFile] = File(...), 
     panel: List[str] = Form(...), 
-    current_user: UserDTO = Depends(get_current_user_no_exception)
+    current_user: UserDTO = Depends(get_current_user)
     ): 
 
     commands_lst = []
@@ -155,7 +155,7 @@ def call_salmon(commands_lst, file_dir):
 
 @router.post("/start-file")
 async def start_file(
-    current_user: UserDTO = Depends(get_current_user_no_exception),
+    current_user: UserDTO = Depends(get_current_user),
     filename: str = Body(...),
     number_of_chunks: int = Body(...),
     panels: List[str] = Body(...),
@@ -226,7 +226,7 @@ async def start_file(
 @router.post("/upload-chunk")
 async def upload_chunk(
     background_tasks: BackgroundTasks,
-    current_user: UserDTO = Depends(get_current_user_no_exception),
+    current_user: UserDTO = Depends(get_current_user),
     chunk_number: int = Form(...),
     file_id: str = Form(...),
     chunk_file: UploadFile = File(...),

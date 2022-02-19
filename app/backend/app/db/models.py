@@ -59,7 +59,6 @@ deletion_logs = Table(
 
 # REPOSITORIES
 class Sample:
-
     @classmethod
     async def create_sample(cls, **sample):
         query = submissions.insert().values(**sample)
