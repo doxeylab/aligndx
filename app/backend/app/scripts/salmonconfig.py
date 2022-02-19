@@ -38,7 +38,7 @@ def commands(indexpath, filepath, resultspath, fastqtype="single"):
                 "A",
                 "-r",
                 filepath,
-                "--seqBias",
+                # "--seqBias",
                 "--minAssignedFrags",
                 "1",
                 "-p",
