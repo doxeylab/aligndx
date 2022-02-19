@@ -50,29 +50,37 @@ app.add_middleware(
 async def root():
     return {"message": "This is the salmon container!"}
 
-@app.post("/")
-def runsalmon(command : Dict[str, list]):  
-    commands = command['commands'] 
-    execute_salmon(commands)  
-    # background_tasks.add_task(execute_salmon, commands) 
-    return {"Result": "OK"}
-
-
-def execute_salmon(commands):
-    process = subprocess.Popen(commands, stdout=subprocess.PIPE)
-    logs = process.communicate()[0]
-    logs_decoded = logs.decode("utf-8") 
-    print(logs_decoded) 
-
-
-# import asyncio 
-
 # @app.post("/")
-# async def runsalmon(command : Dict[str, list]):   
-#     commands = " ".join(str(x) for x in command['commands'])
-#     proc = await asyncio.create_subprocess_shell(
-#     commands,
-#     stdout=asyncio.subprocess.PIPE)
+# def runsalmon(command : Dict[str, list]):  
+#     commands = command['commands'] 
+#     execute_salmon(commands)  
+#     # background_tasks.add_task(execute_salmon, commands) 
+#     return {"Result": "OK"}
 
-#     stdout = await proc.communicate() 
-#     return stdout.decode()  
+
+# def execute_salmon(commands):
+#     process = subprocess.Popen(commands, stdout=subprocess.PIPE)
+#     logs = process.communicate()[0]
+#     logs_decoded = logs.decode("utf-8") 
+#     print(logs_decoded) 
+
+
+import asyncio 
+
+@app.post("/")
+async def runsalmon(command : Dict[str, list]):   
+    commands = " ".join(str(x) for x in command['commands'])
+    proc = await asyncio.create_subprocess_shell(
+        commands,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE)
+
+    stdout, stderr = await proc.communicate() 
+    if stdout:
+        print("stdout:")
+        print(stdout)
+        return stdout
+    if stderr:
+        print("stderr:")
+        print(stderr)
+        return stderr  
