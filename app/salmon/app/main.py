@@ -59,7 +59,7 @@ async def root():
 
 
 # def execute_salmon(commands):
-#     process = subprocess.Popen(commands, stdout=subprocess.PIPE)
+#     process = subprocess.Popen(commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 #     logs = process.communicate()[0]
 #     logs_decoded = logs.decode("utf-8") 
 #     print(logs_decoded) 
@@ -78,9 +78,10 @@ async def runsalmon(command : Dict[str, list]):
     stdout, stderr = await proc.communicate() 
     if stdout:
         print("stdout:")
-        print(stdout)
-        return stdout
+        print(stdout.decode())
+        return stdout.decode()
     if stderr:
+        print(f"commands were {commands}")
         print("stderr:")
-        print(stderr)
-        return stderr  
+        print(stderr.decode())
+        return stderr.decode()
