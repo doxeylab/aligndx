@@ -85,7 +85,7 @@ def create_refresh_token(email: str):
     return create_access_token(data={'sub': email}, expires_delta=refresh_token_expires)
 
 
-# Verify refresn token is valid
+# Verify refresh token is valid
 async def verify_refresh_token(request: RefreshRequest):
     if request.grant_type != 'refresh_token':
         raise credentials_exception

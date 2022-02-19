@@ -46,56 +46,50 @@ router = APIRouter()
  
 @router.get('/standard/{file_id}') 
 async def standard_results(file_id: str, current_user: UserDTO = Depends(get_current_user)):
-    if current_user:
-        query = await ModelSample.get_sample_info(file_id)  
+    query = await ModelSample.get_sample_info(file_id)  
 
-        sample_name = query['sample_name']
-        panel = query['panel']
-        file_id = str(query['id'])
-        headers=['Name', 'TPM'] 
+    sample_name = query['sample_name']
+    panel = query['panel']
+    file_id = str(query['id'])
+    headers=['Name', 'TPM'] 
 
-        metadata = analyze.metadata_load(METADATA_FOLDER, panel)
-        sample_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
-        quant_dir = os.path.join(sample_dir,'quant.sf')   
-        result = analyze.analyze_handler(sample_name, headers, metadata, quant_dir)
-        
-        await ModelSample.save_result(file_id, json.dumps(result))
-        
-        return result
-    else:
-        return {"message":"Unauthorized"}  
+    metadata = analyze.metadata_load(METADATA_FOLDER, panel)
+    sample_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
+    quant_dir = os.path.join(sample_dir,'quant.sf')   
+    result = analyze.analyze_handler(sample_name, headers, metadata, quant_dir)
+    
+    await ModelSample.save_result(file_id, json.dumps(result))
+    
+    return result 
 
 class Chunk_id(BaseModel):
     account_id: str 
 
 @router.get('/standardplus/{file_id}')
 async def standard_plus(file_id: str, current_user: UserDTO = Depends(get_current_user)):
-    if current_user:
-        query = await ModelSample.get_sample_info(file_id) 
-        file_id = str(query['id'])
-        sample_name = query['sample_name']
+    query = await ModelSample.get_sample_info(file_id) 
+    file_id = str(query['id'])
+    sample_name = query['sample_name']
 
-        headers=['Name', 'TPM']
-        get_current_chunk_task = importlib.import_module(
-            "app.worker.tasks.get_curr_chunk"
-        )
+    headers=['Name', 'TPM']
+    get_current_chunk_task = importlib.import_module(
+        "app.worker.tasks.get_curr_chunk"
+    )
 
-        while True: 
-            current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
-            if current_chunk:
-                if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
-                    df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                    data = realtime.data_loader(df, sample_name, headers, status="complete")
-                    # await ModelSample.save_result(file_id, json.dumps(data))
+    while True: 
+        current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
+        if current_chunk:
+            if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
+                df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
+                data = realtime.data_loader(df, sample_name, headers, status="complete")
+                # await ModelSample.save_result(file_id, json.dumps(data))
 
-                    return data
-                else:
-                    continue
+                return data
             else:
-                message = {"status": "pending"} 
-                return message
-    else:
-        return {"message":"Unauthorized"}  
+                continue
+        else:
+            message = {"status": "pending"} 
+            return message
 
 
 # @router.get('/rt/submissions{token}')
