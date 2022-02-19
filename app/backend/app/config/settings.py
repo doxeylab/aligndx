@@ -10,11 +10,13 @@ class AppSettings(BaseSettings):
 
     #  -- Auth --
     class AuthSettings():
-        oauth2_scheme_auto_error = OAuth2PasswordBearer(tokenUrl="token")
-        oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
+        oauth2_scheme_auto_error = OAuth2PasswordBearer(tokenUrl="users/token")
+        oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/token", auto_error=False)
         pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         SECRET_KEY = os.getenv("SECRET_KEY")
         ALGORITHM = "HS256"
+        ACCESS_TOKEN_EXPIRE_MINUTES = 30
+        REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30
 
     #  -- Default directory tree --
     class FolderSettings():
@@ -42,9 +44,6 @@ class AppSettings(BaseSettings):
     # Inherits foldersettings
     class ResultSettings(FolderSettings):
         pass  
-
-    class UserSettings():
-        ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 @lru_cache()
 def get_settings():

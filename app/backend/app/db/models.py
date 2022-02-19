@@ -59,7 +59,6 @@ deletion_logs = Table(
 
 # REPOSITORIES
 class Sample:
-
     @classmethod
     async def create_sample(cls, **sample):
         query = submissions.insert().values(**sample)
@@ -98,17 +97,6 @@ class Sample:
         data = await database.fetch_all(query)
         return data
 
-    # @classmethod
-    # async def get_token(cls, token):
-    #     query = submissions.select().where(submissions.c.temp_token == token)
-    #     sample = await database.fetch_one(query)
-    #     return sample
-
-    # @classmethod
-    # async def get_sample(cls, panel):
-    #     query = submissions.select().where(submissions.c.panel == panel)
-    #     sample = await database.fetch_one(query)
-    #     return panel
 
 class User:
     @classmethod
