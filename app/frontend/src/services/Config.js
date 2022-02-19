@@ -10,8 +10,7 @@ export const START_FILE_URL = UPLOAD_URL + "start-file"
 // -- Regular --
 export const RESULT_URL = URL + "results/"
 export const STANDARD_RESULTS = RESULT_URL + "standard/"
-export const STANDARD_SUBMISSIONS_URL = STANDARD_RESULTS +  "submissions"
-export const RT_SUBMISSIONS_URL = RESULT_URL +  "rt/" + "submissions" 
+export const STANDARD_SUBMISSIONS_URL = URL + "submissions" 
 
 // -- Users --
 // const USERS = URL + "users/"
