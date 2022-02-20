@@ -4,11 +4,11 @@ services:
     build:
       context: backend
       dockerfile: docker/api/Dockerfile
-    command: sh -c " sh ./bin/wait-for/wait-for.sh kafka:29092 --timeout=20 && uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port 8080"
+    command: sh -c " sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port 8080"
     tty: true
     depends_on:
       - postgres
-      - kafka
+      # - kafka
     ports:
       - "8080:8080"
     volumes:
@@ -23,7 +23,8 @@ services:
       DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
       ORIGINS: ${ORIGINS}
       SECRET_KEY: ${SECRET_KEY}
-      FAUST_BROKER_URL: "kafka://kafka:29092"
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672// 
+      # FAUST_BROKER_URL: "kafka://kafka:29092"
 
   frontend: 
     build:
@@ -55,6 +56,7 @@ services:
   pgadmin:  
     tty: true
     image: dpage/pgadmin4
+    profiles: ["monitoring"]
     restart: unless-stopped
     depends_on:
       - postgres
@@ -82,47 +84,90 @@ services:
       - ./backend/indexes:/app/indexes:ro
       - ./backend/metadata:/app/metadata:ro
 
-  worker:
-    build:
+  # worker:
+  #   build:
+  #     context: backend
+  #     dockerfile: docker/worker/Dockerfile 
+  #   command: sh -c "sh ./bin/wait-for/wait-for.sh kafka:29092 --timeout=20 && python -m app.worker worker -l info"
+  #   tty: true 
+  #   environment: 
+  #     FAUST_BROKER_URL: "kafka://kafka:29092"
+  #   depends_on:
+  #     - kafka
+
+  # kafka:
+  #   image: confluentinc/cp-kafka:6.0.0
+  #   ports:
+  #     - "29092"
+  #   environment:
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:32181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #   volumes:
+  #     - kafka-data:/var/lib/kafka/data
+  #     - kafka-secrets:/etc/kafka/secrets
+  #   depends_on:
+  #     - zookeeper
+
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:6.0.0
+  #   ports:
+  #     - "32181"
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 32181
+  #   volumes:
+  #     - zookeeper-data:/var/lib/zookeeper/data
+  #     - zookeeper-log:/var/lib/zookeeper/log
+  #     - zookeeper-secrets:/etc/zookeeper/secrets
+
+  rabbitmq:
+    image: rabbitmq:3.9
+    ports:
+      - "5672"
+
+  celery_worker:
+    build:  
       context: backend
-      dockerfile: docker/worker/Dockerfile 
-    command: sh -c "sh ./bin/wait-for/wait-for.sh kafka:29092 --timeout=20 && python -m app.worker worker -l info"
+      dockerfile: docker/celery_worker/Dockerfile
+    depends_on:
+      - backend
+      - rabbitmq
+    command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery -A app.celery.tasks worker -l info -Q uploads,salmon"
     tty: true 
     environment: 
-      FAUST_BROKER_URL: "kafka://kafka:29092"
-    depends_on:
-      - kafka
-
-  kafka:
-    image: confluentinc/cp-kafka:6.0.0
-    ports:
-      - "29092"
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:32181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//   
     volumes:
-      - kafka-data:/var/lib/kafka/data
-      - kafka-secrets:/etc/kafka/secrets
+      - ./backend/app/celery:/app/celery:ro
+      - ./backend/app/scripts:/app/scripts:ro
+      - ./backend/results:/results
+      - ./backend/uploads:/uploads
+      - ./backend/indexes:/indexes:ro
+      - ./backend/metadata:/metadata:ro
+  
+  flower:
+    build:
+      context: backend
+      dockerfile: docker/flower/Dockerfile
+    profiles: ["monitoring"]
     depends_on:
-      - zookeeper
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:6.0.0
+      - backend
+      - rabbitmq
+      - celery_worker
+    command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery flower --port=5555 --broker=$${CELERY_BROKER_URL} -Q uploads,salmon"
+    tty: true
     ports:
-      - "32181"
+    - 5556:5555
     environment:
-      ZOOKEEPER_CLIENT_PORT: 32181
-    volumes:
-      - zookeeper-data:/var/lib/zookeeper/data
-      - zookeeper-log:/var/lib/zookeeper/log
-      - zookeeper-secrets:/etc/zookeeper/secrets
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+    volumes: 
+      - ./backend/app/celery:/app/celery:ro
+      - ./backend/app/scripts:/app/scripts:ro
 
 volumes:
   db-data:
   pgadmin-data: 
-  kafka-data:
-  kafka-secrets:
-  zookeeper-data:
-  zookeeper-log:
-  zookeeper-secrets:
+  # kafka-data:
+  # kafka-secrets:
+  # zookeeper-data:
+  # zookeeper-log:
+  # zookeeper-secrets:

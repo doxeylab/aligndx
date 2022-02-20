@@ -8,8 +8,8 @@ from celery.contrib import rdb
 
 from app.scripts import salmonconfig
 
-app = Celery('tasks', broker='pyamqp://guest@localhost//')
-
+app = Celery('tasks')
+app.config_from_object('app.celery.celeryconfig')
 
 @app.task
 def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size):
@@ -53,7 +53,7 @@ def process_new_upload(file_dir, new_chunk_number):
         analysis_data_dir, current_analysis_chunk_number)
 
     # Record if a new analysis chunk is produced to trigger salmon
-    chunk_to_analyze = False
+    chunk_to_analyze = None
     with open(analysis_chunk_fname, 'ab+') as analysis_chunk:
         with open(upload_chunk_fname, 'rb') as upload_chunk:
             data = upload_chunk.read()
@@ -103,15 +103,15 @@ def process_new_upload(file_dir, new_chunk_number):
 
 
 @app.task
-def perform_chunk_analysis(upload_result, file_id, panel, index_folder, real_time_results):
+def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, real_time_results):
     chunk_number = upload_result['Chunk_To_Analyze']
 
     if chunk_number is None:
         return
 
     indexpath = os.path.join(index_folder, panel + "_index")
-    chunk = "{}/{}/{}.fastq".format(file_id, chunk_number)
-    results_dir = "{}/{}/{}".format(real_time_results, file_id, chunk_number)
+    chunk = "{}/{}.fastq".format(analysis_dir, chunk_number)
+    results_dir = "{}/{}".format(real_time_results, chunk_number)
 
     commands = salmonconfig.commands(indexpath, chunk, results_dir)
 
