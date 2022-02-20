@@ -6,7 +6,7 @@ import requests
 from celery import Celery
 from celery.contrib import rdb
 
-from app.scripts import salmonconfig
+from app.scripts import salmonconfig, realtime
 
 app = Celery('tasks')
 app.config_from_object('app.celery.celeryconfig')
@@ -29,6 +29,15 @@ def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_siz
 
     return {'Success': True}
 
+@app.task
+def make_file_data(results_dir):
+    data_fname = '{}/data.json'.format(results_dir)
+
+    data = {'data':None}
+    with open(data_fname, 'w') as f:
+        json.dump(data, f)
+
+    return {'Success': True}
 
 @app.task
 def process_new_upload(file_dir, new_chunk_number):
@@ -118,6 +127,75 @@ def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, rea
     with requests.Session() as s:
         s.post("http://salmon:80/", json=commands)
 
+    quant_dir = "{}/quant.sf".format(results_dir)
+    if os.path.isfile(quant_dir):
+        return {'Sucess': True,
+                'Current_Analysis_Chunk': chunk_number,
+                "Quant_Dir": quant_dir}
+    else:
+        return {'Sucess': False,
+                'Current_Analysis_Chunk': None,
+                'Quant_Dir': None}
+
+
+@app.task
+def post_process(salmon_result, data_dir, metadata_dir, panel):
+    
+    # configurations for post-processing
+    headers = ['Name', 'TPM']
+    metadata = realtime.metadata_load(metadata_dir, panel)
+
+    # Grab datafile
+    data_fname = '{}/data.json'.format(data_dir)
+    data = None
+    with open(data_fname) as f:
+        data = json.load(f)
+    
+    # state vars
+    quant_dir = salmon_result['Quant_Dir'] 
+    current_analysis_chunk = salmon_result['Current_Analysis_Chunk']
+
+    # only do post-processing if quant_file exists
+    if quant_dir == None:
+        return
+    
+    if data['data'] == None:
+        # first quant being analyzed
+        print(f"analyzing first chunk")
+        first_quant = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
+        first_quant['Coverage'] = realtime.coverage_calc(first_quant, headers[1])
+        
+        data = {'data': first_quant}
+
+        with open(data_fname, 'w') as f:
+            json.dump(metadata, f)
+    
+    elif data['data']:
+        print(f"Retrieving data from previous chunk {current_analysis_chunk -1}")
+        
+        # read data from previous quant file; already has coverage
+        previous_chunk = data['data']
+        print(realtime.coverage_summarizer(previous_chunk, headers))
+
+
+        print(f"Read current data from chunk {current_analysis_chunk}")
+
+        # read data from currentquant file and calculate coverage
+        current_chunk = realtime.realtime_quant_analysis(
+            quant_dir, headers, metadata)
+        current_chunk['Coverage'] = realtime.coverage_calc(current_chunk, headers[1])
+
+        print(f"Accumulating results")
+        # sum results
+        accumulated_results = realtime.update_analysis(
+            previous_chunk, current_chunk, headers[1])
+        accumulated_results['Coverage'] = realtime.coverage_calc(
+            accumulated_results, headers[1])
+
+        data = {'data': accumulated_results}
+
+        with open(data_fname, 'w') as f:
+            json.dump(metadata, f) 
 
 if __name__ == '__main__':
     app.worker_main()
