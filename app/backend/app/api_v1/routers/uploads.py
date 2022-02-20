@@ -43,6 +43,7 @@ from app.config.settings import get_settings
 
 # celery
 from app.celery import tasks
+from celery import chain
 
 router = APIRouter()
 
@@ -217,9 +218,11 @@ async def start_file(
         os.mkdir(rt_dir)
         os.mkdir("{}/{}".format(rt_dir, "upload_data"))
         os.mkdir("{}/{}".format(rt_dir, "salmon_data"))
-        os.mkdir("{}/{}".format(REAL_TIME_RESULTS, file_id))
+        results_dir = "{}/{}".format(REAL_TIME_RESULTS, file_id)
+        os.mkdir(results_dir)
 
         tasks.make_file_metadata.delay(rt_dir, filename, upload_chunk_size, salmon_chunk_size)
+        tasks.make_file_data.delay(results_dir)
 
         return {"Result": "OK",
                 "File_ID": file_id}
@@ -239,6 +242,7 @@ async def upload_chunk(
     upload_data = "{}/{}/{}.fastq".format(rt_dir, "upload_data", chunk_number)
     analysis_data_folder = "{}/{}".format(rt_dir, "salmon_data")
     results_dir = "{}/{}".format(REAL_TIME_RESULTS, file_id)
+    data_dir = "{}/{}".format(results_dir, "data.json")
 
     if current_user:
         # keep returning until chunk number has reached where it left off
@@ -249,9 +253,15 @@ async def upload_chunk(
         while content := await chunk_file.read(read_batch_size):
             await f.write(content)
 
-    tasks.process_new_upload.apply_async((rt_dir, chunk_number),
-                                         link=tasks.perform_chunk_analysis.s(
-                                            panels, INDEX_FOLDER, analysis_data_folder, results_dir))
+    # tasks.process_new_upload.apply_async((rt_dir, chunk_number),
+    #                                      link=tasks.perform_chunk_analysis.s(
+    #                                         panels, INDEX_FOLDER, analysis_data_folder, results_dir))
+
+    chain(
+        tasks.process_new_upload.s(rt_dir, chunk_number), 
+        tasks.perform_chunk_analysis.s(panels, INDEX_FOLDER, analysis_data_folder, results_dir),
+        tasks.tasks.post_process.s(data_dir, METADATA_FOLDER, panels)
+    )
 
     logs = await LogsModel.log_upload(
         submission_id=file_id,
