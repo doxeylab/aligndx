@@ -4,5 +4,5 @@ Idk why but for some reason you need to delete the old column and make a new one
 docker-compose run --rm -w "/app/app/" backend alembic revision --autogenerate -m 'like a commit message'
 docker-compose run --rm -w "/app/app/" backend alembic upgrade head
 
-To run debug profiles:
-docker-compose --profile debug up pgadmin
+To run monitoring profiles:
+docker-compose --profile monitoring up service
