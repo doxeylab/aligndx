@@ -56,7 +56,7 @@ services:
   pgadmin:  
     tty: true
     image: dpage/pgadmin4
-    profiles: ["debug"]
+    profiles: ["monitoring"]
     restart: unless-stopped
     depends_on:
       - postgres
@@ -148,6 +148,7 @@ services:
     build:
       context: backend
       dockerfile: docker/flower/Dockerfile
+    profiles: ["monitoring"]
     depends_on:
       - backend
       - rabbitmq
