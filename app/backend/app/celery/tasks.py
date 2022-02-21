@@ -33,7 +33,8 @@ def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_siz
 def make_file_data(results_dir):
     data_fname = '{}/data.json'.format(results_dir)
 
-    data = {'data':None}
+    data = {'current_analysis_chunk': None,
+            'data':None}
     with open(data_fname, 'w') as f:
         json.dump(data, f)
 
@@ -165,10 +166,11 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
         first_quant = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
         first_quant['Coverage'] = realtime.coverage_calc(first_quant, headers[1])
         
-        data = {'data': first_quant}
+        data = {'current_analysis_chunk':current_analysis_chunk,
+                'data': first_quant}
 
         with open(data_fname, 'w') as f:
-            json.dump(metadata, f)
+            json.dump(data, f)
     
     elif data['data']:
         print(f"Retrieving data from previous chunk {current_analysis_chunk -1}")
@@ -192,10 +194,18 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
         accumulated_results['Coverage'] = realtime.coverage_calc(
             accumulated_results, headers[1])
 
-        data = {'data': accumulated_results}
+        data = {'current_analysis_chunk':current_analysis_chunk,
+                'data': accumulated_results}
 
         with open(data_fname, 'w') as f:
-            json.dump(metadata, f) 
+            json.dump(data, f) 
+
+@app.task
+def grab_current_data(data_dir):
+    data = None
+    with open(data_dir) as f:
+        data = json.load(f) 
+    return data
 
 if __name__ == '__main__':
     app.worker_main()
