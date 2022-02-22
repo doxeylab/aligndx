@@ -49,9 +49,8 @@ def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_siz
 def make_file_data(results_dir):
     data_fname = '{}/data.json'.format(results_dir)
 
-    data = {'current_analysis_chunk': None,
-            'last_upload_chunk_analyzed':None,
-            'data':None}
+    data = {}
+
     with open(data_fname, 'w') as f:
         json.dump(data, f)
 
@@ -188,29 +187,29 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
     # Grab datafile
     data_fname = '{}'.format(data_dir)
     data = None
-    with open(data_fname) as f:
-        data = json.load(f)
+    try:
+        with open(data_fname) as f:
+            data = pd.read_json(f, orient="table")
+    except:
+        data = None
 
-
-    if data['data'] == None:
+    if data is None:
         # first quant being analyzed
         logger.warning('Analyzing first chunk')
         first_quant = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
         first_quant['Coverage'] = realtime.coverage_calc(first_quant, headers[1])
-        quant_data = first_quant.to_dict(orient="tight")
-        
-        data = {'current_analysis_chunk':current_analysis_chunk,
-                'last_upload_chunk_analyzed':last_upload_chunk_analyzed,
-                'data': quant_data}
+        first_quant.reset_index(inplace=True)
 
         with open(data_fname, 'w') as f:
-            json.dump(data, f)
+            first_quant.to_json(f, orient="table")
+
     
-    elif data['data']:
+    else:
         logger.warning(f"Retrieving data from previous chunk {current_analysis_chunk -1}")
         
         # read data from previous quant file; already has coverage
-        previous_chunk = pd.DataFrame.from_dict(data['data'], orient='tight')
+        previous_chunk = data
+        previous_chunk.set_index('Pathogen', inplace=True)
         logger.warning(realtime.coverage_summarizer(previous_chunk, headers))
 
         logger.warning(f"Reading current data from chunk {current_analysis_chunk}")
@@ -227,23 +226,12 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
         accumulated_results['Coverage'] = realtime.coverage_calc(
             accumulated_results, headers[1])
 
-        quant_data = accumulated_results.to_dict(orient="tight")
+        accumulated_results.reset_index(inplace=True)
         
-        data = {'current_analysis_chunk':current_analysis_chunk,
-                'last_upload_chunk_analyzed':last_upload_chunk_analyzed,
-                'data': quant_data}
-
         with open(data_fname, 'w') as f:
-            json.dump(data, f) 
+            accumulated_results.to_json(f, orient="table")
 
     return {"Success": True}
-
-@app.task
-def grab_current_data(data_dir):
-    data = None
-    with open(data_dir) as f:
-        data = json.load(f) 
-    return data
-
+ 
 if __name__ == '__main__':
     app.worker_main()

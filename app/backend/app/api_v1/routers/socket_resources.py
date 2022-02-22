@@ -75,14 +75,14 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
         print(f"User {current_user.id} connected!")
         try:
             while True: 
-                res = tasks.grab_current_data.delay(data_dir)
-                obj = res.get()
-                current_upload_chunk = obj['last_upload_chunk_analyzed']
-                df = obj['data']
-                
-                if df:
-                    data = realtime.data_loader(df, sample_name, headers, status="ready")
-                    data['last_upload_chunk_analyzed'] = current_upload_chunk
+                try:
+                    stored_data = pd.read_json(data_dir, orient="table")
+                except:
+                    stored_data = None
+
+                if stored_data is not None:
+                    stored_data.set_index('Pathogen', inplace=True)
+                    data = realtime.data_loader(stored_data, sample_name, headers, status="ready")
                     await manager.send_data(data, websocket)  
                 # current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
 
@@ -108,7 +108,7 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
             print(f"User {current_user.id} disconnected!")
 
         except Exception as e: 
-            print(e)
+            raise e 
             print(f"Exception occured so client {current_user.id}  disconnected")
     else:
         manager.disconnect(websocket)  
