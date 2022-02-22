@@ -24,6 +24,7 @@ services:
       ORIGINS: ${ORIGINS}
       SECRET_KEY: ${SECRET_KEY}
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672// 
+      CELERY_RESULT_BACKEND: rpc://guest:guest@rabbitmq:5672//   
       # FAUST_BROKER_URL: "kafka://kafka:29092"
 
   frontend: 
@@ -132,10 +133,11 @@ services:
     depends_on:
       - backend
       - rabbitmq
-    command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery -A app.celery.tasks worker -l info -Q uploads,salmon"
+    command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery -A app.celery.tasks worker -l info -Q uploads,salmon,downstream"
     tty: true 
     environment: 
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//   
+      CELERY_RESULT_BACKEND: rpc://guest:guest@rabbitmq:5672//   
     volumes:
       - ./backend/app/celery:/app/celery:ro
       - ./backend/app/scripts:/app/scripts:ro
@@ -153,12 +155,13 @@ services:
       - backend
       - rabbitmq
       - celery_worker
-    command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery flower --port=5555 --broker=$${CELERY_BROKER_URL} -Q uploads,salmon"
+    command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery flower --port=5555 --broker=$${CELERY_BROKER_URL} -Q uploads,salmon,downstream"
     tty: true
     ports:
     - 5556:5555
     environment:
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+      CELERY_RESULT_BACKEND: rpc://guest:guest@rabbitmq:5672//   
     volumes: 
       - ./backend/app/celery:/app/celery:ro
       - ./backend/app/scripts:/app/scripts:ro
