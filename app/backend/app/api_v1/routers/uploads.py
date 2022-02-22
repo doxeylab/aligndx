@@ -229,7 +229,7 @@ async def start_file(
 
 
 @router.post("/upload-chunk")
-async def upload_chunk(
+async def upload_chunk(  
     background_tasks: BackgroundTasks,
     current_user: UserDTO = Depends(get_current_user),
     chunk_number: int = Form(...),
@@ -260,8 +260,8 @@ async def upload_chunk(
     chain(
         tasks.process_new_upload.s(rt_dir, chunk_number), 
         tasks.perform_chunk_analysis.s(panels, INDEX_FOLDER, analysis_data_folder, results_dir),
-        tasks.tasks.post_process.s(data_dir, METADATA_FOLDER, panels)
-    )
+        tasks.post_process.s(data_dir, METADATA_FOLDER, panels)
+    ).apply_async()
 
     logs = await LogsModel.log_upload(
         submission_id=file_id,

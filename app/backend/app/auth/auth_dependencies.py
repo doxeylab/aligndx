@@ -38,7 +38,7 @@ async def valid_email_from_db(email: str):
 
 # Creates user if it doesn't exist 
 async def create_user(user: UserTemp):
-    if valid_email_from_db(user.email):
+    if await valid_email_from_db(user.email):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User already exists, please log in.",

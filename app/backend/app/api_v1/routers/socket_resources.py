@@ -22,6 +22,9 @@ from app.db.schema import Sample as SchemaSample
 from app.scripts import analyze, realtime 
 from app.scripts.web_socket.manager import ConnectionManager
 
+# celery
+from app.celery import tasks
+
 # settings
 from app.config.settings import get_settings
 
@@ -59,6 +62,8 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
     sample_name = query['sample_name']
 
     headers=['Name', 'TPM']
+    data_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, "data.json")
+
     # get_current_chunk_task = importlib.import_module(
     #     "app.worker.tasks.get_curr_chunk"
     # )
@@ -70,8 +75,15 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
         print(f"User {current_user.id} connected!")
         try:
             while True: 
-                message = {"status":"cycling"}
-                await manager.send_data(message,websocket)
+                res = tasks.grab_current_data.delay(data_dir)
+                obj = res.get()
+                current_upload_chunk = obj['last_upload_chunk_analyzed']
+                df = obj['data']
+                
+                if df:
+                    data = realtime.data_loader(df, sample_name, headers, status="ready")
+                    data['last_upload_chunk_analyzed'] = current_upload_chunk
+                    await manager.send_data(data, websocket)  
                 # current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
 
                 # if current_chunk:
@@ -85,10 +97,11 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
                 #         data = realtime.data_loader(df, sample_name, headers, status="ready")
                 #         await manager.send_data(data, websocket) 
                 #         await asyncio.sleep(1)
-                # else:
-                #     message = {"status": "pending"} 
-                #     await manager.send_data(message, websocket)
-                #     await asyncio.sleep(5)  
+                
+                else:
+                    message = {"status": "pending"} 
+                    await manager.send_data(message, websocket)
+                    await asyncio.sleep(5)  
 
         except WebSocketDisconnect:
             manager.disconnect(websocket)
@@ -100,4 +113,3 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
     else:
         manager.disconnect(websocket)  
         print(f"User could not be authenticated")
-

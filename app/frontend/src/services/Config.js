@@ -13,8 +13,8 @@ export const STANDARD_RESULTS = RESULT_URL + "standard/"
 export const STANDARD_SUBMISSIONS_URL = URL + "submissions" 
 
 // -- Users --
-// const USERS = URL + "users/"
-const USERS = URL
+const USERS = URL + "users/"
+// const USERS = URL
 export const LOGIN_URL = USERS + "token"
 export const SIGNUP_URL = USERS + "create_user"
 export const ACCESS_TOKEN_URL = USERS + "me" 
