@@ -236,7 +236,7 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
         with open(data_fname, 'w') as f:
             json.dump(data, f) 
 
-        return {"Success": True}
+    return {"Success": True}
 
 @app.task
 def grab_current_data(data_dir):

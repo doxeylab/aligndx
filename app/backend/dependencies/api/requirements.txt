@@ -29,7 +29,7 @@ typing-extensions==3.7.4.3
 uvicorn
 uvloop
 watchgod==0.7
-websockets==8.1
+websockets
 xopen==1.1.0
 gdown==4.2.0
 beautifulsoup4==4.10.0 
