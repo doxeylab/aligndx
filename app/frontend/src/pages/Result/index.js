@@ -1,5 +1,6 @@
 // React
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+import { useLocation} from 'react-router-dom';
 
 // external libraries
 import axios from 'axios';
@@ -24,23 +25,14 @@ import Red_X from '../../assets/Red_X.png';
 
 // Context
 import {useGlobalContext} from "../../context-provider"
+import { LoadContext } from '../../LoadContext';
 
 // testing
 import example_dataset from '../../assets/test_datasets/example_dataset.json';
 
-// Config
-import { STANDARD_RESULTS } from '../../services/Config';
+const Result = () => {   
+    const location = useLocation();
 
-
-
-
-const Result = () => {
-    try {
-        var url_id = window.location.href.split('#/?')[1].split('&')[0].slice('id='.length)
-    } catch (err) {
-        var url_id = undefined
-    }
-    
     const context = useGlobalContext();
 
     // const [data, setData] = useState([{ "index": "TEST1", "column_category": 6 },
@@ -52,16 +44,19 @@ const Result = () => {
     const [data, setData] = useState(null);
     const [sample, setSample] = useState(null);
     const [pathogens, setPathogens] = useState(null);
-    const [getLoad, setGetLoad] = useState(true); 
+    const { setLoad } = useContext(LoadContext);
+    
+    const lstate = location.state
+    
+    const fileid = lstate.response.File_ID
+    const token = localStorage.getItem("accessToken") 
+    var resource = lstate.resource 
     
     useEffect(() => {
   
-            var resource = STANDARD_RESULTS
-            const token = localStorage.getItem("accessToken")
-            axios.get(resource + url_id, {headers: {'Authorization': `Bearer ${token}`}})
+            axios.get(resource + fileid, {headers: {'Authorization': `Bearer ${token}`}})
             .then(res => {
                 setData([res.data])
-                setGetLoad(false)
                 setPathogens(res.data.pathogens)
                 setSample(res.data.sample)
             })
@@ -70,10 +65,9 @@ const Result = () => {
                 setData(dummyData)
                 setSample("SRR11365240")
                 setPathogens("Sars CoV-2")
-                setGetLoad(false)
             }) 
         
-    }, [])
+    }, [lstate])
 
     return (
         <>
@@ -104,7 +98,7 @@ const Result = () => {
                                             <Row style={{ padding: "25px" }}>
                                                 <Col style={{ padding: "25px" }}>
                                                     <div className='barGraph'>
-                                                        <Barchart data={d} yLabel={d.ylabel} xLabel={d.xlabel} col="coverage" />
+                                                        <Barchart data={d} yLabel={d.ylabel} xLabel={d.xlabel} col="coverage" xkey="pathogen" ykey="coverage" />
                                                     </div>
                                                 </Col>
                                                 <Col style={{ padding: "25px" }}>
