@@ -24,7 +24,7 @@ const UploadModal = (props) => {
                 onHide={props.onHide}>
                 <Modal.Header closeButton>
                     <Modal.Title id="contained-modal-title-vcenter">
-                        Upload your Data
+                        {props.title}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="show-grid">

@@ -10,14 +10,14 @@ export const START_FILE_URL = UPLOAD_URL + "start-file"
 // -- Regular --
 export const RESULT_URL = URL + "results/"
 export const STANDARD_RESULTS = RESULT_URL + "standard/"
-export const STANDARD_SUBMISSIONS_URL = URL + "submissions" 
+export const CHUNKED_RESULTS = URL + "chunked"
 
 // -- Users --
 const USERS = URL + "users/"
-// const USERS = URL
 export const LOGIN_URL = USERS + "token"
 export const SIGNUP_URL = USERS + "create_user"
 export const ACCESS_TOKEN_URL = USERS + "me" 
+export const STANDARD_SUBMISSIONS_URL = USERS + "submissions" 
 
 // miscellaneous for now
 export const CHUNK_SIZE = 800000
@@ -27,3 +27,6 @@ export const WEBSOCKET_URL = "ws://localhost:8080/livegraphs"
 // metadata
 export const METADATA_URL = URL + "metadata/"
 export const PANELS_URL = METADATA_URL + "panels"
+
+// allowed filetypes
+export const ALLOWED_FILETYPES = ".fastq, .fastq.gz"

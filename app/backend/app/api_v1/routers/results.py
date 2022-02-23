@@ -45,7 +45,7 @@ router = APIRouter()
 # -- Standard upload results --
  
 @router.get('/standard/{file_id}') 
-async def standard_results(file_id: str, current_user: UserDTO = Depends(get_current_user)):
+async def standard_results(file_id: str):
     query = await ModelSample.get_sample_info(file_id)  
 
     sample_name = query['sample_name']
@@ -65,54 +65,21 @@ async def standard_results(file_id: str, current_user: UserDTO = Depends(get_cur
 class Chunk_id(BaseModel):
     account_id: str 
 
-@router.get('/standardplus/{file_id}')
-async def standard_plus(file_id: str, current_user: UserDTO = Depends(get_current_user)):
+@router.get('/chunked/{file_id}')
+async def standard_plus(file_id: str):
     query = await ModelSample.get_sample_info(file_id) 
     file_id = str(query['id'])
     sample_name = query['sample_name']
-
     headers=['Name', 'TPM']
-    get_current_chunk_task = importlib.import_module(
-        "app.worker.tasks.get_curr_chunk"
-    )
+    data_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, "data.json")
 
-    while True: 
-        current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
-        if current_chunk:
-            if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
-                df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                data = realtime.data_loader(df, sample_name, headers, status="complete")
-                # await ModelSample.save_result(file_id, json.dumps(data))
-
-                return data
-            else:
-                continue
-        else:
-            message = {"status": "pending"} 
-            return message
-
-
-# @router.get('/rt/submissions{token}')
-# async def get_rt_submissions(file_id: "str", current_user: UserDTO = Depends(get_current_user)):
-#     if current_user:
-        
-#         # query database using UserDTO and get list of submissions.Then 
-
-#         get_current_chunk_task = importlib.import_module(
-#         "app.worker.tasks.get_curr_chunk"
-#         )
-#         current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
-#         if current_chunk:
-#             if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
-#                 df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-#                 data = realtime.data_loader(df, sample_name, headers, status="complete") 
-#                 return data
-#             else:
-#                 df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-#                 data = realtime.data_loader(df, sample_name, headers, status="ready")
-#                 return data
-#         else:
-#             message = {"status": "pending"} 
-#             return message
-#     else:
-#         return
+    try:
+        stored_data = pd.read_json(data_dir, orient="table")
+    except:
+        stored_data = None
+    if stored_data is not None:
+        stored_data.set_index('Pathogen', inplace=True)
+        data = realtime.data_loader(stored_data, sample_name, headers, status="ready") 
+        return data
+    else:
+        return {"status":"pending"}

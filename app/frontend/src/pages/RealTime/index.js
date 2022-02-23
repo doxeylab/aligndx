@@ -7,19 +7,16 @@ import Typography from '@mui/material/Typography';
 import { Col, Container, Row } from 'react-bootstrap';
 
 // React
-import axios from 'axios';
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useHistory} from 'react-router-dom';
 
 // Components
 //// Core components
-import StartFile from '../../components/ChunkController/chunkController';
-import UploadComponent from '../../components/UploadComponent';
+import ChunkProcessor from '../../components/ChunkController/chunkProcessor'
 
 //// Styling
 import { Section, Title } from '../../components/Common/PageElement';
-import { DropdownMenu, TextField } from '../../components/Form';
-import RTBarchart from '../../components/RTBarChart';
-import Button from '../../components/Button';
+import Barchart from '../../components/BarChart';
 import { ResultAccordianTitle, ResultAccordionImg, ResultTitle } from './StyledResult'; 
 
 // Assets
@@ -27,54 +24,21 @@ import Green_Check from '../../assets/Green_Check.png';
 import Red_X from '../../assets/Red_X.png';
 
 // Config
-import { LoadContext } from '../../LoadContext';
 import {useGlobalContext} from "../../context-provider"
 
-
 // Testing
-import example_dataset from '../../assets/test_datasets/example_dataset.json';
 
 // Services
 import {WEBSOCKET_URL} from '../../services/Config';
  
 
-
-const selectmenuoptions = [
-    {
-        id: "panel",
-        category: "Panel",
-        opts: [
-            { value: "bacterial", label: "Bacterial" },
-            { value: "viral", label: "Viral" }
-        ]
-    },
-    {
-        id: "bacteria",
-        category: "Bacteria",
-        opts: [
-            { value: "streptococcus_pneumoniae", label: "Streptococcus pneumoniae" },
-            { value: "moraxella_catarrhalis", label: "Moraxella Catarrhalis" },
-            { value: "haemophilus_influenzae", label: "Haemophilus Influenzae" },
-        ]
-    },
-    {
-        id: "virus",
-        category: "Virus",
-        opts: [
-            { value: "influenza", label: "Influenza" },
-            { value: "sars_cov_2", label: "Sars-Cov-2" }
-        ]
-    }
-];
-
 const RealTime = () => {
+
+    const history = useHistory();
+    const location = useLocation();
 
     // declare auth dependencies
     const context = useGlobalContext();
-
-    // upload state
-    const [dataFiles, setDataFiles] = useState([]);
-    const [selectedDetections, setSelectedDetections] = useState([]);
 
     // results state
     const [data, setData] = useState(null);
@@ -82,29 +46,31 @@ const RealTime = () => {
     const [pathogens, setPathogens] = useState(null); 
 
     // config state
-    const { setLoad } = useContext(LoadContext);
-    const [getResult, setGetResult] = useState(true);  
 
-    // state handlers 
+    // state handlers
 
-    const dataFileCallback = (file) => {
-        setDataFiles(prevFiles => [...prevFiles, file])
+    const datahandler = (data, sample, pathogens) => {
+        try {
+            setData(JSON.parse(data))
+            setSample(JSON.parse(sample))
+            setPathogens(JSON.parse(pathogens))
+        }
+        
+        catch (err) {
+            console.log(err)
+        }
+            
     }
-
-    const dataRemoveFileCallback = (fileName) => {
-        const dataFileIndex = dataFiles.findIndex(e => e.name === fileName);
-        dataFiles.splice(dataFileIndex, 1);
-        setDataFiles([...dataFiles]);
-    }  
-
-    const detectionCallback = (detections) => {
-        setSelectedDetections(detections)
-    } 
-
     // websocket handler
 
-    const connectWebsocket = async (file_id, token) => {
+    const connectWebsocket = async (file_id, token, callback) => {
         try {
+            if (history.listen(
+                (location) => {
+                    ws.close()
+                    console.log(`You changed the page to: ${location.pathname}`)
+                }
+            ))
             console.log("trying websocket connection")
             const ws = new WebSocket(WEBSOCKET_URL + '/' + file_id) 
             
@@ -124,10 +90,8 @@ const RealTime = () => {
             ws.onmessage = function (event) {
                 const obj = JSON.parse(event.data)
                 if (obj.status == "complete"){
-                    console.log(`Transaction status is ${obj.status}`)  
-                    // setData(event.data)
-                    // setSample(event.data.sample)
-                    // setPathogens(event.data.pathogens)
+                    console.log(`Transaction status is ${obj.status}`)
+                    callback(event.data, event.data.sample, event.data.pathogens)
                     ws.close();
                 }
                 if (obj.status == "pending"){
@@ -136,18 +100,9 @@ const RealTime = () => {
 
                 if (obj.status == "ready"){
                     console.log(`Transaction status is ${obj.status}`)  
-                    console.log(event.data)
-
-                    // setLoad(true)
-                    // setGetResult(false)
-                    // setData(event.data)
-                    // setSample(event.data.sample)
-                    // setPathogens(event.data.pathogens)
+                    // console.log(event.data)
+                    callback(event.data, event.data.sample, event.data.pathogens)
                 } 
-                else { 
-                    console.log(obj)
-                    console.log(Object.keys(obj))
-                }
             }
         }
 
@@ -158,63 +113,24 @@ const RealTime = () => {
         }
     };
 
+    const lstate = location.state
+    
+    const fileid = lstate.response.File_ID
+    const token = localStorage.getItem("accessToken") 
 
-    const uploadChunked = async () => {
+    useEffect(() => {
+        ChunkProcessor(token, lstate.file, lstate.panels, lstate.response) 
+    }, [])
 
-        if (context.authenticated == true) {
-            const token = localStorage.getItem("accessToken")
-            setLoad(true)
-            const option_lst = []
-            selectedDetections.forEach(x => option_lst.push(x))
-            console.log(option_lst)
-            try {
-                await StartFile(token, dataFiles[0], option_lst, connectWebsocket);
-            }
-            catch (e) {
-                console.log(e)
-            }
-        }
-        else {
-            alert("Please sign in to use this service")
-        }
-    }
-
-        
-     
+    useEffect(() => {
+        connectWebsocket(fileid, token, datahandler)
+        console.log(data, sample, pathogens)
+    }, [])
  
     return (
         <>
-        {getResult ?
-            <Section id="hero" center>
-             <Container>
-                        <Row style={{ marginBottom: '1.5rem' }}>
-                            <Col>
-                                <UploadComponent
-                                    fileCallback={dataFileCallback}
-                                    selectedFiles={dataFiles}
-                                    removeCallback={dataRemoveFileCallback}
-                                />
-                            </Col>
-                        </Row> 
-                        <Row style={{ marginBottom: '1.5rem' }}> 
-                                <DropdownMenu
-                                    options={selectmenuoptions}
-                                    val="value"
-                                    label="label"
-                                    category="category"
-                                    valueCallback={detectionCallback}
-                                    placeholder="Select your pathogen(s)"
-                                /> 
-                        </Row>
-                        <Row>
-                            <Col>
-                                <Button fill disabled={dataFiles.length === 0 || selectedDetections.length === 0 ? true : false} onClick={() => uploadChunked()}>Analyze</Button>
-                            </Col>
-                        </Row>
-                    </Container>
-        </Section>
-        :
-        <Section id="result">
+            {data ?
+                <Section id="result">
                     <Container>
                         <Row>
                             <Col>
@@ -222,48 +138,48 @@ const RealTime = () => {
                             </Col>
                         </Row>
                         <Row>
-                            <ResultTitle>Sample: {sample} for {pathogens}</ResultTitle>
+                            <ResultTitle>{sample}</ResultTitle>
                         </Row>
                         <Row>
-                            {data.map((d) => (
-                                <Accordion style={{ width: "100%" }}>
-                                    <AccordionSummary
-                                        expandIcon={<ExpandMoreIcon />}
-                                        aria-controls="panel1a-content"
-                                        id="panel1a-header"
-                                    >
-                                        <ResultAccordionImg src={d.detected === "Negative" ? Red_X : Green_Check}></ResultAccordionImg>
-                                        <ResultAccordianTitle detection={d.detected}>{d.detected}</ResultAccordianTitle>
-                                    </AccordionSummary>
-                                    <AccordionDetails>
-                                        <Typography>
-                                            <Row style={{ padding: "25px" }}>
-                                                <Col style={{ padding: "25px" }}>
-                                                    <div className='barGraph'>
-                                                        <RTBarchart data={d} yLabel={d.ylabel} xLabel={d.xlabel} col="coverage" />
-                                                    </div>
-                                                </Col>
-                                                <Col style={{ padding: "25px" }}>
-                                                    <div>
-                                                        <h1>
-                                                            {d.title}
-                                                        </h1>
-                                                        <p>
-                                                            {d.text}
-                                                        </p>
-                                                    </div>
-                                                </Col>
-                                            </Row>
-                                        </Typography>
-                                    </AccordionDetails>
-                                </Accordion>
-                            ))}
+                            <Accordion style={{ width: "100%" }} defaultExpanded={true} >
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <ResultAccordionImg src={data.detected === "Negative" ? Red_X : Green_Check}></ResultAccordionImg>
+                                    <ResultAccordianTitle detection={data.detected}>{data.detected}</ResultAccordianTitle>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Typography>
+                                        <Row style={{ padding: "25px" }}>
+                                            <Col style={{ padding: "25px" }}>
+                                                <div className='barGraph'>
+                                                    <Barchart data={data} yLabel={data.ylabel} xLabel={data.xlabel} col="coverage" xkey="Pathogen" ykey="Coverage" />
+                                                </div>
+                                            </Col>
+                                            <Col style={{ padding: "25px" }}>
+                                                <div>
+                                                    <h1>
+                                                        {data.title}
+                                                    </h1>
+                                                    <p>
+                                                        {data.text}
+                                                    </p>
+                                                </div>
+                                            </Col>
+                                        </Row>
+                                    </Typography>
+                                </AccordionDetails>
+                            </Accordion>
                         </Row>
                     </Container>
                 </Section>
-        }
+                :
+                <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>LOADING...</h1>
+            }
         </>
-    );
-  }
+    )
+}
    
 export default RealTime;

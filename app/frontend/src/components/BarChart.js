@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import { filter } from 'd3';
+import { csvParse, filter } from 'd3';
 
 const useResizeObserver = ref => {
     const [dimensions, setDimensions] = useState(null);
@@ -19,15 +19,14 @@ const useResizeObserver = ref => {
     return dimensions;
 }
 
-const BarChart = ({data, yLabel, xLabel, col}) => {
+const BarChart = ({data, yLabel, xLabel, ykey, xkey, col}) => {
     // Filter NumReads of 0
-    
-    var filterData = data[`${col}`].filter(hit => hit[`${col}`] !== 0) 
+    var filterData = data[col].filter(hit => hit[ykey] !== 0) 
     // Resize Obeserver
     const wrapperRef = useRef();
     const dimensions = useResizeObserver(wrapperRef)
     // Find Largest Column Value
-    var max_value = Math.max(...(filterData.map(function(hit) {return hit[`${col}`]})));
+    var max_value = Math.max(...(filterData.map(function(hit) {return hit[ykey]})));
     var yDomain = Math.ceil(max_value/1)*1;
     // Initial SVG Data
     const svgRef = useRef();
@@ -37,20 +36,20 @@ const BarChart = ({data, yLabel, xLabel, col}) => {
     var margin = { top: 10, right: 10, bottom: 65, left: 50 },
         height = svg_height - margin.top - margin.bottom;
 
+    // Setting Width & Height of SVG
+    const svg = d3.selectAll(".chart").attr("height", svg_height);
+
+    // Initiate and Transform Main Chart, Brush, and Axes
+    const focus = svg.selectAll(".focus")
+    const x_axis = svg.selectAll(".x-axis")
+    const y_axis = svg.selectAll(".y-axis")
+    const y_label = svg.selectAll(".y-label")
+    const x_label = svg.selectAll(".x-label")
+
     useEffect(() => {
         if (filterData.length === 0) return;
         if (!dimensions) return;
         var width = dimensions.width - margin.left - margin.right
-
-        // Setting Width & Height of SVG
-        const svg = d3.selectAll(".chart").attr("height", svg_height);
-
-        // Initiate and Transform Main Chart, Brush, and Axes
-        const focus = svg.selectAll(".focus")
-        const x_axis = svg.selectAll(".x-axis")
-        const y_axis = svg.selectAll(".y-axis")
-        const y_label = svg.selectAll(".y-label")
-        const x_label = svg.selectAll(".x-label")
 
         focus.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
         x_axis.attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")");
@@ -74,7 +73,7 @@ const BarChart = ({data, yLabel, xLabel, col}) => {
 
         // Initiate Scales
         const x = d3.scaleBand()
-            .domain(filterData.map(function(hit) {return hit.pathogen}))
+            .domain(filterData.map(function(hit) {return hit[xkey]}))
             .range([0, width])
             .padding(0.1);
         const y = d3.scaleLinear()
@@ -101,23 +100,23 @@ const BarChart = ({data, yLabel, xLabel, col}) => {
             .classed("bar", true)
 
         focus.selectAll(".bar")
-            .attr('x', function(hit) {return x(hit.pathogen)})
+            .attr('x', function(hit) {return x(hit[xkey])})
             .attr('y', function(hit) {return y(0)})
             .attr('width', x.bandwidth())
             .attr('height', function(hit) { return height - y(0)})
             .attr('fill', '#2f8ae1');
         
         // Animate bars on pageload
-        svg.selectAll("rect")
-            .transition()
-            .duration(800)
-            .attr("y", function(d) { return y(d[`${col}`]); })
-            .attr("height", function(d) { return height - y(d[`${col}`])})
-            .delay(function(d,i){return(i*100)})
+        focus.selectAll("rect")
+            // .transition()
+            // .duration(800)
+            .attr("y", function(d) { return y(d[ykey]); })
+            .attr("height", function(d) { return height - y(d[ykey])}) 
+            // .delay(function(d,i){return(i*100)})
 
 // eslint-disable-next-line
-    }, [dimensions]);
-
+    }, [dimensions, data]); 
+ 
     return (
         <div>
         {

@@ -1,5 +1,6 @@
 // React
 import React, { useContext, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 
 // external libraries
 import axios from 'axios';
@@ -12,6 +13,8 @@ import { DropdownMenu, TextField } from '../../Form';
 import UploadComponent from '../../UploadComponent';
 import Button from '../../Button';
 import UploadModal from '../../UploadModal';
+import StartFile from '../../ChunkController/chunkStarter';
+import ChunkProcessor from '../../ChunkController/chunkProcessor';
 
 // Styling
 import { Col, Container, Row } from 'react-bootstrap';
@@ -27,11 +30,19 @@ import {useGlobalContext} from "../../../context-provider";
 
 // Config
 import { UPLOAD_URL, PANELS_URL} from '../../../services/Config';
+import { STANDARD_RESULTS, CHUNKED_RESULTS } from '../../../services/Config';
 
 const Hero = (props) => {
+
+    const history = useHistory()
+
     const context = useGlobalContext();
 
     const [show, setShow] = useState(false);
+    const [show2, setShow2] = useState(false);
+    const [show3, setShow3] = useState(false);
+
+
     const [dataFiles, setDataFiles] = useState([]);
     const { setLoad } = useContext(LoadContext);
     const [selectedDetections, setSelectedDetections] = useState([]);
@@ -57,18 +68,8 @@ const Hero = (props) => {
 
     const detectionCallback = (detections) => {
         setSelectedDetections(detections) 
-    }
- 
-    const routeToRealTime = () => {
-        if (context.authenticated == true) {
-            window.location.href = "/realtime"
-        }
-        else {
-            alert("Please sign in to use this service")
-        }
-    }
+    } 
 
-  
     const upload = () => {
         setLoad(true) 
 
@@ -99,7 +100,16 @@ const Hero = (props) => {
                 .then((res) => {
                     setLoad(false)
                     const fileId = res.data.File_ID;  
-                    window.location.href = "/results/#/?id=" + fileId 
+                    history.push({
+                        pathname: "/results/#/?id=" + fileId,
+                        state: {
+                            response: res.data,
+                            file: dataFiles[0],
+                            panels: selectedDetections,
+                            resource: STANDARD_RESULTS   
+                        }
+                    }
+                    )
                 })
                 .catch(function (error) {
                     if (error.response) {
@@ -127,6 +137,101 @@ const Hero = (props) => {
          
     }
 
+    // const uploadchunked = () => {
+    //     setLoad(true) 
+
+    //     if (context.authenticated == true) {
+    //         const formData = new FormData();
+  
+    //         dataFiles.forEach(file => {
+    //             formData.append('files', file)
+    //         })
+    //         selectedDetections.forEach(x => {
+    //             formData.append("panel", x)
+    //         })
+            
+    //         const token = localStorage.getItem("accessToken")
+
+    //         try {
+    //             StartFile(token, dataFiles[0], selectedDetections)
+    //                 .then(
+    //                     (res) => {
+    //                         setLoad(false)
+    //                         const fileId = res.data.File_ID;
+    //                         ChunkProcessor(token, dataFiles[0], selectedDetections, res.data)
+    //                             .then(
+    //                                 (res) => {
+    //                                     history.push({
+    //                                         pathname: "/results/#/?id=" + fileId,
+    //                                         state: {
+    //                                             response: res.data,
+    //                                             file: dataFiles[0],
+    //                                             panels: selectedDetections,
+    //                                             resource: CHUNKED_RESULTS   
+    //                                         }
+    //                                     }
+    //                                     )
+    //                                 }
+    //                             )
+    //                     }
+    //                 )
+    //         }
+    //         catch (e) {
+    //             console.log(e)
+    //         }
+    //     }
+    //     else {  
+    //         alert("Please sign in to use this service")
+    //         setLoad(false) 
+    //     }  
+         
+    // }
+
+    
+    const uploadlive = () => {
+        // setLoad(true) 
+
+        if (context.authenticated == true) {
+            const formData = new FormData();
+  
+            dataFiles.forEach(file => {
+                formData.append('files', file)
+            })
+            selectedDetections.forEach(x => {
+                formData.append("panel", x)
+            })
+
+            const token = localStorage.getItem("accessToken")
+
+            try {
+                StartFile(token, dataFiles[0], selectedDetections)
+                    .then(
+                        (res) => {
+                            setLoad(false)
+                            const fileId = res.data.File_ID;
+                            history.push({
+                                pathname: "/realtime/#/?id=" + fileId,
+                                state: {
+                                    response: res.data,
+                                    file: dataFiles[0],
+                                    panels: selectedDetections    
+                                }
+                            }
+                            )
+                        }
+                    )
+            }
+            catch (e) {
+                console.log(e)
+            }
+        }
+        else {  
+            alert("Please sign in to use this service")
+            setLoad(false) 
+        }  
+         
+    }
+
     const handleShow = () => {
         if (context.authenticated == true){
             setShow(true);
@@ -138,7 +243,28 @@ const Hero = (props) => {
     }
     const handleClose = () => setShow(false);
  
+    const handleShow2 = () => {
+        if (context.authenticated == true){
+            setShow2(true);
+            selectmenuoptions();
+        }
+        else {
+            alert("Please sign in to use this service")
+        }
+    }
+    const handleClose2 = () => setShow2(false);
 
+    const handleShow3 = () => {
+        if (context.authenticated == true){
+            setShow3(true);
+            selectmenuoptions();
+        }
+        else {
+            alert("Please sign in to use this service")
+        }
+    }
+    const handleClose3 = () => setShow3(false);
+    
     return (
         <>
             <Section id="hero" center>
@@ -151,8 +277,9 @@ const Hero = (props) => {
                                     <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined RNA-seq pipeline. Alternatively, go through our examples for sample results.</HeroText>
                                     <HeroBtns>
                                         <Button onClick={handleShow}>Standard</Button>
-                                        <Button onClick={routeToRealTime}>Real Time</Button>
-                                        <Button fill to="/result">Example</Button>
+                                        {/* <Button onClick={handleShow2}>Standard+</Button> */}
+                                        <Button onClick={handleShow3}>Live</Button>
+                                        <Button fill to="/result">Examples</Button>
                                     </HeroBtns>
                                 </HeroBody>
                             </Fade>
@@ -168,7 +295,8 @@ const Hero = (props) => {
                             <Fade left duration={1000} delay={600} distance="30px">
                                 <HeroBtns2>
                                     <Button onClick={handleShow}>Standard</Button>
-                                    <Button onClick={routeToRealTime}>Real Time</Button>
+                                    {/* <Button onClick={handleShow2}>Standard+</Button> */}
+                                    <Button onClick={handleShow3}>RealTime</Button>
                                     <Button fill to="/result">Example</Button>
                                 </HeroBtns2>
                             </Fade>
@@ -176,56 +304,42 @@ const Hero = (props) => {
                     </Row>
                 </Container>
             </Section>
-            <UploadModal 
-            show={show}
-            onHide={handleClose}
-            dataFileCallback={dataFileCallback}
-            selectedFiles={dataFiles}
-            dataRemoveFileCallback={dataRemoveFileCallback}
-            options={options}
-            detectionCallback={detectionCallback}
-            selectedDetections={selectedDetections}
-            upload={upload}
-            ></UploadModal>
-            {/* <Modal size="lg"
-                aria-labelledby="contained-modal-title-vcenter"
-                centered
+            <UploadModal
                 show={show}
-                onHide={handleClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title id="contained-modal-title-vcenter">
-                        Upload your Sequence
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="show-grid">
-                    <Container>
-                        <Row style={{ marginBottom: '1.5rem' }}>
-                            <Col>
-                                <UploadComponent
-                                    fileCallback={dataFileCallback}
-                                    selectedFiles={dataFiles}
-                                    removeCallback={dataRemoveFileCallback}
-                                />
-                            </Col>
-                        </Row>
-                        <Row style={{ marginBottom: '1.5rem' }}>
-                                <DropdownMenu
-                                    options={options}
-                                    val="value"
-                                    label="label"
-                                    category="category"
-                                    valueCallback={detectionCallback}
-                                    placeholder="Select your pathogen(s)"
-                                />
-                        </Row>
-                        <Row>
-                            <Col>
-                                <Button fill disabled={dataFiles.length === 0 || selectedDetections.length === 0 ? true : false} onClick={() => upload()}>Analyze</Button>
-                            </Col>
-                        </Row>
-                    </Container>
-                </Modal.Body>
-            </Modal> */}
+                onHide={handleClose}
+                dataFileCallback={dataFileCallback}
+                selectedFiles={dataFiles}
+                dataRemoveFileCallback={dataRemoveFileCallback}
+                options={options}
+                detectionCallback={detectionCallback}
+                selectedDetections={selectedDetections}
+                upload={upload}
+                title="standard"
+            ></UploadModal>
+            {/* <UploadModal
+                show={show2}
+                onHide={handleClose2}
+                dataFileCallback={dataFileCallback}
+                selectedFiles={dataFiles}
+                dataRemoveFileCallback={dataRemoveFileCallback}
+                options={options}
+                detectionCallback={detectionCallback}
+                selectedDetections={selectedDetections}
+                upload={uploadchunked}
+                title="standard+"
+            ></UploadModal> */}
+            <UploadModal
+                show={show3}
+                onHide={handleClose3}
+                dataFileCallback={dataFileCallback}
+                selectedFiles={dataFiles}
+                dataRemoveFileCallback={dataRemoveFileCallback}
+                options={options}
+                detectionCallback={detectionCallback}
+                selectedDetections={selectedDetections}
+                upload={uploadlive}
+                title="Live pathogen detection"
+            ></UploadModal> 
         </>
     );
 }

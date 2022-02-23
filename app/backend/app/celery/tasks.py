@@ -56,8 +56,8 @@ def make_file_data(results_dir):
 
     return {'Success': True}
 
-@app.task
-def process_new_upload(file_dir, new_chunk_number):
+@app.task(bind=True)
+def process_new_upload(self, file_dir, new_chunk_number):
     meta_fname = '{}/meta.json'.format(file_dir)
     upload_data_dir = '{}/upload_data'.format(file_dir)
     analysis_data_dir = '{}/salmon_data'.format(file_dir)
@@ -111,7 +111,7 @@ def process_new_upload(file_dir, new_chunk_number):
                 analysis_chunk.write(data)
 
             line_number += data.count(b'\n')
-
+    
     metadata = {
         'filename': metadata['filename'],
         'upload_chunk_maxsize': upload_chunk_size,
@@ -124,9 +124,13 @@ def process_new_upload(file_dir, new_chunk_number):
     with open(meta_fname, 'w') as f:
         json.dump(metadata, f)
 
-    return {'Success': True,
-            'Last_Upload_Chunk_Processed': new_chunk_number,
-            'Chunk_To_Analyze': chunk_to_analyze}
+    if chunk_to_analyze is None:
+        self.request.chain = None
+        
+    else:
+        return {'Success': True,
+                'Last_Upload_Chunk_Processed': new_chunk_number,
+                'Chunk_To_Analyze': chunk_to_analyze}
 
 class SalmonMemoryError(Exception):
     """Exception raised for salmon not outputting quant files, due to memory availability
