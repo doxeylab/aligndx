@@ -63,10 +63,7 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
 
     headers=['Name', 'TPM']
     data_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, "data.json")
-
-    # get_current_chunk_task = importlib.import_module(
-    #     "app.worker.tasks.get_curr_chunk"
-    # )
+ 
     await manager.connect(websocket)
     token = await websocket.receive_text()
     current_user = await get_current_user_ws(token)
@@ -84,19 +81,7 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
                     stored_data.set_index('Pathogen', inplace=True)
                     data = realtime.data_loader(stored_data, sample_name, headers, status="ready")
                     await manager.send_data(data, websocket)  
-                # current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
-
-                # if current_chunk:
-                #     if current_chunk["chunk_number"] == current_chunk["total_chunks"]:
-                #         df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                #         data = realtime.data_loader(df, sample_name, headers, status="complete")
-                #         await manager.send_data(data, websocket)  
-                #         manager.disconnect(websocket)
-                #     else:
-                #         df = pd.DataFrame.from_dict(current_chunk["data"],orient="tight") 
-                #         data = realtime.data_loader(df, sample_name, headers, status="ready")
-                #         await manager.send_data(data, websocket) 
-                #         await asyncio.sleep(1)
+                    await asyncio.sleep(1) 
                 
                 else:
                     message = {"status": "pending"} 
