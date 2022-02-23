@@ -137,55 +137,55 @@ const Hero = (props) => {
          
     }
 
-    const uploadchunked = () => {
-        setLoad(true) 
+    // const uploadchunked = () => {
+    //     setLoad(true) 
 
-        if (context.authenticated == true) {
-            const formData = new FormData();
+    //     if (context.authenticated == true) {
+    //         const formData = new FormData();
   
-            dataFiles.forEach(file => {
-                formData.append('files', file)
-            })
-            selectedDetections.forEach(x => {
-                formData.append("panel", x)
-            })
+    //         dataFiles.forEach(file => {
+    //             formData.append('files', file)
+    //         })
+    //         selectedDetections.forEach(x => {
+    //             formData.append("panel", x)
+    //         })
             
-            const token = localStorage.getItem("accessToken")
+    //         const token = localStorage.getItem("accessToken")
 
-            try {
-                StartFile(token, dataFiles[0], selectedDetections)
-                    .then(
-                        (res) => {
-                            setLoad(false)
-                            const fileId = res.data.File_ID;
-                            ChunkProcessor(token, dataFiles[0], selectedDetections, res.data)
-                                .then(
-                                    (res) => {
-                                        history.push({
-                                            pathname: "/results/#/?id=" + fileId,
-                                            state: {
-                                                response: res.data,
-                                                file: dataFiles[0],
-                                                panels: selectedDetections,
-                                                resource: CHUNKED_RESULTS   
-                                            }
-                                        }
-                                        )
-                                    }
-                                )
-                        }
-                    )
-            }
-            catch (e) {
-                console.log(e)
-            }
-        }
-        else {  
-            alert("Please sign in to use this service")
-            setLoad(false) 
-        }  
+    //         try {
+    //             StartFile(token, dataFiles[0], selectedDetections)
+    //                 .then(
+    //                     (res) => {
+    //                         setLoad(false)
+    //                         const fileId = res.data.File_ID;
+    //                         ChunkProcessor(token, dataFiles[0], selectedDetections, res.data)
+    //                             .then(
+    //                                 (res) => {
+    //                                     history.push({
+    //                                         pathname: "/results/#/?id=" + fileId,
+    //                                         state: {
+    //                                             response: res.data,
+    //                                             file: dataFiles[0],
+    //                                             panels: selectedDetections,
+    //                                             resource: CHUNKED_RESULTS   
+    //                                         }
+    //                                     }
+    //                                     )
+    //                                 }
+    //                             )
+    //                     }
+    //                 )
+    //         }
+    //         catch (e) {
+    //             console.log(e)
+    //         }
+    //     }
+    //     else {  
+    //         alert("Please sign in to use this service")
+    //         setLoad(false) 
+    //     }  
          
-    }
+    // }
 
     
     const uploadlive = () => {
@@ -277,7 +277,7 @@ const Hero = (props) => {
                                     <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined RNA-seq pipeline. Alternatively, go through our examples for sample results.</HeroText>
                                     <HeroBtns>
                                         <Button onClick={handleShow}>Standard</Button>
-                                        <Button onClick={handleShow2}>Standard+</Button>
+                                        {/* <Button onClick={handleShow2}>Standard+</Button> */}
                                         <Button onClick={handleShow3}>Live</Button>
                                         <Button fill to="/result">Examples</Button>
                                     </HeroBtns>
@@ -295,7 +295,7 @@ const Hero = (props) => {
                             <Fade left duration={1000} delay={600} distance="30px">
                                 <HeroBtns2>
                                     <Button onClick={handleShow}>Standard</Button>
-                                    <Button onClick={handleShow2}>Standard+</Button>
+                                    {/* <Button onClick={handleShow2}>Standard+</Button> */}
                                     <Button onClick={handleShow3}>RealTime</Button>
                                     <Button fill to="/result">Example</Button>
                                 </HeroBtns2>
@@ -316,7 +316,7 @@ const Hero = (props) => {
                 upload={upload}
                 title="standard"
             ></UploadModal>
-            <UploadModal
+            {/* <UploadModal
                 show={show2}
                 onHide={handleClose2}
                 dataFileCallback={dataFileCallback}
@@ -327,7 +327,7 @@ const Hero = (props) => {
                 selectedDetections={selectedDetections}
                 upload={uploadchunked}
                 title="standard+"
-            ></UploadModal>
+            ></UploadModal> */}
             <UploadModal
                 show={show3}
                 onHide={handleClose3}
