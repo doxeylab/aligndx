@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import {Dropzone, DropzoneInput, DropzoneMessage, DropzoneTitle} from './StyledDropzone';
 import Preview from './Preview/Preview';
 import UploadIcon from '../../assets/uploadIcon.png';
+import { ALLOWED_FILETYPES } from "../../services/Config";
 
 const FileUploader = ({ fileCallback, selectedFiles, removeCallback }) => {
   const [dropzoneActive, setDropzoneActive] = useState(false);
@@ -62,6 +63,7 @@ const FileUploader = ({ fileCallback, selectedFiles, removeCallback }) => {
                 <DropzoneInput
                     multiple
                     type="file"
+                    accept={ALLOWED_FILETYPES}
                     ref={fileInputRef}
                     onChange={filesSelected}
                 />

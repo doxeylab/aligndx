@@ -27,3 +27,6 @@ export const WEBSOCKET_URL = "ws://localhost:8080/livegraphs"
 // metadata
 export const METADATA_URL = URL + "metadata/"
 export const PANELS_URL = METADATA_URL + "panels"
+
+// allowed filetypes
+export const ALLOWED_FILETYPES = ".fastq, .fastq.gz"
