@@ -141,8 +141,9 @@ async def file_upload(
                 indexpath, file_location, results_dir)
             commands_lst.append(commands)
 
-            background_tasks.add_task(
-                standard_process, commands_lst, sample_folder)
+            call_salmon(commands_lst, sample_folder)
+            # background_tasks.add_task(
+            #     standard_process, commands_lst, sample_folder)
 
             # shutil.rmtree(sample_folder)
 

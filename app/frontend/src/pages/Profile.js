@@ -16,12 +16,22 @@ const Profile = () => {
     useEffect(async () => {
         var token = localStorage.getItem('accessToken');;
         if (context.authenticated) {
-        const res = await axios.get(STANDARD_SUBMISSIONS_URL, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        setData(res.data);
+            const res = await axios.get(STANDARD_SUBMISSIONS_URL, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setData(res.data); 
+        }
+        else {
+            console.log("not authenticated")
+            const res = await axios.get(STANDARD_SUBMISSIONS_URL, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setData(res.data); 
+            console.log(res.data)
         }
     }, []);
 
@@ -43,20 +53,11 @@ const Profile = () => {
                                 Upload Date
                             </h1>
                             <h1 style={{ textAlign: "center", margin: 0, fontSize: "1.2rem" }}>
-                                Pathogen Type
+                                Panel
                             </h1>
                             <span></span>
                         </ResultHeader>
-                        {data.map((result) => <ResultCardComponent name={result.sample_name} uploadDate={result.created_date} pathogenType={result.panel}></ResultCardComponent>)}
-                        {/*
-                        let userid; 
-                        for (let data = 1; data < fileid; data++) {
-                            element = array[data];*/}
-                        {/* <ResultCardComponent name = "Sample File" uploadDate = "01/02/2022" pathogenType = "sample" ></ResultCardComponent>
-                            <ResultCardComponent name = "Abc File" uploadDate = "03/02/2022" pathogenType = "abc" ></ResultCardComponent>   */}
-                        {/* }  */}
-
-
+                        {data.map((result) => <ResultCardComponent name={result.sample_name} uploadDate={result.created_date} pathogenType={result.panel}></ResultCardComponent>)} 
                     </Col>
                 </Row>
             </Container>
