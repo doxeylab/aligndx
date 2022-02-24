@@ -29,8 +29,8 @@ router = APIRouter()
 # Sign up endpoint
 @router.post("/create_user", status_code=status.HTTP_201_CREATED)
 async def signup(user: UserTemp): 
-    await auth.create_user(user)
-
+    res = await auth.create_user(user)
+    return res
 
 # Log in endpoint
 @router.post("/token", response_model=Token)
