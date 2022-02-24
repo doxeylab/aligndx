@@ -116,12 +116,18 @@ const NavBar = () => {
                                         <i className="fas fa-user-plus"></i>
                                     </ListItemIcon>
                                     <p>Sign Up</p>
+                                    <Link to="/signup">
+                                  
+                                </Link>
                                 </MenuItem>
                                 <MenuItem>
                                     <ListItemIcon>
                                         <i className="fas fa-sign-in-alt"></i>
                                     </ListItemIcon>
                                     <p>Log In</p>
+                                    <Link to="/login">
+                                 
+                                </Link>
                                 </MenuItem>
                             </div>
                         )}
