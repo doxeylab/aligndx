@@ -61,49 +61,54 @@ const SignUpAuth = () => {
                 err_tmp[missing_signup[i]] = true
             }
             setError(err_tmp)
-        } else {
+        } 
+
+        else {
 
             if (signUp.password !== signUp.confirm_password) {
                 setConfirmPass(true)
-            } else {
+            } 
+            
+            else {
                 setConfirmPass(false)
+                
+                setLoading(true);
+                const signupParams = {
+                    name: signUp.name,
+                    email: signUp.email,
+                    password: signUp.password,
+                };
+
+                signupRequest(signupParams)
+                    .then((res) => {
+                        if (res.status == 201) {
+                            const loginParams = {
+                                username: signUp.email,
+                                password: signUp.password,
+                            };
+
+                            loginRequest(loginParams)
+                                .then((response) => {
+                                    localStorage.setItem("accessToken", response.access_token);
+                                    setLoading(false)
+                                    history.push("/");
+                                    context.loadCurrentUser();
+                                })
+                                .catch((error) => {
+                                    setLoading(false);
+                                    console.log(error);
+                                });
+                        }
+
+                    })
+                    .catch((err) => {
+                        alert(err.detail)
+                        setLoading(false);
+                        setSignUp({ ...signUp, password: "" })
+                        setSignUp({ ...signUp, confirm_password: "" })
+                    });
             }
-
-            setLoading(true);
-            const signupParams = {
-                name: signUp.name,
-                email: signUp.email,
-                password: signUp.password,
-            };
-
-            signupRequest(signupParams)
-                .then((res) => {
-                    if (res.status == 201) {
-                        const loginParams = {
-                            username: signUp.email,
-                            password: signUp.password,
-                        };
-
-                        loginRequest(loginParams)
-                            .then((response) => {
-                                localStorage.setItem("accessToken", response.access_token);
-                                setLoading(false)
-                                history.push("/");
-                                context.loadCurrentUser();
-                            })
-                            .catch((error) => {
-                                setLoading(false);
-                                console.log(error);
-                            });
-                    }
-
-                })
-                .catch((err) => {
-                    setLoading(false);
-                    setSignUp({ ...signUp, password: "" })
-                    setSignUp({ ...signUp, confirm_password: "" })
-                });
-        }
+            }
     }
 
     return (
