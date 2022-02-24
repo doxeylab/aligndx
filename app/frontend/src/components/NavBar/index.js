@@ -99,13 +99,17 @@ const NavBar = () => {
                                 <ListItemIcon>
                                     <i className="fas fa-user"></i>
                                 </ListItemIcon>
-                                <p>My Profile</p>
+                                <Link to="/profile">
+                                    <p>My Profile</p>
+                                </Link>
                             </MenuItem>
                             <MenuItem>
                                 <ListItemIcon>
                                     <i className="fas fa-sign-out-alt"></i>
                                 </ListItemIcon>
-                                <p>Sign Out</p>
+                                <Link to="/login">
+                                    <p>Sign Out</p>
+                                </Link>
                             </MenuItem>
                         </div>
                     )
@@ -115,26 +119,27 @@ const NavBar = () => {
                                     <ListItemIcon>
                                         <i className="fas fa-user-plus"></i>
                                     </ListItemIcon>
-                                    <p>Sign Up</p>
                                     <Link to="/signup">
-                                  
-                                </Link>
+                                        <p>Sign Up</p>
+                                    </Link>
+                                    
+                                                      
                                 </MenuItem>
                                 <MenuItem>
                                     <ListItemIcon>
                                         <i className="fas fa-sign-in-alt"></i>
                                     </ListItemIcon>
-                                    <p>Log In</p>
+                                   
                                     <Link to="/login">
-                                 
-                                </Link>
+                                        <p>Log In</p>
+                                     </Link>
                                 </MenuItem>
                             </div>
                         )}
                     <Divider />
                     {NavbarItems.map((item, index) => (
                         <MenuItem key={index}>
-                            <p>{item.title}</p>
+                            <NavLink to={item.url} activeStyle={{ color: '#1861A6' }}>{item.title}</NavLink>
                         </MenuItem>
                     ))}
                 </Menu>
