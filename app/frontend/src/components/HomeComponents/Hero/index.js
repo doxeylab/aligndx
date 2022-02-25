@@ -42,12 +42,17 @@ const Hero = (props) => {
     const [show2, setShow2] = useState(false);
     const [show3, setShow3] = useState(false);
 
-
     const [dataFiles, setDataFiles] = useState([]);
     const { setLoad } = useContext(LoadContext);
     const [selectedDetections, setSelectedDetections] = useState([]);
 
     const [options,setOptions] = useState([]);
+
+    const [restart,setRestart] = useState(false);
+
+    // const signalrestart = () => {
+    //     axios.get
+    // }
 
     const selectmenuoptions = () => {
         axios.get(PANELS_URL)
@@ -260,6 +265,7 @@ const Hero = (props) => {
         }
     }
     const handleClose3 = () => setShow3(false);
+ 
     
     return (
         <>
@@ -292,7 +298,7 @@ const Hero = (props) => {
                                 <HeroBtns2>
                                     <Button onClick={handleShow}>Standard</Button>
                                     {/* <Button onClick={handleShow2}>Standard+</Button> */}
-                                    <Button onClick={handleShow3}>RealTime</Button>
+                                    <Button onClick={handleShow3}>Live</Button>
                                     <Button fill to="/result">Example</Button>
                                 </HeroBtns2>
                             </Fade>
