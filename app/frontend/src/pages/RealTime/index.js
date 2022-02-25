@@ -115,15 +115,17 @@ const RealTime = () => {
 
     const lstate = location.state
     
-    const fileid = lstate.response.File_ID
-    const token = localStorage.getItem("accessToken") 
+    const fileId = lstate.fileId
+    const restartflag = lstate.restartflag
 
+    const token = localStorage.getItem("accessToken") 
+    
     useEffect(() => {
-        ChunkProcessor(token, lstate.file, lstate.panels, lstate.response) 
+        ChunkProcessor(token, lstate.file, lstate.panels, fileId, restartflag) 
     }, [])
 
     useEffect(() => {
-        connectWebsocket(fileid, token, datahandler)
+        connectWebsocket(fileId, token, datahandler)
         console.log(data, sample, pathogens)
     }, [])
  
