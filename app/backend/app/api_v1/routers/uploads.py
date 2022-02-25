@@ -1,5 +1,6 @@
 # python libraries
 ## system utils
+from http.client import HTTPException
 import sys, os, shutil, math, traceback, importlib
 
 ## async
@@ -20,7 +21,7 @@ from typing import List, Optional
 import pandas as pd
 
 # FastAPI
-from fastapi import APIRouter, BackgroundTasks, File, UploadFile, Form, Body
+from fastapi import APIRouter, BackgroundTasks, HTTPException, File, UploadFile, Form, Body
 from fastapi import Depends
 
 # auth components
@@ -248,6 +249,20 @@ async def upload_chunk(
     )
 
     return {"Result": "OK"}
+
+
+@router.post("/end-file")
+async def end_file(
+    current_user: UserDTO = Depends(get_current_user),
+    file_id: str = Body(...),
+):
+    if ModelSample.get_sample_info(file_id) is None:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    await ModelSample.save_upload_finished(file_id, datetime.now())
+
+    return {"Result": "OK"}
+
 
 # async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst, total_chunks, upload_chunk_dir):
 #     '''

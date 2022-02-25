@@ -84,6 +84,11 @@ async def get_standard_submissions(current_user: UserDTO = Depends(get_current_u
     return submissions
         
 
+@router.get('/incomplete/')
+async def get_incomplete_submissions(current_user: UserDTO = Depends(get_current_user)):
+    submissions = await ModelSample.get_user_incomplete_submissions(current_user.id)
+    return submissions
+
 # -- Cookies attempt --
 
 
