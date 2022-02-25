@@ -53,7 +53,7 @@ const ChunkProcessor = async (token, file, panels, fileId, restartflag) => {
   let lastChunkUploaded = 0;
   
   if (restartflag) {
-    lastChunkUploaded = localStorage.getItem(fileId + '_lastChunk', i+1)
+    lastChunkUploaded = localStorage.getItem(fileId + '_lastChunk') + 1
   } 
   
   for (let i = lastChunkUploaded; i < numberOfChunks; i++) {

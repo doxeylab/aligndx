@@ -201,29 +201,25 @@ const Hero = (props) => {
                 formData.append("panel", x)
             })
 
-            const token = localStorage.getItem("accessToken")
-
-            try {
-                StartFile(token, dataFiles[0], selectedDetections)
-                    .then(
-                        (res) => {
-                            setLoad(false)
-                            const fileId = res.data.File_ID;
-                            history.push({
-                                pathname: "/realtime/#/?id=" + fileId,
-                                state: {
-                                    response: res.data,
-                                    file: dataFiles[0],
-                                    panels: selectedDetections    
-                                }
+            const token = localStorage.getItem("accessToken") 
+            
+            StartFile(token, dataFiles[0], selectedDetections)
+                .then(
+                    (res) => {
+                        setLoad(false)
+                        const fileId = res.data.File_ID;
+                        history.push({
+                            pathname: "/realtime/#/?id=" + fileId,
+                            state: {
+                                file: dataFiles[0],
+                                panels: selectedDetections,
+                                fileId: fileId,
+                                // restartflag: restartflag  
                             }
-                            )
                         }
-                    )
-            }
-            catch (e) {
-                console.log(e)
-            }
+                        )
+                    }
+                )
         }
         else {  
             alert("Please sign in to use this service")
