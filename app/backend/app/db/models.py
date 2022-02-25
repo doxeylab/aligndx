@@ -26,7 +26,8 @@ submissions = Table(
     Column("result", JSON),
     Column("submission_type", String(50), nullable=False),
     Column("user_id", Integer, ForeignKey("users.id"), nullable=True),
-    Column("created_date", DateTime, nullable=False)
+    Column("created_date", DateTime, nullable=False),
+    Column("finished_date", DateTime, nullable=True)
 )
 
 users = Table(
