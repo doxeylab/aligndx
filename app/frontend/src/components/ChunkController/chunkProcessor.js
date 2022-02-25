@@ -14,9 +14,9 @@ const readChunk = (chunkNumber, file) => {
 // end-file
 const postEndFile = (resource, token, fileId) => {
   return axios.post(resource, {
-    file_id: fileId
+    file_id: fileId,
   }, {
-      'headers': {
+      headers: {
         'Authorization': `Bearer ${token}`
       }
     });
