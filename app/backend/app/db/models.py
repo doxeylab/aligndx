@@ -26,7 +26,8 @@ submissions = Table(
     Column("result", JSON),
     Column("submission_type", String(50), nullable=False),
     Column("user_id", Integer, ForeignKey("users.id"), nullable=True),
-    Column("created_date", DateTime, nullable=False)
+    Column("created_date", DateTime, nullable=False),
+    Column("finished_date", DateTime, nullable=True)
 )
 
 users = Table(
@@ -82,6 +83,16 @@ class Sample:
         return info
 
     @classmethod
+    async def save_upload_finished(cls, file_id, finished_date):
+        query = (
+            submissions.update()
+            .where(submissions.c.id == file_id)
+            .values(finished_date=finished_date)
+        )
+        sample = await database.execute(query)
+        return sample
+
+    @classmethod
     async def save_result(cls, file_id, result):
         query = (
             submissions.update()
@@ -94,6 +105,13 @@ class Sample:
     @classmethod
     async def get_user_submissions(cls, userid):
         query = submissions.select().where(submissions.c.user_id == userid)
+        data = await database.fetch_all(query)
+        return data
+
+    @classmethod
+    async def get_user_incomplete_submissions(cls, userid):
+        query = submissions.select().where(submissions.c.user_id == userid
+                                           and submissions.c.finished_date is not None)
         data = await database.fetch_all(query)
         return data
 

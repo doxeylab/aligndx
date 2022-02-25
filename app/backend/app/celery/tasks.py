@@ -121,6 +121,8 @@ def process_new_upload(self, file_dir, new_chunk_number):
         'current_line_number': line_number
     }
 
+    os.remove(upload_chunk_fname)
+
     with open(meta_fname, 'w') as f:
         json.dump(metadata, f)
 
@@ -161,10 +163,12 @@ def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, rea
     with requests.Session() as s:
         s.post("http://salmon:80/", json=commands)
 
+    os.remove(chunk)
+
     quant_dir = "{}/quant.sf".format(results_dir)
 
     if os.path.isfile(quant_dir):
-        return {'Sucess': True,
+        return {'Success': True,
                 'Current_Analysis_Chunk': chunk_number,
                 'Last_Upload_Chunk_Processed': upload_chunk_number,
                 'Quant_Dir': quant_dir} 

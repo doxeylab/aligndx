@@ -1,5 +1,5 @@
 import axios from "axios";
-import {CHUNK_SIZE, UPLOAD_CHUNK_URL} from "../../services/Config";
+import {CHUNK_SIZE, END_FILE_URL, UPLOAD_CHUNK_URL} from "../../services/Config";
 
 
 const readChunk = (chunkNumber, file) => {
@@ -10,6 +10,17 @@ const readChunk = (chunkNumber, file) => {
 
   return chunkFile;
 };
+
+// end-file
+const postEndFile = (resource, token, fileId) => {
+  return axios.post(resource, {
+    file_id: fileId,
+  }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+}
 
 // upload-chunk
 const postChunk = (resource, token, chunkNumber, fileId, chunkFile, panels) => {
@@ -35,35 +46,27 @@ const startChunk = async (resource, token, chunkNumber, fileId, file, panels) =>
 };
  
 
-const ChunkProcessor = async (token, file, panels, res) => {
+const ChunkProcessor = async (token, file, panels, res, fileId) => {
   var upload_resource = UPLOAD_CHUNK_URL
 
   const numberOfChunks = Math.ceil(file.size / CHUNK_SIZE);
-  const fileId = res.File_ID;
+  let lastChunkProcessed = 0;
   
-  if (res.Result == "Restart available") {
-    
-    let last_chunk_processed = res.Last_chunk_processed
-    console.log(`Restarting at ${last_chunk_processed}`)
-
-    for (let i = last_chunk_processed; i < numberOfChunks; i++) {
-      const res = await startChunk(upload_resource, token, i, fileId, file, panels);
-      if (res.data.Result != "OK") {
-        break;
-      }
-    }
+  if (fileId) {
+    lastChunkProcessed = localStorage.getItem(fileId + '_lastChunk')
+  } else {
+    fileId = res.File_ID;
   }
-  else {
-
-    for (let i = 0; i < numberOfChunks; i++) {
-      const res = await startChunk(upload_resource, token, i, fileId, file, panels);
-      if (res.data.Result != "OK") {
-        break;
-      }
+  
+  for (let i = lastChunkProcessed + 1; i < numberOfChunks; i++) {
+    const res = await startChunk(upload_resource, token, i, fileId, file, panels);
+    localStorage.setItem(fileId + '_lastChunk', i)
+    if (res.data.Result != "OK") {
+      break;
     }
   }
 
-
+  await postEndFile(END_FILE_URL, token, fileId)
 };
 
 export default ChunkProcessor;
