@@ -12,7 +12,7 @@ const readChunk = (chunkNumber, file) => {
 };
 
 // end-file
-const endFile = (resource, token, fileId) => {
+const postEndFile = (resource, token, fileId) => {
   return axios.post(resource, {
     file_id: fileId
   }, {
@@ -66,7 +66,7 @@ const ChunkProcessor = async (token, file, panels, res, fileId) => {
     }
   }
 
-  await endFile(END_FILE_URL, token, fileId)
+  await postEndFile(END_FILE_URL, token, fileId)
 };
 
 export default ChunkProcessor;
