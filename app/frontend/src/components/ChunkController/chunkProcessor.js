@@ -1,5 +1,5 @@
 import axios from "axios";
-import {CHUNK_SIZE, UPLOAD_CHUNK_URL} from "../../services/Config";
+import {CHUNK_SIZE, END_FILE_URL, UPLOAD_CHUNK_URL} from "../../services/Config";
 
 
 const readChunk = (chunkNumber, file) => {
@@ -10,6 +10,17 @@ const readChunk = (chunkNumber, file) => {
 
   return chunkFile;
 };
+
+// end-file
+const endFile = (resource, token, fileId) => {
+  return axios.post(resource, {
+    file_id: fileId
+  }, {
+      'headers': {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+}
 
 // upload-chunk
 const postChunk = (resource, token, chunkNumber, fileId, chunkFile, panels) => {
@@ -54,6 +65,8 @@ const ChunkProcessor = async (token, file, panels, res, fileId) => {
       break;
     }
   }
+
+  await endFile(END_FILE_URL, token, fileId)
 };
 
 export default ChunkProcessor;

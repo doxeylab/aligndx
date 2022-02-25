@@ -4,7 +4,8 @@ export const URL = process.env.REACT_APP_BACKEND_ACCESS_URL
 // -- Regular --
 export const UPLOAD_URL = URL + "uploads/"
 export const UPLOAD_CHUNK_URL = UPLOAD_URL + "upload-chunk" 
-export const START_FILE_URL = UPLOAD_URL + "start-file" 
+export const START_FILE_URL = UPLOAD_URL + "start-file"
+export const END_FILE_URL = UPLOAD_URL + "end-file" 
 
 // -- Results --
 // -- Regular --
