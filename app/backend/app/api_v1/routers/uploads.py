@@ -171,33 +171,9 @@ async def start_file(
     number_of_chunks: int = Body(...),
     panels: List[str] = Body(...),
 ):
-    # get_current_chunk_task = importlib.import_module(
-    #     "app.worker.tasks.get_curr_chunk"
-    # )
-
     for option in panels:
 
         submission_type = "real-time"
-
-        # query = await ModelSample.does_file_exist(filename, current_user.id, submission_type)
-
-        # # sends restart policy if filename exists under users submissions
-        # if query:
-        #     file_id = str(query["id"])
-        #     current_chunk = await get_current_chunk_task.agent.ask(Chunk_id(account_id=file_id).dict())
-        #     stop_point = current_chunk["chunk_number"]
-        #     total_chunks = current_chunk["total_chunks"]
-
-        #     # only sends restart message if chunks remain unprocessed
-        #     if stop_point < total_chunks:
-
-        #         print("User can restart!")
-        #         return {"Result": "Restart available",
-        #                 "File_ID": file_id,
-        #                 "Last_chunk_processed":  stop_point,
-        #                 "Amount_processed": math.ceil(stop_point/total_chunks)}
-        # else:
-        #     print("New submission")
 
         # it's worth noting that uuid4 generates random numbers, but the possibility of having a collision is so low, it's been estimated that it would take 90 years for such to occur.
 
