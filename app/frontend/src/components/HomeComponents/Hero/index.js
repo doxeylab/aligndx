@@ -1,5 +1,5 @@
 // React
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
 // external libraries
@@ -30,12 +30,11 @@ import {useGlobalContext} from "../../../context-provider";
 
 // Config
 import { UPLOAD_URL, PANELS_URL} from '../../../services/Config';
-import { STANDARD_RESULTS, CHUNKED_RESULTS } from '../../../services/Config';
+import { STANDARD_RESULTS, CHUNKED_RESULTS, INCOMPLETE_URL } from '../../../services/Config';
 
 const Hero = (props) => {
 
     const history = useHistory()
-
     const context = useGlobalContext();
 
     const [show, setShow] = useState(false);
@@ -47,13 +46,31 @@ const Hero = (props) => {
     const [selectedDetections, setSelectedDetections] = useState([]);
 
     const [options,setOptions] = useState([]);
+    const [restart,setRestart] = useState({
+        restartflag: false,
+        data: null
+    });
 
-    const [restart,setRestart] = useState(false);
+    const check_unprocessed = () => {
+        const token = localStorage.getItem("accessToken")
+        const config = { 
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
 
-    // const signalrestart = () => {
-    //     axios.get
-    // }
-
+        axios.get(INCOMPLETE_URL, config)
+            .then((res) => {
+                const data = res.data 
+                if (data.length !== 0) {
+                    setRestart({ ...restart, restartflag: true, data: data})
+                }
+                else {
+                    setRestart({ ...restart, restartflag: false, data: null})
+                }
+            })
+    }
+    
     const selectmenuoptions = () => {
         axios.get(PANELS_URL)
             .then((res) => {
@@ -219,7 +236,7 @@ const Hero = (props) => {
                                 file: dataFiles[0],
                                 panels: selectedDetections,
                                 fileId: fileId,
-                                // restartflag: restartflag  
+                                restartflag: restart.restartflag  
                             }
                         }
                         )
@@ -236,7 +253,6 @@ const Hero = (props) => {
     const handleShow = () => {
         if (context.authenticated == true){
             setShow(true);
-            selectmenuoptions();
         }
         else {
             alert("Please sign in to use this service")
@@ -247,7 +263,6 @@ const Hero = (props) => {
     const handleShow2 = () => {
         if (context.authenticated == true){
             setShow2(true);
-            selectmenuoptions();
         }
         else {
             alert("Please sign in to use this service")
@@ -258,15 +273,18 @@ const Hero = (props) => {
     const handleShow3 = () => {
         if (context.authenticated == true){
             setShow3(true);
-            selectmenuoptions();
         }
         else {
             alert("Please sign in to use this service")
         }
     }
-    const handleClose3 = () => setShow3(false);
+    const handleClose3 = () => setShow3(false); 
+
+    useEffect(() => {
+        check_unprocessed()
+        selectmenuoptions();
+    }, [])
  
-    
     return (
         <>
             <Section id="hero" center>
@@ -279,8 +297,8 @@ const Hero = (props) => {
                                     <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined RNA-seq pipeline. Alternatively, go through our examples for sample results.</HeroText>
                                     <HeroBtns>
                                         <Button onClick={handleShow}>Standard</Button>
-                                        {/* <Button onClick={handleShow2}>Standard+</Button> */}
                                         <Button onClick={handleShow3}>Live</Button>
+                                        {/* <Button onClick={handleShow2}>Test</Button> */}
                                         <Button fill to="/result">Examples</Button>
                                     </HeroBtns>
                                 </HeroBody>
@@ -297,8 +315,8 @@ const Hero = (props) => {
                             <Fade left duration={1000} delay={600} distance="30px">
                                 <HeroBtns2>
                                     <Button onClick={handleShow}>Standard</Button>
-                                    {/* <Button onClick={handleShow2}>Standard+</Button> */}
                                     <Button onClick={handleShow3}>Live</Button>
+                                    {/* <Button onClick={handleShow2}>Test</Button> */}
                                     <Button fill to="/result">Example</Button>
                                 </HeroBtns2>
                             </Fade>
