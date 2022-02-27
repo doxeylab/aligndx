@@ -37,15 +37,16 @@ const Hero = (props) => {
     const history = useHistory()
     const context = useGlobalContext();
 
-    const [show, setShow] = useState(false);
-    const [show2, setShow2] = useState(false);
-    const [show3, setShow3] = useState(false);
+    const [showStandardUploadModal, setShowStandardUploadModal] = useState(false); 
+    const [showLiveUploadModal, setShowLiveUploadModal] = useState(false); 
+    const [showRestartModal, setShowRestartModal] = useState(false); 
+
 
     const [dataFiles, setDataFiles] = useState([]);
     const { setLoad } = useContext(LoadContext);
     const [selectedDetections, setSelectedDetections] = useState([]);
 
-    const [options,setOptions] = useState([]);
+    const [options,setOptions] = useState([]);  
     const [restart,setRestart] = useState({
         restartflag: false,
         data: null
@@ -250,36 +251,17 @@ const Hero = (props) => {
          
     }
 
-    const handleShow = () => {
+    const handleShow = (modalstate) => {
         if (context.authenticated == true){
-            setShow(true);
+            modalstate(true);
         }
         else {
             alert("Please sign in to use this service")
         }
     }
-    const handleClose = () => setShow(false);
- 
-    const handleShow2 = () => {
-        if (context.authenticated == true){
-            setShow2(true);
-        }
-        else {
-            alert("Please sign in to use this service")
-        }
-    }
-    const handleClose2 = () => setShow2(false);
-
-    const handleShow3 = () => {
-        if (context.authenticated == true){
-            setShow3(true);
-        }
-        else {
-            alert("Please sign in to use this service")
-        }
-    }
-    const handleClose3 = () => setShow3(false); 
-
+        
+    const handleClose = (modalstate) => modalstate(false);
+  
     useEffect(() => {
         check_unprocessed()
         selectmenuoptions();
@@ -296,8 +278,8 @@ const Hero = (props) => {
                                     <HeroTitle>PATHOGEN<br />DETECTION</HeroTitle>
                                     <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined RNA-seq pipeline. Alternatively, go through our examples for sample results.</HeroText>
                                     <HeroBtns>
-                                        <Button onClick={handleShow}>Standard</Button>
-                                        <Button onClick={handleShow3}>Live</Button>
+                                        <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button>
+                                        <Button onClick={() => handleShow(setShowLiveUploadModal)}>Live</Button>
                                         {/* <Button onClick={handleShow2}>Test</Button> */}
                                         <Button fill to="/result">Examples</Button>
                                     </HeroBtns>
@@ -314,8 +296,8 @@ const Hero = (props) => {
                         <HeroCol>
                             <Fade left duration={1000} delay={600} distance="30px">
                                 <HeroBtns2>
-                                    <Button onClick={handleShow}>Standard</Button>
-                                    <Button onClick={handleShow3}>Live</Button>
+                                    <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button>
+                                    <Button onClick={() => handleShow(setShowLiveUploadModal)}>Live</Button>
                                     {/* <Button onClick={handleShow2}>Test</Button> */}
                                     <Button fill to="/result">Example</Button>
                                 </HeroBtns2>
@@ -325,8 +307,8 @@ const Hero = (props) => {
                 </Container>
             </Section>
             <UploadModal
-                show={show}
-                onHide={handleClose}
+                show={showStandardUploadModal}
+                onHide={() => handleClose(setShowStandardUploadModal)}
                 dataFileCallback={dataFileCallback}
                 selectedFiles={dataFiles}
                 dataRemoveFileCallback={dataRemoveFileCallback}
@@ -336,21 +318,9 @@ const Hero = (props) => {
                 upload={upload}
                 title="standard"
             ></UploadModal>
-            {/* <UploadModal
-                show={show2}
-                onHide={handleClose2}
-                dataFileCallback={dataFileCallback}
-                selectedFiles={dataFiles}
-                dataRemoveFileCallback={dataRemoveFileCallback}
-                options={options}
-                detectionCallback={detectionCallback}
-                selectedDetections={selectedDetections}
-                upload={uploadchunked}
-                title="standard+"
-            ></UploadModal> */}
             <UploadModal
-                show={show3}
-                onHide={handleClose3}
+                show={showLiveUploadModal}
+                onHide={() => handleClose(setShowLiveUploadModal)}
                 dataFileCallback={dataFileCallback}
                 selectedFiles={dataFiles}
                 dataRemoveFileCallback={dataRemoveFileCallback}
