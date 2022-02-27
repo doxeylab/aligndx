@@ -1,34 +1,24 @@
-// React
-import React, { useContext, useState } from 'react';
-
-// external libraries 
-import Modal from 'react-bootstrap/Modal'; 
+import React from 'react';
+import BaseModal from "./BaseModal";
 
 // Components 
-import { DropdownMenu, TextField } from '../Form';
+import { DropdownMenu} from '../Form';
 import UploadComponent from '../UploadComponent';
 import Button from '../Button'
 
 // Styling
 import { Col, Container, Row } from 'react-bootstrap'; 
-// import './CustomModal.css';  
  
 
 const UploadModal = (props) => { 
 
     return ( 
-            <Modal size="lg"
-                aria-labelledby="contained-modal-title-vcenter"
-                centered
-                show={props.show}
-                onHide={props.onHide}>
-                <Modal.Header closeButton>
-                    <Modal.Title id="contained-modal-title-vcenter">
-                        {props.title}
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="show-grid">
-                    <Container>
+            <BaseModal
+            show={props.show}
+            onHide={props.onHide}
+            title={props.title}
+            body={
+                <Container>
                         <Row style={{ marginBottom: '1.5rem' }}>
                             <Col>
                                 <UploadComponent
@@ -54,8 +44,8 @@ const UploadModal = (props) => {
                             </Col>
                         </Row>
                     </Container>
-                </Modal.Body>
-            </Modal>
+            }
+            ></BaseModal>
     );
 }
 

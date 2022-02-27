@@ -4,17 +4,13 @@ import { useHistory } from 'react-router-dom';
 
 // external libraries
 import axios from 'axios';
-import Modal from 'react-bootstrap/Modal';
 import Fade from 'react-reveal/Fade';
 
 // Components
 import { Section } from '../../Common/PageElement';
-import { DropdownMenu, TextField } from '../../Form';
-import UploadComponent from '../../UploadComponent';
 import Button from '../../Button';
-import UploadModal from '../../UploadModal';
+import UploadModal from '../../Modals/UploadModal';
 import StartFile from '../../ChunkController/chunkStarter';
-import ChunkProcessor from '../../ChunkController/chunkProcessor';
 
 // Styling
 import { Col, Container, Row } from 'react-bootstrap';
@@ -292,7 +288,6 @@ const Hero = (props) => {
                                     <HeroBtns>
                                         <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button>
                                         <Button onClick={() => handleShow(setShowLiveUploadModal)}>Live</Button>
-                                        {/* <Button onClick={handleShow2}>Test</Button> */}
                                         <Button fill to="/result">Examples</Button>
                                     </HeroBtns>
                                 </HeroBody>
@@ -310,7 +305,6 @@ const Hero = (props) => {
                                 <HeroBtns2>
                                     <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button>
                                     <Button onClick={() => handleShow(setShowLiveUploadModal)}>Live</Button>
-                                    {/* <Button onClick={handleShow2}>Test</Button> */}
                                     <Button fill to="/result">Example</Button>
                                 </HeroBtns2>
                             </Fade>
