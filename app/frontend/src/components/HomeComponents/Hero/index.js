@@ -244,6 +244,7 @@ const Hero = (props) => {
                     }
                 )
         }
+
         else {  
             alert("Please sign in to use this service")
             setLoad(false) 
@@ -261,11 +262,22 @@ const Hero = (props) => {
     }
         
     const handleClose = (modalstate) => modalstate(false);
-  
+ 
     useEffect(() => {
-        check_unprocessed()
-        selectmenuoptions();
-    }, [])
+        // useeffect runs on mount, so we need to simply re-run useeffect when context forces a re-render, and account for the scenario before that (useeffect runs twice)
+        if (!context.authenticated) return;
+
+        else {
+            if (context.authenticated == true){
+                check_unprocessed()
+                console.log("checking unprocessed")
+            }
+            else {
+                console.log("not authenticated, so could not check unprocessed")
+            }
+            selectmenuoptions();    
+        }
+    }, [context.authenticated])
  
     return (
         <>

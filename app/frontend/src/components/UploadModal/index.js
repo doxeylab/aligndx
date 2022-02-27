@@ -11,7 +11,7 @@ import Button from '../Button'
 
 // Styling
 import { Col, Container, Row } from 'react-bootstrap'; 
-import './CustomModal.css';  
+// import './CustomModal.css';  
  
 
 const UploadModal = (props) => { 
