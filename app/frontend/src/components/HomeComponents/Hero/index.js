@@ -66,7 +66,6 @@ const Hero = (props) => {
                 }
                 else {
                     setRestart({ ...restart, restartflag: false, data: data})
-                    setShowRestartModal(true)
                 }
             })
     }
