@@ -10,6 +10,7 @@ import Fade from 'react-reveal/Fade';
 import { Section } from '../../Common/PageElement';
 import Button from '../../Button';
 import UploadModal from '../../Modals/UploadModal';
+import RestartModal from '../../Modals/RestartModal';
 import StartFile from '../../ChunkController/chunkStarter';
 
 // Styling
@@ -61,9 +62,11 @@ const Hero = (props) => {
                 const data = res.data 
                 if (data.length !== 0) {
                     setRestart({ ...restart, restartflag: true, data: data})
+                    setShowRestartModal(true)
                 }
                 else {
-                    setRestart({ ...restart, restartflag: false, data: null})
+                    setRestart({ ...restart, restartflag: false, data: data})
+                    setShowRestartModal(true)
                 }
             })
     }
@@ -336,6 +339,12 @@ const Hero = (props) => {
                 upload={uploadlive}
                 title="Live pathogen detection"
             ></UploadModal> 
+            <RestartModal
+                show={showRestartModal}
+                onHide={() => handleClose(setShowRestartModal)}
+                data={restart.data}
+                upload={uploadlive}
+            ></RestartModal>
         </>
     );
 }
