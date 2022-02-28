@@ -8,7 +8,8 @@ const BaseModal = (props) => {
                 aria-labelledby="contained-modal-title-vcenter"
                 centered
                 show={props.show}
-                onHide={props.onHide}>
+                onHide={props.onHide}
+                scrollable={true}>
                 <Modal.Header closeButton>
                     <Modal.Title id="contained-modal-title-vcenter">
                         {props.title}

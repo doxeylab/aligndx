@@ -341,8 +341,8 @@ const Hero = (props) => {
             <RestartModal
                 show={showRestartModal}
                 onHide={() => handleClose(setShowRestartModal)}
-                data={restart.data}
                 upload={uploadlive}
+                data={restart.data}
             ></RestartModal>
         </>
     );

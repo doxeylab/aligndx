@@ -2,7 +2,7 @@ import React from 'react';
 import BaseModal from "./BaseModal";
 
 // Components 
-import ResultCardComponent from '../CardComponents/ResultCardComponent';
+import RestartTable from '../TableComponents/RestartTable';
 
 // Styling
 import { Col, Container, Row } from 'react-bootstrap';
@@ -13,18 +13,14 @@ const RestartModal = (props) => {
         <BaseModal
             show={props.show}
             onHide={props.onHide}
-            title="Incomplete Uploads"
+            title="Looks like you have some incomplete uploads!"
             body={
                 <Container>
-                    <Row style={{ marginBottom: '1.5rem' }}>
-                        <Col>
-                            {props.data ? props.data.map(
-                                (result) => <ResultCardComponent>{result}</ResultCardComponent>)
-                                :
-                                ""
-                            }
-                        </Col>
-                    </Row>
+                        {props.data ? 
+                            <RestartTable data={props.data}/>
+                            :
+                            null
+                        }
                 </Container>
             }
         ></BaseModal>
