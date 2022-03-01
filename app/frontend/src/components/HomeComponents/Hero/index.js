@@ -28,6 +28,7 @@ import {useGlobalContext} from "../../../context-provider";
 // Config
 import { UPLOAD_URL, PANELS_URL} from '../../../services/Config';
 import { STANDARD_RESULTS, CHUNKED_RESULTS, INCOMPLETE_URL } from '../../../services/Config';
+import { Typography } from '@mui/material';
 
 const Hero = (props) => {
 
@@ -48,6 +49,7 @@ const Hero = (props) => {
         restartflag: false,
         data: null
     });
+    const [selectedRestartId, setSelectedRestartId] = useState(false);
 
     const check_unprocessed = () => {
         const token = localStorage.getItem("accessToken")
@@ -60,12 +62,15 @@ const Hero = (props) => {
         axios.get(INCOMPLETE_URL, config)
             .then((res) => {
                 const data = res.data 
-                if (data.length !== 0) {
-                    setRestart({ ...restart, restartflag: true, data: data})
-                    setShowRestartModal(true)
-                }
-                else {
-                    setRestart({ ...restart, restartflag: false, data: data})
+                
+                if (!showLiveUploadModal || !showStandardUploadModal) {
+                    if (data.length !== 0) {
+                        setRestart({ ...restart, restartflag: true, data: data})
+                        setShowRestartModal(true)
+                    }
+                    else {
+                        setRestart({ ...restart, restartflag: false, data: data})
+                    }
                 }
             })
     }
@@ -222,9 +227,22 @@ const Hero = (props) => {
                 formData.append("panel", x)
             })
 
-            const token = localStorage.getItem("accessToken") 
-            
-            StartFile(token, dataFiles[0], selectedDetections)
+            const token = localStorage.getItem("accessToken")  
+
+            if (restart.restartflag && selectedRestartId) {
+                const fileId = selectedRestartId
+                history.push({
+                    pathname: "/realtime/#/?id=" + fileId,
+                    state: {
+                        file: dataFiles[0],
+                        panels: selectedDetections,
+                        fileId: fileId,
+                        restartflag: restart.restartflag 
+                }})
+
+            }
+            else {
+                StartFile(token, dataFiles[0], selectedDetections)
                 .then(
                     (res) => {
                         setLoad(false)
@@ -241,6 +259,10 @@ const Hero = (props) => {
                         )
                     }
                 )
+            }
+            
+                
+            
         }
 
         else {  
@@ -276,6 +298,14 @@ const Hero = (props) => {
             selectmenuoptions();    
         }
     }, [context.authenticated])
+
+    useEffect(() => {
+        console.log(dataFiles)
+    }, [dataFiles])
+ 
+    useEffect(() => {
+        console.log(selectedRestartId)
+    }, [selectedRestartId])
  
     return (
         <>
@@ -317,32 +347,54 @@ const Hero = (props) => {
             <UploadModal
                 show={showStandardUploadModal}
                 onHide={() => handleClose(setShowStandardUploadModal)}
-                dataFileCallback={dataFileCallback}
+
                 selectedFiles={dataFiles}
+                dataFileCallback={dataFileCallback}
                 dataRemoveFileCallback={dataRemoveFileCallback}
+
                 options={options}
                 detectionCallback={detectionCallback}
                 selectedDetections={selectedDetections}
+
                 upload={upload}
-                title="standard"
+
+                title={
+                    <Typography variant='h4'>
+                        Standard
+                    </Typography>
+                }
             ></UploadModal>
             <UploadModal
                 show={showLiveUploadModal}
                 onHide={() => handleClose(setShowLiveUploadModal)}
-                dataFileCallback={dataFileCallback}
+
                 selectedFiles={dataFiles}
+                dataFileCallback={dataFileCallback}
                 dataRemoveFileCallback={dataRemoveFileCallback}
+                
                 options={options}
                 detectionCallback={detectionCallback}
                 selectedDetections={selectedDetections}
+                
                 upload={uploadlive}
-                title="Live pathogen detection"
+                
+                title={
+                    <Typography variant='h4'>
+                        Live Uploads
+                    </Typography>
+                }
             ></UploadModal> 
             <RestartModal
                 show={showRestartModal}
                 onHide={() => handleClose(setShowRestartModal)}
                 upload={uploadlive}
                 data={restart.data}
+
+                selectedFiles={dataFiles}
+                dataFileCallback={dataFileCallback}
+                dataRemoveFileCallback={dataRemoveFileCallback} 
+
+                setSelectedRestartId={setSelectedRestartId}
             ></RestartModal>
         </>
     );

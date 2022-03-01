@@ -1,10 +1,17 @@
 import BaseTable from "./BaseTable";
 import BarChart from "../BarChart";
 
-const createBarChart = (chart_data) => {
-    return (
-        <BarChart data={chart_data} yLabel={chart_data.ylabel} xLabel={chart_data.xLabel} col="coverage" xkey="pathogen" ykey="coverage" />
-    )
+const createBarChart = (chart_data) => { 
+    if (chart_data) {
+        return (
+            <BarChart data={chart_data} yLabel={chart_data.ylabel} xLabel={chart_data.xlabel} col="coverage" xkey="pathogen" ykey="coverage" />
+        )
+    }
+    else {
+        return (
+            <div>Data still processing</div>
+        )
+    }
 }
 
 
