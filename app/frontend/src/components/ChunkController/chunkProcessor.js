@@ -63,7 +63,6 @@ const ChunkProcessor = async (token, file, panels, fileId, restartflag) => {
       break;
     }
   }
-
   await postEndFile(END_FILE_URL, token, fileId)
 };
 

@@ -49,7 +49,7 @@ const Hero = (props) => {
         restartflag: false,
         data: null
     });
-    const [selectedRestartId, setSelectedRestartId] = useState(false);
+    const [selectedRestartData, setSelectedRestartData] = useState(false);
 
     const check_unprocessed = () => {
         const token = localStorage.getItem("accessToken")
@@ -229,13 +229,14 @@ const Hero = (props) => {
 
             const token = localStorage.getItem("accessToken")  
 
-            if (restart.restartflag && selectedRestartId) {
-                const fileId = selectedRestartId
+            if (restart.restartflag && selectedRestartData) {
+                const fileId = selectedRestartData.id
+                const panels = selectedRestartData.meta[0]
                 history.push({
                     pathname: "/realtime/#/?id=" + fileId,
                     state: {
                         file: dataFiles[0],
-                        panels: selectedDetections,
+                        panels: panels,
                         fileId: fileId,
                         restartflag: restart.restartflag 
                 }})
@@ -304,8 +305,17 @@ const Hero = (props) => {
     }, [dataFiles])
  
     useEffect(() => {
-        console.log(selectedRestartId)
-    }, [selectedRestartId])
+        if (selectedRestartData) {
+            console.log(selectedRestartData.meta[0])
+        }
+        console.log(selectedRestartData)
+    }, [selectedRestartData])
+
+    useEffect(() => {
+        if (restart.data) {
+            console.log(restart.data)
+        }
+    }, [restart])
  
     return (
         <>
@@ -394,7 +404,7 @@ const Hero = (props) => {
                 dataFileCallback={dataFileCallback}
                 dataRemoveFileCallback={dataRemoveFileCallback} 
 
-                setSelectedRestartId={setSelectedRestartId}
+                setSelectedRestartData={setSelectedRestartData}
             ></RestartModal>
         </>
     );

@@ -39,7 +39,7 @@ const RestartModal = (props) => {
                             selectedFiles={props.selectedFiles}
                             dataRemoveFileCallback={props.dataRemoveFileCallback}
 
-                            setSelectedRestartId={props.setSelectedRestartId}
+                            setSelectedRestartData={props.setSelectedRestartData}
                             />
                             :
                             null

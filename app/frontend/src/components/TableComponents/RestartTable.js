@@ -39,7 +39,7 @@ const RestartTable = (props) => {
         <BaseTable
             headers={headers}
             data={re_organized_data}
-            setSelectedData={props.setSelectedRestartId}
+            setSelectedData={props.setSelectedRestartData}
         ></BaseTable>
     )
 }

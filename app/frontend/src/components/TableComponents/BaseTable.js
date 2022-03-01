@@ -18,7 +18,7 @@ const Row = (props) => {
     useEffect(() => {
         if (props.setSelectedData) {
             if (open == true) {
-                props.setSelectedData(props.id)
+                props.setSelectedData(props)
             }
             else {
                 props.setSelectedData(null)
