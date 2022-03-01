@@ -254,13 +254,12 @@ async def upload_chunk(
 @router.post("/end-file")
 async def end_file(
     current_user: UserDTO = Depends(get_current_user),
-    file_id: str = Body(...),
+    file_id: str = Body(..., embed=True)
 ):
-    if ModelSample.get_sample_info(file_id) is None:
+    if await ModelSample.get_sample_info(file_id) is None:
         raise HTTPException(status_code=404, detail="File not found")
 
     await ModelSample.save_upload_finished(file_id, datetime.now())
-
     return {"Result": "OK"}
 
 

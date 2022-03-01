@@ -18,8 +18,20 @@ export const ResultCard = styled.div`
         background-color: #F4FBFE;
     }
 `
+export const ResultHeader = styled.div`
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) 1.2rem;
+    padding: 10px 30px;
+    width: 100%;
+    height: 35px;
+    align-items: center;
+`
 
-export const ResultName = styled.h1`
+export const ResultBody = styled.div`
+    display: grid;
+`
+
+export const ResultName = styled.span`
     font-size: 1.2rem;
     margin: 0;
 `

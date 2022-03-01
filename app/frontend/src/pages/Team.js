@@ -8,7 +8,7 @@ import Linda from '../assets/Team/Linda.jpeg';
 import Manjot from '../assets/Team/Manjot.png';
 import William from '../assets/Team/William.png';
 import { Section, Title } from '../components/Common/PageElement';
-import TeamCard from '../components/TeamCard';
+import TeamCard from '../components/CardComponents/TeamCard';
 
 const Team = () => {
   return (
@@ -29,13 +29,12 @@ const Team = () => {
           </Row>
           <Row>
             <Col>
-              <TeamCard name="Carson Zheng" role="Front-End Developer" image={Carson} />
-            </Col>
-            <Col>
               <TeamCard name="Linda Yang" role="Back-End Developer" image={Linda} />
             </Col>
             <Col>
               <TeamCard name="William Zhen" role="UI/UX Designer" image={William} />
+            </Col>
+            <Col>
             </Col>
           </Row>
         </Fade>

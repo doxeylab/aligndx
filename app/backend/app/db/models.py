@@ -110,8 +110,9 @@ class Sample:
 
     @classmethod
     async def get_user_incomplete_submissions(cls, userid):
-        query = submissions.select().where(submissions.c.user_id == userid
-                                           and submissions.c.finished_date is not None)
+        query = submissions.select()\
+            .where(submissions.c.user_id == userid,
+                    submissions.c.finished_date == None)
         data = await database.fetch_all(query)
         return data
 

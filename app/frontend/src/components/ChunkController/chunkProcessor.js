@@ -46,26 +46,23 @@ const startChunk = async (resource, token, chunkNumber, fileId, file, panels) =>
 };
  
 
-const ChunkProcessor = async (token, file, panels, res, fileId) => {
+const ChunkProcessor = async (token, file, panels, fileId, restartflag) => {
   var upload_resource = UPLOAD_CHUNK_URL
 
   const numberOfChunks = Math.ceil(file.size / CHUNK_SIZE);
-  let lastChunkProcessed = 0;
+  let lastChunkUploaded = 0;
   
-  if (fileId) {
-    lastChunkProcessed = localStorage.getItem(fileId + '_lastChunk')
-  } else {
-    fileId = res.File_ID;
-  }
+  if (restartflag) {
+    lastChunkUploaded = localStorage.getItem(fileId + '_lastChunk') + 1
+  } 
   
-  for (let i = lastChunkProcessed + 1; i < numberOfChunks; i++) {
+  for (let i = lastChunkUploaded; i < numberOfChunks; i++) {
     const res = await startChunk(upload_resource, token, i, fileId, file, panels);
     localStorage.setItem(fileId + '_lastChunk', i)
     if (res.data.Result != "OK") {
       break;
     }
   }
-
   await postEndFile(END_FILE_URL, token, fileId)
 };
 

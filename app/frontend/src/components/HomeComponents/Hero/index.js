@@ -1,20 +1,17 @@
 // React
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
 // external libraries
 import axios from 'axios';
-import Modal from 'react-bootstrap/Modal';
 import Fade from 'react-reveal/Fade';
 
 // Components
 import { Section } from '../../Common/PageElement';
-import { DropdownMenu, TextField } from '../../Form';
-import UploadComponent from '../../UploadComponent';
 import Button from '../../Button';
-import UploadModal from '../../UploadModal';
+import UploadModal from '../../Modals/UploadModal';
+import RestartModal from '../../Modals/RestartModal';
 import StartFile from '../../ChunkController/chunkStarter';
-import ChunkProcessor from '../../ChunkController/chunkProcessor';
 
 // Styling
 import { Col, Container, Row } from 'react-bootstrap';
@@ -30,25 +27,54 @@ import {useGlobalContext} from "../../../context-provider";
 
 // Config
 import { UPLOAD_URL, PANELS_URL} from '../../../services/Config';
-import { STANDARD_RESULTS, CHUNKED_RESULTS } from '../../../services/Config';
+import { STANDARD_RESULTS, CHUNKED_RESULTS, INCOMPLETE_URL } from '../../../services/Config';
+import { Typography } from '@mui/material';
 
 const Hero = (props) => {
 
     const history = useHistory()
-
     const context = useGlobalContext();
 
-    const [show, setShow] = useState(false);
-    const [show2, setShow2] = useState(false);
-    const [show3, setShow3] = useState(false);
+    const [showStandardUploadModal, setShowStandardUploadModal] = useState(false); 
+    const [showLiveUploadModal, setShowLiveUploadModal] = useState(false); 
+    const [showRestartModal, setShowRestartModal] = useState(false); 
 
 
     const [dataFiles, setDataFiles] = useState([]);
     const { setLoad } = useContext(LoadContext);
     const [selectedDetections, setSelectedDetections] = useState([]);
 
-    const [options,setOptions] = useState([]);
+    const [options,setOptions] = useState([]);  
+    const [restart,setRestart] = useState({
+        restartflag: false,
+        data: null
+    });
+    const [selectedRestartData, setSelectedRestartData] = useState(false);
 
+    const check_unprocessed = () => {
+        const token = localStorage.getItem("accessToken")
+        const config = { 
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
+
+        axios.get(INCOMPLETE_URL, config)
+            .then((res) => {
+                const data = res.data 
+                
+                if (!showLiveUploadModal || !showStandardUploadModal) {
+                    if (data.length !== 0) {
+                        setRestart({ ...restart, restartflag: true, data: data})
+                        setShowRestartModal(true)
+                    }
+                    else {
+                        setRestart({ ...restart, restartflag: false, data: data})
+                    }
+                }
+            })
+    }
+    
     const selectmenuoptions = () => {
         axios.get(PANELS_URL)
             .then((res) => {
@@ -201,30 +227,45 @@ const Hero = (props) => {
                 formData.append("panel", x)
             })
 
-            const token = localStorage.getItem("accessToken")
+            const token = localStorage.getItem("accessToken")  
 
-            try {
+            if (restart.restartflag && selectedRestartData) {
+                const fileId = selectedRestartData.id
+                const panels = selectedRestartData.meta[0]
+                history.push({
+                    pathname: "/realtime/#/?id=" + fileId,
+                    state: {
+                        file: dataFiles[0],
+                        panels: panels,
+                        fileId: fileId,
+                        restartflag: restart.restartflag 
+                }})
+
+            }
+            else {
                 StartFile(token, dataFiles[0], selectedDetections)
-                    .then(
-                        (res) => {
-                            setLoad(false)
-                            const fileId = res.data.File_ID;
-                            history.push({
-                                pathname: "/realtime/#/?id=" + fileId,
-                                state: {
-                                    response: res.data,
-                                    file: dataFiles[0],
-                                    panels: selectedDetections    
-                                }
+                .then(
+                    (res) => {
+                        setLoad(false)
+                        const fileId = res.data.File_ID;
+                        history.push({
+                            pathname: "/realtime/#/?id=" + fileId,
+                            state: {
+                                file: dataFiles[0],
+                                panels: selectedDetections,
+                                fileId: fileId,
+                                restartflag: restart.restartflag  
                             }
-                            )
                         }
-                    )
+                        )
+                    }
+                )
             }
-            catch (e) {
-                console.log(e)
-            }
+            
+                
+            
         }
+
         else {  
             alert("Please sign in to use this service")
             setLoad(false) 
@@ -232,39 +273,50 @@ const Hero = (props) => {
          
     }
 
-    const handleShow = () => {
+    const handleShow = (modalstate) => {
         if (context.authenticated == true){
-            setShow(true);
-            selectmenuoptions();
+            modalstate(true);
         }
         else {
             alert("Please sign in to use this service")
         }
     }
-    const handleClose = () => setShow(false);
+        
+    const handleClose = (modalstate) => modalstate(false);
  
-    const handleShow2 = () => {
-        if (context.authenticated == true){
-            setShow2(true);
-            selectmenuoptions();
-        }
-        else {
-            alert("Please sign in to use this service")
-        }
-    }
-    const handleClose2 = () => setShow2(false);
+    useEffect(() => {
+        // useeffect runs on mount, so we need to simply re-run useeffect when context forces a re-render, and account for the scenario before that (useeffect runs twice)
+        if (!context.authenticated) return;
 
-    const handleShow3 = () => {
-        if (context.authenticated == true){
-            setShow3(true);
-            selectmenuoptions();
-        }
         else {
-            alert("Please sign in to use this service")
+            if (context.authenticated == true){
+                check_unprocessed()
+                console.log("checking unprocessed")
+            }
+            else {
+                console.log("not authenticated, so could not check unprocessed")
+            }
+            selectmenuoptions();    
         }
-    }
-    const handleClose3 = () => setShow3(false);
-    
+    }, [context.authenticated])
+
+    useEffect(() => {
+        console.log(dataFiles)
+    }, [dataFiles])
+ 
+    useEffect(() => {
+        if (selectedRestartData) {
+            console.log(selectedRestartData.meta[0])
+        }
+        console.log(selectedRestartData)
+    }, [selectedRestartData])
+
+    useEffect(() => {
+        if (restart.data) {
+            console.log(restart.data)
+        }
+    }, [restart])
+ 
     return (
         <>
             <Section id="hero" center>
@@ -276,9 +328,8 @@ const Hero = (props) => {
                                     <HeroTitle>PATHOGEN<br />DETECTION</HeroTitle>
                                     <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined RNA-seq pipeline. Alternatively, go through our examples for sample results.</HeroText>
                                     <HeroBtns>
-                                        <Button onClick={handleShow}>Standard</Button>
-                                        {/* <Button onClick={handleShow2}>Standard+</Button> */}
-                                        <Button onClick={handleShow3}>Live</Button>
+                                        <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button>
+                                        <Button onClick={() => handleShow(setShowLiveUploadModal)}>Live</Button>
                                         <Button fill to="/result">Examples</Button>
                                     </HeroBtns>
                                 </HeroBody>
@@ -294,9 +345,8 @@ const Hero = (props) => {
                         <HeroCol>
                             <Fade left duration={1000} delay={600} distance="30px">
                                 <HeroBtns2>
-                                    <Button onClick={handleShow}>Standard</Button>
-                                    {/* <Button onClick={handleShow2}>Standard+</Button> */}
-                                    <Button onClick={handleShow3}>RealTime</Button>
+                                    <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button>
+                                    <Button onClick={() => handleShow(setShowLiveUploadModal)}>Live</Button>
                                     <Button fill to="/result">Example</Button>
                                 </HeroBtns2>
                             </Fade>
@@ -305,41 +355,57 @@ const Hero = (props) => {
                 </Container>
             </Section>
             <UploadModal
-                show={show}
-                onHide={handleClose}
-                dataFileCallback={dataFileCallback}
+                show={showStandardUploadModal}
+                onHide={() => handleClose(setShowStandardUploadModal)}
+
                 selectedFiles={dataFiles}
+                dataFileCallback={dataFileCallback}
                 dataRemoveFileCallback={dataRemoveFileCallback}
+
                 options={options}
                 detectionCallback={detectionCallback}
                 selectedDetections={selectedDetections}
+
                 upload={upload}
-                title="standard"
+
+                title={
+                    <Typography variant='h4'>
+                        Standard
+                    </Typography>
+                }
             ></UploadModal>
-            {/* <UploadModal
-                show={show2}
-                onHide={handleClose2}
-                dataFileCallback={dataFileCallback}
-                selectedFiles={dataFiles}
-                dataRemoveFileCallback={dataRemoveFileCallback}
-                options={options}
-                detectionCallback={detectionCallback}
-                selectedDetections={selectedDetections}
-                upload={uploadchunked}
-                title="standard+"
-            ></UploadModal> */}
             <UploadModal
-                show={show3}
-                onHide={handleClose3}
-                dataFileCallback={dataFileCallback}
+                show={showLiveUploadModal}
+                onHide={() => handleClose(setShowLiveUploadModal)}
+
                 selectedFiles={dataFiles}
+                dataFileCallback={dataFileCallback}
                 dataRemoveFileCallback={dataRemoveFileCallback}
+                
                 options={options}
                 detectionCallback={detectionCallback}
                 selectedDetections={selectedDetections}
+                
                 upload={uploadlive}
-                title="Live pathogen detection"
+                
+                title={
+                    <Typography variant='h4'>
+                        Live Uploads
+                    </Typography>
+                }
             ></UploadModal> 
+            <RestartModal
+                show={showRestartModal}
+                onHide={() => handleClose(setShowRestartModal)}
+                upload={uploadlive}
+                data={restart.data}
+
+                selectedFiles={dataFiles}
+                dataFileCallback={dataFileCallback}
+                dataRemoveFileCallback={dataRemoveFileCallback} 
+
+                setSelectedRestartData={setSelectedRestartData}
+            ></RestartModal>
         </>
     );
 }

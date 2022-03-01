@@ -2,11 +2,12 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { Section, Title } from '../components/Common/PageElement';
-import { ResultHeader } from '../components/ProfileComponents/StyledProfile';
-import ResultCardComponent from '../components/ResultCardComponent';
+import ResultCardComponent from '../components/CardComponents/ResultCardComponent';
+import { ResultHeader } from '../components/CardComponents/ResultCardComponent/StyledResultCard';
 import { STANDARD_SUBMISSIONS_URL } from '../services/Config';
 import { useGlobalContext } from "../context-provider";
 
+import ResultsTable from '../components/TableComponents/ResultsTable'
 
 
 const Profile = () => {
@@ -14,51 +15,38 @@ const Profile = () => {
     const context = useGlobalContext();
 
     useEffect(async () => {
-        var token = localStorage.getItem('accessToken');;
-        if (context.authenticated) {
-            const res = await axios.get(STANDARD_SUBMISSIONS_URL, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setData(res.data); 
+        // useeffect runs on mount, so we need to simply re-run useeffect when context forces a re-render, and account for the scenario before that (useeffect runs twice)
+        
+        var token = localStorage.getItem('accessToken');
+
+        if (!context.authenticated) return;
+
+        else { 
+            if (context.authenticated) {
+                const res = await axios.get(STANDARD_SUBMISSIONS_URL, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                setData(res.data); 
+            }
+            else {
+                alert("Please sign in to see this page")
+            }
         }
-        else {
-            console.log("not authenticated")
-            const res = await axios.get(STANDARD_SUBMISSIONS_URL, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setData(res.data); 
-            console.log(res.data)
-        }
-    }, []);
+    }, [context.authenticated])
+
 
     return (
         <Section id="profile">
             <Container>
                 <Row>
                     <Col>
-                        <Title>Your Saved Results</Title>
+                        <Title>Saved Results</Title>
                     </Col>
                 </Row>
                 <Row>
-                    <Col>
-                        <ResultHeader>
-                            <h1 style={{ margin: 0, fontSize: "1.2rem" }}>
-                                File Name
-                            </h1>
-                            <h1 style={{ textAlign: "center", margin: 0, fontSize: "1.2rem" }}>
-                                Upload Date
-                            </h1>
-                            <h1 style={{ textAlign: "center", margin: 0, fontSize: "1.2rem" }}>
-                                Panel
-                            </h1>
-                            <span></span>
-                        </ResultHeader>
-                        {data.map((result) => <ResultCardComponent name={result.sample_name} uploadDate={result.created_date} pathogenType={result.panel}></ResultCardComponent>)} 
-                    </Col>
+                    <ResultsTable data={data}></ResultsTable> 
                 </Row>
             </Container>
         </Section>

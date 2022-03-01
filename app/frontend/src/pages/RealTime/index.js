@@ -115,15 +115,28 @@ const RealTime = () => {
 
     const lstate = location.state
     
-    const fileid = lstate.response.File_ID
+    const fileId = lstate.fileId
+    const restartflag = lstate.restartflag
+
     const token = localStorage.getItem("accessToken") 
+    
+    useEffect(() => {
+        window.onbeforeunload = function() {
+            restartflag = true 
+            return true;
+        };
+    
+        return () => {
+            window.onbeforeunload = null;
+        };
+    }, []);
 
     useEffect(() => {
-        ChunkProcessor(token, lstate.file, lstate.panels, lstate.response) 
+        ChunkProcessor(token, lstate.file, lstate.panels, fileId, restartflag) 
     }, [])
 
     useEffect(() => {
-        connectWebsocket(fileid, token, datahandler)
+        connectWebsocket(fileId, token, datahandler)
         console.log(data, sample, pathogens)
     }, [])
  

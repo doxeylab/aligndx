@@ -95,45 +95,46 @@ const NavBar = () => {
                 >
                     {context.authenticated ? (
                         <div>
-                            <MenuItem>
-                                <ListItemIcon>
-                                    <i className="fas fa-user"></i>
-                                </ListItemIcon>
-                                <Link to="/profile">
-                                    <p>My Profile</p>
-                                </Link>
-                            </MenuItem>
-                            <MenuItem>
-                                <ListItemIcon>
-                                    <i className="fas fa-sign-out-alt"></i>
-                                </ListItemIcon>
-                                <Link to="/login">
+                            <Link to="/USER_ID">
+                                <MenuItem>
+                                    <ListItemIcon>
+                                        <i className="fas fa-user"></i>
+                                    </ListItemIcon>
+                                    <p>Profile</p>
+                                </MenuItem>
+                            </Link>
+
+                            <Link to="/login">
+                                <MenuItem>
+                                    <ListItemIcon>
+                                        <i className="fas fa-sign-out-alt"></i>
+                                    </ListItemIcon>
                                     <p>Sign Out</p>
-                                </Link>
-                            </MenuItem>
+                                </MenuItem>
+                            </Link>
+
                         </div>
                     )
                         : (
                             <div>
+                                <Link to="/signup">
                                 <MenuItem>
                                     <ListItemIcon>
                                         <i className="fas fa-user-plus"></i>
-                                    </ListItemIcon>
-                                    <Link to="/signup">
-                                        <p>Sign Up</p>
-                                    </Link>
-                                    
-                                                      
+                                    </ListItemIcon>                  
+                                    <p>Sign Up</p>
                                 </MenuItem>
+                                </Link>    
+                                
+                                <Link to="/login">
                                 <MenuItem>
                                     <ListItemIcon>
                                         <i className="fas fa-sign-in-alt"></i>
                                     </ListItemIcon>
-                                   
-                                    <Link to="/login">
-                                        <p>Log In</p>
-                                     </Link>
+                                    <p>Log In</p>                                    
                                 </MenuItem>
+                                </Link>
+            
                             </div>
                         )}
                     <Divider />
