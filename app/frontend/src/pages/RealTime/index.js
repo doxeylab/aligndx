@@ -121,6 +121,17 @@ const RealTime = () => {
     const token = localStorage.getItem("accessToken") 
     
     useEffect(() => {
+        window.onbeforeunload = function() {
+            restartflag = true 
+            return true;
+        };
+    
+        return () => {
+            window.onbeforeunload = null;
+        };
+    }, []);
+
+    useEffect(() => {
         ChunkProcessor(token, lstate.file, lstate.panels, fileId, restartflag) 
     }, [])
 
