@@ -7,15 +7,20 @@ import Footer from './components/FooterComponent';
 import Navbar from './components/NavBar';
 import GlobalContextProvider from "./context-provider";
 import { LoadContext } from './LoadContext';
+
+import Home from "./pages/Home";
 import About from './pages/About';
 import Contact from './pages/Contact';
-import Home from "./pages/Home";
+import Team from './pages/Team';
+
+import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+
 import Live from './pages/Live/';
+import Standard from './pages/Standard';
 import Result from './pages/Result';
-import Signup from './pages/Signup';
-import Team from './pages/Team';
+
 import GlobalStyle from './StyledGlobal';
 
 const theme = createTheme({
@@ -54,11 +59,12 @@ function App() {
                                         <Route path='/about' component={About} />
                                         <Route path='/contact' component={Contact} />
                                         <Route path='/team' component={Team} />
-                                        <Route path='/results' component={Result} />
                                         <Route path='/signup' component={Signup} />
                                         <Route path='/login' component={Login} />
                                         <Route path='/profile' component={Profile} />
                                         <Route path='/live' component={Live} />
+                                        <Route path='/standard' component={Standard} />
+                                        <Route path='/result' component={Result} />
                                     </Switch>
                                     <Footer />
                                 </Background>

@@ -1,6 +1,6 @@
 // React
 import React, { useEffect, useState, useContext } from 'react';
-import { useHistory, useLocation} from 'react-router-dom';
+import { useLocation} from 'react-router-dom';
 
 // external libraries
 import axios from 'axios';
@@ -30,12 +30,14 @@ import { LoadContext } from '../../LoadContext';
 // testing
 import example_dataset from '../../assets/test_datasets/example_dataset.json';
 
-// config
-import { STANDARD_RESULTS } from '../../services/Config';
+const Standard = () => {   
+    const location = useLocation();
 
-const Result = () => {   
-    const context = useGlobalContext(); 
-    const history = useHistory();
+    const context = useGlobalContext();
+
+    // const [data, setData] = useState([{ "index": "TEST1", "column_category": 6 },
+    // { "index": "TEST2", "column_category": 12 },
+    // { "index": "TEST3", "column_category": 3 } ])
 
     var dummyData = example_dataset
 
@@ -44,25 +46,14 @@ const Result = () => {
     const [pathogens, setPathogens] = useState(null);
     const { setLoad } = useContext(LoadContext);
     
-    const fileid = window.location.pathname
-    const resource = STANDARD_RESULTS
-    const token = localStorage.getItem("accessToken") 
-
-    const useQuery = () => {
-        const {search} = useLocation();
-
-        return React.useMemo(() => new URLSearchParams(search), [search]);
-    }
+    const lstate = location.state
     
-    const query = useQuery()
-
-    useEffect( () => {
-        if (!context.authenticated) {
-            history.push('/')
-            return;
-        }
-
-        if (query.get("submission") && context.authenticated) {
+    const fileid = lstate.response.File_ID
+    const token = localStorage.getItem("accessToken") 
+    var resource = lstate.resource 
+    
+    useEffect(() => {
+  
             axios.get(resource + fileid, {headers: {'Authorization': `Bearer ${token}`}})
             .then(res => {
                 setData([res.data])
@@ -75,13 +66,9 @@ const Result = () => {
                 setSample("SRR11365240")
                 setPathogens("Sars CoV-2")
             }) 
-        }
-        else {
-            history.push("/")
-        }
-    }, [context.authenticated])
- 
-    
+        
+    }, [lstate])
+
     return (
         <>
             {data ?
@@ -139,4 +126,4 @@ const Result = () => {
     )
 }
 
-export default Result
+export default Standard

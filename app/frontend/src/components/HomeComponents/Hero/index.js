@@ -127,7 +127,7 @@ const Hero = (props) => {
                     setLoad(false)
                     const fileId = res.data.File_ID;  
                     history.push({
-                        pathname: "/results/#/?id=" + fileId,
+                        pathname: "/standard/#/?id=" + fileId,
                         state: {
                             response: res.data,
                             file: dataFiles[0],
@@ -188,7 +188,7 @@ const Hero = (props) => {
     //                             .then(
     //                                 (res) => {
     //                                     history.push({
-    //                                         pathname: "/results/#/?id=" + fileId,
+    //                                         pathname: "/standard/#/?id=" + fileId,
     //                                         state: {
     //                                             response: res.data,
     //                                             file: dataFiles[0],
@@ -330,7 +330,7 @@ const Hero = (props) => {
                                     <HeroBtns>
                                         <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button>
                                         <Button onClick={() => handleShow(setShowLiveUploadModal)}>Live</Button>
-                                        <Button fill to="/result">Examples</Button>
+                                        <Button fill to="/examples">Examples</Button>
                                     </HeroBtns>
                                 </HeroBody>
                             </Fade>
@@ -347,7 +347,7 @@ const Hero = (props) => {
                                 <HeroBtns2>
                                     <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button>
                                     <Button onClick={() => handleShow(setShowLiveUploadModal)}>Live</Button>
-                                    <Button fill to="/result">Example</Button>
+                                    <Button fill to="/examples">Example</Button>
                                 </HeroBtns2>
                             </Fade>
                         </HeroCol>
