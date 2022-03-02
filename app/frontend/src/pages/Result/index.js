@@ -72,11 +72,11 @@ const Result = () => {
                 setShowLogin(true)
             }
             else {
+                history.push("/404")
             }
         }
 
-        if (query.get("submission") && context.authenticated) {
-            console.log(fileId)
+        if (fileId && context.authenticated) {
             axios.get(resource + fileId, {headers: {'Authorization': `Bearer ${token}`}})
             .then(res => {
                 setData([res.data])
@@ -84,12 +84,9 @@ const Result = () => {
                 setSample(res.data.sample)
             })
             .catch(() => {
-                setError(true)
+                history.push("/404")
             }) 
-        }
-        else {
-            // history.push("/")
-        }
+        } 
     }, [])
   
 
@@ -150,7 +147,7 @@ const Result = () => {
                     </Container>
                 </Section>
                 :
-                <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>Does Not Exist</h1> 
+                <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>Loading ...</h1> 
             }
         </>
     )
