@@ -4,18 +4,21 @@ from email.mime.multipart import MIMEMultipart
 from bs4 import BeautifulSoup as bs
 import os 
 
-def email_html_customizer(sample):
+def email_html_customizer(sample ,link):
+  '''
+  link must be of the format "/result?submission=fileid"
+  '''
   dir = os.path.dirname(os.path.abspath(__file__))
   path = os.path.join(dir, 'email_template.html') 
   with open(path, 'r') as f:
     html = f.read()
   soup = bs(html, 'html.parser')
   old_text = soup.find("h1", {"id":"greeting"})
-  old_text.string = (f'Your results for sample {sample} are ready!')
+  old_text.string = (f'Your results for sample {sample} are ready!\nClick the following to be redirected: {link}')
   return soup
 
 
-def send_email(receiver_email, sample):
+def send_email(receiver_email, sample, link):
     sender_email = os.getenv(NOTIFICATION_EMAIL) 
     password = os.getenv(NOTIFICATION_EMAIL_PASSWORD) 
 
@@ -24,7 +27,7 @@ def send_email(receiver_email, sample):
     message["From"] = sender_email
     message["To"] = receiver_email
     
-    html = email_html_customizer(sample) 
+    html = email_html_customizer(sample, link) 
 
     # Fool gmail by sending html as plain and html, to prevent spam flagging
     plain_part = MIMEText(html, "plain")
