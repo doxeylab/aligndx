@@ -38,6 +38,7 @@ const GlobalContextProvider = (props) => {
         setAuthenticated(false);
         setCurrentUser(null);
         history.push('/');
+        history.go(0);
     }
 
     const loadCurrentUser = () => {

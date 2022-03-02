@@ -11,7 +11,7 @@ import Button from '../../Button';
 import Checkbox from '../../Checkbox';
 import { ErrorMsg, FormBtn, FormContainer, FormInput } from '../StyledForm';
 
-const LogInAuth = () => {
+const LogInAuth = (props) => {
     const history = useHistory();
     const context = useGlobalContext();
 
@@ -50,7 +50,9 @@ const LogInAuth = () => {
                 setLoading(false)
                 setError(false)
                 context.loadCurrentUser();
-                history.push("/");
+                history.push(props.link)
+                // force re-render of homepage
+                history.go(0);
             })
             .catch((error) => {
                 setLoading(false);

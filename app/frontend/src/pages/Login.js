@@ -4,15 +4,19 @@ import Fade from 'react-reveal/Fade';
 import LoginImg from "../assets/LoginImg.svg";
 import { LogInAuth } from '../components/Authentication';
 import { Section } from '../components/Common/PageElement';
+import { useState } from 'react';
 
 const Login = () => {
+
+    const [link,setLink] = useState("/");
+
     return (
         <Section center id="login">
             <Container>
                 <Row className="justify-content-md-center">
                     <Col md={5}>
                         <Fade left duration={1000} delay={600} distance="30px">
-                            <LogInAuth />
+                            <LogInAuth link={link} />
                         </Fade>
                     </Col>
                     <Col md={{ span: 5, offset: 1 }} style={{ display: 'flex', alignItems: 'center' }}>

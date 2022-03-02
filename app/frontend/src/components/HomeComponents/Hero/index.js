@@ -38,7 +38,7 @@ const Hero = (props) => {
     const [showStandardUploadModal, setShowStandardUploadModal] = useState(false); 
     const [showLiveUploadModal, setShowLiveUploadModal] = useState(false); 
     const [showRestartModal, setShowRestartModal] = useState(false); 
-    const [authenticated, setAuthenticated] = useState(context.authenticated);
+    const [authenticated, setAuthenticated] = useState(context.authenticated); 
 
     const [dataFiles, setDataFiles] = useState([]);
     const { setLoad } = useContext(LoadContext);
@@ -305,8 +305,8 @@ const Hero = (props) => {
     useEffect(() => {
         if (selectedRestartData) {
             console.log(selectedRestartData.meta[0])
+            console.log(selectedRestartData)
         }
-        console.log(selectedRestartData)
     }, [selectedRestartData])
 
     useEffect(() => {
