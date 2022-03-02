@@ -256,7 +256,7 @@ async def end_file(
     current_user: UserDTO = Depends(get_current_user),
     file_id: str = Body(..., embed=True)
 ):
-    query = await ModelSample.get_sample_info(file_id)
+    query = await ModelSample.get_sample_info(current_user.id, file_id,)
 
     if query is None:
         raise HTTPException(status_code=404, detail="File not found")

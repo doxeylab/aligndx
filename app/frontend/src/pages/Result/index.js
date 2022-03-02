@@ -42,15 +42,16 @@ const Result = () => {
 
     const [link,setLink] = useState("/");
     const [showLogin,setShowLogin] = useState(false);
+    const [error,setError] = useState(false)
 
     var dummyData = example_dataset
 
     const [data, setData] = useState(null);
     const [sample, setSample] = useState(null);
     const [pathogens, setPathogens] = useState(null);
+    
     const { setLoad } = useContext(LoadContext);
     
-    const fileid = window.location.pathname
     const resource = STANDARD_RESULTS
     const token = localStorage.getItem("accessToken") 
 
@@ -61,12 +62,13 @@ const Result = () => {
     }
     
     const query = useQuery()
+    const fileId = query.get("submission")
 
     useEffect( () => {
         if (!context.authenticated) {
             
-            if (query.get("submission")){
-                setLink(location.pathname+"?"+ query.toString())
+            if (fileId){
+                setLink((location.pathname) +"?"+ query.toString())
                 setShowLogin(true)
             }
             else {
@@ -74,17 +76,15 @@ const Result = () => {
         }
 
         if (query.get("submission") && context.authenticated) {
-            axios.get(resource + fileid, {headers: {'Authorization': `Bearer ${token}`}})
+            console.log(fileId)
+            axios.get(resource + fileId, {headers: {'Authorization': `Bearer ${token}`}})
             .then(res => {
                 setData([res.data])
                 setPathogens(res.data.pathogens)
                 setSample(res.data.sample)
             })
             .catch(() => {
-                console.log('Error')
-                setData(dummyData)
-                setSample("SRR11365240")
-                setPathogens("Sars CoV-2")
+                setError(true)
             }) 
         }
         else {
@@ -150,7 +150,7 @@ const Result = () => {
                     </Container>
                 </Section>
                 :
-                <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>LOADING...</h1> 
+                <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>Does Not Exist</h1> 
             }
         </>
     )
