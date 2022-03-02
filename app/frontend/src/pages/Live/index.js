@@ -149,9 +149,12 @@ const Live = () => {
 
     useEffect(() => {
         connectWebsocket(fileId, token, datahandler)
-        console.log(data, sample, pathogens)
     }, [])
  
+    useEffect(() => {
+        console.log(data, sample, pathogens)
+    }, [data,sample,pathogens])
+
     return (
         <>
             {data ?
