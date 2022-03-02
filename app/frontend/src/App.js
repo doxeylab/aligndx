@@ -12,7 +12,7 @@ import Contact from './pages/Contact';
 import Home from "./pages/Home";
 import Login from './pages/Login';
 import Profile from './pages/Profile';
-import RealTime from './pages/RealTime/';
+import Live from './pages/Live/';
 import Result from './pages/Result';
 import Signup from './pages/Signup';
 import Team from './pages/Team';
@@ -58,7 +58,7 @@ function App() {
                                         <Route path='/signup' component={Signup} />
                                         <Route path='/login' component={Login} />
                                         <Route path='/USER_ID' component={Profile} />
-                                        <Route path='/realtime' component={RealTime} />
+                                        <Route path='/live' component={Live} />
                                     </Switch>
                                     <Footer />
                                 </Background>

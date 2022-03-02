@@ -233,7 +233,7 @@ const Hero = (props) => {
                 const fileId = selectedRestartData.id
                 const panels = selectedRestartData.meta[0]
                 history.push({
-                    pathname: "/realtime/#/?id=" + fileId,
+                    pathname: "/live/#/?id=" + fileId,
                     state: {
                         file: dataFiles[0],
                         panels: panels,
@@ -249,7 +249,7 @@ const Hero = (props) => {
                         setLoad(false)
                         const fileId = res.data.File_ID;
                         history.push({
-                            pathname: "/realtime/#/?id=" + fileId,
+                            pathname: "/live/#/?id=" + fileId,
                             state: {
                                 file: dataFiles[0],
                                 panels: selectedDetections,
