@@ -263,7 +263,10 @@ async def end_file(
 
     if query["finished_date"] is not None:
         await ModelSample.save_upload_finished(file_id, datetime.now())
-    return {"Result": "OK"}
+        return {"Result": "OK"}
+
+    else:
+        return {"Result": "Already exists"}
 
 
 # async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst, total_chunks, upload_chunk_dir):
