@@ -57,7 +57,7 @@ function App() {
                                         <Route path='/results' component={Result} />
                                         <Route path='/signup' component={Signup} />
                                         <Route path='/login' component={Login} />
-                                        <Route path='/USER_ID' component={Profile} />
+                                        <Route path='/profile' component={Profile} />
                                         <Route path='/live' component={Live} />
                                     </Switch>
                                     <Footer />
