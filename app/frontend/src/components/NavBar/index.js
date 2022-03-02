@@ -104,7 +104,7 @@ const NavBar = () => {
                                 </MenuItem>
                             </Link>
 
-                            <Link to="/login">
+                            <Link onClick={context.logout}>
                                 <MenuItem>
                                     <ListItemIcon>
                                         <i className="fas fa-sign-out-alt"></i>
