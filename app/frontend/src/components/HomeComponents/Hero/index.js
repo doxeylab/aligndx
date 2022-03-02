@@ -38,7 +38,7 @@ const Hero = (props) => {
     const [showStandardUploadModal, setShowStandardUploadModal] = useState(false); 
     const [showLiveUploadModal, setShowLiveUploadModal] = useState(false); 
     const [showRestartModal, setShowRestartModal] = useState(false); 
-
+    const [authenticated, setAuthenticated] = useState(context.authenticated);
 
     const [dataFiles, setDataFiles] = useState([]);
     const { setLoad } = useContext(LoadContext);
@@ -49,6 +49,7 @@ const Hero = (props) => {
         restartflag: false,
         data: null
     });
+
     const [selectedRestartData, setSelectedRestartData] = useState(false);
 
     const check_unprocessed = () => {
@@ -99,7 +100,7 @@ const Hero = (props) => {
     const upload = () => {
         setLoad(true) 
 
-        if (context.authenticated == true) {
+        if (authenticated) {
             const formData = new FormData();
   
             dataFiles.forEach(file => {
@@ -166,7 +167,7 @@ const Hero = (props) => {
     // const uploadchunked = () => {
     //     setLoad(true) 
 
-    //     if (context.authenticated == true) {
+    //     if (authenticated) {
     //         const formData = new FormData();
   
     //         dataFiles.forEach(file => {
@@ -217,7 +218,7 @@ const Hero = (props) => {
     const uploadlive = () => {
         // setLoad(true) 
 
-        if (context.authenticated == true) {
+        if (authenticated) {
             const formData = new FormData();
   
             dataFiles.forEach(file => {
@@ -274,7 +275,7 @@ const Hero = (props) => {
     }
 
     const handleShow = (modalstate) => {
-        if (context.authenticated == true){
+        if (authenticated){
             modalstate(true);
         }
         else {
@@ -285,20 +286,17 @@ const Hero = (props) => {
     const handleClose = (modalstate) => modalstate(false);
  
     useEffect(() => {
-        // useeffect runs on mount, so we need to simply re-run useeffect when context forces a re-render, and account for the scenario before that (useeffect runs twice)
-        if (!context.authenticated) return;
-
-        else {
-            if (context.authenticated == true){
-                check_unprocessed()
-                console.log("checking unprocessed")
-            }
-            else {
-                console.log("not authenticated, so could not check unprocessed")
-            }
-            selectmenuoptions();    
+        // useeffect runs on mount, so we need to simply re-run useeffect when context forces a re-render, and account for the scenario before that (useeffect runs twice) 
+        if (authenticated){
+            check_unprocessed()
+            console.log("checking unprocessed")
         }
-    }, [context.authenticated])
+        else {
+            console.log(authenticated)
+            console.log("not authenticated, so could not check unprocessed")
+        }
+        selectmenuoptions();    
+    }, [])
 
     useEffect(() => {
         console.log(dataFiles)

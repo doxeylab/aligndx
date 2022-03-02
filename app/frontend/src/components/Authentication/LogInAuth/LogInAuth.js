@@ -49,8 +49,8 @@ const LogInAuth = () => {
                 localStorage.setItem("accessToken", response.access_token);
                 setLoading(false)
                 setError(false)
-                history.push("/");
                 context.loadCurrentUser();
+                history.push("/");
             })
             .catch((error) => {
                 setLoading(false);

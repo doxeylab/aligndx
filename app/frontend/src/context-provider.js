@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useLayoutEffect, useState} from 'react';
 import {getCurrentUser} from "./http-common";
 import {useHistory} from "react-router-dom";
 
@@ -10,11 +10,28 @@ const GlobalContext = React.createContext({
 });
 
 
+
+
 const GlobalContextProvider = (props) => {
 
+    // Hack to initialize user before render
+    let initialAuth = false
+    let initialUser = null
+
+    try {
+        const token = localStorage.getItem("accessToken")
+        const usermeta = JSON.parse(localStorage.getItem("userMeta"))
+        if (token) {
+            initialAuth = true  
+            initialUser = usermeta
+        }
+    }
+    catch (error) {
+        // do nothing
+    }
     const history = useHistory();
-    const [authenticated, setAuthenticated] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null);
+    const [authenticated, setAuthenticated] = useState(initialAuth);
+    const [currentUser, setCurrentUser] = useState(initialUser);
 
     const logout = () => {
         localStorage.removeItem("accessToken");
@@ -24,20 +41,22 @@ const GlobalContextProvider = (props) => {
     }
 
     const loadCurrentUser = () => {
-        getCurrentUser()
+        if (localStorage.getItem("accessToken")) {
+            getCurrentUser()
             .then((response) => {
                 setAuthenticated(true)
+                localStorage.setItem("userMeta", JSON.stringify(response))
                 setCurrentUser(response)
             })
             .catch((_err) => {
                 localStorage.removeItem("accessToken");
+                localStorage.removeItem("userMeta");
             });
+        }
     };
 
-    useEffect(() => {
-        if (localStorage.getItem("accessToken")) {
+    useLayoutEffect(() => {
             loadCurrentUser()
-        }
     }, [])
 
     return (
