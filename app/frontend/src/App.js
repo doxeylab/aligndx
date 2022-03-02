@@ -21,6 +21,8 @@ import Live from './pages/Live/';
 import Standard from './pages/Standard';
 import Result from './pages/Result';
 
+import NotFound from './pages/NotFound';
+
 import GlobalStyle from './StyledGlobal';
 
 const theme = createTheme({
@@ -65,6 +67,7 @@ function App() {
                                         <Route path='/live' component={Live} />
                                         <Route path='/standard' component={Standard} />
                                         <Route path='/result' component={Result} />
+                                        <Route component={NotFound} />
                                     </Switch>
                                     <Footer />
                                 </Background>
