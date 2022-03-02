@@ -256,11 +256,17 @@ async def end_file(
     current_user: UserDTO = Depends(get_current_user),
     file_id: str = Body(..., embed=True)
 ):
-    if await ModelSample.get_sample_info(file_id) is None:
+    query = await ModelSample.get_sample_info(current_user.id, file_id,)
+
+    if query is None:
         raise HTTPException(status_code=404, detail="File not found")
 
-    await ModelSample.save_upload_finished(file_id, datetime.now())
-    return {"Result": "OK"}
+    if query["finished_date"] is not None:
+        await ModelSample.save_upload_finished(file_id, datetime.now())
+        return {"Result": "OK"}
+
+    else:
+        return {"Result": "Already exists"}
 
 
 # async def start_chunk_analysis(chunk_dir, file_id, chunk_number, panel, commands_lst, total_chunks, upload_chunk_dir):

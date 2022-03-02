@@ -11,7 +11,7 @@ import Button from '../../Button';
 import Checkbox from '../../Checkbox';
 import { ErrorMsg, FormBtn, FormContainer, FormInput } from '../StyledForm';
 
-const LogInAuth = () => {
+const LogInAuth = (props) => {
     const history = useHistory();
     const context = useGlobalContext();
 
@@ -49,8 +49,10 @@ const LogInAuth = () => {
                 localStorage.setItem("accessToken", response.access_token);
                 setLoading(false)
                 setError(false)
-                history.push("/");
                 context.loadCurrentUser();
+                history.push(props.link)
+                // force re-render of homepage
+                history.go(0);
             })
             .catch((error) => {
                 setLoading(false);
@@ -59,7 +61,7 @@ const LogInAuth = () => {
     }
 
     return (
-        <FormContainer>
+        <div>
             <h1>Log In</h1>
             <FormInput>
                 <Col>
@@ -116,7 +118,7 @@ const LogInAuth = () => {
                     <img src={FacebookIcon} alt='facebook-icon' width="25" height="25" style={{ margin: "10px" }} />
                 </Col>
             </Row>
-        </FormContainer>
+        </div>
     );
 }
 

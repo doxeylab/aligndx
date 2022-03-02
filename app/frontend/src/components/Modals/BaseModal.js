@@ -9,7 +9,9 @@ const BaseModal = (props) => {
                 centered
                 show={props.show}
                 onHide={props.onHide}
-                scrollable={true}>
+                scrollable={true}
+                size={props.size}
+                >
                 <Modal.Header closeButton >
                         {props.title}
                 </Modal.Header>

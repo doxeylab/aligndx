@@ -67,8 +67,12 @@ class Sample:
         return sample_id
 
     @classmethod
-    async def get_sample_info(cls, file_id):
-        query = submissions.select().where(submissions.c.id == file_id)
+    async def get_sample_info(cls, user_id, file_id):
+        query = (submissions.select()
+                .where(
+                    submissions.c.user_id == user_id, 
+                    submissions.c.id == file_id)
+                )
         info = await database.fetch_one(query)
         return info
     

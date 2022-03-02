@@ -38,7 +38,7 @@ const Hero = (props) => {
     const [showStandardUploadModal, setShowStandardUploadModal] = useState(false); 
     const [showLiveUploadModal, setShowLiveUploadModal] = useState(false); 
     const [showRestartModal, setShowRestartModal] = useState(false); 
-
+    const [authenticated, setAuthenticated] = useState(context.authenticated); 
 
     const [dataFiles, setDataFiles] = useState([]);
     const { setLoad } = useContext(LoadContext);
@@ -49,6 +49,7 @@ const Hero = (props) => {
         restartflag: false,
         data: null
     });
+
     const [selectedRestartData, setSelectedRestartData] = useState(false);
 
     const check_unprocessed = () => {
@@ -99,7 +100,7 @@ const Hero = (props) => {
     const upload = () => {
         setLoad(true) 
 
-        if (context.authenticated == true) {
+        if (authenticated) {
             const formData = new FormData();
   
             dataFiles.forEach(file => {
@@ -127,7 +128,7 @@ const Hero = (props) => {
                     setLoad(false)
                     const fileId = res.data.File_ID;  
                     history.push({
-                        pathname: "/results/#/?id=" + fileId,
+                        pathname: "/standard/#/?id=" + fileId,
                         state: {
                             response: res.data,
                             file: dataFiles[0],
@@ -166,7 +167,7 @@ const Hero = (props) => {
     // const uploadchunked = () => {
     //     setLoad(true) 
 
-    //     if (context.authenticated == true) {
+    //     if (authenticated) {
     //         const formData = new FormData();
   
     //         dataFiles.forEach(file => {
@@ -188,7 +189,7 @@ const Hero = (props) => {
     //                             .then(
     //                                 (res) => {
     //                                     history.push({
-    //                                         pathname: "/results/#/?id=" + fileId,
+    //                                         pathname: "/standard/#/?id=" + fileId,
     //                                         state: {
     //                                             response: res.data,
     //                                             file: dataFiles[0],
@@ -217,7 +218,7 @@ const Hero = (props) => {
     const uploadlive = () => {
         // setLoad(true) 
 
-        if (context.authenticated == true) {
+        if (authenticated) {
             const formData = new FormData();
   
             dataFiles.forEach(file => {
@@ -233,7 +234,7 @@ const Hero = (props) => {
                 const fileId = selectedRestartData.id
                 const panels = selectedRestartData.meta[0]
                 history.push({
-                    pathname: "/realtime/#/?id=" + fileId,
+                    pathname: "/live/#/?id=" + fileId,
                     state: {
                         file: dataFiles[0],
                         panels: panels,
@@ -249,7 +250,7 @@ const Hero = (props) => {
                         setLoad(false)
                         const fileId = res.data.File_ID;
                         history.push({
-                            pathname: "/realtime/#/?id=" + fileId,
+                            pathname: "/live/#/?id=" + fileId,
                             state: {
                                 file: dataFiles[0],
                                 panels: selectedDetections,
@@ -274,7 +275,7 @@ const Hero = (props) => {
     }
 
     const handleShow = (modalstate) => {
-        if (context.authenticated == true){
+        if (authenticated){
             modalstate(true);
         }
         else {
@@ -285,20 +286,17 @@ const Hero = (props) => {
     const handleClose = (modalstate) => modalstate(false);
  
     useEffect(() => {
-        // useeffect runs on mount, so we need to simply re-run useeffect when context forces a re-render, and account for the scenario before that (useeffect runs twice)
-        if (!context.authenticated) return;
-
-        else {
-            if (context.authenticated == true){
-                check_unprocessed()
-                console.log("checking unprocessed")
-            }
-            else {
-                console.log("not authenticated, so could not check unprocessed")
-            }
-            selectmenuoptions();    
+        // useeffect runs on mount, so we need to simply re-run useeffect when context forces a re-render, and account for the scenario before that (useeffect runs twice) 
+        if (authenticated){
+            check_unprocessed()
+            console.log("checking unprocessed")
         }
-    }, [context.authenticated])
+        else {
+            console.log(authenticated)
+            console.log("not authenticated, so could not check unprocessed")
+        }
+        selectmenuoptions();    
+    }, [])
 
     useEffect(() => {
         console.log(dataFiles)
@@ -307,8 +305,8 @@ const Hero = (props) => {
     useEffect(() => {
         if (selectedRestartData) {
             console.log(selectedRestartData.meta[0])
+            console.log(selectedRestartData)
         }
-        console.log(selectedRestartData)
     }, [selectedRestartData])
 
     useEffect(() => {
@@ -330,7 +328,7 @@ const Hero = (props) => {
                                     <HeroBtns>
                                         <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button>
                                         <Button onClick={() => handleShow(setShowLiveUploadModal)}>Live</Button>
-                                        <Button fill to="/result">Examples</Button>
+                                        <Button fill to="/examples">Examples</Button>
                                     </HeroBtns>
                                 </HeroBody>
                             </Fade>
@@ -347,7 +345,7 @@ const Hero = (props) => {
                                 <HeroBtns2>
                                     <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button>
                                     <Button onClick={() => handleShow(setShowLiveUploadModal)}>Live</Button>
-                                    <Button fill to="/result">Example</Button>
+                                    <Button fill to="/examples">Example</Button>
                                 </HeroBtns2>
                             </Fade>
                         </HeroCol>
