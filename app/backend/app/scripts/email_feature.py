@@ -19,8 +19,8 @@ def email_html_customizer(sample ,link):
 
 
 def send_email(receiver_email, sample, link):
-    sender_email = os.getenv(NOTIFICATION_EMAIL) 
-    password = os.getenv(NOTIFICATION_EMAIL_PASSWORD) 
+    sender_email = os.getenv("NOTIFICATION_EMAIL") 
+    password = os.getenv("NOTIFICATION_EMAIL_PASSWORD") 
 
     message = MIMEMultipart("alternative")
     message["Subject"] = f"Analysis Results for {sample}"
