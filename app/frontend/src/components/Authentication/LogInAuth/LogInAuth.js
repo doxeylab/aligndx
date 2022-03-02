@@ -61,7 +61,7 @@ const LogInAuth = (props) => {
     }
 
     return (
-        <FormContainer>
+        <div>
             <h1>Log In</h1>
             <FormInput>
                 <Col>
@@ -118,7 +118,7 @@ const LogInAuth = (props) => {
                     <img src={FacebookIcon} alt='facebook-icon' width="25" height="25" style={{ margin: "10px" }} />
                 </Col>
             </Row>
-        </FormContainer>
+        </div>
     );
 }
 

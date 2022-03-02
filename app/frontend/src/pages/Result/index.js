@@ -15,6 +15,8 @@ import { Col, Container, Row } from 'react-bootstrap';
 // Components
 import Barchart from '../../components/BarChart';
 import { Section, Title } from '../../components/Common/PageElement';
+import LogInModal from '../../components/Modals/LoginModal/LoginModal';
+import { Redirect } from 'react-router-dom';
 
 // Styling
 import { ResultAccordianTitle, ResultAccordionImg, ResultTitle } from './StyledResult';
@@ -36,6 +38,10 @@ import { STANDARD_RESULTS } from '../../services/Config';
 const Result = () => {   
     const context = useGlobalContext(); 
     const history = useHistory();
+    const location = useLocation();
+
+    const [link,setLink] = useState("/");
+    const [showLogin,setShowLogin] = useState(false);
 
     var dummyData = example_dataset
 
@@ -58,8 +64,13 @@ const Result = () => {
 
     useEffect( () => {
         if (!context.authenticated) {
-            history.push('/')
-            return;
+            
+            if (query.get("submission")){
+                setLink(location.pathname+"?"+ query.toString())
+                setShowLogin(true)
+            }
+            else {
+            }
         }
 
         if (query.get("submission") && context.authenticated) {
@@ -77,14 +88,20 @@ const Result = () => {
             }) 
         }
         else {
-            history.push("/")
+            // history.push("/")
         }
-    }, [context.authenticated])
- 
-    
+    }, [])
+  
+
     return (
         <>
-            {data ?
+            {showLogin ? <Redirect to={{
+                pathname:"/login",
+                state:{
+                    link:link
+                }
+            }}/> :
+             data ?
                 <Section id="result">
                     <Container>
                         <Row>
@@ -133,7 +150,7 @@ const Result = () => {
                     </Container>
                 </Section>
                 :
-                <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>LOADING...</h1>
+                <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>LOADING...</h1> 
             }
         </>
     )
