@@ -5,7 +5,7 @@ import pandas as pd
 from pydantic import BaseModel
 
 # FastAPI
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException 
 
 # auth components
 from app.auth.models import UserDTO
@@ -45,8 +45,12 @@ router = APIRouter()
 # -- Standard upload results --
  
 @router.get('/standard/{file_id}') 
-async def standard_results(file_id: str):
-    query = await ModelSample.get_sample_info(file_id)  
+async def standard_results(file_id: str, current_user: UserDTO = Depends(get_current_user)):
+    query = await ModelSample.get_sample_info(current_user.id, file_id,)
+
+
+    if (not query):
+        return HTTPException(status_code=404, detail="Item not found")
 
     sample_name = query['sample_name']
     panel = query['panel']
@@ -66,8 +70,12 @@ class Chunk_id(BaseModel):
     account_id: str 
 
 @router.get('/chunked/{file_id}')
-async def standard_plus(file_id: str):
-    query = await ModelSample.get_sample_info(file_id) 
+async def standard_plus(file_id: str, current_user: UserDTO = Depends(get_current_user)):
+    query = await ModelSample.get_sample_info(current_user.id, file_id,)
+
+    if (not query):
+        return HTTPException(status_code=404, detail="Item not found")
+
     file_id = str(query['id'])
     sample_name = query['sample_name']
     headers=['Name', 'TPM']

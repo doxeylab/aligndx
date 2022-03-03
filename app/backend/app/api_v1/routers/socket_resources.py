@@ -56,8 +56,10 @@ class Chunk_id(BaseModel):
     account_id: str 
 
 @router.websocket('/livegraphs/{file_id}') 
-async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
-    query = await ModelSample.get_sample_info(file_id) 
+async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, current_user: UserDTO = Depends(get_current_user_ws)):
+     
+    query = await ModelSample.get_sample_info(current_user.id, file_id,)
+
     file_id = str(query['id'])
     sample_name = query['sample_name']
 

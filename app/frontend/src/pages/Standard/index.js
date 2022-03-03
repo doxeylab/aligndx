@@ -1,6 +1,6 @@
 // React
 import React, { useEffect, useState, useContext } from 'react';
-import { useHistory, useLocation} from 'react-router-dom';
+import { useLocation} from 'react-router-dom';
 
 // external libraries
 import axios from 'axios';
@@ -15,8 +15,6 @@ import { Col, Container, Row } from 'react-bootstrap';
 // Components
 import Barchart from '../../components/BarChart';
 import { Section, Title } from '../../components/Common/PageElement';
-import LogInModal from '../../components/Modals/LoginModal/LoginModal';
-import { Redirect } from 'react-router-dom';
 
 // Styling
 import { ResultAccordianTitle, ResultAccordionImg, ResultTitle } from './StyledResult';
@@ -32,73 +30,48 @@ import { LoadContext } from '../../LoadContext';
 // testing
 import example_dataset from '../../assets/test_datasets/example_dataset.json';
 
-// config
-import { STANDARD_RESULTS } from '../../services/Config';
-
-const Result = () => {   
-    const context = useGlobalContext(); 
-    const history = useHistory();
+const Standard = () => {   
     const location = useLocation();
 
-    const [link,setLink] = useState("/");
-    const [showLogin,setShowLogin] = useState(false);
-    const [error,setError] = useState(false)
+    const context = useGlobalContext();
+
+    // const [data, setData] = useState([{ "index": "TEST1", "column_category": 6 },
+    // { "index": "TEST2", "column_category": 12 },
+    // { "index": "TEST3", "column_category": 3 } ])
 
     var dummyData = example_dataset
 
     const [data, setData] = useState(null);
     const [sample, setSample] = useState(null);
     const [pathogens, setPathogens] = useState(null);
-    
     const { setLoad } = useContext(LoadContext);
     
-    const resource = STANDARD_RESULTS
-    const token = localStorage.getItem("accessToken") 
-
-    const useQuery = () => {
-        const {search} = useLocation();
-
-        return React.useMemo(() => new URLSearchParams(search), [search]);
-    }
+    const lstate = location.state
     
-    const query = useQuery()
-    const fileId = query.get("submission")
-
-    useEffect( () => {
-        if (!context.authenticated) {
-            
-            if (fileId){
-                setLink((location.pathname) +"?"+ query.toString())
-                setShowLogin(true)
-            }
-            else {
-                history.push("/404")
-            }
-        }
-
-        if (fileId && context.authenticated) {
-            axios.get(resource + fileId, {headers: {'Authorization': `Bearer ${token}`}})
+    const fileid = lstate.response.File_ID
+    const token = localStorage.getItem("accessToken") 
+    var resource = lstate.resource 
+    
+    useEffect(() => {
+  
+            axios.get(resource + fileid, {headers: {'Authorization': `Bearer ${token}`}})
             .then(res => {
                 setData([res.data])
                 setPathogens(res.data.pathogens)
                 setSample(res.data.sample)
             })
             .catch(() => {
-                history.push("/404")
+                console.log('Error')
+                setData(dummyData)
+                setSample("SRR11365240")
+                setPathogens("Sars CoV-2")
             }) 
-        } 
-    }, [])
-  
+        
+    }, [lstate])
 
     return (
         <>
-            {showLogin ? <Redirect to={{
-                pathname:"/login",
-                state:{
-                    link:link
-                }
-            }}/> :
-             data ?
+            {data ?
                 <Section id="result">
                     <Container>
                         <Row>
@@ -147,10 +120,10 @@ const Result = () => {
                     </Container>
                 </Section>
                 :
-                <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>Loading ...</h1> 
+                <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>LOADING...</h1>
             }
         </>
     )
 }
 
-export default Result
+export default Standard

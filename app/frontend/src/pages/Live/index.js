@@ -32,7 +32,7 @@ import {useGlobalContext} from "../../context-provider"
 import {WEBSOCKET_URL} from '../../services/Config';
  
 
-const RealTime = () => {
+const Live = () => {
 
     const history = useHistory();
     const location = useLocation();
@@ -113,10 +113,26 @@ const RealTime = () => {
         }
     };
 
-    const lstate = location.state
+    let lstate = location.state
+    let fileId = null
+    let restartflag = null
+    let file = null
+    let panels = null
     
-    const fileId = lstate.fileId
-    const restartflag = lstate.restartflag
+    useEffect(() => {
+        if (!lstate){
+            history.push('/')
+        }
+
+        else {
+            fileId = lstate.fileId
+            restartflag = lstate.restartflag
+            file = lstate.file
+            panels = lstate.panels
+            ChunkProcessor(token, file, panels, fileId, restartflag) 
+        }
+    }, [])
+
 
     const token = localStorage.getItem("accessToken") 
     
@@ -132,14 +148,13 @@ const RealTime = () => {
     }, []);
 
     useEffect(() => {
-        ChunkProcessor(token, lstate.file, lstate.panels, fileId, restartflag) 
-    }, [])
-
-    useEffect(() => {
         connectWebsocket(fileId, token, datahandler)
-        console.log(data, sample, pathogens)
     }, [])
  
+    useEffect(() => {
+        console.log(data, sample, pathogens)
+    }, [data,sample,pathogens])
+
     return (
         <>
             {data ?
@@ -195,4 +210,4 @@ const RealTime = () => {
     )
 }
    
-export default RealTime;
+export default Live;
