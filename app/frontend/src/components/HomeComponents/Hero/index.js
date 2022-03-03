@@ -66,11 +66,11 @@ const Hero = (props) => {
                 
                 if (!showLiveUploadModal || !showStandardUploadModal) {
                     if (data.length !== 0) {
-                        setRestart({ ...restart, restartflag: true, data: data})
+                        setRestart({ ...restart, data: data})
                         setShowRestartModal(true)
                     }
                     else {
-                        setRestart({ ...restart, restartflag: false, data: data})
+                        setRestart({ ...restart, restartflag: false})
                     }
                 }
             })
@@ -230,7 +230,7 @@ const Hero = (props) => {
 
             const token = localStorage.getItem("accessToken")  
 
-            if (restart.restartflag && selectedRestartData) {
+            if (restart.restartflag) {
                 const fileId = selectedRestartData.id
                 const panels = selectedRestartData.meta[0]
                 history.push({
@@ -255,7 +255,6 @@ const Hero = (props) => {
                                 file: dataFiles[0],
                                 panels: selectedDetections,
                                 fileId: fileId,
-                                restartflag: restart.restartflag  
                             }
                         }
                         )
@@ -303,16 +302,14 @@ const Hero = (props) => {
     }, [dataFiles])
  
     useEffect(() => {
-        if (selectedRestartData) {
-            console.log(selectedRestartData.meta[0])
-            console.log(selectedRestartData)
+        console.log(selectedRestartData)
+        if (selectedRestartData){
+            setRestart({...restart, restartflag: true})
         }
     }, [selectedRestartData])
 
     useEffect(() => {
-        if (restart.data) {
-            console.log(restart.data)
-        }
+        console.log(restart)
     }, [restart])
  
     return (
@@ -394,7 +391,10 @@ const Hero = (props) => {
             ></UploadModal> 
             <RestartModal
                 show={showRestartModal}
-                onHide={() => handleClose(setShowRestartModal)}
+                onHide={() => {
+                    handleClose(setShowRestartModal)
+                    handleClose(setSelectedRestartData)
+                }}
                 upload={uploadlive}
                 data={restart.data}
 
