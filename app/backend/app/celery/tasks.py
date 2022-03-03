@@ -38,14 +38,24 @@ def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_siz
     } for i in range(num_upload_chunks)]
 
     chunk_ratio = analysis_chunk_size / upload_chunk_size
+    num_analysis_chunks = math.ceil(num_upload_chunks / chunk_ratio)
+    upload_chunks_deps = []
+    for i in range(1, num_analysis_chunks + 1):
+        start_chunk = math.ceil((i-1) * chunk_ratio)
+        end_chunk = math.ceil(i * chunk_ratio)
+
+        if i == num_analysis_chunks:
+            end_chunk = num_upload_chunks
+
+        upload_chunks_deps.append(list(range(start_chunk, end_chunk)))
 
     analysis_chunks = [{
         'Name': '{}.fastq'.format(i),
         'Residue_Name': '{}_residue.fastq'.format(i),
-        'Upload_Chunks_Required': range(math.ceil((i-1) * chunk_ratio) + 1,
-                                        math.ceil(i * chunk_ratio) + 1),
-        'Status': 'Waiting'
-    } for i in range(1, math.ceil(num_upload_chunks * chunk_ratio) + 1)]
+        'Upload_Chunks_Required': upload_chunks_deps[i - 1],
+        'Status': 'Waiting',
+        'Residue_Status': 'Waiting'
+    } for i in range(1, num_analysis_chunks + 1)]
 
     metadata = {
         'filename': filename,
@@ -78,29 +88,72 @@ def process_new_upload(self, file_dir, new_chunk_number):
     meta_fname = '{}/meta.json'.format(file_dir)
     upload_data_dir = '{}/upload_data'.format(file_dir)
     analysis_data_dir = '{}/salmon_data'.format(file_dir)
-    upload_chunk_fname = '{}/{}.fastq'.format(
-        upload_data_dir, new_chunk_number)
 
     metadata = None
     with open(meta_fname) as f:
         metadata = json.load(f)
 
-    upload_chunk_size = metadata['upload_chunk_maxsize']
-    analysis_chunk_size = metadata['analysis_chunk_maxsize']
-
     metadata['upload_chunks'][new_chunk_number]['Status'] = 'Uploaded'
 
     chunk_to_analyze = None
     for indx, analysis_chunk in enumerate(metadata['analysis_chunks']):
-        if all([upload_chunk['Status'] == 'Uploaded' for
-                upload_chunk in analysis_chunk['Upload_Chunks_Required']]):
-            with open(os.path.join(analysis_data_dir, analysis_chunk['Name'])) as af:
-                for upload_chunk in analysis_chunk['Upload_Chunks_Required']:
-                    with open(os.path.join(upload_data_dir, upload_chunk['Name'])) as uf:
-                        af.write(uf.read())
+        if analysis_chunk['Status'] == 'Waiting':
+            if all([metadata['upload_chunks'][i]['Status'] == 'Uploaded' for
+                    i in analysis_chunk['Upload_Chunks_Required']]):
+                residual_data = None
 
-            metadata['analysis_chunks'][indx]['Status'] = 'Written'
-            chunk_to_analyze = indx
+                with open(os.path.join(analysis_data_dir, analysis_chunk['Name']), 'w') as af:
+                    for relative_num, upload_chunk_num in enumerate(analysis_chunk['Upload_Chunks_Required']):
+                        upload_chunk_fname = os.path.join(upload_data_dir,
+                                                          metadata['upload_chunks'][upload_chunk_num]['Name'])
+                        with open(upload_chunk_fname) as uf:
+                            data = None
+                            if relative_num == 0:
+                                data = uf.read()
+
+                                lines = data.split('\n')
+                                # a single plus is always the 3nd whole line of a sequence
+                                first_plus_line = lines.index('+')
+                                # adding 2 modulo 4 to the line number would give us the first line of a sequence
+                                sequence_start_line = (first_plus_line + 2) % 4
+
+                                data = '\n'.join(lines[sequence_start_line:])
+                                residual_data = '\n'.join(
+                                    lines[:sequence_start_line])
+                            else:
+                                data = uf.read()
+                            af.write(data)
+
+                        os.remove(upload_chunk_fname)
+
+                if metadata['analysis_chunks'][indx-1]['Status'] == 'Residue_Remaining':
+                    prev_chunk_name = metadata['analysis_chunks'][indx-1]['Name']
+
+                    with open(os.path.join(analysis_data_dir, prev_chunk_name), 'a') as af:
+                        af.write(residual_data)
+
+                    metadata['analysis_chunks'][indx-1]['Status'] = 'Ready'
+
+                    chunk_to_analyze = indx - 1
+                else:
+                    prev_chunk_residue_name = metadata['analysis_chunks'][
+                        indx - 1]['Residue_Name']
+
+                    with open(os.path.join(analysis_data_dir, prev_chunk_residue_name), 'w') as af:
+                        af.write(residual_data)
+
+                    metadata['analysis_chunks'][indx -
+                                                1]['Residue_Status'] = 'Ready'
+
+                if metadata['analysis_chunks'][indx]['Residue_Status'] == 'Waiting':
+                    metadata['analysis_chunks'][indx]['Status'] = 'Residue_Remaining'
+                else:
+                    with open(os.path.join(analysis_data_dir, analysis_chunk['Name']), 'a') as af:
+                        with open(os.path.join(analysis_data_dir, analysis_chunk['Residue_Name'])) as rf:
+                            af.write(rf.read())
+                    metadata['analysis_chunks'][indx]['Status'] = 'Ready'
+
+                    chunk_to_analyze = indx
 
     with open(meta_fname, 'w') as f:
         json.dump(metadata, f)
