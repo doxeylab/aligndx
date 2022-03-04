@@ -23,6 +23,7 @@ ENV PYTHONPATH=/app \
 # copy source files
 COPY /app/celery ./celery
 COPY /app/scripts ./scripts
+COPY /app/config ./config
 
 WORKDIR /
  

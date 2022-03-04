@@ -199,7 +199,7 @@ async def start_file(
         results_dir = "{}/{}".format(REAL_TIME_RESULTS, file_id)
         os.mkdir(results_dir)
 
-        tasks.make_file_metadata.delay(rt_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks)
+        tasks.make_file_metadata.delay(rt_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks, email=current_user.email, fileId=id)
         tasks.make_file_data.delay(results_dir)
 
         return {"Result": "OK",
@@ -238,7 +238,8 @@ async def upload_chunk(
     chain(
         tasks.process_new_upload.s(rt_dir, chunk_number), 
         tasks.perform_chunk_analysis.s(panels, INDEX_FOLDER, analysis_data_folder, results_dir),
-        tasks.post_process.s(data_dir, METADATA_FOLDER, panels)
+        tasks.post_process.s(data_dir, METADATA_FOLDER, panels),
+        tasks.pipe_status.s(rt_dir)
     ).apply_async()
 
     logs = await LogsModel.log_upload(

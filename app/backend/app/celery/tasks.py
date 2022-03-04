@@ -11,7 +11,7 @@ from celery.contrib import rdb
 from celery.utils.log import get_task_logger
 from celery.signals import after_setup_logger
 
-from app.scripts import salmonconfig, realtime
+from app.scripts import salmonconfig, realtime, email_feature
 
 logger = get_task_logger(__name__)
 
@@ -29,7 +29,7 @@ app.config_from_object('app.celery.celeryconfig')
 #     logger.addHandler(fh)
 
 @app.task
-def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size, num_upload_chunks):
+def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size, num_upload_chunks, email, fileId):
     meta_fname = '{}/meta.json'.format(file_dir)
 
     upload_chunks = [{
@@ -62,7 +62,11 @@ def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_siz
         'upload_chunk_maxsize': upload_chunk_size,
         'analysis_chunk_maxsize': analysis_chunk_size,
         'upload_chunks': upload_chunks,
-        'analysis_chunks': analysis_chunks
+        'analysis_chunks': analysis_chunks,
+        'analysis_chunks_processed' : 0,
+        'total_analysis_chunks' : num_analysis_chunks,
+        'email' : email,
+        'fileId': fileId    
     }
 
     with open(meta_fname, 'w') as f:
@@ -71,7 +75,7 @@ def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_siz
     return {'Success': True}
 
 
-@ app.task
+@app.task
 def make_file_data(results_dir):
     data_fname = '{}/data.json'.format(results_dir)
 
@@ -83,7 +87,7 @@ def make_file_data(results_dir):
     return {'Success': True}
 
 
-@ app.task(bind=True)
+@app.task(bind=True)
 def process_new_upload(self, file_dir, new_chunk_number):
     meta_fname = '{}/meta.json'.format(file_dir)
     upload_data_dir = '{}/upload_data'.format(file_dir)
@@ -163,7 +167,6 @@ def process_new_upload(self, file_dir, new_chunk_number):
 
     else:
         return {'Success': True,
-                'Last_Upload_Chunk_Processed': new_chunk_number,
                 'Chunk_To_Analyze': chunk_to_analyze}
 
 
@@ -180,10 +183,9 @@ class SalmonMemoryError(Exception):
         super().__init__(self.message)
 
 
-@ app.task(autoretry_for=(SalmonMemoryError,))
+@app.task(throws=(SalmonMemoryError,),autoretry_for=(SalmonMemoryError,), retry_kwargs={'countdown':5})
 def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, real_time_results):
     chunk_number = upload_result['Chunk_To_Analyze']
-    upload_chunk_number = upload_result['Last_Upload_Chunk_Processed']
 
     if chunk_number is None:
         return
@@ -197,20 +199,19 @@ def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, rea
     with requests.Session() as s:
         s.post("http://salmon:80/", json=commands)
 
-    os.remove(chunk)
-
     quant_dir = "{}/quant.sf".format(results_dir)
 
     if os.path.isfile(quant_dir):
+        os.remove(chunk)
+
         return {'Success': True,
-                'Current_Analysis_Chunk': chunk_number,
-                'Last_Upload_Chunk_Processed': upload_chunk_number,
+                'Chunk_To_Analyze': chunk_number,
                 'Quant_Dir': quant_dir}
     else:
         raise SalmonMemoryError(quant_dir)
 
 
-@ app.task
+@app.task
 def post_process(salmon_result, data_dir, metadata_dir, panel):
 
     # only do post-processing if quant_file exists
@@ -219,8 +220,7 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
 
     # state vars
     quant_dir = salmon_result['Quant_Dir']
-    current_analysis_chunk = salmon_result['Current_Analysis_Chunk']
-    last_upload_chunk_analyzed = salmon_result['Last_Upload_Chunk_Processed']
+    chunk_number = salmon_result['Chunk_To_Analyze']
 
     # # configurations for post-processing
     headers = ['Name', 'TPM']
@@ -249,7 +249,7 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
 
     else:
         logger.warning(
-            f"Retrieving data from previous chunk {current_analysis_chunk -1}")
+            f"Retrieving data from previous chunk {chunk_number -1}")
 
         # read data from previous quant file; already has coverage
         previous_chunk = data
@@ -257,7 +257,7 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
         logger.warning(realtime.coverage_summarizer(previous_chunk, headers))
 
         logger.warning(
-            f"Reading current data from chunk {current_analysis_chunk}")
+            f"Reading current data from chunk {chunk_number}")
 
         # read data from currentquant file and calculate coverage
         current_chunk = realtime.realtime_quant_analysis(
@@ -278,6 +278,30 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
             accumulated_results.to_json(f, orient="table")
 
     return {"Success": True}
+
+@app.task
+def pipe_status(pipe_result, file_dir):
+    meta_fname = '{}/meta.json'.format(file_dir)
+
+    metadata = None
+    with open(meta_fname) as f:
+        metadata = json.load(f)
+
+    analysis_chunks_processed = metadata['analysis_chunks_processed']
+    total_analysis_chunks = metadata['total_analysis_chunks']
+
+    if analysis_chunks_processed == total_analysis_chunks:
+        fileId = metadata['fileId']
+        reciever = metadata['email']
+        sample = metadata['filename']
+        result_link = f'/result?submission={fileId}'
+        email_feature.send_email(receiver_email=reciever, sample=sample, link=result_link)
+    
+    else:
+        analysis_chunks_processed += 1
+        metadata = {**metadata,"analysis_chunks_processed": analysis_chunks_processed}
+        with open(meta_fname, 'w') as f:
+            json.dump(metadata, f)
 
 
 if __name__ == '__main__':
