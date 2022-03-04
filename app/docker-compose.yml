@@ -20,6 +20,7 @@ services:
       - ./backend/metadata:/app/metadata:ro
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      BASE_URL: ${BASE_URL}
       ORIGINS: ${ORIGINS}
       SECRET_KEY: ${SECRET_KEY}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
@@ -39,6 +40,7 @@ services:
       - /app/node_modules
     environment:
       NODE_ENV: development
+      BASE_URL: ${BASE_URL}
       REACT_APP_BACKEND_ACCESS_URL: ${REACT_APP_BACKEND_ACCESS_URL}
 
   postgres:
@@ -138,6 +140,7 @@ services:
     volumes:
       - ./backend/app/celery:/app/celery:ro
       - ./backend/app/scripts:/app/scripts:ro
+      - ./backend/app/config:/app/config:ro
       - ./backend/results:/results
       - ./backend/uploads:/uploads
       - ./backend/indexes:/indexes:ro
