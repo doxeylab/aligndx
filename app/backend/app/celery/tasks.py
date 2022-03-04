@@ -1,6 +1,7 @@
 import os
 import logging
 import json
+import math
 
 import requests
 import pandas as pd
@@ -25,19 +26,43 @@ app.config_from_object('app.celery.celeryconfig')
 #     # FileHandler
 #     fh = logging.FileHandler('./logs.log')
 #     fh.setFormatter(formatter)
-#     logger.addHandler(fh) 
+#     logger.addHandler(fh)
 
 @app.task
-def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size):
+def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size, num_upload_chunks):
     meta_fname = '{}/meta.json'.format(file_dir)
+
+    upload_chunks = [{
+        'Name': '{}.fastq'.format(i),
+        'Status': 'Waiting'
+    } for i in range(num_upload_chunks)]
+
+    chunk_ratio = analysis_chunk_size / upload_chunk_size
+    num_analysis_chunks = math.ceil(num_upload_chunks / chunk_ratio)
+    upload_chunks_deps = []
+    for i in range(1, num_analysis_chunks + 1):
+        start_chunk = math.ceil((i-1) * chunk_ratio)
+        end_chunk = math.ceil(i * chunk_ratio)
+
+        if i == num_analysis_chunks:
+            end_chunk = num_upload_chunks
+
+        upload_chunks_deps.append(list(range(start_chunk, end_chunk)))
+
+    analysis_chunks = [{
+        'Name': '{}.fastq'.format(i),
+        'Residue_Name': '{}_residue.fastq'.format(i),
+        'Upload_Chunks_Required': upload_chunks_deps[i - 1],
+        'Status': 'Waiting',
+        'Residue_Status': 'Waiting'
+    } for i in range(1, num_analysis_chunks + 1)]
 
     metadata = {
         'filename': filename,
         'upload_chunk_maxsize': upload_chunk_size,
         'analysis_chunk_maxsize': analysis_chunk_size,
-        'current_analysis_chunk_number': 0,
-        'current_analysis_chunk_size': 0,
-        'current_line_number': 1,
+        'upload_chunks': upload_chunks,
+        'analysis_chunks': analysis_chunks
     }
 
     with open(meta_fname, 'w') as f:
@@ -45,7 +70,8 @@ def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_siz
 
     return {'Success': True}
 
-@app.task
+
+@ app.task
 def make_file_data(results_dir):
     data_fname = '{}/data.json'.format(results_dir)
 
@@ -56,97 +82,105 @@ def make_file_data(results_dir):
 
     return {'Success': True}
 
-@app.task(bind=True)
+
+@ app.task(bind=True)
 def process_new_upload(self, file_dir, new_chunk_number):
     meta_fname = '{}/meta.json'.format(file_dir)
     upload_data_dir = '{}/upload_data'.format(file_dir)
     analysis_data_dir = '{}/salmon_data'.format(file_dir)
-    upload_chunk_fname = '{}/{}.fastq'.format(
-        upload_data_dir, new_chunk_number)
 
     metadata = None
     with open(meta_fname) as f:
         metadata = json.load(f)
 
-    current_analysis_chunk_number = metadata['current_analysis_chunk_number']
-    current_analysis_chunk_size = metadata['current_analysis_chunk_size']
+    metadata['upload_chunks'][new_chunk_number]['Status'] = 'Uploaded'
 
-    line_number = metadata['current_line_number']
-    upload_chunk_size = metadata['upload_chunk_maxsize']
-    analysis_chunk_size = metadata['analysis_chunk_maxsize']
-
-    analysis_chunk_fname = '{}/{}.fastq'.format(
-        analysis_data_dir, current_analysis_chunk_number)
-
-    # Record if a new analysis chunk is produced to trigger salmon
     chunk_to_analyze = None
-    with open(analysis_chunk_fname, 'ab+') as analysis_chunk:
-        with open(upload_chunk_fname, 'rb') as upload_chunk:
-            data = upload_chunk.read()
-            current_analysis_chunk_size += upload_chunk_size
+    for indx, analysis_chunk in enumerate(metadata['analysis_chunks']):
+        if analysis_chunk['Status'] == 'Waiting':
+            if all([metadata['upload_chunks'][i]['Status'] == 'Uploaded' for
+                    i in analysis_chunk['Upload_Chunks_Required']]):
+                residual_data = None
 
-            # if analysis chunk is full, fix truncation and move to next analysis chunk
-            if current_analysis_chunk_size > analysis_chunk_size:
-                # write till line number divisible by 4 aka complete record
-                lines_to_complete_record = 4 - (line_number % 4) + 1
-                data_to_complete_record = b'\n'.join(
-                    data.split(b'\n')[:lines_to_complete_record])
-                data_remaining = b'\n'.join(
-                    data.split(b'\n')[lines_to_complete_record:])
+                with open(os.path.join(analysis_data_dir, analysis_chunk['Name']), 'w') as af:
+                    for relative_num, upload_chunk_num in enumerate(analysis_chunk['Upload_Chunks_Required']):
+                        upload_chunk_fname = os.path.join(upload_data_dir,
+                                                          metadata['upload_chunks'][upload_chunk_num]['Name'])
+                        with open(upload_chunk_fname) as uf:
+                            data = None
+                            if relative_num == 0:
+                                data = uf.read()
 
-                analysis_chunk.write(data_to_complete_record)
+                                lines = data.split('\n')
+                                # a single plus is always the 3nd whole line of a sequence
+                                first_plus_line = lines.index('+')
+                                # adding 2 modulo 4 to the line number would give us the first line of a sequence
+                                sequence_start_line = (first_plus_line + 2) % 4
 
-                # set chunk for salmon analysis
-                chunk_to_analyze = current_analysis_chunk_number
+                                data = '\n'.join(lines[sequence_start_line:])
+                                residual_data = '\n'.join(
+                                    lines[:sequence_start_line])
+                            else:
+                                data = uf.read()
+                            af.write(data)
 
-                # write remaining data into the next analysis chunk
-                current_analysis_chunk_number += 1
-                current_analysis_chunk_size = 0
-                next_analysis_chunk_fname = '{}/{}.fastq'.format(
-                    analysis_data_dir, current_analysis_chunk_number)
+                        os.remove(upload_chunk_fname)
 
-                with open(next_analysis_chunk_fname, 'ab+') as next_analysis_chunk:
-                    next_analysis_chunk.write(data_remaining)
-            else:
-                analysis_chunk.write(data)
+                if metadata['analysis_chunks'][indx-1]['Status'] == 'Residue_Remaining':
+                    prev_chunk_name = metadata['analysis_chunks'][indx-1]['Name']
 
-            line_number += data.count(b'\n')
-    
-    metadata = {
-        'filename': metadata['filename'],
-        'upload_chunk_maxsize': upload_chunk_size,
-        'analysis_chunk_maxsize': analysis_chunk_size,
-        'current_analysis_chunk_number': current_analysis_chunk_number,
-        'current_analysis_chunk_size': current_analysis_chunk_size,
-        'current_line_number': line_number
-    }
+                    with open(os.path.join(analysis_data_dir, prev_chunk_name), 'a') as af:
+                        af.write(residual_data)
 
-    os.remove(upload_chunk_fname)
+                    metadata['analysis_chunks'][indx-1]['Status'] = 'Ready'
+
+                    chunk_to_analyze = indx - 1
+                else:
+                    prev_chunk_residue_name = metadata['analysis_chunks'][
+                        indx - 1]['Residue_Name']
+
+                    with open(os.path.join(analysis_data_dir, prev_chunk_residue_name), 'w') as af:
+                        af.write(residual_data)
+
+                    metadata['analysis_chunks'][indx -
+                                                1]['Residue_Status'] = 'Ready'
+
+                if metadata['analysis_chunks'][indx]['Residue_Status'] == 'Waiting':
+                    metadata['analysis_chunks'][indx]['Status'] = 'Residue_Remaining'
+                else:
+                    with open(os.path.join(analysis_data_dir, analysis_chunk['Name']), 'a') as af:
+                        with open(os.path.join(analysis_data_dir, analysis_chunk['Residue_Name'])) as rf:
+                            af.write(rf.read())
+                    metadata['analysis_chunks'][indx]['Status'] = 'Ready'
+
+                    chunk_to_analyze = indx
 
     with open(meta_fname, 'w') as f:
         json.dump(metadata, f)
 
     if chunk_to_analyze is None:
         self.request.chain = None
-        
+
     else:
         return {'Success': True,
                 'Last_Upload_Chunk_Processed': new_chunk_number,
                 'Chunk_To_Analyze': chunk_to_analyze}
 
+
 class SalmonMemoryError(Exception):
     """Exception raised for salmon not outputting quant files, due to memory availability
-    
+
     Attributes:
         None
     """
 
-    def __init__(self,dir, message="Salmon did not complete correctly"):
+    def __init__(self, dir, message="Salmon did not complete correctly"):
         self.dir = dir
         self.message = message
         super().__init__(self.message)
 
-@app.task(autoretry_for=(SalmonMemoryError,))
+
+@ app.task(autoretry_for=(SalmonMemoryError,))
 def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, real_time_results):
     chunk_number = upload_result['Chunk_To_Analyze']
     upload_chunk_number = upload_result['Last_Upload_Chunk_Processed']
@@ -171,12 +205,12 @@ def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, rea
         return {'Success': True,
                 'Current_Analysis_Chunk': chunk_number,
                 'Last_Upload_Chunk_Processed': upload_chunk_number,
-                'Quant_Dir': quant_dir} 
+                'Quant_Dir': quant_dir}
     else:
         raise SalmonMemoryError(quant_dir)
 
 
-@app.task
+@ app.task
 def post_process(salmon_result, data_dir, metadata_dir, panel):
 
     # only do post-processing if quant_file exists
@@ -184,9 +218,9 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
         return
 
     # state vars
-    quant_dir = salmon_result['Quant_Dir'] 
+    quant_dir = salmon_result['Quant_Dir']
     current_analysis_chunk = salmon_result['Current_Analysis_Chunk']
-    last_upload_chunk_analyzed = salmon_result['Last_Upload_Chunk_Processed']  
+    last_upload_chunk_analyzed = salmon_result['Last_Upload_Chunk_Processed']
 
     # # configurations for post-processing
     headers = ['Name', 'TPM']
@@ -204,28 +238,32 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
     if data is None:
         # first quant being analyzed
         logger.warning('Analyzing first chunk')
-        first_quant = realtime.realtime_quant_analysis(quant_dir, headers, metadata)
-        first_quant['Coverage'] = realtime.coverage_calc(first_quant, headers[1])
+        first_quant = realtime.realtime_quant_analysis(
+            quant_dir, headers, metadata)
+        first_quant['Coverage'] = realtime.coverage_calc(
+            first_quant, headers[1])
         first_quant.reset_index(inplace=True)
 
         with open(data_fname, 'w') as f:
             first_quant.to_json(f, orient="table")
 
-    
     else:
-        logger.warning(f"Retrieving data from previous chunk {current_analysis_chunk -1}")
-        
+        logger.warning(
+            f"Retrieving data from previous chunk {current_analysis_chunk -1}")
+
         # read data from previous quant file; already has coverage
         previous_chunk = data
         previous_chunk.set_index('Pathogen', inplace=True)
         logger.warning(realtime.coverage_summarizer(previous_chunk, headers))
 
-        logger.warning(f"Reading current data from chunk {current_analysis_chunk}")
+        logger.warning(
+            f"Reading current data from chunk {current_analysis_chunk}")
 
         # read data from currentquant file and calculate coverage
         current_chunk = realtime.realtime_quant_analysis(
             quant_dir, headers, metadata)
-        current_chunk['Coverage'] = realtime.coverage_calc(current_chunk, headers[1])
+        current_chunk['Coverage'] = realtime.coverage_calc(
+            current_chunk, headers[1])
 
         logger.warning(f"Accumulating results")
         # sum results
@@ -235,11 +273,12 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
             accumulated_results, headers[1])
 
         accumulated_results.reset_index(inplace=True)
-        
+
         with open(data_fname, 'w') as f:
             accumulated_results.to_json(f, orient="table")
 
     return {"Success": True}
- 
+
+
 if __name__ == '__main__':
     app.worker_main()

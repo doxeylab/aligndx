@@ -199,7 +199,7 @@ async def start_file(
         results_dir = "{}/{}".format(REAL_TIME_RESULTS, file_id)
         os.mkdir(results_dir)
 
-        tasks.make_file_metadata.delay(rt_dir, filename, upload_chunk_size, salmon_chunk_size)
+        tasks.make_file_metadata.delay(rt_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks)
         tasks.make_file_data.delay(results_dir)
 
         return {"Result": "OK",
