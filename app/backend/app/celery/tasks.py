@@ -183,7 +183,7 @@ class SalmonMemoryError(Exception):
         super().__init__(self.message)
 
 
-@app.task(throws=(SalmonMemoryError,),autoretry_for=(SalmonMemoryError,), retry_kwargs={'countdown':5})
+@app.task(throws=(SalmonMemoryError,),autoretry_for=(SalmonMemoryError,), retry_backoff=5)
 def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, real_time_results):
     chunk_number = upload_result['Chunk_To_Analyze']
 
