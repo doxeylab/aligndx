@@ -110,6 +110,7 @@ services:
       - ./backend/indexes:/indexes:ro
       - ./backend/metadata:/metadata:ro
     environment:
+      BASE_URL: ${BASE_URL}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
       NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}

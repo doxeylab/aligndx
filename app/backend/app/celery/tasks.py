@@ -55,7 +55,7 @@ def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_siz
         'Upload_Chunks_Required': upload_chunks_deps[i - 1],
         'Status': 'Waiting',
         'Residue_Status': 'Waiting'
-    } for i in range(0, num_analysis_chunks)]
+    } for i in range(1, num_analysis_chunks +1)]
 
     metadata = {
         'filename': filename,
@@ -124,7 +124,7 @@ def process_new_upload(self, file_dir, new_chunk_number):
                                 # a single plus is always the 3nd whole line of a sequence
                                 first_plus_line = lines.index('+')
                                 # adding 2 modulo 4 to the line number would give us the first line of a sequence
-                                sequence_start_line = (first_plus_line + 2) % 4
+                                sequence_start_line = ((first_plus_line + 2) % 4) + 4
 
                                 data = '\n'.join(lines[sequence_start_line:])
                                 residual_data = '\n'.join(
@@ -135,40 +135,42 @@ def process_new_upload(self, file_dir, new_chunk_number):
 
                         os.remove(upload_chunk_fname)
 
-                # check to see if the previous analysis chunk has data left over
-                if metadata['analysis_chunks'][indx-1]['Status'] == 'Residue_Remaining':
-                    prev_chunk_name = metadata['analysis_chunks'][indx-1]['Name']
+                if indx > 0 : 
+                    # check to see if the previous analysis chunk has truncation, if so write to the current chunk
+                    if metadata['analysis_chunks'][indx-1]['Status'] == 'Residue_Remaining':
+                        prev_chunk_name = metadata['analysis_chunks'][indx-1]['Name']
+    
+                        with open(os.path.join(analysis_data_dir, prev_chunk_name), 'a') as af:
+                            af.write(residual_data)
+    
+                        metadata['analysis_chunks'][indx-1]['Status'] = 'Ready'
+                        chunk_to_analyze = indx
 
-                    with open(os.path.join(analysis_data_dir, prev_chunk_name), 'a') as af:
-                        af.write(residual_data)
-
-                    metadata['analysis_chunks'][indx-1]['Status'] = 'Ready'
-
-                    chunk_to_analyze = indx - 1
-                
-                # otherwise declare the residues to be finished
-                else:
-                    prev_chunk_residue_name = metadata['analysis_chunks'][
-                        indx - 1]['Residue_Name']
-
-                    with open(os.path.join(analysis_data_dir, prev_chunk_residue_name), 'w') as af:
-                        af.write(residual_data)
-
-                    metadata['analysis_chunks'][indx -
-                                                1]['Residue_Status'] = 'Ready'
-
-                # if there is data remaining, change the status of the analysis chunk
-                if metadata['analysis_chunks'][indx]['Residue_Status'] == 'Waiting':
+    
+                    # otherwise declare the residues to be finished
+                    else:
+                        prev_chunk_residue_name = metadata['analysis_chunks'][
+                            indx - 1]['Residue_Name']
+    
+                        with open(os.path.join(analysis_data_dir, prev_chunk_residue_name), 'w') as af:
+                            af.write(residual_data)
+    
+                        metadata['analysis_chunks'][indx -
+                                                    1]['Residue_Status'] = 'Ready'
+    
+                    # if there is data remaining, change the status of the analysis chunk
+                if metadata['analysis_chunks'][indx]['Residue_Status'] == 'Waiting' and indx + 1 != len(metadata['analysis_chunks']):
                     metadata['analysis_chunks'][indx]['Status'] = 'Residue_Remaining'
 
                 # otherwise, declare the analysis chunk be ready to analyzed
                 else:
-                    with open(os.path.join(analysis_data_dir, analysis_chunk['Name']), 'a') as af:
-                        with open(os.path.join(analysis_data_dir, analysis_chunk['Residue_Name'])) as rf:
-                            af.write(rf.read())
+                    if indx + 1 != len(metadata['analysis_chunks']):
+                        with open(os.path.join(analysis_data_dir, analysis_chunk['Name']), 'a') as af:
+                            with open(os.path.join(analysis_data_dir, analysis_chunk['Residue_Name'])) as  rf:
+                                af.write(rf.read())
                     metadata['analysis_chunks'][indx]['Status'] = 'Ready'
 
-                    chunk_to_analyze = indx
+                    chunk_to_analyze = indx + 1
 
     with open(meta_fname, 'w') as f:
         json.dump(metadata, f)
@@ -304,11 +306,13 @@ def pipe_status(pipe_result, file_dir):
     analysis_chunks_processed = metadata['analysis_chunks_processed']
     total_analysis_chunks = metadata['total_analysis_chunks']
 
-    if analysis_chunks_processed == (total_analysis_chunks - 1):
+    if analysis_chunks_processed == (total_analysis_chunks - 2):
         fileId = metadata['fileId']
         reciever = metadata['email']
         sample = metadata['filename']
         result_link = f'/result?submission={fileId}'
+
+        print(f"sending email to {reciever}")
         email_feature.send_email(receiver_email=reciever, sample=sample, link=result_link)
     
     else:
@@ -318,7 +322,8 @@ def pipe_status(pipe_result, file_dir):
             json.dump(metadata, f)
 
     return {"Last_Chunk_Analzyed": last_chunk_analyzed,
-            "Analysis_Chunks_Processed": analysis_chunks_processed}
+            "Analysis_Chunks_Processed": analysis_chunks_processed,
+            }
 
 if __name__ == '__main__':
     app.worker_main()
