@@ -4,7 +4,7 @@ services:
     build:
       context: backend
       dockerfile: docker/api/Dockerfile
-    command: sh -c " sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && uvicorn app.main:app --workers 4 --host 0.0.0.0 --port 8080"
+    command: sh -c " sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port 8080"
     tty: true
     depends_on:
       - postgres
@@ -25,7 +25,7 @@ services:
       SECRET_KEY: ${SECRET_KEY}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL} 
+      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
       NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
 
   frontend:
@@ -87,42 +87,6 @@ services:
       - ./backend/indexes:/app/indexes:ro
       - ./backend/metadata:/app/metadata:ro
 
-  # worker:
-  #   build:
-  #     context: backend
-  #     dockerfile: docker/worker/Dockerfile 
-  #   command: sh -c "sh ./bin/wait-for/wait-for.sh kafka:29092 --timeout=20 && python -m app.worker worker -l info"
-  #   tty: true 
-  #   environment: 
-  #     FAUST_BROKER_URL: "kafka://kafka:29092"
-  #   depends_on:
-  #     - kafka
-
-  # kafka:
-  #   image: confluentinc/cp-kafka:6.0.0
-  #   ports:
-  #     - "29092"
-  #   environment:
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:32181
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
-  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  #   volumes:
-  #     - kafka-data:/var/lib/kafka/data
-  #     - kafka-secrets:/etc/kafka/secrets
-  #   depends_on:
-  #     - zookeeper
-
-  # zookeeper:
-  #   image: confluentinc/cp-zookeeper:6.0.0
-  #   ports:
-  #     - "32181"
-  #   environment:
-  #     ZOOKEEPER_CLIENT_PORT: 32181
-  #   volumes:
-  #     - zookeeper-data:/var/lib/zookeeper/data
-  #     - zookeeper-log:/var/lib/zookeeper/log
-  #     - zookeeper-secrets:/etc/zookeeper/secrets
-
   rabbitmq:
     image: rabbitmq:3.9
     ports:
@@ -148,7 +112,7 @@ services:
     environment:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL} 
+      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
       NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
 
   flower:

@@ -56,19 +56,18 @@ class Chunk_id(BaseModel):
     account_id: str 
 
 @router.websocket('/livegraphs/{file_id}') 
-async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, current_user: UserDTO = Depends(get_current_user_ws)):
-     
-    query = await ModelSample.get_sample_info(current_user.id, file_id,)
+async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
 
-    file_id = str(query['id'])
+    await manager.connect(websocket)
+    token = await websocket.receive_text()
+    current_user = await get_current_user_ws(token)
+     
+    query = await ModelSample.get_sample_info(current_user.id, file_id)
+
     sample_name = query['sample_name']
 
     headers=['Name', 'TPM']
     data_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, "data.json")
- 
-    await manager.connect(websocket)
-    token = await websocket.receive_text()
-    current_user = await get_current_user_ws(token)
 
     if current_user:
         print(f"User {current_user.id} connected!")

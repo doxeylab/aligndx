@@ -92,6 +92,8 @@ const SignUpAuth = () => {
                                     localStorage.setItem("accessToken", response.access_token);
                                     setLoading(false)
                                     history.push("/");
+                                    // force re-render of homepage
+                                    history.go(0);
                                     context.loadCurrentUser();
                                 })
                                 .catch((error) => {
