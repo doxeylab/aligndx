@@ -8,7 +8,8 @@ customers = Table(
     Column("name", String(50), nullable=False),
     Column("email", String(50), nullable=False),
     Column("stripe_customer_id", String(50), nullable=True),
-    Column("creation_time", DateTime, nullable=False)
+    Column("creation_time", DateTime, nullable=False),
+    Column("admin_user_id", Integer, ForeignKey("users.id"), nullable=False),
 )
 
 subscriptions = Table(
@@ -25,7 +26,7 @@ subscriptions = Table(
     Column("current_period_end", DateTime, nullable=True),
     Column("customer_id", Integer, ForeignKey("customers.id"), nullable=False),
     Column("stripe_customer_id", String(50), nullable=False),
-    Column("stripe_latest_subscription_id", String(50), nullable=False),
+    Column("stripe_latest_invoice_id", String(50), nullable=True),
     Column("stripe_subscription_id", String(50), nullable=True),
     Column("stripe_price_id", String(50), nullable=True),
     Column("stripe_default_payment_method_id", String(50), nullable=True),

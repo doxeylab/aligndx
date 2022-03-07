@@ -68,7 +68,7 @@ app.include_router(
 app.include_router(
     subscriptions.router,
     prefix="/subscriptions",
-    tags=["subscriptions"],
+    tags=["Subscriptions"],
     dependencies=[Depends(get_current_user)],
     responses={418: {"description": "I'm a teapot"}},
 )
