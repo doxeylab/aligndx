@@ -74,17 +74,28 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
         print(f"User {current_user.id} connected!")
         try:
             while True:
-                 
+                metadata = None
+                with open(meta_dir) as f:
+                    metadata = json.load(f)
+                analysis_chunks_processed = metadata['analysis_chunks_processed']
+                total_analysis_chunks = metadata['total_analysis_chunks'] - 2
+
+                if analysis_chunks_processed == (total_analysis_chunks):
+                    manager.disconnect(websocket)
+                    return
+
                 try:
                     stored_data = pd.read_json(data_dir, orient="table")
+                
                 except:
                     stored_data = None
 
                 if stored_data is not None:
                     stored_data.set_index('Pathogen', inplace=True)
                     data = realtime.data_loader(stored_data, sample_name, headers, status="ready")
+                    data['progress'] = analysis_chunks_processed/total_analysis_chunks
                     await manager.send_data(data, websocket)  
-                    await asyncio.sleep(1) 
+                    await asyncio.sleep(3) 
                 
                 else:
                     message = {"status": "pending"} 

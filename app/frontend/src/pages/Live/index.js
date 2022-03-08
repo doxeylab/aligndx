@@ -83,10 +83,10 @@ const Live = () => {
                 ws.send(token) 
             }
             
-            // ws.onclose = function (event) {
-            //     console.log("socket closed")
-            //     console.log(event)
-            // }
+            ws.onclose = function (event) {
+                console.log("socket closed")
+                console.log(event)
+            }
 
             ws.onmessage = function (event) {
                 const obj = JSON.parse(event.data)
@@ -131,10 +131,9 @@ const Live = () => {
             console.log("reloaded!")
             localStorage.removeItem("user_reloaded")
             fileId = lstate.fileId
-            restartflag = true 
             file = lstate.file
             panels = lstate.panels
-            ChunkProcessor(token, file, panels, fileId, restartflag) 
+            ChunkProcessor(token, file, panels, fileId, true) 
         }
 
         else {
@@ -164,6 +163,12 @@ const Live = () => {
     useEffect(() => {
         connectWebsocket(fileId, token, datahandler)
     },[])
+
+    useEffect(() => {
+        if (data){
+            console.log(data.progress)
+        }
+    },[data])
  
     return (
         <> 
