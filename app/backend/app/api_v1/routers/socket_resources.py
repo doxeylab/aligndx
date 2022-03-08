@@ -68,11 +68,13 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
 
     headers=['Name', 'TPM']
     data_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, "data.json")
+    meta_dir = "{}/{}/{}".format(REAL_TIME_UPLOADS, file_id, "meta.json")
 
     if current_user:
         print(f"User {current_user.id} connected!")
         try:
-            while True: 
+            while True:
+                 
                 try:
                     stored_data = pd.read_json(data_dir, orient="table")
                 except:
