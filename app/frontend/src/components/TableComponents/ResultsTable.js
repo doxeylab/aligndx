@@ -4,7 +4,7 @@ import BarChart from "../BarChart";
 const createBarChart = (chart_data) => { 
     if (chart_data) {
         return (
-            <BarChart data={chart_data} yLabel={chart_data.ylabel} xLabel={chart_data.xlabel} col="coverage" xkey="pathogen" ykey="coverage" />
+            <BarChart data={chart_data} yLabel={chart_data.ylabel} xLabel={chart_data.xlabel} col="coverage" xkey="Pathogen" ykey="Coverage" />
         )
     }
     else {
@@ -25,10 +25,10 @@ const ResultsTable = (props) => {
         const name = data.sample_name
         const panel_capitalized = data.panel.charAt(0).toUpperCase() + data.panel.slice(1)
         const meta = [panel_capitalized,data.created_date]
-        const chart_data = JSON.parse(data.result)
-        const result = createBarChart(chart_data)
+        const result = createBarChart(data.result) 
         re_organized_data.push({name, meta, result});
     }
+    console.log(re_organized_data)
 
     data.forEach(point => organize_data(point))
     return (

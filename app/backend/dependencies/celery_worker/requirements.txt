@@ -1,3 +1,7 @@
 celery==5.2.3
 pandas==1.4
+beautifulsoup4==4.10.0
+fastapi
+pydantic
 requests
+passlib==1.7.4

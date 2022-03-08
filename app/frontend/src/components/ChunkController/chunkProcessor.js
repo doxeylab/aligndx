@@ -53,8 +53,9 @@ const ChunkProcessor = async (token, file, panels, fileId, restartflag) => {
   let lastChunkUploaded = 0;
   
   if (restartflag) {
-    lastChunkUploaded = localStorage.getItem(fileId + '_lastChunk') + 1
+    lastChunkUploaded = Number(localStorage.getItem(fileId + '_lastChunk')) + 1
   } 
+  console.log(lastChunkUploaded)
   
   for (let i = lastChunkUploaded; i < numberOfChunks; i++) {
     const res = await startChunk(upload_resource, token, i, fileId, file, panels);

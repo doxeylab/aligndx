@@ -11,7 +11,7 @@ import ResultsTable from '../components/TableComponents/ResultsTable'
 
 
 const Profile = () => {
-    const [data, setData] = useState([]);
+    const [data, setData] = useState(null);
     const context = useGlobalContext();
 
     useEffect(async () => {
@@ -27,7 +27,7 @@ const Profile = () => {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
-                });
+                }); 
                 setData(res.data); 
             }
             else {
@@ -46,7 +46,11 @@ const Profile = () => {
                     </Col>
                 </Row>
                 <Row>
-                    <ResultsTable data={data}></ResultsTable> 
+                    {data? 
+                        <ResultsTable data={data}></ResultsTable> 
+                        :
+                        null                
+                    }
                 </Row>
             </Container>
         </Section>

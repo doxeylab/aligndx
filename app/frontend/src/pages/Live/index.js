@@ -8,7 +8,7 @@ import { Col, Container, Row } from 'react-bootstrap';
 
 // React
 import React, { useState, useEffect } from 'react';
-import { useLocation, useHistory} from 'react-router-dom';
+import { useLocation, useHistory, Prompt} from 'react-router-dom';
 
 // Components
 //// Core components
@@ -30,6 +30,7 @@ import {useGlobalContext} from "../../context-provider"
 
 // Services
 import {WEBSOCKET_URL} from '../../services/Config';
+import { local } from 'd3';
  
 
 const Live = () => {
@@ -82,10 +83,10 @@ const Live = () => {
                 ws.send(token) 
             }
             
-            // ws.onclose = function (event) {
-            //     console.log("socket closed")
-            //     console.log(event)
-            // }
+            ws.onclose = function (event) {
+                console.log("socket closed")
+                console.log(event)
+            }
 
             ws.onmessage = function (event) {
                 const obj = JSON.parse(event.data)
@@ -118,10 +119,21 @@ const Live = () => {
     let restartflag = null
     let file = null
     let panels = null
+    let reload_flag = localStorage.getItem("user_reloaded")
     
     useEffect(() => {
         if (!lstate){
             history.push('/')
+            return 
+        }
+
+        if (reload_flag){
+            console.log("reloaded!")
+            localStorage.removeItem("user_reloaded")
+            fileId = lstate.fileId
+            file = lstate.file
+            panels = lstate.panels
+            ChunkProcessor(token, file, panels, fileId, true) 
         }
 
         else {
@@ -138,7 +150,8 @@ const Live = () => {
     
     useEffect(() => {
         window.onbeforeunload = function() {
-            restartflag = true 
+            localStorage.setItem("user_reloaded", true)
+            console.log("setting reload!")
             return true;
         };
     
@@ -149,14 +162,16 @@ const Live = () => {
 
     useEffect(() => {
         connectWebsocket(fileId, token, datahandler)
-    }, [])
- 
-    useEffect(() => {
-        console.log(data, sample, pathogens)
-    }, [data,sample,pathogens])
+    },[])
 
+    useEffect(() => {
+        if (data){
+            console.log(data.progress)
+        }
+    },[data])
+ 
     return (
-        <>
+        <> 
             {data ?
                 <Section id="result">
                     <Container>

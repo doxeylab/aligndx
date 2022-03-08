@@ -43,7 +43,12 @@ class AppSettings(BaseSettings):
 
     # Inherits foldersettings
     class ResultSettings(FolderSettings):
-        pass  
+        pass
+
+    class NotificationSettings():
+        sender_email = os.getenv("NOTIFICATION_EMAIL") 
+        password = os.getenv("NOTIFICATION_EMAIL_PASSWORD")
+        base_url = os.getenv("BASE_URL")
 
 @lru_cache()
 def get_settings():

@@ -20,11 +20,12 @@ services:
       - ./backend/metadata:/app/metadata:ro
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      BASE_URL: ${BASE_URL}
       ORIGINS: ${ORIGINS}
       SECRET_KEY: ${SECRET_KEY}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL} 
+      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
       NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
 
   frontend:
@@ -39,6 +40,7 @@ services:
       - /app/node_modules
     environment:
       NODE_ENV: development
+      BASE_URL: ${BASE_URL}
       REACT_APP_BACKEND_ACCESS_URL: ${REACT_APP_BACKEND_ACCESS_URL}
 
   postgres:
@@ -85,42 +87,6 @@ services:
       - ./backend/indexes:/app/indexes:ro
       - ./backend/metadata:/app/metadata:ro
 
-  # worker:
-  #   build:
-  #     context: backend
-  #     dockerfile: docker/worker/Dockerfile 
-  #   command: sh -c "sh ./bin/wait-for/wait-for.sh kafka:29092 --timeout=20 && python -m app.worker worker -l info"
-  #   tty: true 
-  #   environment: 
-  #     FAUST_BROKER_URL: "kafka://kafka:29092"
-  #   depends_on:
-  #     - kafka
-
-  # kafka:
-  #   image: confluentinc/cp-kafka:6.0.0
-  #   ports:
-  #     - "29092"
-  #   environment:
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:32181
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
-  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  #   volumes:
-  #     - kafka-data:/var/lib/kafka/data
-  #     - kafka-secrets:/etc/kafka/secrets
-  #   depends_on:
-  #     - zookeeper
-
-  # zookeeper:
-  #   image: confluentinc/cp-zookeeper:6.0.0
-  #   ports:
-  #     - "32181"
-  #   environment:
-  #     ZOOKEEPER_CLIENT_PORT: 32181
-  #   volumes:
-  #     - zookeeper-data:/var/lib/zookeeper/data
-  #     - zookeeper-log:/var/lib/zookeeper/log
-  #     - zookeeper-secrets:/etc/zookeeper/secrets
-
   rabbitmq:
     image: rabbitmq:3.9
     ports:
@@ -138,14 +104,16 @@ services:
     volumes:
       - ./backend/app/celery:/app/celery:ro
       - ./backend/app/scripts:/app/scripts:ro
+      - ./backend/app/config:/app/config:ro
       - ./backend/results:/results
       - ./backend/uploads:/uploads
       - ./backend/indexes:/indexes:ro
       - ./backend/metadata:/metadata:ro
     environment:
+      BASE_URL: ${BASE_URL}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL} 
+      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
       NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
 
   flower:

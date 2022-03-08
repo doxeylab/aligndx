@@ -2,9 +2,18 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from bs4 import BeautifulSoup as bs
+from app.config.settings import get_settings
 import os 
 
-def email_html_customizer(sample ,link):
+# config
+app_settings = get_settings()
+settings = app_settings.NotificationSettings()
+
+baseURL = settings.base_url
+sender_email = settings.sender_email   
+password =  settings.password
+
+def email_html_customizer(sample, link):
   '''
   link must be of the format "/result?submission=fileid"
   '''
@@ -19,15 +28,15 @@ def email_html_customizer(sample ,link):
 
 
 def send_email(receiver_email, sample, link):
-    sender_email = os.getenv("NOTIFICATION_EMAIL") 
-    password = os.getenv("NOTIFICATION_EMAIL_PASSWORD") 
 
     message = MIMEMultipart("alternative")
     message["Subject"] = f"Analysis Results for {sample}"
     message["From"] = sender_email
     message["To"] = receiver_email
-    
-    html = email_html_customizer(sample, link) 
+
+    url = baseURL + link 
+
+    html = email_html_customizer(sample, url) 
 
     # Fool gmail by sending html as plain and html, to prevent spam flagging
     plain_part = MIMEText(html, "plain")
