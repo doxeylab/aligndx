@@ -27,8 +27,9 @@ const RestartTable = (props) => {
     const organize_data = (data) => {
         const id = data.id
         const name = data.sample_name
-        const panel_capitalized = data.panel.charAt(0).toUpperCase() + data.panel.slice(1)
-        const meta = [panel_capitalized, data.created_date]
+        const panel = data.panel
+        const date = Date(data.created_date)
+        const meta = [panel, date]
         const result = result_modal(props)
 
         re_organized_data.push({ name, meta, result, id });

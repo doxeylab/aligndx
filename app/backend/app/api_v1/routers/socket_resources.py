@@ -56,34 +56,46 @@ class Chunk_id(BaseModel):
     account_id: str 
 
 @router.websocket('/livegraphs/{file_id}') 
-async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, current_user: UserDTO = Depends(get_current_user_ws)):
-     
-    query = await ModelSample.get_sample_info(current_user.id, file_id,)
+async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
 
-    file_id = str(query['id'])
+    await manager.connect(websocket)
+    token = await websocket.receive_text()
+    current_user = await get_current_user_ws(token)
+     
+    query = await ModelSample.get_sample_info(current_user.id, file_id)
+
     sample_name = query['sample_name']
 
     headers=['Name', 'TPM']
     data_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, "data.json")
- 
-    await manager.connect(websocket)
-    token = await websocket.receive_text()
-    current_user = await get_current_user_ws(token)
+    meta_dir = "{}/{}/{}".format(REAL_TIME_UPLOADS, file_id, "meta.json")
 
     if current_user:
         print(f"User {current_user.id} connected!")
         try:
-            while True: 
+            while True:
+                metadata = None
+                with open(meta_dir) as f:
+                    metadata = json.load(f)
+                analysis_chunks_processed = metadata['analysis_chunks_processed']
+                total_analysis_chunks = metadata['total_analysis_chunks'] - 2
+
+                if analysis_chunks_processed == (total_analysis_chunks):
+                    manager.disconnect(websocket)
+                    return
+
                 try:
                     stored_data = pd.read_json(data_dir, orient="table")
+                
                 except:
                     stored_data = None
 
                 if stored_data is not None:
                     stored_data.set_index('Pathogen', inplace=True)
                     data = realtime.data_loader(stored_data, sample_name, headers, status="ready")
+                    data['progress'] = analysis_chunks_processed/total_analysis_chunks
                     await manager.send_data(data, websocket)  
-                    await asyncio.sleep(1) 
+                    await asyncio.sleep(3) 
                 
                 else:
                     message = {"status": "pending"} 

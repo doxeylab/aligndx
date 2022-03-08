@@ -89,6 +89,18 @@ async def get_incomplete_submissions(current_user: UserDTO = Depends(get_current
     submissions = await ModelSample.get_user_incomplete_submissions(current_user.id)
     return submissions
 
+# returns single result for UI to access when user clicks on a linked result
+@router.get('/linked_results/{file_id}')
+async def get_result(file_id: str, current_user: UserDTO = Depends(get_current_user)):
+    query = await ModelSample.get_sample_info(current_user.id, file_id)
+
+    if (not query):
+        return HTTPException(status_code=404, detail="Item not found")
+    
+    data = query["result"]
+
+    return data
+
 # -- Cookies attempt --
 
 

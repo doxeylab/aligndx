@@ -1,3 +1,4 @@
+from fileinput import filename
 import os
 import logging
 import json
@@ -55,7 +56,7 @@ def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_siz
         'Upload_Chunks_Required': upload_chunks_deps[i - 1],
         'Status': 'Waiting',
         'Residue_Status': 'Waiting'
-    } for i in range(1, num_analysis_chunks + 1)]
+    } for i in range(1, num_analysis_chunks +1)]
 
     metadata = {
         'filename': filename,
@@ -102,10 +103,15 @@ def process_new_upload(self, file_dir, new_chunk_number):
     chunk_to_analyze = None
     for indx, analysis_chunk in enumerate(metadata['analysis_chunks']):
         if analysis_chunk['Status'] == 'Waiting':
+
+            # check to see if necessary residues are ready for analysis chunk assembly
+            # A note that we should look into assembling on the fly, rather than waiting
+            # A simple version could be to write all the residues on the fly, and when this conditions is true, assemble them 
             if all([metadata['upload_chunks'][i]['Status'] == 'Uploaded' for
                     i in analysis_chunk['Upload_Chunks_Required']]):
                 residual_data = None
 
+                # start writing analysis chunk with appropriate residues
                 with open(os.path.join(analysis_data_dir, analysis_chunk['Name']), 'w') as af:
                     for relative_num, upload_chunk_num in enumerate(analysis_chunk['Upload_Chunks_Required']):
                         upload_chunk_fname = os.path.join(upload_data_dir,
@@ -119,7 +125,7 @@ def process_new_upload(self, file_dir, new_chunk_number):
                                 # a single plus is always the 3nd whole line of a sequence
                                 first_plus_line = lines.index('+')
                                 # adding 2 modulo 4 to the line number would give us the first line of a sequence
-                                sequence_start_line = (first_plus_line + 2) % 4
+                                sequence_start_line = ((first_plus_line + 2) % 4) + 4
 
                                 data = '\n'.join(lines[sequence_start_line:])
                                 residual_data = '\n'.join(
@@ -130,34 +136,42 @@ def process_new_upload(self, file_dir, new_chunk_number):
 
                         os.remove(upload_chunk_fname)
 
-                if metadata['analysis_chunks'][indx-1]['Status'] == 'Residue_Remaining':
-                    prev_chunk_name = metadata['analysis_chunks'][indx-1]['Name']
+                if indx > 0 : 
+                    # check to see if the previous analysis chunk has truncation, if so write to the current chunk
+                    if metadata['analysis_chunks'][indx-1]['Status'] == 'Residue_Remaining':
+                        prev_chunk_name = metadata['analysis_chunks'][indx-1]['Name']
+    
+                        with open(os.path.join(analysis_data_dir, prev_chunk_name), 'a') as af:
+                            af.write(residual_data)
+    
+                        metadata['analysis_chunks'][indx-1]['Status'] = 'Ready'
+                        chunk_to_analyze = indx
 
-                    with open(os.path.join(analysis_data_dir, prev_chunk_name), 'a') as af:
-                        af.write(residual_data)
-
-                    metadata['analysis_chunks'][indx-1]['Status'] = 'Ready'
-
-                    chunk_to_analyze = indx - 1
-                else:
-                    prev_chunk_residue_name = metadata['analysis_chunks'][
-                        indx - 1]['Residue_Name']
-
-                    with open(os.path.join(analysis_data_dir, prev_chunk_residue_name), 'w') as af:
-                        af.write(residual_data)
-
-                    metadata['analysis_chunks'][indx -
-                                                1]['Residue_Status'] = 'Ready'
-
-                if metadata['analysis_chunks'][indx]['Residue_Status'] == 'Waiting':
+    
+                    # otherwise declare the residues to be finished
+                    else:
+                        prev_chunk_residue_name = metadata['analysis_chunks'][
+                            indx - 1]['Residue_Name']
+    
+                        with open(os.path.join(analysis_data_dir, prev_chunk_residue_name), 'w') as af:
+                            af.write(residual_data)
+    
+                        metadata['analysis_chunks'][indx -
+                                                    1]['Residue_Status'] = 'Ready'
+    
+                    # if there is data remaining, change the status of the analysis chunk
+                if metadata['analysis_chunks'][indx]['Residue_Status'] == 'Waiting' and indx + 1 != len(metadata['analysis_chunks']):
                     metadata['analysis_chunks'][indx]['Status'] = 'Residue_Remaining'
+
+                # otherwise, declare the analysis chunk be ready to analyzed
                 else:
-                    with open(os.path.join(analysis_data_dir, analysis_chunk['Name']), 'a') as af:
-                        with open(os.path.join(analysis_data_dir, analysis_chunk['Residue_Name'])) as rf:
-                            af.write(rf.read())
+                    if indx + 1 != len(metadata['analysis_chunks']):
+                        with open(os.path.join(analysis_data_dir, analysis_chunk['Name']), 'a') as af:
+                            with open(os.path.join(analysis_data_dir, analysis_chunk['Residue_Name'])) as  rf:
+                                af.write(rf.read())
                     metadata['analysis_chunks'][indx]['Status'] = 'Ready'
 
-                    chunk_to_analyze = indx
+                    chunk_to_analyze = indx + 1
 
     with open(meta_fname, 'w') as f:
         json.dump(metadata, f)
@@ -183,7 +197,7 @@ class SalmonMemoryError(Exception):
         super().__init__(self.message)
 
 
-@app.task(throws=(SalmonMemoryError,),autoretry_for=(SalmonMemoryError,), retry_kwargs={'countdown':5})
+@app.task(throws=(SalmonMemoryError,),autoretry_for=(SalmonMemoryError,), retry_backoff=5)
 def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, real_time_results):
     chunk_number = upload_result['Chunk_To_Analyze']
 
@@ -248,8 +262,7 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
             first_quant.to_json(f, orient="table")
 
     else:
-        logger.warning(
-            f"Retrieving data from previous chunk {chunk_number -1}")
+        logger.warning("Retrieving previous data")
 
         # read data from previous quant file; already has coverage
         previous_chunk = data
@@ -277,25 +290,37 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
         with open(data_fname, 'w') as f:
             accumulated_results.to_json(f, orient="table")
 
-    return {"Success": True}
+    return {"Success": True,
+            "Chunk_Analyzed": chunk_number}
 
 @app.task
-def pipe_status(pipe_result, file_dir):
+def pipe_status(pipe_result, file_dir, data_dir):
+
+    last_chunk_analyzed = pipe_result['Chunk_Analyzed']
     meta_fname = '{}/meta.json'.format(file_dir)
 
     metadata = None
     with open(meta_fname) as f:
         metadata = json.load(f)
 
+    fileName = metadata['filename']
+    email = metadata['email']
+
     analysis_chunks_processed = metadata['analysis_chunks_processed']
     total_analysis_chunks = metadata['total_analysis_chunks']
 
-    if analysis_chunks_processed == total_analysis_chunks:
+    if analysis_chunks_processed == (total_analysis_chunks - 2):
+        
         fileId = metadata['fileId']
-        reciever = metadata['email']
-        sample = metadata['filename']
-        result_link = f'/result?submission={fileId}'
-        email_feature.send_email(receiver_email=reciever, sample=sample, link=result_link)
+        
+        end_request = {
+                        "fileName": fileName,
+                        "fileId": fileId,
+                        "data_dir": data_dir,
+                        "email": email
+                        }
+
+        requests.post("http://backend:8080/end_pipe", json = end_request)
     
     else:
         analysis_chunks_processed += 1
@@ -303,6 +328,10 @@ def pipe_status(pipe_result, file_dir):
         with open(meta_fname, 'w') as f:
             json.dump(metadata, f)
 
+    return {
+            "Last_Chunk_Analzyed": last_chunk_analyzed,
+            "Analysis_Chunks_Processed": analysis_chunks_processed,
+            }
 
 if __name__ == '__main__':
     app.worker_main()

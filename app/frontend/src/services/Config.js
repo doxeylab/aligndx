@@ -24,9 +24,10 @@ export const SIGNUP_URL = USERS + "create_user"
 export const ACCESS_TOKEN_URL = USERS + "me" 
 export const STANDARD_SUBMISSIONS_URL = USERS + "submissions" 
 export const INCOMPLETE_URL = USERS + "incomplete"
+export const LINKED_RESULTS = USERS + "linked_results/"
 
-// export const WEBSOCKET_URL = "ws://aligndx.uwaterloo.ca:8080/livegraphs"
-export const WEBSOCKET_URL = "ws://localhost:8080/livegraphs"
+export const WEBSOCKET_URL = "ws://aligndx.uwaterloo.ca:8080/livegraphs"
+// export const WEBSOCKET_URL = "ws://localhost:8080/livegraphs"
 
 // metadata
 export const METADATA_URL = URL + "metadata/"
