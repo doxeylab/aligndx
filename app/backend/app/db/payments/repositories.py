@@ -25,5 +25,18 @@ class CustomerRepo:
 class SubscriptionRepo:
     @classmethod
     async def create_subscription(cls, **subscription):
-        customer_id = CustomerRepo.create_customer(subscription)
-        return customer_id
+        query = subscriptions.insert().values(**subscription)
+        subscription_id = await database.execute(query)
+        return subscription_id
+    
+    @classmethod
+    async def update_subscription(cls, id, **update_items):
+        query = subscriptions.update().where(subscriptions.c.id == id).values(**update_items)
+        await database.execute(query)
+
+class InvoiceRepo:
+    @classmethod
+    async def create_invoice(cls, **invoice):
+        query = invoices.insert().values(**invoice)
+        invoice_id = await database.execute(query)
+        return invoice_id

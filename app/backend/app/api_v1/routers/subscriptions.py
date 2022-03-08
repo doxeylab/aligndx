@@ -21,4 +21,4 @@ async def create_subscription(
         current_user: UserDTO = Depends(get_current_user)
     ):
     res = await subscription_service.create_subscription(current_user, request)
-    return {"result": res}
+    return {"client_secret": res}
