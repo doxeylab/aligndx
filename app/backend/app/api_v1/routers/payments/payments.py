@@ -1,6 +1,6 @@
 # FastAPI
 from fastapi import APIRouter, Depends
-from fastapi import HTTPException, status
+from fastapi import status
 
 # auth components
 from app.auth.models import UserDTO
@@ -14,8 +14,8 @@ from app.services import subscription_service
 
 router = APIRouter()
 
-# Create new subscription: POST /subscriptions
-@router.post("/", status_code=status.HTTP_201_CREATED)
+# Create new subscription: POST /payments/subscriptions
+@router.post("/subscriptions", status_code=status.HTTP_201_CREATED)
 async def create_subscription(
         request: CreateSubscriptionRequest,
         current_user: UserDTO = Depends(get_current_user)
