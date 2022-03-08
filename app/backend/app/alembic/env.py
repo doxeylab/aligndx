@@ -33,6 +33,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 from app.db import models
+from app.db.payments import models
 from app.db.database import metadata
 
 target_metadata = metadata

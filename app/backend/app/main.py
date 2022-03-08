@@ -14,6 +14,7 @@ from app.auth.auth_dependencies import get_current_user
 
 # routers
 from app.api_v1.routers import uploads, results, users, socket_resources, metadata, celery_requests
+from app.api_v1.routers.payments import payments 
 
 # db
 from app.db.database import database
@@ -68,6 +69,14 @@ app.include_router(
     results.router,
     prefix="/results",
     tags=["Results"],
+    dependencies=[Depends(get_current_user)],
+    responses={418: {"description": "I'm a teapot"}},
+)
+
+app.include_router(
+    payments.router,
+    prefix="/payments",
+    tags=["Payments"],
     dependencies=[Depends(get_current_user)],
     responses={418: {"description": "I'm a teapot"}},
 )
