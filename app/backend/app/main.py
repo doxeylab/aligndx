@@ -1,11 +1,13 @@
 # python
 import os, asyncio 
+import logging 
 
 # fastapi
-from fastapi import FastAPI, Depends
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, Depends, status
+from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from fastapi.exceptions import RequestValidationError
 
 # auth
 from app.auth.auth_dependencies import get_current_user 
@@ -22,7 +24,6 @@ from app.db.database import database
 # settings
 from app.config.settings import get_settings
 
- 
 
 app = FastAPI(
     title="AlignDX",
@@ -30,6 +31,12 @@ app = FastAPI(
     version="1.0", 
 )
  
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
+    logging.error(f"{request}: {exc_str}")
+    content = {'status_code': 10422, 'message': exc_str, 'data': None}
+    return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 lst_origins = os.getenv("ORIGINS")
 origins = lst_origins.replace(" ", "").split(",")  

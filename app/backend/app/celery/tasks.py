@@ -1,3 +1,4 @@
+from fileinput import filename
 import os
 import logging
 import json
@@ -293,15 +294,17 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
             "Chunk_Analyzed": chunk_number}
 
 @app.task
-def pipe_status(pipe_result, file_dir):
+def pipe_status(pipe_result, file_dir, data_dir):
 
     last_chunk_analyzed = pipe_result['Chunk_Analyzed']
-
     meta_fname = '{}/meta.json'.format(file_dir)
 
     metadata = None
     with open(meta_fname) as f:
         metadata = json.load(f)
+
+    fileName = metadata['filename']
+    email = metadata['email']
 
     analysis_chunks_processed = metadata['analysis_chunks_processed']
     total_analysis_chunks = metadata['total_analysis_chunks']
@@ -310,15 +313,14 @@ def pipe_status(pipe_result, file_dir):
         
         fileId = metadata['fileId']
         
-        save_request = {"fileId": fileId}
-        requests.post("http://backend:8080/uploads/save_result", data = save_request)
+        end_request = {
+                        "fileName": fileName,
+                        "fileId": fileId,
+                        "data_dir": data_dir,
+                        "email": email
+                        }
 
-        reciever = metadata['email']
-        sample = metadata['filename']
-        result_link = f'/result?submission={fileId}'
-
-        print(f"sending email to {reciever}")
-        email_feature.send_email(receiver_email=reciever, sample=sample, link=result_link)
+        requests.post("http://backend:8080/end_pipe", json = end_request)
     
     else:
         analysis_chunks_processed += 1
@@ -326,7 +328,8 @@ def pipe_status(pipe_result, file_dir):
         with open(meta_fname, 'w') as f:
             json.dump(metadata, f)
 
-    return {"Last_Chunk_Analzyed": last_chunk_analyzed,
+    return {
+            "Last_Chunk_Analzyed": last_chunk_analyzed,
             "Analysis_Chunks_Processed": analysis_chunks_processed,
             }
 

@@ -1,6 +1,6 @@
 // React
 import React, { useEffect, useState, useContext } from 'react';
-import { useHistory, useLocation} from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 // external libraries
 import axios from 'axios';
@@ -26,49 +26,49 @@ import Green_Check from '../../assets/Green_Check.png';
 import Red_X from '../../assets/Red_X.png';
 
 // Context
-import {useGlobalContext} from "../../context-provider"
+import { useGlobalContext } from "../../context-provider"
 import { LoadContext } from '../../LoadContext';
 
 // testing
 import example_dataset from '../../assets/test_datasets/example_dataset.json';
 
 // config
-import { STANDARD_RESULTS } from '../../services/Config';
+import { LINKED_RESULTS } from '../../services/Config';
 
-const Result = () => {   
-    const context = useGlobalContext(); 
+const Result = () => {
+    const context = useGlobalContext();
     const history = useHistory();
     const location = useLocation();
 
-    const [link,setLink] = useState("/");
-    const [showLogin,setShowLogin] = useState(false);
-    const [error,setError] = useState(false)
+    const [link, setLink] = useState("/");
+    const [showLogin, setShowLogin] = useState(false);
+    const [error, setError] = useState(false)
 
     var dummyData = example_dataset
 
     const [data, setData] = useState(null);
     const [sample, setSample] = useState(null);
     const [pathogens, setPathogens] = useState(null);
-    
+
     const { setLoad } = useContext(LoadContext);
-    
-    const resource = STANDARD_RESULTS
-    const token = localStorage.getItem("accessToken") 
+
+    const resource = LINKED_RESULTS
+    const token = localStorage.getItem("accessToken")
 
     const useQuery = () => {
-        const {search} = useLocation();
+        const { search } = useLocation();
 
         return React.useMemo(() => new URLSearchParams(search), [search]);
     }
-    
+
     const query = useQuery()
     const fileId = query.get("submission")
 
-    useEffect( () => {
+    useEffect(() => {
         if (!context.authenticated) {
-            
-            if (fileId){
-                setLink((location.pathname) +"?"+ query.toString())
+
+            if (fileId) {
+                setLink((location.pathname) + "?" + query.toString())
                 setShowLogin(true)
             }
             else {
@@ -77,77 +77,68 @@ const Result = () => {
         }
 
         if (fileId && context.authenticated) {
-            axios.get(resource + fileId, {headers: {'Authorization': `Bearer ${token}`}})
-            .then(res => {
-                setData([res.data])
-                setPathogens(res.data.pathogens)
-                setSample(res.data.sample)
-            })
-            .catch(() => {
-                history.push("/404")
-            }) 
-        } 
+            axios.get(resource + fileId, { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(res => {
+                    setData(res.data)
+                    setPathogens(res.data.pathogens)
+                    setSample(res.data.sample)
+                })
+                .catch(() => {
+                    history.push("/404")
+                })
+        }
     }, [])
-  
+
+    useEffect(() => {
+        console.log(data)
+    }, [data])
 
     return (
         <>
             {showLogin ? <Redirect to={{
-                pathname:"/login",
-                state:{
-                    link:link
+                pathname: "/login",
+                state: {
+                    link: link
                 }
-            }}/> :
-             data ?
-                <Section id="result">
-                    <Container>
-                        <Row>
-                            <Col>
-                                <Title>Result</Title>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <ResultTitle>{sample}</ResultTitle>
-                        </Row>
-                        <Row>
-                            {data.map((d) => (
-                                <Accordion style={{ width: "100%" }}>
+            }} /> :
+                data ?
+                    <Section id="result">
+                        <Container>
+                            <Row>
+                                <Col>
+                                    <Title>Result</Title>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <ResultTitle>{sample}</ResultTitle>
+                            </Row>
+                            <Row>
+                                <Accordion style={{ width: "100%" }} defaultExpanded={true} >
                                     <AccordionSummary
                                         expandIcon={<ExpandMoreIcon />}
                                         aria-controls="panel1a-content"
                                         id="panel1a-header"
                                     >
-                                        <ResultAccordionImg src={d.detected === "Negative" ? Red_X : Green_Check}></ResultAccordionImg>
-                                        <ResultAccordianTitle detection={d.detected}>{d.detected}</ResultAccordianTitle>
+                                        <ResultAccordionImg src={data.detected === "Negative" ? Red_X : Green_Check}></ResultAccordionImg>
+                                        <ResultAccordianTitle detection={data.detected}>{data.detected}</ResultAccordianTitle>
                                     </AccordionSummary>
                                     <AccordionDetails>
                                         <Typography>
                                             <Row style={{ padding: "25px" }}>
                                                 <Col style={{ padding: "25px" }}>
                                                     <div className='barGraph'>
-                                                        <Barchart data={d} yLabel={d.ylabel} xLabel={d.xlabel} col="coverage" xkey="pathogen" ykey="coverage" />
-                                                    </div>
-                                                </Col>
-                                                <Col style={{ padding: "25px" }}>
-                                                    <div>
-                                                        <h1>
-                                                            {d.title}
-                                                        </h1>
-                                                        <p>
-                                                            {d.text}
-                                                        </p>
+                                                        <Barchart data={data} yLabel={data.ylabel} xLabel={data.xlabel} col="coverage" xkey="Pathogen" ykey="Coverage" />
                                                     </div>
                                                 </Col>
                                             </Row>
                                         </Typography>
                                     </AccordionDetails>
                                 </Accordion>
-                            ))}
-                        </Row>
-                    </Container>
-                </Section>
-                :
-                <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>Loading ...</h1> 
+                            </Row>
+                        </Container>
+                    </Section>
+                    :
+                    <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>Loading ...</h1>
             }
         </>
     )

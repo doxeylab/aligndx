@@ -239,7 +239,7 @@ async def upload_chunk(
         tasks.process_new_upload.s(rt_dir, chunk_number), 
         tasks.perform_chunk_analysis.s(panels, INDEX_FOLDER, analysis_data_folder, results_dir),
         tasks.post_process.s(data_dir, METADATA_FOLDER, panels),
-        tasks.pipe_status.s(rt_dir)
+        tasks.pipe_status.s(rt_dir, data_dir)
     ).apply_async()
 
     logs = await LogsModel.log_upload(
@@ -262,7 +262,7 @@ async def end_file(
     if query is None:
         raise HTTPException(status_code=404, detail="File not found")
 
-    if query["finished_date"] is not None:
+    if query["finished_date"] is None:
         await ModelSample.save_upload_finished(file_id, datetime.now())
         return {"Result": "OK"}
 
