@@ -11,7 +11,7 @@ from fastapi.openapi.utils import get_openapi
 from app.auth.auth_dependencies import get_current_user 
 
 # routers
-from app.api_v1.routers import uploads, results, users, socket_resources, metadata
+from app.api_v1.routers import uploads, results, users, socket_resources, metadata, celery_requests
 
 # db
 from app.db.database import database
@@ -68,6 +68,11 @@ app.include_router(
 app.include_router(
     socket_resources.router
 )
+
+app.include_router(
+    celery_requests.router
+)
+
 
 app.include_router(
     metadata.router,

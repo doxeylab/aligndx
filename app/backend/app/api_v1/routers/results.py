@@ -42,6 +42,17 @@ for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULT
 
 router = APIRouter()
 
+@router.get('/{file_id}')
+async def get_result(file_id: str, current_user: UserDTO = Depends(get_current_user)):
+    query = await ModelSample.get_sample_info(current_user.id, file_id)
+
+    if (not query):
+        return HTTPException(status_code=404, detail="Item not found")
+    
+    data = query["result"]
+
+    return data
+
 # -- Standard upload results --
  
 @router.get('/standard/{file_id}') 
@@ -70,7 +81,7 @@ class Chunk_id(BaseModel):
     account_id: str 
 
 @router.get('/chunked/{file_id}')
-async def standard_plus(file_id: str, current_user: UserDTO = Depends(get_current_user)):
+async def chunked_results(file_id: str, current_user: UserDTO = Depends(get_current_user)):
     query = await ModelSample.get_sample_info(current_user.id, file_id,)
 
     if (not query):

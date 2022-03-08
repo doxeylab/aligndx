@@ -307,7 +307,12 @@ def pipe_status(pipe_result, file_dir):
     total_analysis_chunks = metadata['total_analysis_chunks']
 
     if analysis_chunks_processed == (total_analysis_chunks - 2):
+        
         fileId = metadata['fileId']
+        
+        save_request = {"fileId": fileId}
+        requests.post("http://backend:8080/uploads/save_result", data = save_request)
+
         reciever = metadata['email']
         sample = metadata['filename']
         result_link = f'/result?submission={fileId}'
