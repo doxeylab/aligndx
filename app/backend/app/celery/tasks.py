@@ -1,3 +1,4 @@
+from distutils.command.upload import upload
 from fileinput import filename
 import os
 import logging
@@ -13,6 +14,8 @@ from celery.utils.log import get_task_logger
 from celery.signals import after_setup_logger
 
 from app.scripts import salmonconfig, realtime, email_feature
+
+from app.celery.File import File
 
 logger = get_task_logger(__name__)
 
@@ -31,47 +34,10 @@ app.config_from_object('app.celery.celeryconfig')
 
 @app.task
 def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size, num_upload_chunks, email, fileId):
-    meta_fname = '{}/meta.json'.format(file_dir)
+    file = File(fileId, file_dir, filename, email, chunk_ratio=analysis_chunk_size /
+                upload_chunk_size, num_upload_chunks=num_upload_chunks)
 
-    upload_chunks = [{
-        'Name': '{}.fastq'.format(i),
-        'Status': 'Waiting'
-    } for i in range(num_upload_chunks)]
-
-    chunk_ratio = analysis_chunk_size / upload_chunk_size
-    num_analysis_chunks = math.ceil(num_upload_chunks / chunk_ratio)
-    upload_chunks_deps = []
-    for i in range(1, num_analysis_chunks + 1):
-        start_chunk = math.ceil((i-1) * chunk_ratio)
-        end_chunk = math.ceil(i * chunk_ratio)
-
-        if i == num_analysis_chunks:
-            end_chunk = num_upload_chunks
-
-        upload_chunks_deps.append(list(range(start_chunk, end_chunk)))
-
-    analysis_chunks = [{
-        'Name': '{}.fastq'.format(i),
-        'Residue_Name': '{}_residue.fastq'.format(i),
-        'Upload_Chunks_Required': upload_chunks_deps[i - 1],
-        'Status': 'Waiting',
-        'Residue_Status': 'Waiting'
-    } for i in range(1, num_analysis_chunks +1)]
-
-    metadata = {
-        'filename': filename,
-        'upload_chunk_maxsize': upload_chunk_size,
-        'analysis_chunk_maxsize': analysis_chunk_size,
-        'upload_chunks': upload_chunks,
-        'analysis_chunks': analysis_chunks,
-        'analysis_chunks_processed' : 0,
-        'total_analysis_chunks' : num_analysis_chunks,
-        'email' : email,
-        'fileId': fileId    
-    }
-
-    with open(meta_fname, 'w') as f:
-        json.dump(metadata, f)
+    file.save()
 
     return {'Success': True}
 
@@ -90,91 +56,10 @@ def make_file_data(results_dir):
 
 @app.task(bind=True)
 def process_new_upload(self, file_dir, new_chunk_number):
-    meta_fname = '{}/meta.json'.format(file_dir)
-    upload_data_dir = '{}/upload_data'.format(file_dir)
-    analysis_data_dir = '{}/salmon_data'.format(file_dir)
+    file = File.load(file_dir)
+    chunks_to_analyze = file.process_upload(new_chunk_number)
 
-    metadata = None
-    with open(meta_fname) as f:
-        metadata = json.load(f)
-
-    metadata['upload_chunks'][new_chunk_number]['Status'] = 'Uploaded'
-
-    chunk_to_analyze = None
-    for indx, analysis_chunk in enumerate(metadata['analysis_chunks']):
-        if analysis_chunk['Status'] == 'Waiting':
-
-            # check to see if necessary residues are ready for analysis chunk assembly
-            # A note that we should look into assembling on the fly, rather than waiting
-            # A simple version could be to write all the residues on the fly, and when this conditions is true, assemble them 
-            if all([metadata['upload_chunks'][i]['Status'] == 'Uploaded' for
-                    i in analysis_chunk['Upload_Chunks_Required']]):
-                residual_data = None
-
-                # start writing analysis chunk with appropriate residues
-                with open(os.path.join(analysis_data_dir, analysis_chunk['Name']), 'w') as af:
-                    for relative_num, upload_chunk_num in enumerate(analysis_chunk['Upload_Chunks_Required']):
-                        upload_chunk_fname = os.path.join(upload_data_dir,
-                                                          metadata['upload_chunks'][upload_chunk_num]['Name'])
-                        with open(upload_chunk_fname) as uf:
-                            data = None
-                            if relative_num == 0:
-                                data = uf.read()
-
-                                lines = data.split('\n')
-                                # a single plus is always the 3nd whole line of a sequence
-                                first_plus_line = lines.index('+')
-                                # adding 2 modulo 4 to the line number would give us the first line of a sequence
-                                sequence_start_line = ((first_plus_line + 2) % 4) + 4
-
-                                data = '\n'.join(lines[sequence_start_line:])
-                                residual_data = '\n'.join(
-                                    lines[:sequence_start_line])
-                            else:
-                                data = uf.read()
-                            af.write(data)
-
-                        os.remove(upload_chunk_fname)
-
-                if indx > 0 : 
-                    # check to see if the previous analysis chunk has truncation, if so write to the current chunk
-                    if metadata['analysis_chunks'][indx-1]['Status'] == 'Residue_Remaining':
-                        prev_chunk_name = metadata['analysis_chunks'][indx-1]['Name']
-    
-                        with open(os.path.join(analysis_data_dir, prev_chunk_name), 'a') as af:
-                            af.write(residual_data)
-    
-                        metadata['analysis_chunks'][indx-1]['Status'] = 'Ready'
-                        chunk_to_analyze = indx
-
-    
-                    # otherwise declare the residues to be finished
-                    else:
-                        prev_chunk_residue_name = metadata['analysis_chunks'][
-                            indx - 1]['Residue_Name']
-    
-                        with open(os.path.join(analysis_data_dir, prev_chunk_residue_name), 'w') as af:
-                            af.write(residual_data)
-    
-                        metadata['analysis_chunks'][indx -
-                                                    1]['Residue_Status'] = 'Ready'
-    
-                    # if there is data remaining, change the status of the analysis chunk
-                if metadata['analysis_chunks'][indx]['Residue_Status'] == 'Waiting' and indx + 1 != len(metadata['analysis_chunks']):
-                    metadata['analysis_chunks'][indx]['Status'] = 'Residue_Remaining'
-
-                # otherwise, declare the analysis chunk be ready to analyzed
-                else:
-                    if indx + 1 != len(metadata['analysis_chunks']):
-                        with open(os.path.join(analysis_data_dir, analysis_chunk['Name']), 'a') as af:
-                            with open(os.path.join(analysis_data_dir, analysis_chunk['Residue_Name'])) as  rf:
-                                af.write(rf.read())
-                    metadata['analysis_chunks'][indx]['Status'] = 'Ready'
-
-                    chunk_to_analyze = indx + 1
-
-    with open(meta_fname, 'w') as f:
-        json.dump(metadata, f)
+    chunk_to_analyze = chunks_to_analyze[-1] if len(chunks_to_analyze) > 0 else None
 
     if chunk_to_analyze is None:
         self.request.chain = None
@@ -197,7 +82,7 @@ class SalmonMemoryError(Exception):
         super().__init__(self.message)
 
 
-@app.task(throws=(SalmonMemoryError,),autoretry_for=(SalmonMemoryError,), retry_backoff=5)
+@app.task(throws=(SalmonMemoryError,), autoretry_for=(SalmonMemoryError,), retry_backoff=5)
 def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, real_time_results):
     chunk_number = upload_result['Chunk_To_Analyze']
 
@@ -293,6 +178,7 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
     return {"Success": True,
             "Chunk_Analyzed": chunk_number}
 
+
 @app.task
 def pipe_status(pipe_result, file_dir, data_dir):
 
@@ -310,28 +196,30 @@ def pipe_status(pipe_result, file_dir, data_dir):
     total_analysis_chunks = metadata['total_analysis_chunks']
 
     if analysis_chunks_processed == (total_analysis_chunks - 2):
-        
-        fileId = metadata['fileId']
-        
-        end_request = {
-                        "fileName": fileName,
-                        "fileId": fileId,
-                        "data_dir": data_dir,
-                        "email": email
-                        }
 
-        requests.post("http://backend:8080/end_pipe", json = end_request)
-    
+        fileId = metadata['fileId']
+
+        end_request = {
+            "fileName": fileName,
+            "fileId": fileId,
+            "data_dir": data_dir,
+            "email": email
+        }
+
+        requests.post("http://backend:8080/end_pipe", json=end_request)
+
     else:
         analysis_chunks_processed += 1
-        metadata = {**metadata,"analysis_chunks_processed": analysis_chunks_processed}
+        metadata = {**metadata,
+                    "analysis_chunks_processed": analysis_chunks_processed}
         with open(meta_fname, 'w') as f:
             json.dump(metadata, f)
 
     return {
-            "Last_Chunk_Analzyed": last_chunk_analyzed,
-            "Analysis_Chunks_Processed": analysis_chunks_processed,
-            }
+        "Last_Chunk_Analzyed": last_chunk_analyzed,
+        "Analysis_Chunks_Processed": analysis_chunks_processed,
+    }
+
 
 if __name__ == '__main__':
     app.worker_main()
