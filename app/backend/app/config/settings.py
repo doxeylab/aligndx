@@ -50,6 +50,10 @@ class AppSettings(BaseSettings):
         password = os.getenv("NOTIFICATION_EMAIL_PASSWORD")
         base_url = os.getenv("BASE_URL")
 
+    class DatabaseSettings():
+        DATABASE_URL = os.getenv("DATABASE_URL")
+
+
 @lru_cache()
 def get_settings():
     return AppSettings()
