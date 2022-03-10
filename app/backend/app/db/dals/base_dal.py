@@ -3,6 +3,7 @@ from typing import Generic, TypeVar, Type
 from uuid import uuid4, UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import update
 from app.models.schemas.base_schema import BaseSchema
 
 # declare static type checkers for base data access layer
@@ -40,18 +41,18 @@ class BaseDal(Generic[IN_SCHEMA, SCHEMA, TABLE], metaclass=abc.ABCMeta):
         entry = self._table(id=uuid4(), **in_schema.dict())
         self._db_session.add(entry)
         await self._db_session.commit()
-        return self._schema.from_orm(entry)
+        return self._schema.from_orm(entry) 
 
     async def get(self, val) -> SCHEMA:
         '''
-        returns row matched to val
+        returns row by id 
         '''
-        entry = await self._db_session.get(self._table, val)
-        if not entry:
+        query = await self._db_session.get(self._table, val)
+        if not query:
             raise DoesNotExist(
-                f"{self._table.__name__}<{val}> does not exist"
+                f"{self._table.__name__}<id:{val}> does not exist"
             )
-        return self._schema.from_orm(entry)
+        return self._schema.from_orm(val)
 
     async def get_by_id(self, entry_id: UUID) -> SCHEMA:
         '''
@@ -63,4 +64,21 @@ class BaseDal(Generic[IN_SCHEMA, SCHEMA, TABLE], metaclass=abc.ABCMeta):
                 f"{self._table.__name__}<id:{entry_id}> does not exist"
             )
         return self._schema.from_orm(entry)
-    
+
+    async def update(self, val, update_val) -> SCHEMA:
+        '''
+        updates table row value val with update_val(s)
+        '''
+        query = await self._db_session.execute(update(self._table)
+                                              .where(val)
+                                              .values(update_val))
+        await self._db_session.commit()
+        return self._schema.from_orm(query)
+
+    async def delete_by_id(self, entry_id: UUID) -> SCHEMA:
+        '''
+        deletes row by id
+        '''
+        query = await self._db_session.delete(self._table, entry_id)
+        await self._db_session.commit()
+        return self._schema.from_orm(query)

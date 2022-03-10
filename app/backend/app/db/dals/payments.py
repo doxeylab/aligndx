@@ -33,7 +33,7 @@ class SubscriptionsDal(BaseDal[InSubscriptionSchema, SubscriptionSchema, Subscri
     @property
     def _table(self) -> Type[Subscriptions]:
         return Subscriptions
-
+    
 #  -- Invoices DAL -- 
 
 class InvoicesDal(BaseDal[InInvoiceSchema, InvoiceSchema, Invoices]):
