@@ -34,7 +34,7 @@ class UploadLogsDal(BaseDal[InUploadLogSchema, UploadLogSchema, UploadLogs]):
         return self._schema.from_orm(query)
 #  -- DeletionLogs DAL -- 
 
-class DeletionLogs(BaseDal[InDeletionLogSchema, DeletionLogSchema, DeletionLogs]):
+class DeletionLogsDal(BaseDal[InDeletionLogSchema, DeletionLogSchema, DeletionLogs]):
     @property
     def _in_schema(self) -> Type[InDeletionLogSchema]:
         return InDeletionLogSchema

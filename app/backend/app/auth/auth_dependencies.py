@@ -1,5 +1,8 @@
+from aligndx.app.backend.app.db import dals
 from app.auth.models import TokenData, User, UserInDB, UserDTO, UserTemp, RefreshRequest
-from app.db.models import User as UserRepo
+from app.db.dals.users import UsersDal  
+from app.services.db import get_db 
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from datetime import datetime, timedelta
 from typing import Optional 
@@ -29,15 +32,18 @@ credentials_exception = HTTPException(
     headers={"WWW-Authenticate": "Bearer"},
 )
 
-async def valid_email_from_db(email: str):
-    user_res = await UserRepo.get(email)
+async def valid_email_from_db(email: str, 
+    db: AsyncSession = Depends(get_db)
+):
+    user_dal = UsersDal(db)
+    user_res = user_dal.get(email)
     if user_res is None:
         return False
     return True
 
 
 # Creates user if it doesn't exist 
-async def create_user(user: UserTemp):
+async def create_user(user: UserTemp, db: AsyncSession = Depends(get_db)):
     if await valid_email_from_db(user.email):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -50,17 +56,19 @@ async def create_user(user: UserTemp):
         name=user.name,
         hashed_password=hashed_password,
     )
-    await UserRepo.create(db_user)
+    user_dal = UsersDal(db)
+    user_res = user_dal.create(db_user)
     return {"status": status.HTTP_201_CREATED,
             "message": "User successfully created"}
 
 
 # Authenticate the user: verify user exists and password is correct
-async def authenticate_user(email: str, password: str):
+async def authenticate_user(email: str, password: str, db: AsyncSession = Depends(get_db)):
     def verify_password(plain_password, hashed_password):
         return pwd_context.verify(plain_password, hashed_password)
 
-    user_res = await UserRepo.get(email)
+    user_dal = UsersDal(db)
+    user_res = user_dal.get(email)
     if user_res is None:
         return False
 
@@ -106,7 +114,7 @@ async def verify_refresh_token(request: RefreshRequest):
 
 
 # Returns the current logged in user if any, raises unauthorized error otherwise
-async def get_current_user(token: str = Depends(oauth2_scheme_auto_error)):
+async def get_current_user(token: str = Depends(oauth2_scheme_auto_error), db: AsyncSession = Depends(get_db)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
@@ -116,7 +124,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme_auto_error)):
     except JWTError:
         raise credentials_exception
 
-    user = await UserRepo.get(token_data.email)
+    user_dal = UsersDal(db)
+    user = user_dal.get(token_data.email)
     if user is None:
         raise credentials_exception
 
@@ -124,7 +133,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme_auto_error)):
 
 
 # ws version
-async def get_current_user_ws(token: str):
+async def get_current_user_ws(token: str, db: AsyncSession = Depends(get_db)):
     if not token:
         return None
 
@@ -137,7 +146,9 @@ async def get_current_user_ws(token: str):
     except JWTError:
         return None
 
-    user = await UserRepo.get(token_data.email)
+    user_dal = UsersDal(db)
+    user = user_dal.get(token_data.email)
+
     if user is None:
         return None
 

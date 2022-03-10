@@ -16,3 +16,4 @@ class SubmissionsDal(BaseDal[InSubmissionSchema, SubmissionSchema, Submissions])
     @property
     def _table(self) -> Type[Submissions]:
         return Submissions
+ 

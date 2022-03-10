@@ -1,5 +1,6 @@
 # python libraries
 from datetime import timedelta
+from aligndx.app.backend.app.db.dals.users import UsersDal
 
 # FastAPI
 from fastapi import APIRouter, Depends
@@ -13,7 +14,9 @@ from app.auth.auth_dependencies import get_current_user
 from app.auth.models import UserDTO, RefreshRequest
 
 # db components
-from app.db.models import Sample as ModelSample
+from app.db.dals.submissions import SubmissionsDal  
+from app.services.db import get_db 
+from sqlalchemy.ext.asyncio import AsyncSession
 
 # settings
 from app.config.settings import get_settings
@@ -79,54 +82,33 @@ async def read_users_me(current_user: User = Depends(auth.get_current_user)):
 
 # Get the submission results for the currently logged in user
 @router.get('/submissions/')
-async def get_standard_submissions(current_user: UserDTO = Depends(get_current_user)):
-    submissions = await ModelSample.get_user_submissions(current_user.id)
+async def get_standard_submissions(current_user: UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    users_dal = UsersDal(db) 
+    submissions = users_dal.get_submissions(current_user.id)
     return submissions
         
 
 @router.get('/incomplete/')
-async def get_incomplete_submissions(current_user: UserDTO = Depends(get_current_user)):
-    submissions = await ModelSample.get_user_incomplete_submissions(current_user.id)
+async def get_incomplete_submissions(current_user: UserDTO = Depends(get_current_user), 
+    db: AsyncSession = Depends(get_db)
+):
+    users_dal = UsersDal(db) 
+    submissions = users_dal.get_incomplete_submissions(current_user.id)
     return submissions
 
 # returns single result for UI to access when user clicks on a linked result
 @router.get('/linked_results/{file_id}')
-async def get_result(file_id: str, current_user: UserDTO = Depends(get_current_user)):
-    query = await ModelSample.get_sample_info(current_user.id, file_id)
-
+async def get_result(file_id: str, current_user: UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    users_dal = UsersDal(db) 
+    query = users_dal.get_submission(current_user.id, file_id)
+    
     if (not query):
         return HTTPException(status_code=404, detail="Item not found")
     
     data = query["result"]
 
     return data
-
-# -- Cookies attempt --
-
-
-# Log in endpoint
-# @router.post("/token", response_model=Token)
-# async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-#     # OAuth2PasswordRequestForm has username and password, username = email in our project
-#     user = await auth.authenticate_user(form_data.username, form_data.password)
-#     if not user:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail="Incorrect email or password",
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
-#     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-#     access_token = auth.create_access_token(
-#         data={"sub": user.email}, expires_delta=access_token_expires
-#     )
-
-#     content = {"message": "Come to the dark side, we have cookies"}
-#     response = JSONResponse(content=content)
-#     response.set_cookie(key="access_token", value=f'Bearer {access_token}', expires=access_token_expires, httponly=True)
-
-#     return response
- 
-# from fastapi import Cookie
-# @router.get("/users/me")
-# async def read_users_me(cookie = Cookie(None)):
-# return {"cookie": cookie}

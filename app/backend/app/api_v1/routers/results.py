@@ -1,25 +1,18 @@
-# python libraries
-import os, asyncio, importlib, json
-from typing import Optional
+import os 
 import pandas as pd 
 from pydantic import BaseModel
 
-# FastAPI
 from fastapi import APIRouter, Depends, HTTPException 
 
-# auth components
 from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user
 
-# db components
-from app.db.models import Sample as ModelSample
-from app.db.schema import Sample as SchemaSample
+from app.db.dals.users import UsersDal 
+from app.services.db import get_db 
+from sqlalchemy.ext.asyncio import AsyncSession
 
-# core scripts
 from app.scripts import analyze, realtime 
-from app.scripts.web_socket.manager import ConnectionManager
 
-# settings
 from app.config.settings import get_settings
 
 # config
@@ -45,9 +38,10 @@ router = APIRouter()
 # -- Standard upload results --
  
 @router.get('/standard/{file_id}') 
-async def standard_results(file_id: str, current_user: UserDTO = Depends(get_current_user)):
-    query = await ModelSample.get_sample_info(current_user.id, file_id,)
+async def standard_results(file_id: str, current_user: UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
 
+    users_dal = UsersDal(db)
+    query = users_dal.get_user_submission(current_user.id, file_id)
 
     if (not query):
         return HTTPException(status_code=404, detail="Item not found")
@@ -62,7 +56,7 @@ async def standard_results(file_id: str, current_user: UserDTO = Depends(get_cur
     quant_dir = os.path.join(sample_dir,'quant.sf')   
     result = analyze.analyze_handler(sample_name, headers, metadata, quant_dir)
     
-    await ModelSample.save_result(file_id, result)
+    update_query = users_dal.update(file_id, result)
     
     return result 
 
@@ -70,8 +64,10 @@ class Chunk_id(BaseModel):
     account_id: str 
 
 @router.get('/chunked/{file_id}')
-async def chunked_results(file_id: str, current_user: UserDTO = Depends(get_current_user)):
-    query = await ModelSample.get_sample_info(current_user.id, file_id,)
+async def chunked_results(file_id: str, current_user: UserDTO = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
+
+    users_dal = UsersDal(db)
+    query = users_dal.get_user_submission(current_user.id, file_id)
 
     if (not query):
         return HTTPException(status_code=404, detail="Item not found")

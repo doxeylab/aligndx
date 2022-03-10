@@ -32,8 +32,7 @@ async def end_pipe(endRequest : EndAnalysisPipeline, db: AsyncSession = Depends(
     data = realtime.data_loader(stored_data, fileName, headers, status="ready")
     
     sub_dal = SubmissionsDal(db)
-    result = await sub_dal.create()
-    await ModelSample.save_result(fileId, data)
+    result = await sub_dal.update(fileId, data)
 
     result_link = f'/result?submission={fileId}'    
     send_email(receiver_email=email, sample=fileName, link=result_link)

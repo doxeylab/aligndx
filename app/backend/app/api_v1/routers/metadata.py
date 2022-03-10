@@ -1,11 +1,7 @@
-# python libraries
-## system utils
 import os   
 
-# FastAPI
 from fastapi import APIRouter 
 
-# settings 
 from app.config.settings import get_settings
 
 router = APIRouter()
