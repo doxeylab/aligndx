@@ -5,6 +5,11 @@ from sqlalchemy import pool
 
 from alembic import context
 
+from app.config.settings import get_settings
+from app.db.base import Base 
+
+settings = get_settings().DatabaseSettings
+
 # import os, sys
 # from dotenv import load_dotenv
 
@@ -14,16 +19,13 @@ from alembic import context
 # load_dotenv(os.path.join(BASE_DIR, ".env"))
 # sys.path.append(BASE_DIR)
 
-import os
-
-os.getenv("DATABASE_URL")
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
 # this will overwrite the ini-file sqlalchemy.url path
 # with the path given in the config of the main code
-config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -32,11 +34,8 @@ fileConfig(config.config_file_name)
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
-from app.db import models
-from app.db.payments import models
-from app.db.database import metadata
+target_metadata = Base.metadata
 
-target_metadata = metadata
 # target_metadata = None
 
 

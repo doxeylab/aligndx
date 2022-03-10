@@ -55,5 +55,5 @@ class AppSettings(BaseSettings):
 
 
 @lru_cache()
-def get_settings():
+def get_settings() -> AppSettings: 
     return AppSettings()
