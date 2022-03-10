@@ -1,11 +1,12 @@
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, String, Boolean
+from sqlalchemy.dialects.postgresql import UUID
 
-from app.db.base import Base
+from app.db.tables.base import Base
 
 class Customers(Base):
     __tablename__ = "customers"
 
-    admin_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    admin_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     name = Column(String, nullable=False)
     email = Column(String, nullable=False)
     creation_time = Column(DateTime, nullable=False)
@@ -14,7 +15,7 @@ class Customers(Base):
 class Subscriptions(Base):
     __tablename__ = "subscriptions"
 
-    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
+    customer_id = Column(UUID(as_uuid=True), ForeignKey("customers.id"), nullable=False)
     creation_time = Column(DateTime, nullable=False)
     is_active = Column(Boolean, nullable=False)
     status = Column(String(50), nullable=False)
@@ -36,8 +37,8 @@ class Subscriptions(Base):
 class Invoices(Base):
     __tablename__ = "invoices"
 
-    subscription_id = Column(Integer, ForeignKey("subscriptions.id"), nullable=False)
-    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
+    subscription_id = Column(UUID(as_uuid=True), ForeignKey("subscriptions.id"), nullable=False)
+    customer_id = Column(UUID(as_uuid=True), ForeignKey("customers.id"), nullable=False)
     creation_time = Column(DateTime, nullable=False)
     status = Column(String(50), nullable=False)
     amount_due = Column(Integer, nullable=False)
