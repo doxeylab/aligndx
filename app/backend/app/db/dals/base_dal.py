@@ -18,32 +18,25 @@ class DoesNotExist(Exception):
     ...  
 
 # Abstract base class for generating data acccess layers
-class BaseDal(Generic[IN_SCHEMA, SCHEMA, TABLE], metaclass=abc.ABCMeta):
+class BaseDal(Generic[TABLE], metaclass=abc.ABCMeta):
     def __init__(self, db_session: AsyncSession, *args, **kwargs) -> None:
-        self._db_session: AsyncSession = db_session
+        self._db_session: db_session
 
     @property
     @abc.abstractmethod
     def _table(self) -> Type[TABLE]:
-        ...
+        ... 
 
-    @property
-    @abc.abstractmethod
-    def _schema(self) -> Type[SCHEMA]:
-        ...
-
-    async def create(self, in_schema: IN_SCHEMA) -> SCHEMA:
+    async def create(self, schema):
         '''
-        creates db entry and returns schema response model. Using the SQL ORM procedure, we place an object into the session and then flush and commit it to the db. Note that this is done async.
-
-        The input schema/inschema acts as a validation paramter for db entries. 
+        creates db entry and returns schema response model 
         '''
-        entry = self._table(id=uuid4(), **in_schema.dict())
+        entry = self._table(id=uuid4(), **schema)
         self._db_session.add(entry)
         await self._db_session.commit()
-        return self._schema.from_orm(entry) 
+        return entry
 
-    async def get(self, val) -> SCHEMA:
+    async def get(self, val):
         '''
         returns row by id 
         '''
@@ -52,20 +45,9 @@ class BaseDal(Generic[IN_SCHEMA, SCHEMA, TABLE], metaclass=abc.ABCMeta):
             raise DoesNotExist(
                 f"{self._table.__name__}<id:{val}> does not exist"
             )
-        return self._schema.from_orm(val)
+        return query
 
-    async def get_by_id(self, entry_id: UUID) -> SCHEMA:
-        '''
-        returns row by id 
-        '''
-        entry = await self._db_session.get(self._table, entry_id)
-        if not entry:
-            raise DoesNotExist(
-                f"{self._table.__name__}<id:{entry_id}> does not exist"
-            )
-        return self._schema.from_orm(entry)
-
-    async def update(self, val, update_val) -> SCHEMA:
+    async def update(self, val, update_val):
         '''
         updates table row value val with update_val(s)
         '''
@@ -73,12 +55,23 @@ class BaseDal(Generic[IN_SCHEMA, SCHEMA, TABLE], metaclass=abc.ABCMeta):
                                               .where(val)
                                               .values(update_val))
         await self._db_session.commit()
-        return self._schema.from_orm(query)
+        return query
 
-    async def delete_by_id(self, entry_id: UUID) -> SCHEMA:
+    async def delete_by_id(self, entry_id: UUID):
         '''
         deletes row by id
         '''
         query = await self._db_session.delete(self._table, entry_id)
         await self._db_session.commit()
-        return self._schema.from_orm(query)
+        return query
+    
+    async def get_by_id(self, entry_id: UUID):
+        '''
+        returns row by id 
+        '''
+        query = await self._db_session.get(self._table, entry_id)
+        if not query:
+            raise DoesNotExist(
+                f"{self._table.__name__}<id:{entry_id}> does not exist"
+            )
+        return query
