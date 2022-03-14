@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from app.db.tables.base import Base
 
@@ -13,3 +14,5 @@ class Submissions(Base):
     created_date = Column(DateTime, nullable=False)
     finished_date = Column(DateTime, nullable=True)
     result = Column(JSON, nullable=True)
+
+    user = relationship("Users", back_populates="submissions")
