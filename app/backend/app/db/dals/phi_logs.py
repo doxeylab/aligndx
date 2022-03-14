@@ -16,13 +16,15 @@ class UploadLogsDal(BaseDal[UploadLogs]):
         '''
         returns all upload logs for a particular submission within a defined range
         '''
-        query = await self._db_session.execute(select(self._table)
-                                               .where(self._table.c.submission_id == submission_id,
-                                                    self._table.c.start_kilobytes > start_kilobyte,
-                                                    self._table.c.start_kilobytes < start_kilobyte + kilobyte_size
-                                                ))
+        statement = (select(self._table)
+                    .where(self._table.c.submission_id == submission_id,
+                           self._table.c.start_kilobytes > start_kilobyte,
+                           self._table.c.start_kilobytes < start_kilobyte + kilobyte_size
+                    ))
+        query = await self._db_session.execute(statement)
         await self._db_session.commit()
         return query
+
 #  -- DeletionLogs DAL -- 
 
 class DeletionLogsDal(BaseDal[DeletionLogs]):

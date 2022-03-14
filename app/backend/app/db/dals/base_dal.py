@@ -3,7 +3,7 @@ from typing import Generic, TypeVar, Type
 from uuid import uuid4, UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import update
+from sqlalchemy import update, delete
 from app.models.schemas.base_schema import BaseSchema
 
 # declare static type checkers for base data access layer
@@ -27,43 +27,31 @@ class BaseDal(Generic[TABLE], metaclass=abc.ABCMeta):
     def _table(self) -> Type[TABLE]:
         ... 
 
-    async def create(self, schema):
+    async def create(self, entry):
         '''
-        creates db entry and returns schema response model 
+        Creates new row entry in table. Autogenerates a new UUID, requires the rest of the table columns. 
         '''
-        entry = self._table(id=uuid4(), **schema)
+        entry = self._table(id=uuid4(), **entry.dict())
         self._db_session.add(entry)
         await self._db_session.commit()
-        return entry
+        return entry 
 
-    async def get(self, val):
+    async def update(self, entry_id: UUID, update_val):
         '''
-        returns row by id 
+        updates table row value val with update_val(s). Requires entry_id 
         '''
-        query = await self._db_session.get(self._table, val)
-        if not query:
-            raise DoesNotExist(
-                f"{self._table.__name__}<id:{val}> does not exist"
-            )
-        return query
-
-    async def update(self, val, update_val):
-        '''
-        updates table row value val with update_val(s)
-        '''
-        query = await self._db_session.execute(update(self._table)
-                                              .where(val)
-                                              .values(update_val))
+        statement = update(self._table).where(self._table.id==entry_id).values(**update_val.dict()).execution_options(synchronize_session="fetch")
+        await self._db_session.execute(statement)
         await self._db_session.commit()
-        return query
 
     async def delete_by_id(self, entry_id: UUID):
         '''
-        deletes row by id
+        deletes table row by id
         '''
-        query = await self._db_session.delete(self._table, entry_id)
+        statement = delete(self._table).where(
+            self._table.id==entry_id)
+        await self._db_session.execute(statement)
         await self._db_session.commit()
-        return query
     
     async def get_by_id(self, entry_id: UUID):
         '''
@@ -75,3 +63,4 @@ class BaseDal(Generic[TABLE], metaclass=abc.ABCMeta):
                 f"{self._table.__name__}<id:{entry_id}> does not exist"
             )
         return query
+    

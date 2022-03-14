@@ -11,7 +11,7 @@ class UsersDal(BaseDal[Users]):
         return Users
     
     @classmethod
-    async def get_user_submission(self, userid, fileid) -> Type[Users]:
+    async def get_user_submission(self, userid, fileid):
         '''
         returns fileid if it exists under the users relationship
         '''
