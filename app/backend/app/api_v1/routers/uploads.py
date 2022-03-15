@@ -9,8 +9,6 @@ from datetime import datetime
 from typing import List 
 
 import requests
-from aligndx.app.backend.app.db.dals.users import UsersDal
-from aligndx.app.backend.app.models.schemas.submissions import SubmissionBase, UpdateSubmissionDate
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, File, UploadFile, Form, Body
 from fastapi import Depends
@@ -21,6 +19,8 @@ from app.scripts import salmonconfig
 
 from app.db.dals.phi_logs import UploadLogsDal
 from app.db.dals.submissions import SubmissionsDal  
+from app.db.dals.users import UsersDal
+from app.models.schemas.submissions import SubmissionBase, UpdateSubmissionDate
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -88,7 +88,7 @@ async def file_upload(
             chosen_panel = str(option.lower()) + "_index"
 
             sub_dal = SubmissionsDal(db)
-            query = sub_dal.create(SubmissionBase(
+            query = await sub_dal.create(SubmissionBase(
                 sample_name=sample_name,
                 panel=option.lower(), 
                 submission_type="standard",
@@ -152,17 +152,16 @@ async def start_file(
 
         # it's worth noting that uuid4 generates random numbers, but the possibility of having a collision is so low, it's been estimated that it would take 90 years for such to occur.
 
-        now = datetime.now()
-        response = {
-            'sample_name': filename,
-            'panel': option.lower(),
-            'created_date': now,
-            'submission_type': submission_type,
-            'user_id': current_user.id
-        }
+        response = SubmissionBase(
+            sample_name=filename,
+            panel=option.lower(),
+            created_date=datetime.now(),
+            submission_type=submission_type,
+            user_id=current_user.id
+        )
 
         sub_dal = SubmissionsDal(db)
-        query = sub_dal.create(response)
+        query = await sub_dal.create(response)
         file_id = query['id']
 
         rt_dir = "{}/{}".format(REAL_TIME_UPLOADS, file_id)
@@ -226,7 +225,7 @@ async def end_file(
     db: AsyncSession = Depends(get_db)
 ):
     users_dal = UsersDal(db)
-    query = users_dal.get_submission(current_user.id, file_id)
+    query = await users_dal.get_submission(current_user.id, file_id)
 
     if query is None:
         raise HTTPException(status_code=404, detail="File not found")

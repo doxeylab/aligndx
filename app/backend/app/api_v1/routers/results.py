@@ -44,7 +44,7 @@ router = APIRouter()
 async def standard_results(file_id: str, current_user: UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
 
     users_dal = UsersDal(db)
-    query = users_dal.get_submission(current_user.id, file_id)
+    query = await users_dal.get_submission(current_user.id, file_id)
 
     if (not query):
         return HTTPException(status_code=404, detail="Item not found")
@@ -60,7 +60,7 @@ async def standard_results(file_id: str, current_user: UserDTO = Depends(get_cur
     result = analyze.analyze_handler(sample_name, headers, metadata, quant_dir)
     
     sub_dal = SubmissionsDal(db)
-    update_query = sub_dal.update(file_id, UpdateSubmissionResult(data=result))
+    update_query = await sub_dal.update(file_id, UpdateSubmissionResult(data=result))
     
     return result 
 
@@ -71,7 +71,7 @@ class Chunk_id(BaseModel):
 async def chunked_results(file_id: str, current_user: UserDTO = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
 
     users_dal = UsersDal(db)
-    query = users_dal.get_submission(current_user.id, file_id)
+    query = await users_dal.get_submission(current_user.id, file_id)
 
     if (not query):
         return HTTPException(status_code=404, detail="Item not found")

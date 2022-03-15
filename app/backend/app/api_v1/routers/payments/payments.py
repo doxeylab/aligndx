@@ -7,7 +7,7 @@ from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user
 
 # Payments Schemas
-from app.db.payments.schemas import CreateSubscriptionRequest
+from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest
 
 # Services
 from app.services import subscription_service

@@ -56,7 +56,7 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
     current_user = await get_current_user_ws(token)
      
     users_dal = UsersDal(db)
-    query = users_dal.get_submission(current_user.id, file_id)
+    query = await users_dal.get_submission(current_user.id, file_id)
 
     sample_name = query['sample_name']
 

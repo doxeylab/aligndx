@@ -1,6 +1,5 @@
 # python libraries
 from datetime import timedelta
-from aligndx.app.backend.app.db.dals.users import UsersDal
 
 # FastAPI
 from fastapi import APIRouter, Depends
@@ -15,6 +14,7 @@ from app.auth.models import UserDTO, RefreshRequest
 
 # db components
 from app.db.dals.submissions import SubmissionsDal  
+from app.db.dals.users import UsersDal
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -86,7 +86,7 @@ async def get_standard_submissions(current_user: UserDTO = Depends(get_current_u
     db: AsyncSession = Depends(get_db)
 ):
     users_dal = UsersDal(db) 
-    submissions = users_dal.get_all_submissions(current_user.id)
+    submissions = await users_dal.get_all_submissions(current_user.id)
     return submissions
         
 
@@ -95,7 +95,7 @@ async def get_incomplete_submissions(current_user: UserDTO = Depends(get_current
     db: AsyncSession = Depends(get_db)
 ):
     users_dal = UsersDal(db) 
-    submissions = users_dal.get_incomplete_submissions(current_user.id)
+    submissions = await users_dal.get_incomplete_submissions(current_user.id)
     return submissions
 
 # returns single result for UI to access when user clicks on a linked result
@@ -104,7 +104,7 @@ async def get_result(file_id: str, current_user: UserDTO = Depends(get_current_u
     db: AsyncSession = Depends(get_db)
 ):
     users_dal = UsersDal(db) 
-    query = users_dal.get_submission(current_user.id, file_id)
+    query = await users_dal.get_submission(current_user.id, file_id)
     
     if (not query):
         return HTTPException(status_code=404, detail="Item not found")

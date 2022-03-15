@@ -35,7 +35,7 @@ async def valid_email_from_db(email: str,
     db: AsyncSession = Depends(get_db)
 ):
     user_dal = UsersDal(db)
-    user_res = user_dal.get_email(email)
+    user_res = await user_dal.get_email(email)
     if user_res is None:
         return False
     return True
@@ -56,7 +56,7 @@ async def create_user(user: UserTemp, db: AsyncSession = Depends(get_db)):
         hashed_password=hashed_password,
     )
     user_dal = UsersDal(db)
-    user_res = user_dal.create(db_user)
+    user_res = await user_dal.create(db_user)
     return {"status": status.HTTP_201_CREATED,
             "message": "User successfully created"}
 
@@ -67,7 +67,7 @@ async def authenticate_user(email: str, password: str, db: AsyncSession = Depend
         return pwd_context.verify(plain_password, hashed_password)
 
     user_dal = UsersDal(db)
-    user_res = user_dal.get_email(email)
+    user_res = await user_dal.get_email(email)
     if user_res is None:
         return False
 
@@ -124,7 +124,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme_auto_error), db: A
         raise credentials_exception
 
     user_dal = UsersDal(db)
-    user = user_dal.get_email(token_data.email)
+    user = await user_dal.get_email(token_data.email)
     if user is None:
         raise credentials_exception
 
@@ -146,7 +146,7 @@ async def get_current_user_ws(token: str, db: AsyncSession = Depends(get_db)):
         return None
 
     user_dal = UsersDal(db)
-    user = user_dal.get_email(token_data.email)
+    user = await user_dal.get_email(token_data.email)
 
     if user is None:
         return None

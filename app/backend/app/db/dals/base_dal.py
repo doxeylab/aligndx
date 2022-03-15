@@ -29,12 +29,12 @@ class BaseDal(Generic[TABLE], metaclass=abc.ABCMeta):
 
     async def create(self, entry):
         '''
-        Creates new row entry in table. Autogenerates a new UUID, requires the rest of the table columns. 
+        Creates new row entry in table. Autogenerates a new UUID, requires the rest of the table columns. Returns an id
         '''
         entry = self._table(id=uuid4(), **entry.dict())
         self._db_session.add(entry)
         await self._db_session.commit()
-        return entry 
+        return entry.id 
 
     async def update(self, entry_id: UUID, update_val):
         '''

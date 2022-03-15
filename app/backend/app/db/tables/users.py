@@ -1,6 +1,5 @@
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
-from aligndx.app.backend.app.db.tables.submissions import Submissions
 
 from app.db.tables.base import Base
 
