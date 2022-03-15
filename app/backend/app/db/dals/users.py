@@ -13,7 +13,14 @@ class UsersDal(BaseDal[Users]):
     def _table(self) -> Type[Users]:
         return Users
     
-    @classmethod
+    async def get_email(self, email):
+        stmt = (
+            select(self._table)
+            .where(self._table.email == email)
+        )
+        query = await self._db_session.execute(stmt)
+        return query.scalars().first()
+
     async def get_submission(self, user_id: UUID, sub_id: UUID):
         '''
         returns specific file by id, under users submissions

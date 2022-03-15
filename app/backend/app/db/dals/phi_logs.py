@@ -11,7 +11,6 @@ class UploadLogsDal(BaseDal[UploadLogs]):
     def _table(self) -> Type[UploadLogs]:
         return UploadLogs
     
-    @classmethod
     async def get_uploads_in_range(self, submission_id, start_kilobyte, kilobyte_size):
         '''
         returns all upload logs for a particular submission within a defined range

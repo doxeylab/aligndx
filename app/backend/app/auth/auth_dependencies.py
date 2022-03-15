@@ -1,4 +1,3 @@
-from aligndx.app.backend.app.db import dals
 from app.auth.models import TokenData, User, UserInDB, UserDTO, UserTemp, RefreshRequest
 from app.db.dals.users import UsersDal  
 from app.services.db import get_db 
@@ -36,7 +35,7 @@ async def valid_email_from_db(email: str,
     db: AsyncSession = Depends(get_db)
 ):
     user_dal = UsersDal(db)
-    user_res = user_dal.get(email)
+    user_res = user_dal.get_email(email)
     if user_res is None:
         return False
     return True
@@ -68,7 +67,7 @@ async def authenticate_user(email: str, password: str, db: AsyncSession = Depend
         return pwd_context.verify(plain_password, hashed_password)
 
     user_dal = UsersDal(db)
-    user_res = user_dal.get(email)
+    user_res = user_dal.get_email(email)
     if user_res is None:
         return False
 
@@ -125,7 +124,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme_auto_error), db: A
         raise credentials_exception
 
     user_dal = UsersDal(db)
-    user = user_dal.get(token_data.email)
+    user = user_dal.get_email(token_data.email)
     if user is None:
         raise credentials_exception
 
@@ -147,7 +146,7 @@ async def get_current_user_ws(token: str, db: AsyncSession = Depends(get_db)):
         return None
 
     user_dal = UsersDal(db)
-    user = user_dal.get(token_data.email)
+    user = user_dal.get_email(token_data.email)
 
     if user is None:
         return None
