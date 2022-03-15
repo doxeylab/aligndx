@@ -2,8 +2,11 @@ from typing import Type
 
 from app.db.dals.base_dal import BaseDal
 from app.db.tables.users import Users
+from app.db.tables.submissions import Submissions
 
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload, joinedload
+from uuid import UUID
 
 class UsersDal(BaseDal[Users]):
     @property
@@ -11,15 +14,41 @@ class UsersDal(BaseDal[Users]):
         return Users
     
     @classmethod
-    async def get_user_submission(self, userid, fileid):
+    async def get_submission(self, user_id: UUID, sub_id: UUID):
         '''
-        returns fileid if it exists under the users relationship
+        returns specific file by id, under users submissions
         '''
-        statement = (select(self._table)
-                    .where(self._table.c.id == userid,
-                          self._table.c.submission_id == fileid)
-                    )
-        
-        query = await self._db_session.execute(statement)
-        await self._db_session.commit()
-        return query
+        stmt =  (
+            select(self._table)
+                .where(self._table.id == user_id)
+                .options(joinedload(self._table.submissions.and_(Submissions.id==sub_id)))
+        )
+        query = await self._db_session.execute(stmt)
+        result = query.scalars().first()
+        return result.submissions
+
+    async def get_all_submissions(self, user_id: UUID):
+        '''
+        returns all submissions for a user
+        '''
+        stmt =  (
+            select(self._table)
+                .where(self._table.id == user_id)
+                .options(joinedload(self._table.submissions))
+        )
+        query = await self._db_session.execute(stmt)
+        result = query.scalars().first()
+        return result.submissions
+
+    async def get_incomplete_submissions(self, user_id: UUID):
+        '''
+        returns incomplete submissions for a user
+        '''
+        stmt =  (
+            select(self._table)
+                .where(self._table.id == user_id)
+                .options(joinedload(self._table.submissions.and_(Submissions.finished_date == None)))
+        )
+        query = await self._db_session.execute(stmt)
+        result = query.scalars().first()
+        return result.submissions
