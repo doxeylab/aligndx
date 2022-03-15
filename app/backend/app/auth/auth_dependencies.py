@@ -31,10 +31,9 @@ credentials_exception = HTTPException(
     headers={"WWW-Authenticate": "Bearer"},
 )
 
-async def valid_email_from_db(email: str, 
-    db: AsyncSession = Depends(get_db)
-):
+async def valid_email_from_db(email: str, db):
     user_dal = UsersDal(db)
+    print(dir(user_dal))
     user_res = await user_dal.get_email(email)
     if user_res is None:
         return False
@@ -42,8 +41,8 @@ async def valid_email_from_db(email: str,
 
 
 # Creates user if it doesn't exist 
-async def create_user(user: UserTemp, db: AsyncSession = Depends(get_db)):
-    if await valid_email_from_db(user.email):
+async def create_user(user: UserTemp, db):
+    if await valid_email_from_db(user.email, db):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User already exists, please log in.",

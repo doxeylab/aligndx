@@ -27,11 +27,12 @@ auth_settings = app_settings.AuthSettings()
 ACCESS_TOKEN_EXPIRE_MINUTES = auth_settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter()
- 
+
 # Sign up endpoint
 @router.post("/create_user", status_code=status.HTTP_201_CREATED)
-async def signup(user: UserTemp): 
-    res = await auth.create_user(user)
+async def signup(user: UserTemp, db: AsyncSession = Depends(get_db)): 
+    res = await auth.create_user(user, db)
+    
     return res
 
 # Log in endpoint
