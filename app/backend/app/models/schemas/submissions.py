@@ -7,16 +7,17 @@ from app.models.schemas import BaseSchema
 class SubmissionBase(BaseSchema):
     sample_name : str
     panel : str
-    result : dict
+    result : dict = None 
     submission_type : str
     user_id : UUID
     created_date : datetime
     finished_date : datetime = None
 
-class InSubmissionSchema(SubmissionBase):
-    # can add validation logic here, if need be
-    ...
-
 class SubmissionSchema(SubmissionBase):
     id: UUID
- 
+
+class UpdateSubmissionResult(BaseSchema):
+    data: dict
+
+class UpdateSubmissionDate(BaseSchema):
+    finished_date: datetime

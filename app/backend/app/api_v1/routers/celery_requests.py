@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from app.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.models.schemas.submissions import UpdateSubmission
 
 from app.scripts.email_feature import send_email
 from app.scripts import analyze, realtime 
@@ -16,7 +17,7 @@ class EndAnalysisPipeline(BaseModel):
     fileId: str
     data_dir: str
     email: str
-
+ 
 @router.post("/end_pipe")
 async def end_pipe(endRequest : EndAnalysisPipeline, db: AsyncSession = Depends(get_db)):
     '''
@@ -32,7 +33,7 @@ async def end_pipe(endRequest : EndAnalysisPipeline, db: AsyncSession = Depends(
     data = realtime.data_loader(stored_data, fileName, headers, status="ready")
     
     sub_dal = SubmissionsDal(db)
-    result = await sub_dal.update(fileId, data)
+    result = await sub_dal.update(fileId, UpdateSubmission(data=data))
 
     result_link = f'/result?submission={fileId}'    
     send_email(receiver_email=email, sample=fileName, link=result_link)

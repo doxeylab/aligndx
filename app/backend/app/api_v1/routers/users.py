@@ -86,7 +86,7 @@ async def get_standard_submissions(current_user: UserDTO = Depends(get_current_u
     db: AsyncSession = Depends(get_db)
 ):
     users_dal = UsersDal(db) 
-    submissions = users_dal.get_submissions(current_user.id)
+    submissions = users_dal.get_all_submissions(current_user.id)
     return submissions
         
 

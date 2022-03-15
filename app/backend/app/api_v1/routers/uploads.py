@@ -10,6 +10,7 @@ from typing import List
 
 import requests
 from aligndx.app.backend.app.db.dals.users import UsersDal
+from aligndx.app.backend.app.models.schemas.submissions import SubmissionBase, UpdateSubmissionDate
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, File, UploadFile, Form, Body
 from fastapi import Depends
@@ -86,18 +87,14 @@ async def file_upload(
             sample_name = file.filename.split('.')[0]
             chosen_panel = str(option.lower()) + "_index"
 
-            now = datetime.now()
-            submission_type = "standard"
-            response = {
-                'sample_name': sample_name,
-                'panel': option.lower(),
-                'created_date': now,
-                'submission_type': submission_type,
-                'user_id': current_user.id
-            }
-
             sub_dal = SubmissionsDal(db)
-            query = sub_dal.create(response)
+            query = sub_dal.create(SubmissionBase(
+                sample_name=sample_name,
+                panel=option.lower(), 
+                submission_type="standard",
+                user_id=current_user.id,
+                created_date= datetime.now(),
+                ))
             file_id = query['id']
 
             # for deleting
@@ -229,14 +226,14 @@ async def end_file(
     db: AsyncSession = Depends(get_db)
 ):
     users_dal = UsersDal(db)
-    sub_dal = SubmissionsDal(db)
-    query = users_dal.get_user_submission(current_user.id, file_id)
+    query = users_dal.get_submission(current_user.id, file_id)
 
     if query is None:
         raise HTTPException(status_code=404, detail="File not found")
 
     if query["finished_date"] is None:
-        await sub_dal.update(file_id, datetime.now())
+        sub_dal = SubmissionsDal(db)
+        await sub_dal.update(file_id, UpdateSubmissionDate(finished_date=datetime.now()))
         return {"Result": "OK"}
 
     else:

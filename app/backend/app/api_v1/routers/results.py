@@ -7,9 +7,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user
 
-from app.db.dals.users import UsersDal 
+from app.db.dals.users import UsersDal
+from app.db.dals.submissions import SubmissionsDal 
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.models.schemas.submissions import UpdateSubmissionResult
 
 from app.scripts import analyze, realtime 
 
@@ -36,12 +38,13 @@ for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULT
 router = APIRouter()
 
 # -- Standard upload results --
+
  
 @router.get('/standard/{file_id}') 
 async def standard_results(file_id: str, current_user: UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
 
     users_dal = UsersDal(db)
-    query = users_dal.get_user_submission(current_user.id, file_id)
+    query = users_dal.get_submission(current_user.id, file_id)
 
     if (not query):
         return HTTPException(status_code=404, detail="Item not found")
@@ -56,7 +59,8 @@ async def standard_results(file_id: str, current_user: UserDTO = Depends(get_cur
     quant_dir = os.path.join(sample_dir,'quant.sf')   
     result = analyze.analyze_handler(sample_name, headers, metadata, quant_dir)
     
-    update_query = users_dal.update(file_id, result)
+    sub_dal = SubmissionsDal(db)
+    update_query = sub_dal.update(file_id, UpdateSubmissionResult(data=result))
     
     return result 
 
@@ -67,7 +71,7 @@ class Chunk_id(BaseModel):
 async def chunked_results(file_id: str, current_user: UserDTO = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
 
     users_dal = UsersDal(db)
-    query = users_dal.get_user_submission(current_user.id, file_id)
+    query = users_dal.get_submission(current_user.id, file_id)
 
     if (not query):
         return HTTPException(status_code=404, detail="Item not found")
