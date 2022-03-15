@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
 from functools import lru_cache
+from typing import Optional
 
 import os, math
 
@@ -52,6 +53,13 @@ class AppSettings(BaseSettings):
 
     class DatabaseSettings():
         DATABASE_URL = os.getenv("DATABASE_URL")
+        @property
+        def async_database_url(self) -> Optional[str]:
+            return (
+                self.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+                if self.DATABASE_URL
+                else self.DATABASE_URL
+            )
 
 
 @lru_cache()

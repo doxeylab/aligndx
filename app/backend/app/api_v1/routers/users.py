@@ -13,7 +13,6 @@ from app.auth.auth_dependencies import get_current_user
 from app.auth.models import UserDTO, RefreshRequest
 
 # db components
-from app.db.dals.submissions import SubmissionsDal  
 from app.db.dals.users import UsersDal
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
