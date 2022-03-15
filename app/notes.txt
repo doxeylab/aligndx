@@ -6,3 +6,6 @@ docker-compose run --rm -w "/app/app/" backend alembic upgrade head
 
 To run monitoring profiles:
 docker-compose --profile monitoring up service
+
+To checkout psql via commandline:
+psql -d aligndx_data -U aligndx_dev
