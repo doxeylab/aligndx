@@ -4,11 +4,8 @@ from uuid import uuid4, UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import update, delete
-from app.models.schemas.base_schema import BaseSchema
 
 # declare static type checkers for base data access layer
-IN_SCHEMA = TypeVar("IN_SCHEMA", bound=BaseSchema)
-SCHEMA = TypeVar("SCHEMA", bound=BaseSchema)
 TABLE = TypeVar("TABLE")
 
 class DoesNotExist(Exception):
@@ -20,7 +17,7 @@ class DoesNotExist(Exception):
 # Abstract base class for generating data acccess layers
 class BaseDal(Generic[TABLE], metaclass=abc.ABCMeta):
     def __init__(self, db_session: AsyncSession, *args, **kwargs) -> None:
-        self._db_session: db_session
+        self._db_session: AsyncSession = db_session
 
     @property
     @abc.abstractmethod

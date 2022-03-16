@@ -12,15 +12,12 @@ class UsersDal(BaseDal[Users]):
     @property
     def _table(self) -> Type[Users]:
         return Users
-    
+
     async def get_email(self, email):
         '''
         returns users email, if it exists
         '''
-        stmt = (
-            select(self._table)
-            .where(self._table.email == email)
-        )
+        stmt = (select(self._table).where(self._table.email == email))
         query = await self._db_session.execute(stmt)
         return query.scalars().first()
 
