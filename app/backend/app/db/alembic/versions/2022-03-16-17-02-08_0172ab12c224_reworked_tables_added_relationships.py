@@ -1,8 +1,8 @@
-"""reworked tables and relationships
+"""reworked tables + added relationships
 
-Revision ID: 9bfd1ecb1e2d
+Revision ID: 0172ab12c224
 Revises: 
-Create Date: 2022-03-16 16:47:33.575772
+Create Date: 2022-03-16 17:02:08.428909
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '9bfd1ecb1e2d'
+revision = '0172ab12c224'
 down_revision = None
 branch_labels = None
 depends_on = None
