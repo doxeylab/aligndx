@@ -135,7 +135,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme_auto_error), db: A
 
 
 # ws version
-async def get_current_user_ws(token: str, db: AsyncSession = Depends(get_db)):
+async def get_current_user_ws(token: str, db):
     if not token:
         return None
 

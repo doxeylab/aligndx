@@ -6,10 +6,9 @@ from pydantic import BaseModel
 from fastapi import APIRouter, Depends, status
 from fastapi import WebSocket
 from starlette.websockets import WebSocketDisconnect 
-from fastapi import Cookie, Query
 
-from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user_ws
+from app.models.schemas.submissions import SubmissionSchema
 
 from app.db.dals.users import UsersDal 
 from app.services.db import get_db 
@@ -53,12 +52,13 @@ class Chunk_id(BaseModel):
 async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSession = Depends(get_db)):
     await manager.connect(websocket)
     token = await websocket.receive_text()
-    current_user = await get_current_user_ws(token)
+    current_user = await get_current_user_ws(token, db)
      
     users_dal = UsersDal(db)
     query = await users_dal.get_submission(current_user.id, file_id)
 
-    sample_name = query['sample_name']
+    submission = SubmissionSchema.from_orm(query)
+    sample_name = submission.name
 
     headers=['Name', 'TPM']
     data_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, "data.json")

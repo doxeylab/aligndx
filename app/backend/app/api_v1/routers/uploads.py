@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import List 
 
 import requests
+from app.models.schemas.phi_logs import UploadLogBase
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, File, UploadFile, Form, Body
 from fastapi import Depends
@@ -20,7 +21,7 @@ from app.scripts import salmonconfig
 from app.db.dals.phi_logs import UploadLogsDal
 from app.db.dals.submissions import SubmissionsDal  
 from app.db.dals.users import UsersDal
-from app.models.schemas.submissions import SubmissionBase, UpdateSubmissionDate
+from app.models.schemas.submissions import SubmissionBase, UpdateSubmissionDate, SubmissionSchema
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -172,7 +173,7 @@ async def start_file(
         results_dir = "{}/{}".format(REAL_TIME_RESULTS, file_id)
         os.mkdir(results_dir)
 
-        tasks.make_file_metadata.delay(rt_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks, email=current_user.email, fileId=id)
+        tasks.make_file_metadata.delay(rt_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks, email=current_user.email, fileId=file_id)
         tasks.make_file_data.delay(results_dir)
 
         return {"Result": "OK",
@@ -209,12 +210,13 @@ async def upload_chunk(
     ).apply_async()
 
     uplog_dal = UploadLogsDal(db)
-    query = uplog_dal.create(
+    log = UploadLogBase(
         submission_id=file_id,
         start_kilobytes=math.ceil(chunk_number * upload_chunk_size / 1024),
         size_kilobytes=math.ceil(upload_chunk_size / 1024),
         creation_time=datetime.now()
     )
+    query = uplog_dal.create(log)
     
     return {"Result": "OK"}
 
@@ -227,11 +229,12 @@ async def end_file(
 ):
     users_dal = UsersDal(db)
     query = await users_dal.get_submission(current_user.id, file_id)
+    submission = SubmissionSchema.from_orm(query)
 
-    if query is None:
+    if submission is None:
         raise HTTPException(status_code=404, detail="File not found")
 
-    if query["finished_date"] is None:
+    if submission.finished_date is None:
         sub_dal = SubmissionsDal(db)
         await sub_dal.update(file_id, UpdateSubmissionDate(finished_date=datetime.now()))
         return {"Result": "OK"}

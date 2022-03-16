@@ -26,7 +26,7 @@ const RestartTable = (props) => {
 
     const organize_data = (data) => {
         const id = data.id
-        const name = data.sample_name
+        const name = data.name
         const panel = data.panel
         const date = Date(data.created_date)
         const meta = [panel, date]
