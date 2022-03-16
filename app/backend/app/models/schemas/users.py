@@ -1,17 +1,48 @@
 from uuid import UUID
 
-from app.models.schemas import BaseSchema
-
+from app.models.schemas.base_schema import BaseSchema
+from typing import Optional
 
 class UserBase(BaseSchema):
     name: str
     email: str 
     hashed_password: str
 
-class InUserSchema(UserBase):
-    # can add validation logic here, if need be
-    ...
-
 class UserSchema(UserBase):
     id: UUID
  
+class UserPassword(BaseSchema):
+    hashed_password: str
+
+# User DTO
+class UserDTO(BaseSchema):
+    id: UUID
+    email: str
+    name: str
+ 
+class Token(BaseSchema):
+    access_token: str
+    refresh_token: str
+    token_type: str
+
+class TokenData(BaseSchema):
+    email: Optional[str] = None
+
+class RefreshRequest(BaseSchema):
+    grant_type: str
+    refresh_token: str
+
+# Base model user information the frontend needs
+class User(BaseSchema):
+    email: str
+    name: str
+
+# Inherited model - used for when user makes a request to create an account
+class UserTemp(User):
+    password: str
+
+# Inherited model - used to store the user in the DB
+class UserInDB(User):
+    hashed_password: str
+
+

@@ -11,7 +11,7 @@ from app.db.dals.users import UsersDal
 from app.db.dals.submissions import SubmissionsDal 
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.schemas.submissions import UpdateSubmissionResult
+from app.models.schemas.submissions import UpdateSubmissionResult, SubmissionSchema
 
 from app.scripts import analyze, realtime 
 
@@ -49,9 +49,10 @@ async def standard_results(file_id: str, current_user: UserDTO = Depends(get_cur
     if (not query):
         return HTTPException(status_code=404, detail="Item not found")
 
-    sample_name = query['sample_name']
-    panel = query['panel']
-    file_id = str(query['id'])
+    submission = SubmissionSchema.from_orm(query)
+    sample_name = submission.name
+    panel = submission.panel
+    file_id = str(submission.id)
     headers=['Name', 'TPM'] 
 
     metadata = analyze.metadata_load(METADATA_FOLDER, panel)
@@ -60,7 +61,7 @@ async def standard_results(file_id: str, current_user: UserDTO = Depends(get_cur
     result = analyze.analyze_handler(sample_name, headers, metadata, quant_dir)
     
     sub_dal = SubmissionsDal(db)
-    update_query = await sub_dal.update(file_id, UpdateSubmissionResult(data=result))
+    update_query = await sub_dal.update(submission.id, UpdateSubmissionResult(result=result))
     
     return result 
 

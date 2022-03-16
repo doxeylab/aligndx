@@ -1,4 +1,4 @@
-from app.auth.models import TokenData, User, UserInDB, UserDTO, UserTemp, RefreshRequest
+from app.models.schemas.users import UserPassword, UserSchema, UserDTO, UserTemp, UserInDB, RefreshRequest, TokenData, User
 from app.db.dals.users import UsersDal  
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -61,19 +61,21 @@ async def create_user(user: UserTemp, db):
 
 
 # Authenticate the user: verify user exists and password is correct
-async def authenticate_user(email: str, password: str, db: AsyncSession = Depends(get_db)):
+async def authenticate_user(email: str, password: str, db):
     def verify_password(plain_password, hashed_password):
         return pwd_context.verify(plain_password, hashed_password)
 
     user_dal = UsersDal(db)
-    user_res = await user_dal.get_email(email)
+    user_res = await user_dal.get_by_email(email)
     if user_res is None:
         return False
+    
+    user = UserSchema.from_orm(user_res)
 
-    user = UserInDB(**user_res)
     if not verify_password(password, user.hashed_password):
         return False
-    return User(**user_res)
+
+    return User(email=user.email, name=user.name)
 
 
 # Returns the generated access token after user has been authenticated
@@ -123,11 +125,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme_auto_error), db: A
         raise credentials_exception
 
     user_dal = UsersDal(db)
-    user = await user_dal.get_email(token_data.email)
-    if user is None:
+    user_res = await user_dal.get_by_email(token_data.email)
+    if user_res is None:
         raise credentials_exception
+    
+    user = UserSchema.from_orm(user_res)
 
-    return UserDTO(**user)
+    return UserDTO(id=user.id, name=user.name, email=user.email)
 
 
 # ws version
@@ -145,9 +149,10 @@ async def get_current_user_ws(token: str, db: AsyncSession = Depends(get_db)):
         return None
 
     user_dal = UsersDal(db)
-    user = await user_dal.get_email(token_data.email)
+    user_res = await user_dal.get_by_email(token_data.email)
+    if user_res is None:
+        raise credentials_exception
+    
+    user = UserSchema.from_orm(user_res)
 
-    if user is None:
-        return None
-
-    return UserDTO(**user)
+    return UserDTO(id=user.id, name=user.name, email=user.email)

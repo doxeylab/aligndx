@@ -36,9 +36,9 @@ async def signup(user: UserTemp, db: AsyncSession = Depends(get_db)):
 
 # Log in endpoint
 @router.post("/token", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(form_data: OAuth2PasswordRequestForm = Depends(),  db: AsyncSession = Depends(get_db)):
     # OAuth2PasswordRequestForm has username and password, username = email in our project
-    user = await auth.authenticate_user(form_data.username, form_data.password)
+    user = await auth.authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

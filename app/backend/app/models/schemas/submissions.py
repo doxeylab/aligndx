@@ -5,7 +5,7 @@ from app.models.schemas.base_schema import BaseSchema
 
 
 class SubmissionBase(BaseSchema):
-    sample_name : str
+    name : str
     panel : str
     result : dict = None 
     submission_type : str
@@ -17,7 +17,7 @@ class SubmissionSchema(SubmissionBase):
     id: UUID
 
 class UpdateSubmissionResult(BaseSchema):
-    data: dict
+    result: dict
 
 class UpdateSubmissionDate(BaseSchema):
     finished_date: datetime

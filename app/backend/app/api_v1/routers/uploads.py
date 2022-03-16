@@ -89,13 +89,13 @@ async def file_upload(
 
             sub_dal = SubmissionsDal(db)
             query = await sub_dal.create(SubmissionBase(
-                sample_name=sample_name,
+                name=sample_name,
                 panel=option.lower(), 
                 submission_type="standard",
                 user_id=current_user.id,
                 created_date= datetime.now(),
                 ))
-            file_id = query['id']
+            file_id = str(query)
 
             # for deleting
             sample_folder = os.path.join(STANDARD_UPLOADS, file_id)
@@ -153,7 +153,7 @@ async def start_file(
         # it's worth noting that uuid4 generates random numbers, but the possibility of having a collision is so low, it's been estimated that it would take 90 years for such to occur.
 
         response = SubmissionBase(
-            sample_name=filename,
+            name=filename,
             panel=option.lower(),
             created_date=datetime.now(),
             submission_type=submission_type,
@@ -162,7 +162,8 @@ async def start_file(
 
         sub_dal = SubmissionsDal(db)
         query = await sub_dal.create(response)
-        file_id = query['id']
+        file_id = str(query)
+
 
         rt_dir = "{}/{}".format(REAL_TIME_UPLOADS, file_id)
         os.mkdir(rt_dir)

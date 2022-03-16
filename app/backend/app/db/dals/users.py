@@ -13,9 +13,9 @@ class UsersDal(BaseDal[Users]):
     def _table(self) -> Type[Users]:
         return Users
 
-    async def get_email(self, email):
+    async def get_by_email(self, email):
         '''
-        returns users email, if it exists
+        returns user if email exists
         '''
         stmt = (select(self._table).where(self._table.email == email))
         query = await self._db_session.execute(stmt)
@@ -32,8 +32,8 @@ class UsersDal(BaseDal[Users]):
         )
         query = await self._db_session.execute(stmt)
         result = query.scalars().first()
-        return result.submissions
-
+        return result.submissions[0]
+        
     async def get_all_submissions(self, user_id: UUID):
         '''
         returns all submissions for a user
