@@ -4,7 +4,7 @@ import BarChart from "../BarChart";
 const createBarChart = (chart_data) => { 
     if (chart_data) {
         return (
-            <BarChart data={chart_data} yLabel={chart_data.ylabel} xLabel={chart_data.xlabel} col="coverage" xkey="pathogen" ykey="coverage" />
+            <BarChart data={chart_data} yLabel={chart_data.ylabel} xLabel={chart_data.xlabel} col="coverage" xkey="Pathogen" ykey="Coverage" />
         )
     }
     else {
