@@ -47,7 +47,7 @@ app.add_middleware(
 app.include_router(
     users.router,
     prefix="/users",
-    tags=["users"],
+    tags=["Users"],
     responses={408: {"description": "Ain't gonna work buddy"}},
 )
 
