@@ -8,7 +8,6 @@ services:
     tty: true
     depends_on:
       - postgres
-      # - kafka
     ports:
       - "8080:8080"
     volumes:
@@ -138,9 +137,4 @@ services:
 
 volumes:
   db-data:
-  pgadmin-data:
-    # kafka-data:
-    # kafka-secrets:
-    # zookeeper-data:
-    # zookeeper-log:
-    # zookeeper-secrets:
+  pgadmin-data: 
