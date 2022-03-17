@@ -3,46 +3,30 @@
 from http.client import HTTPException
 import sys, os, shutil, math, traceback, importlib
 
-## async
 import aiofiles, asyncio 
-
-## networking
-import requests
-
-## types
 from uuid import uuid4
 from datetime import datetime
-from pydantic import BaseModel
+from typing import List 
 
-## styling
-from typing import List, Optional
+import requests
+from app.models.schemas.phi_logs import UploadLogBase
 
-# data manipulation
-import pandas as pd
-
-# FastAPI
 from fastapi import APIRouter, BackgroundTasks, HTTPException, File, UploadFile, Form, Body
 from fastapi import Depends
 
-# auth components
 from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user
+from app.scripts import salmonconfig 
 
-# core scripts
-from app.scripts import email_feature, salmonconfig, realtime
+from app.db.dals.phi_logs import UploadLogsDal
+from app.db.dals.submissions import SubmissionsDal  
+from app.db.dals.users import UsersDal
+from app.models.schemas.submissions import SubmissionBase, UpdateSubmissionDate, SubmissionSchema
+from app.services.db import get_db 
+from sqlalchemy.ext.asyncio import AsyncSession
 
-# db
-## from app.db.database import database
-from app.db.models import Sample as ModelSample
-from app.db.models import Logs as LogsModel
-
-## from app.db.models import create, get
-from app.db.schema import Sample as SchemaSample
-
-# settings 
 from app.config.settings import get_settings
 
-# celery
 from app.celery import tasks
 from celery import chain
 
@@ -90,10 +74,10 @@ async def ping_salmon():
 
 @router.post("/")
 async def file_upload(
-    background_tasks: BackgroundTasks,
     files: List[UploadFile] = File(...),
     panel: List[str] = Form(...),
-    current_user: UserDTO = Depends(get_current_user)
+    current_user: UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
 ):
 
     commands_lst = []
@@ -104,20 +88,15 @@ async def file_upload(
             sample_name = file.filename.split('.')[0]
             chosen_panel = str(option.lower()) + "_index"
 
-            id = uuid4()
-            file_id = str(id)
-            now = datetime.now()
-            submission_type = "standard"
-            response = {
-                'id': id,
-                'sample_name': sample_name,
-                'panel': option.lower(),
-                'created_date': now,
-                'submission_type': submission_type,
-                'user_id': current_user.id
-            }
-
-            query = await ModelSample.create_sample(**response)
+            sub_dal = SubmissionsDal(db)
+            query = await sub_dal.create(SubmissionBase(
+                name=sample_name,
+                panel=option.lower(), 
+                submission_type="standard",
+                user_id=current_user.id,
+                created_date= datetime.now(),
+                ))
+            file_id = str(query)
 
             # for deleting
             sample_folder = os.path.join(STANDARD_UPLOADS, file_id)
@@ -135,18 +114,13 @@ async def file_upload(
                 shutil.copyfileobj(file.file, f)
 
             indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
-            filename = file.filename.split('.')[1]
             results_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
 
             commands = salmonconfig.commands(
                 indexpath, file_location, results_dir)
             commands_lst.append(commands)
 
-            call_salmon(commands_lst, sample_folder)
-            # background_tasks.add_task(
-            #     standard_process, commands_lst, sample_folder)
-
-            # shutil.rmtree(sample_folder)
+            call_salmon(commands_lst, sample_folder) 
 
     return {"Result": "OK",
             "File_ID": file_id}
@@ -171,6 +145,7 @@ async def start_file(
     filename: str = Body(...),
     number_of_chunks: int = Body(...),
     panels: List[str] = Body(...),
+    db: AsyncSession = Depends(get_db)
 ):
     for option in panels:
 
@@ -178,19 +153,18 @@ async def start_file(
 
         # it's worth noting that uuid4 generates random numbers, but the possibility of having a collision is so low, it's been estimated that it would take 90 years for such to occur.
 
-        id = uuid4()
-        file_id = str(id)
-        now = datetime.now()
-        response = {
-            'id': id,
-            'sample_name': filename,
-            'panel': option.lower(),
-            'created_date': now,
-            'submission_type': submission_type,
-            'user_id': current_user.id
-        }
+        response = SubmissionBase(
+            name=filename,
+            panel=option.lower(),
+            created_date=datetime.now(),
+            submission_type=submission_type,
+            user_id=current_user.id
+        )
 
-        query = await ModelSample.create_sample(**response)
+        sub_dal = SubmissionsDal(db)
+        query = await sub_dal.create(response)
+        file_id = str(query)
+
 
         rt_dir = "{}/{}".format(REAL_TIME_UPLOADS, file_id)
         os.mkdir(rt_dir)
@@ -199,7 +173,7 @@ async def start_file(
         results_dir = "{}/{}".format(REAL_TIME_RESULTS, file_id)
         os.mkdir(results_dir)
 
-        tasks.make_file_metadata.delay(rt_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks, email=current_user.email, fileId=id)
+        tasks.make_file_metadata.delay(rt_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks, email=current_user.email, fileId=file_id)
         tasks.make_file_data.delay(results_dir)
 
         return {"Result": "OK",
@@ -214,6 +188,7 @@ async def upload_chunk(
     file_id: str = Form(...),
     chunk_file: UploadFile = File(...),
     panels: str = Form(...),
+    db: AsyncSession = Depends(get_db)
 ):
 
     rt_dir = "{}/{}".format(REAL_TIME_UPLOADS, file_id)
@@ -221,20 +196,12 @@ async def upload_chunk(
     analysis_data_folder = "{}/{}".format(rt_dir, "salmon_data")
     results_dir = "{}/{}".format(REAL_TIME_RESULTS, file_id)
     data_dir = "{}/{}".format(results_dir, "data.json")
-
-    if current_user:
-        # keep returning until chunk number has reached where it left off
-        # return {"Result": "Skipped"}
-        pass
-
+    
     async with aiofiles.open(upload_data, 'wb') as f:
         while content := await chunk_file.read(read_batch_size):
             await f.write(content)
 
-    # tasks.process_new_upload.apply_async((rt_dir, chunk_number),
-    #                                      link=tasks.perform_chunk_analysis.s(
-    #                                         panels, INDEX_FOLDER, analysis_data_folder, results_dir))
-    print(file_id)
+    
     chain(
         tasks.process_new_upload.s(rt_dir, chunk_number), 
         tasks.perform_chunk_analysis.s(panels, INDEX_FOLDER, analysis_data_folder, results_dir),
@@ -242,28 +209,34 @@ async def upload_chunk(
         tasks.pipe_status.s(rt_dir, data_dir)
     ).apply_async()
 
-    logs = await LogsModel.log_upload(
+    uplog_dal = UploadLogsDal(db)
+    log = UploadLogBase(
         submission_id=file_id,
         start_kilobytes=math.ceil(chunk_number * upload_chunk_size / 1024),
         size_kilobytes=math.ceil(upload_chunk_size / 1024),
         creation_time=datetime.now()
     )
-
+    query = uplog_dal.create(log)
+    
     return {"Result": "OK"}
 
 
 @router.post("/end-file")
 async def end_file(
     current_user: UserDTO = Depends(get_current_user),
-    file_id: str = Body(..., embed=True)
+    file_id: str = Body(..., embed=True),
+    db: AsyncSession = Depends(get_db)
 ):
-    query = await ModelSample.get_sample_info(current_user.id, file_id,)
+    users_dal = UsersDal(db)
+    query = await users_dal.get_submission(current_user.id, file_id)
+    submission = SubmissionSchema.from_orm(query)
 
-    if query is None:
+    if submission is None:
         raise HTTPException(status_code=404, detail="File not found")
 
-    if query["finished_date"] is None:
-        await ModelSample.save_upload_finished(file_id, datetime.now())
+    if submission.finished_date is None:
+        sub_dal = SubmissionsDal(db)
+        await sub_dal.update(file_id, UpdateSubmissionDate(finished_date=datetime.now()))
         return {"Result": "OK"}
 
     else:

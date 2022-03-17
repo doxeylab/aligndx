@@ -1,6 +1,6 @@
 import os
 from fastapi import HTTPException, status
-from app.db.payments.schemas import CustomerDTO
+from app.models.schemas.payments.customers import CustomerDTO
 
 # Stripe
 import stripe
