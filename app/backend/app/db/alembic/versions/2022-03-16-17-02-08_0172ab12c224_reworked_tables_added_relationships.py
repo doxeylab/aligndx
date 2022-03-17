@@ -137,7 +137,6 @@ def downgrade():
     # ### end Alembic commands ###
     op.create_table('users',
     sa.Column('id', sa.BigInteger(), nullable=False),
-    sa.Column('username', sa.String(length=50), nullable=True),
     sa.Column('name', sa.String(length=50), nullable=True),
     sa.Column('email', sa.String(length=50), nullable=True),
     sa.Column('hashed_password', sa.String(length=250), nullable=True),
@@ -152,6 +151,7 @@ def downgrade():
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('sample_name', sa.String(length=50), nullable=True),
     sa.Column('finished_date', sa.DateTime(), nullable=False),
+    sa.Column('submission_type', sa.String(length=50), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -161,6 +161,7 @@ def downgrade():
     sa.Column('submission_id', postgresql.UUID(), nullable=False),
     sa.Column('start_kilobytes', sa.Integer(), nullable=False),
     sa.Column('size_kilobytes', sa.Integer(), nullable=False),
+    sa.Column('creation_time', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['submission_id'], ['submissions.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
