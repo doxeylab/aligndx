@@ -18,6 +18,7 @@ class Subscriptions(Base):
     customer_id = Column(UUID(as_uuid=True), ForeignKey("customers.id"), nullable=False)
     creation_time = Column(DateTime, nullable=False)
     is_active = Column(Boolean, nullable=False)
+    is_paid = Column(Boolean, nullable=False)
     status = Column(String(50), nullable=False)
     plan_description = Column(String(50), nullable=False)
     initial_start_date = Column(DateTime, nullable=True)
