@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Optional 
 
 from fastapi import Depends, HTTPException, status 
-from jose import JWTError, jwt
+from jose import JWTError, ExpiredSignatureError, jwt
 
 from app.config.settings import get_settings
 
@@ -30,6 +30,13 @@ credentials_exception = HTTPException(
     detail="Could not validate credentials",
     headers={"WWW-Authenticate": "Bearer"},
 )
+
+credentials_expiry_exception = HTTPException(
+    status_code=status.HTTP_401_UNAUTHORIZED,
+    detail="Expired",
+    headers={"WWW-Authenticate": "Bearer"},
+)
+
 
 async def valid_email_from_db(email: str, db):
     user_dal = UsersDal(db)
@@ -121,6 +128,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme_auto_error), db: A
         if email is None:
             raise credentials_exception
         token_data = TokenData(email=email)
+    except ExpiredSignatureError:
+        raise credentials_expiry_exception
     except JWTError:
         raise credentials_exception
 

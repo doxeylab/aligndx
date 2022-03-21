@@ -46,7 +46,7 @@ const LogInAuth = (props) => {
 
         loginRequest(loginParams)
             .then((response) => {
-                localStorage.setItem("accessToken", response.access_token);
+                context.setupUser(response)
                 setLoading(false)
                 setError(false)
                 context.loadCurrentUser();
