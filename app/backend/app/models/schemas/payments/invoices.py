@@ -29,18 +29,24 @@ class InvoiceBase(BaseSchema):
 class InvoiceSchema(InvoiceBase):
     id: UUID
 
-class NewInvoice(BaseSchema):
-    status : str
-    amount_due : int
-    amount_paid : int
-    currency : str
-    invoice_date : datetime
-    billing_period_start : datetime
-    billing_period_end : datetime
-    stripe_invoice_id : str
-    stripe_payment_intent_id : str
-    stripe_invoice_url : str
-    stripe_invoice_number : str
-    subscription_id : UUID
-    customer_id : UUID
-    creation_time : datetime
+class CreateNewInvoice(BaseSchema):
+    status: str
+    amount_due: int
+    amount_paid: int
+    currency: str
+    invoice_date: datetime
+    billing_period_start: datetime
+    billing_period_end: datetime
+    stripe_invoice_id: str
+    stripe_payment_intent_id: str
+    stripe_invoice_url: str
+    stripe_invoice_number: str
+    subscription_id: UUID
+    customer_id: UUID
+    creation_time: datetime
+    payment_card_type: str
+    payment_card_last4: str
+    payment_card_expiry: str
+    stripe_payment_receipt_url: str
+    stripe_payment_method_id: str
+

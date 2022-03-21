@@ -1,9 +1,8 @@
 # Database Models & DAL
-from app.db.dals.payments import CustomersDal, InvoicesDal, SubscriptionsDal
+from app.db.dals.payments import CustomersDal, SubscriptionsDal
 from app.auth.models import UserDTO
-from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, NewSubscription, UpdateSubscription
+from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, CreateNewSubscription, UpdateInitialSubscription, UpdateItemsAfterPaymentSuccess
 from app.models.schemas.payments.customers import NewCustomer, UpdateCustomerStripeId
-from app.models.schemas.payments.invoices import NewInvoice
 
 # Services
 from app.services import stripe_service
@@ -32,9 +31,10 @@ async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequ
     await customer_dal.update(customer_id, update_payload)
 
     # Create 'inactive' subscription in db
-    new_subscription = NewSubscription(
+    new_subscription = CreateNewSubscription(
         is_active = False,
         status = "initialize",
+        is_paid = False,
         plan_description = "Standard Plan",
         stripe_price_id = req.stripe_price_id,
         customer_id = customer_id,
@@ -49,36 +49,27 @@ async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequ
         customer_id, stripe_customer.id, req.stripe_price_id, subscription_id
     )
     client_secret = sub.latest_invoice.payment_intent.client_secret
-    update_items = UpdateSubscription(
+    update_items = UpdateInitialSubscription(
         stripe_subscription_id = sub.id,
-        stripe_latest_invoice_id = sub.latest_invoice.id,
-        status = sub.status,
         initial_start_date = datetime.fromtimestamp(sub.start_date),
-        current_period_start = datetime.fromtimestamp(sub.current_period_start),
-        current_period_end = datetime.fromtimestamp(sub.current_period_end),
     ) 
 
     await subs_dal.update(subscription_id, update_items)
 
-    # Create invoice for the subscription
-    invoice = sub.latest_invoice
-    new_invoice = NewInvoice(
-        status = invoice.status,
-        amount_due = invoice.amount_due,
-        amount_paid = invoice.amount_paid,
-        currency = invoice.currency,
-        invoice_date = datetime.fromtimestamp(invoice.created),
-        billing_period_start = datetime.fromtimestamp(invoice.period_start),
-        billing_period_end = datetime.fromtimestamp(invoice.period_end),
-        stripe_invoice_id = invoice.id,
-        stripe_payment_intent_id = invoice.payment_intent.id,
-        stripe_invoice_url = invoice.hosted_invoice_url,
-        stripe_invoice_number = invoice.number,
-        subscription_id = subscription_id,
-        customer_id = customer_id,
-        creation_time = datetime.now(),
-    )
-    invoice_dal = InvoicesDal(db)
-    await invoice_dal.create(new_invoice)
-
     return client_secret
+
+async def get_subscription_by_stripe_id(db, stripe_id):
+    subs_dal = SubscriptionsDal(db)
+    return await subs_dal.get_subscription_by_stripe_id(stripe_id)
+
+async def update_after_payment_success(db, subs_id, sub_stripe):
+    update_items = UpdateItemsAfterPaymentSuccess(
+        is_active = True,
+        status = "paid",
+        is_paid = True,
+        stripe_latest_invoice_id = sub_stripe.latest_invoice.id,
+        current_period_start = datetime.fromtimestamp(sub_stripe.current_period_start),
+        current_period_end = datetime.fromtimestamp(sub_stripe.current_period_end),
+    )
+    subs_dal = SubscriptionsDal(db)
+    return await subs_dal.update(subs_id, update_items)
