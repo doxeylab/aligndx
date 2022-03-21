@@ -1,6 +1,6 @@
 import React from 'react';
 import BaseModal from "./BaseModal";
-import DataProgressBar from "../DataProgressBar";
+
 
 // Components 
 import { DropdownMenu} from '../Form';
@@ -21,8 +21,10 @@ const UploadModal = (props) => {
             title={props.title}
             body={
                 <Container>
-                        <Row>
-                            <DataProgressBar percentage = {dataPercentUsage}/>
+                        <Row style={{ marginBottom: '1.5rem' }}>
+                            <Col>
+                                <DataProgressBar percentage = {dataPercentUsage}/>
+                            </Col>
                         </Row>
                         <Row style={{ marginBottom: '1.5rem' }}>
                             <Col>
