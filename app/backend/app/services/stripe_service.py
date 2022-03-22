@@ -42,6 +42,16 @@ async def create_subscription(customer_id, stripe_customer_id, stripe_price_id, 
     except StripeError as error:
         error_handler(error)   
 
+async def get_subscription(stripe_subscription_id, expand_list=[]):
+    try:
+        return stripe.Subscription.retrieve(
+                stripe_subscription_id,
+                expand = expand_list
+            )
+
+    except StripeError as error:
+        error_handler(error)
+
 # Stripe Error Handler
 def error_handler(error: Exception):
     raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,

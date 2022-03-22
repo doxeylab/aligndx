@@ -27,5 +27,5 @@ class NewCustomer(BaseSchema):
     admin_user_id : UUID
     creation_time: datetime
 
-class UpdateCustomer(BaseSchema):
+class UpdateCustomerStripeId(BaseSchema):
     stripe_customer_id: str
