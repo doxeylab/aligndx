@@ -8,12 +8,11 @@ services:
     tty: true
     depends_on:
       - postgres
-      # - kafka
     ports:
       - "8080:8080"
     volumes:
       # these are all bind mounts, not volumes
-      - ./backend/app:/app/app:ro
+      - ./backend/app:/app/app
       - ./backend/results:/app/results
       - ./backend/uploads:/app/uploads
       - ./backend/indexes:/app/indexes:ro
@@ -138,9 +137,4 @@ services:
 
 volumes:
   db-data:
-  pgadmin-data:
-    # kafka-data:
-    # kafka-secrets:
-    # zookeeper-data:
-    # zookeeper-log:
-    # zookeeper-secrets:
+  pgadmin-data: 

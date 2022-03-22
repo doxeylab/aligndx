@@ -1,17 +1,19 @@
 import React from 'react';
 import BaseModal from "./BaseModal";
 
+
 // Components 
 import { DropdownMenu} from '../Form';
 import UploadComponent from '../UploadComponent';
 import Button from '../Button'
+import DataProgressBar from '../DataProgressBar';
 
 // Styling
 import { Col, Container, Row } from 'react-bootstrap'; 
  
 
 const UploadModal = (props) => { 
-
+    const dataPercentUsage = 70;
     return ( 
             <BaseModal
             show={props.show}
@@ -19,6 +21,11 @@ const UploadModal = (props) => {
             title={props.title}
             body={
                 <Container>
+                        <Row style={{ marginBottom: '1.5rem' }}>
+                            <Col>
+                                <DataProgressBar percentage = {dataPercentUsage}/>
+                            </Col>
+                        </Row>
                         <Row style={{ marginBottom: '1.5rem' }}>
                             <Col>
                                 <UploadComponent

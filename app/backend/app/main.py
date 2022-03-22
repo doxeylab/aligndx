@@ -14,13 +14,7 @@ from app.auth.auth_dependencies import get_current_user
 
 # routers
 from app.api_v1.routers import uploads, results, users, socket_resources, metadata, celery_requests
-from app.api_v1.routers.payments import payments 
-
-# db
-from app.db.database import database
-
-# streaming worker
-# import app.worker as worker
+from app.api_v1.routers.payments import payments, stripe_webhooks
 
 # settings
 from app.config.settings import get_settings
@@ -53,7 +47,7 @@ app.add_middleware(
 app.include_router(
     users.router,
     prefix="/users",
-    tags=["users"],
+    tags=["Users"],
     responses={408: {"description": "Ain't gonna work buddy"}},
 )
 
@@ -82,6 +76,13 @@ app.include_router(
 )
 
 app.include_router(
+    stripe_webhooks.router,
+    prefix="/webhooks/stripe",
+    tags=["Stripe Webhooks"],
+    responses={418: {"description": "I'm a teapot"}},
+)
+
+app.include_router(
     socket_resources.router
 )
 
@@ -104,34 +105,3 @@ async def root():
 @app.get("/api/v1")
 async def root():
     return {"message": "API_v1"}
-
-
-# starts database connection
-@app.on_event("startup")
-async def startup():
-    # initialize settings
-    get_settings()
-
-    # connect to the db
-    await database.connect()
-
-    # set up the faust app
-    # worker.set_faust_app_for_api()
-
-    # faust_app = worker.get_faust_app()
-
-    # start the faust app in client mode
-    # asyncio.create_task(
-    #     faust_app.start_client()
-    # )
-
-
-# closes database connection
-@app.on_event("shutdown")
-async def shutdown():
-    await database.disconnect()
-
-    # faust_app = worker.get_faust_app()
-
-    # graceful shutdown
-    # await faust_app.stop()

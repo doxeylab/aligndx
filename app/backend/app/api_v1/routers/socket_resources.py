@@ -1,31 +1,24 @@
-# python libraries
 import os, asyncio, importlib, json
 from typing import Optional
 import pandas as pd 
 from pydantic import BaseModel
 
-# FastAPI
 from fastapi import APIRouter, Depends, status
 from fastapi import WebSocket
 from starlette.websockets import WebSocketDisconnect 
-from fastapi import Cookie, Query
 
-# auth components
-from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user_ws
+from app.models.schemas.submissions import SubmissionSchema
 
-# db components
-from app.db.models import Sample as ModelSample
-from app.db.schema import Sample as SchemaSample
+from app.db.dals.users import UsersDal 
+from app.services.db import get_db 
+from sqlalchemy.ext.asyncio import AsyncSession
 
-# core scripts
 from app.scripts import analyze, realtime 
 from app.scripts.web_socket.manager import ConnectionManager
 
-# celery
 from app.celery import tasks
 
-# settings
 from app.config.settings import get_settings
 
 # config
@@ -56,15 +49,16 @@ class Chunk_id(BaseModel):
     account_id: str 
 
 @router.websocket('/livegraphs/{file_id}') 
-async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str):
-
+async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSession = Depends(get_db)):
     await manager.connect(websocket)
     token = await websocket.receive_text()
-    current_user = await get_current_user_ws(token)
+    current_user = await get_current_user_ws(token, db)
      
-    query = await ModelSample.get_sample_info(current_user.id, file_id)
+    users_dal = UsersDal(db)
+    query = await users_dal.get_submission(current_user.id, file_id)
 
-    sample_name = query['sample_name']
+    submission = SubmissionSchema.from_orm(query)
+    sample_name = submission.name
 
     headers=['Name', 'TPM']
     data_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, "data.json")

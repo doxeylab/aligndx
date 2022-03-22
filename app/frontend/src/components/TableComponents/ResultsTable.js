@@ -22,7 +22,7 @@ const ResultsTable = (props) => {
     const re_organized_data = []
     
     const organize_data = (data) => {
-        const name = data.sample_name
+        const name = data.name
         const panel_capitalized = data.panel.charAt(0).toUpperCase() + data.panel.slice(1)
         const meta = [panel_capitalized,data.created_date]
         const result = createBarChart(data.result) 

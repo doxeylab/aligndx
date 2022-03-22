@@ -1,7 +1,11 @@
-from fastapi import APIRouter 
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from app.db.models import Sample as ModelSample
+from app.db.dals.submissions import SubmissionsDal
+from app.services.db import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.models.schemas.submissions import UpdateSubmissionResult
+
 from app.scripts.email_feature import send_email
 from app.scripts import analyze, realtime 
 import pandas as pd 
@@ -13,9 +17,9 @@ class EndAnalysisPipeline(BaseModel):
     fileId: str
     data_dir: str
     email: str
-
+ 
 @router.post("/end_pipe")
-async def end_pipe(endRequest : EndAnalysisPipeline):
+async def end_pipe(endRequest : EndAnalysisPipeline, db: AsyncSession = Depends(get_db)):
     '''
     Chunked requests finish by posting here to save the end_result, and then send out emails. Note that this is blocking, but it is negligible 
     '''
@@ -28,7 +32,8 @@ async def end_pipe(endRequest : EndAnalysisPipeline):
 
     data = realtime.data_loader(stored_data, fileName, headers, status="ready")
     
-    await ModelSample.save_result(fileId, data)
+    sub_dal = SubmissionsDal(db)
+    result = await sub_dal.update(fileId, UpdateSubmissionResult(result=data))
 
     result_link = f'/result?submission={fileId}'    
     send_email(receiver_email=email, sample=fileName, link=result_link)

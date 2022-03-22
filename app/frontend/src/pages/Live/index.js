@@ -68,7 +68,6 @@ const Live = () => {
         try {
             if (history.listen(
                 (location) => {
-                    ws.close()
                     console.log(`You changed the page to: ${location.pathname}`)
                 }
             ))
