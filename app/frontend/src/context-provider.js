@@ -82,16 +82,16 @@ const GlobalContextProvider = (props) => {
             .catch((e) => {
                 if (e.status === 401) {
                     if (e.detail == "Expired"){
-                        history.push('/login');
-                        history.go(0);
                     }
                 }
                 setAuthenticated(false)
                 setCurrentUser(null)
                 localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
                 localStorage.removeItem("userMeta");
+                history.push('/login');
+                history.go(0);
             });
-            expiryLogout()
         }
     };
 
