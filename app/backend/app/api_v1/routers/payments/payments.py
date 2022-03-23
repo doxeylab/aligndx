@@ -10,7 +10,7 @@ from app.auth.auth_dependencies import get_current_user
 from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest
 
 # Services
-from app.services import subscription_service
+from app.services import subscription_service, customer_service
 from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,4 +24,13 @@ async def create_subscription(
         db: AsyncSession = Depends(get_db)
     ):
     res = await subscription_service.create_subscription(current_user, request, db)
+    return {"client_secret": res}
+
+# Get a client secret to render Payment Element
+@router.get("/update-card/secret")
+async def payment_card_secret(
+    current_user: UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    res = await customer_service.get_client_secret(db, current_user)
     return {"client_secret": res}

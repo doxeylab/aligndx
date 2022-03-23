@@ -1,5 +1,6 @@
 from app.models.schemas.payments.subscriptions import SubscriptionSchema
-from app.services import invoice_service, subscription_service, stripe_service
+from app.models.schemas.payments.customers import CustomerSchema
+from app.services import invoice_service, subscription_service, stripe_service, customer_service
 
 # Webhook: invoice.paid
 async def handle_invoice_paid(req, db):
@@ -20,7 +21,15 @@ async def handle_invoice_paid(req, db):
     # Create Invoice in db
     await invoice_service.create_invoice(db, sub_stripe.latest_invoice, sub_db.id, sub_db.customer_id)
 
-    # Update Subscription items in db
+    # Update Customer & Subscription items in db
     await subscription_service.update_after_payment_success(db, sub_db.id, sub_stripe)
+    await customer_service.update_payment_method(db, sub_db.customer_id, sub_stripe.latest_invoice)
 
+    return True
+
+async def handle_payment_method(req, db):
+    stripe_customer_id = req["data"]["object"]["customer"]
+    payment_method_id = req["data"]["object"]["payment_method"]
+
+    await customer_service.replace_payment_method(db, stripe_customer_id, payment_method_id)
     return True
