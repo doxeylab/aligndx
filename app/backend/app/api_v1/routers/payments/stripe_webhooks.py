@@ -42,7 +42,7 @@ async def stripe_events(
     if event and event['type'] == 'invoice.paid':
         result = await service.handle_invoice_paid(await req.json(), db)
     
-    elif event and event['type'] == 'payment_method.updated':
+    elif event and event['type'] == 'setup_intent.succeeded':
         result = await service.handle_payment_method(await req.json(), db)
 
     else:

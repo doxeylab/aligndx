@@ -63,6 +63,33 @@ async def create_setup_intent(stripe_customer_id):
     except StripeError as error:
         error_handler(error) 
 
+async def get_payment_method(pm_id):
+    try:
+        resp = stripe.PaymentMethod.retrieve(pm_id)
+        return resp
+
+    except StripeError as error:
+        error_handler(error)
+
+async def delete_payment_method(pm_id):
+    try:
+        resp = stripe.PaymentMethod.detach(pm_id)
+        return resp
+
+    except StripeError as error:
+        error_handler(error)
+
+async def set_default_payment_method(stripe_customer_id, pm_id):
+    try:
+        resp = stripe.Customer.modify(
+                stripe_customer_id,
+                invoice_settings={"default_payment_method": pm_id},
+            )
+        return resp
+
+    except StripeError as error:
+        error_handler(error)
+
 # Stripe Error Handler
 def error_handler(error: Exception):
     raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,

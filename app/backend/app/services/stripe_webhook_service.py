@@ -29,7 +29,7 @@ async def handle_invoice_paid(req, db):
 
 async def handle_payment_method(req, db):
     stripe_customer_id = req["data"]["object"]["customer"]
-    customer_db = await customer_service.get_by_stripe_id(db, stripe_customer_id)
+    payment_method_id = req["data"]["object"]["payment_method"]
 
-    await customer_service.update_payment_method(db, customer_db.id, req["data"]["object"])
+    await customer_service.replace_payment_method(db, stripe_customer_id, payment_method_id)
     return True

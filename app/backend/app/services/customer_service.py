@@ -35,3 +35,20 @@ async def update_payment_method(db, customer_id, invoice):
         stripe_default_payment_method_id = invoice["payment_intent"]["payment_method"]["id"]
     )
     return await customers_dal.update(customer_id, update_items)
+
+async def replace_payment_method(db, stripe_customer_id, payment_method_id):
+    customer = await get_by_stripe_id(db, stripe_customer_id)
+    if customer.stripe_default_payment_method_id != None:
+        await stripe_service.delete_payment_method(customer.stripe_default_payment_method_id)
+
+    await stripe_service.set_default_payment_method(customer.stripe_customer_id, payment_method_id)
+    payment_method = await stripe_service.get_payment_method(payment_method_id)
+
+    customers_dal = CustomersDal(db)
+    update_items = UpdatePaymentMethod(
+        payment_card_type = payment_method["card"]["brand"],
+        card_last4 = payment_method["card"]["last4"],
+        card_expiry = f'{payment_method["card"]["exp_month"]}/{payment_method["card"]["exp_year"]}',
+        stripe_default_payment_method_id = payment_method["id"]
+    )
+    return await customers_dal.update(customer.id, update_items)
