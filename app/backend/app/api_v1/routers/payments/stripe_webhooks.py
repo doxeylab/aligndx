@@ -41,10 +41,10 @@ async def stripe_events(
     result = None
     if event and event['type'] == 'invoice.paid':
         result = await service.handle_invoice_paid(await req.json(), db)
+    
+    elif event and event['type'] == 'payment_method.updated':
+        result = await service.handle_payment_method(await req.json(), db)
 
-    if result:
-        resp.status_code = status.HTTP_200_OK
-        return "ok"
     else:
         resp.status_code = status.HTTP_400_BAD_REQUEST
         return

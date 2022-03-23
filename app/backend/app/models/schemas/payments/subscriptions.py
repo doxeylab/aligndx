@@ -19,10 +19,6 @@ class SubscriptionBase(BaseSchema):
     stripe_latest_invoice_id : str = None
     stripe_subscription_id : str
     stripe_price_id : str
-    stripe_default_payment_method_id : str = None
-    payment_card_type : str = None
-    card_last4 : str = None
-    card_expiry : str = None
  
 class SubscriptionSchema(SubscriptionBase):
     id: UUID

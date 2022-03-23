@@ -11,6 +11,10 @@ class Customers(Base):
     email = Column(String, nullable=False)
     creation_time = Column(DateTime, nullable=False)
     stripe_customer_id = Column(String, nullable=True)
+    stripe_default_payment_method_id = Column(String(50), nullable=True)
+    payment_card_type = Column(String(50), nullable=True)
+    card_last4 = Column(String(50), nullable=True)
+    card_expiry = Column(String(50), nullable=True)
 
 class Subscriptions(Base):
     __tablename__ = "subscriptions"
@@ -30,10 +34,6 @@ class Subscriptions(Base):
     stripe_latest_invoice_id = Column(String(50), nullable=True)
     stripe_subscription_id = Column(String(50), nullable=True)
     stripe_price_id = Column(String(50), nullable=False)
-    stripe_default_payment_method_id = Column(String(50), nullable=True)
-    payment_card_type = Column(String(50), nullable=True)
-    card_last4 = Column(String(50), nullable=True)
-    card_expiry = Column(String(50), nullable=True)
 
 class Invoices(Base):
     __tablename__ = "invoices"

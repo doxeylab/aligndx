@@ -52,6 +52,17 @@ async def get_subscription(stripe_subscription_id, expand_list=[]):
     except StripeError as error:
         error_handler(error)
 
+async def create_setup_intent(stripe_customer_id):
+    try:
+        resp = stripe.SetupIntent.create(
+            customer = stripe_customer_id,
+            payment_method_types=["card"],
+        )
+        return resp
+
+    except StripeError as error:
+        error_handler(error) 
+
 # Stripe Error Handler
 def error_handler(error: Exception):
     raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
