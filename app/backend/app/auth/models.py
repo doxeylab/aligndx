@@ -1,6 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel
-
+from uuid import UUID
 class Token(BaseModel):
     access_token: str
     refresh_token: str
@@ -31,3 +31,5 @@ class UserDTO(BaseModel):
     id: int
     email: str
     name: str
+    customer_id: Optional[UUID]
+    is_admin: bool

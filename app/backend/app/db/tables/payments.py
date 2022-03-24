@@ -6,7 +6,6 @@ from app.db.tables.base import Base
 class Customers(Base):
     __tablename__ = "customers"
 
-    admin_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     name = Column(String, nullable=False)
     email = Column(String, nullable=False)
     creation_time = Column(DateTime, nullable=False)

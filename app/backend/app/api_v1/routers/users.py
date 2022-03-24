@@ -47,9 +47,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(),  db: AsyncSess
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth.create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": user.email, "is_admin": user.is_admin}, expires_delta=access_token_expires
     )
-    refresh_token = auth.create_refresh_token(user.email)
+    refresh_token = auth.create_refresh_token(user.email, user.is_admin)
 
     return {"access_token": access_token, 
             "refresh_token": refresh_token, 

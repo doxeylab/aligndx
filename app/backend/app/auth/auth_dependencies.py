@@ -75,7 +75,7 @@ async def authenticate_user(email: str, password: str, db):
     if not verify_password(password, user.hashed_password):
         return False
 
-    return User(email=user.email, name=user.name)
+    return User(email=user.email, name=user.name, is_admin=user.is_admin)
 
 
 # Returns the generated access token after user has been authenticated
@@ -88,9 +88,9 @@ def create_access_token(data: dict, expires_delta: timedelta):
 
 
 # Create refresh token given email
-def create_refresh_token(email: str):
+def create_refresh_token(email: str, is_admin: bool):
     refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
-    return create_access_token(data={'sub': email}, expires_delta=refresh_token_expires)
+    return create_access_token(data={'sub': email, 'is_admin': is_admin}, expires_delta=refresh_token_expires)
 
 
 # Verify refresh token is valid
@@ -131,7 +131,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme_auto_error), db: A
     
     user = UserSchema.from_orm(user_res)
 
-    return UserDTO(id=user.id, name=user.name, email=user.email)
+    return UserDTO(
+        id=user.id, 
+        name=user.name, 
+        email=user.email, 
+        customer_id=user.customer_id,
+        is_admin=user.is_admin
+    )
 
 
 # ws version
