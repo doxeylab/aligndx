@@ -10,7 +10,4 @@ class FileState:
         self.analysis_chunks = [AnalysisChunkState(
             i, upload_deps=deps) for i, deps in enumerate(upload_dependencies)]
 
-        self.analysis_chunks_processed = 0
-
-    def update_chunks_processed(self, increment=1):
-        self.analysis_chunks_processed += increment
+        self.analysis_chunks[-1].set_status(residue_status='Not_Required')

@@ -4,12 +4,13 @@ import pickle
 
 
 class FileModel:
-    def __init__(self, state, file_dir, file_id, filename, email):
+    def __init__(self, state, file_dir, file_id, filename, email, panel):
         self.state = state
         self.file_id = file_id
         self.file_dir = file_dir
         self.filename = filename
         self.email = email
+        self.panel = panel
 
     @classmethod
     def load(cls, file_dir):

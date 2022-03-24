@@ -6,11 +6,12 @@ from app.celery.io.FileIO import FileIO
 
 
 class File:
-    def __init__(self, file_id, file_dir, filename, email, state=None, chunk_ratio=None, num_upload_chunks=None):
+    def __init__(self, file_id, file_dir, filename, email, panel, state=None, chunk_ratio=None, num_upload_chunks=None):
         self.file_id = file_id
         self.file_dir = file_dir
         self.filename = filename
         self.email = email
+        self.panel = panel
 
         if state is None:
             num_analysis_chunks = math.ceil(num_upload_chunks / chunk_ratio)
@@ -37,31 +38,40 @@ class File:
         model = FileModel.load(file_dir)
 
         file = File(model.file_id, file_dir, model.filename,
-                    model.email, model.state)
+                    model.email, model.panel, model.state)
 
         return file
 
     def process_upload(self, chunk_number):
         self.state.upload_chunks[chunk_number].set_status('Uploaded')
 
-        chunks_to_analyze = []
         for indx, chunk in enumerate(self.state.analysis_chunks):
             if chunk.status == 'Waiting' and\
                 all([self.state.upload_chunks[i].status == 'Uploaded' for
                      i in chunk.upload_deps]):
                 prev_chunk = self.state.analysis_chunks[indx -
                                                         1] if indx > 0 else None
-
-                self.io.make_analysis_chunk(
-                    chunk, prev_chunk)
-
-                chunks_to_analyze.append(indx + 1)
+                
+                self.io.make_analysis_chunk(chunk, prev_chunk)
 
         self.save()
 
-        return chunks_to_analyze
+    def set_analysis_state(self, chunk_number, status):
+        analysis_chunk = self.state.analysis_chunks[chunk_number]
+        analysis_chunk.set_status(status)
+        
+        self.save()
+
+    def set_start_chunk_analysis(self, chunk_number):
+        self.set_analysis_state(chunk_number, 'Analyzing')
+
+    def set_complete_chunk_analysis(self, chunk_number):
+        self.set_analysis_state(chunk_number, 'Complete')
+
+    def set_analysis_error(self, chunk_number):
+        self.set_analysis_state(chunk_number, 'Analysis_Error')
 
     def save(self):
         model = FileModel(self.state, self.file_dir,
-                          self.file_id, self.filename, self.email)
+                          self.file_id, self.filename, self.email, self.panel)
         model.write()

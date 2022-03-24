@@ -34,10 +34,9 @@ app.config_from_object('app.celery.celeryconfig')
 #     logger.addHandler(fh)
 
 @app.task
-def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size, num_upload_chunks, email, fileId):
+def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size, num_upload_chunks, email, fileId, panel):
     file = File(fileId, file_dir, filename, email, chunk_ratio=analysis_chunk_size /
-                upload_chunk_size, num_upload_chunks=num_upload_chunks)
-
+                upload_chunk_size, num_upload_chunks=num_upload_chunks, panel=panel)
     file.save()
 
     return {'Success': True}
@@ -58,16 +57,9 @@ def make_file_data(results_dir):
 @app.task(bind=True)
 def process_new_upload(self, file_dir, new_chunk_number):
     file = File.load(file_dir)
-    chunks_to_analyze = file.process_upload(new_chunk_number)
+    file.process_upload(new_chunk_number)
 
-    chunk_to_analyze = chunks_to_analyze[-1] if len(chunks_to_analyze) > 0 else None
-
-    if chunk_to_analyze is None:
-        self.request.chain = None
-
-    else:
-        return {'Success': True,
-                'Chunk_To_Analyze': chunk_to_analyze}
+    return {'Success': True}
 
 
 class SalmonMemoryError(Exception):
@@ -84,16 +76,12 @@ class SalmonMemoryError(Exception):
 
 
 @app.task(throws=(SalmonMemoryError,), autoretry_for=(SalmonMemoryError,), retry_backoff=5)
-def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, real_time_results):
-    chunk_number = upload_result['Chunk_To_Analyze']
-
-    if chunk_number is None:
-        return
-
+def perform_chunk_analysis(chunk_number, file_dir, panel, index_folder, real_time_results):
     indexpath = os.path.join(index_folder, panel + "_index")
-    chunk = "{}/{}.fastq".format(analysis_dir, chunk_number)
     results_dir = "{}/{}".format(real_time_results, chunk_number)
 
+    analysis_dir = os.path.join(file_dir, 'salmon_data')
+    chunk = os.path.join(analysis_dir, f'{chunk_number}.fastq')
     commands = salmonconfig.commands(indexpath, chunk, results_dir)
 
     with requests.Session() as s:
@@ -101,13 +89,19 @@ def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, rea
 
     quant_dir = "{}/quant.sf".format(results_dir)
 
+    file = File.load(file_dir)
+    print(file)
+
     if os.path.isfile(quant_dir):
+        file.set_complete_chunk_analysis(chunk_number)
         os.remove(chunk)
 
         return {'Success': True,
                 'Chunk_To_Analyze': chunk_number,
                 'Quant_Dir': quant_dir}
     else:
+        file.set_analysis_error(chunk_number)
+
         raise SalmonMemoryError(quant_dir)
 
 
@@ -133,45 +127,15 @@ def post_process(salmon_result, data_dir, panel):
 
 
 @app.task
-def pipe_status(pipe_result, file_dir, data_dir):
-
-    last_chunk_analyzed = pipe_result['Chunk_Analyzed']
-    meta_fname = '{}/meta.json'.format(file_dir)
-
-    metadata = None
-    with open(meta_fname) as f:
-        metadata = json.load(f)
-
-    fileName = metadata['filename']
-    email = metadata['email']
-
-    analysis_chunks_processed = metadata['analysis_chunks_processed']
-    total_analysis_chunks = metadata['total_analysis_chunks']
-
-    if analysis_chunks_processed == (total_analysis_chunks - 2):
-
-        fileId = metadata['fileId']
-
-        end_request = {
-            "fileName": fileName,
-            "fileId": fileId,
-            "data_dir": data_dir,
-            "email": email
-        }
-
-        requests.post("http://backend:8080/end_pipe", json=end_request)
-
-    else:
-        analysis_chunks_processed += 1
-        metadata = {**metadata,
-                    "analysis_chunks_processed": analysis_chunks_processed}
-        with open(meta_fname, 'w') as f:
-            json.dump(metadata, f)
-
-    return {
-        "Last_Chunk_Analzyed": last_chunk_analyzed,
-        "Analysis_Chunks_Processed": analysis_chunks_processed,
+def pipe_status(filename, file_id, data_dir, email):
+    end_request = {
+        "fileName": filename,
+        "fileId": file_id,
+        "data_dir": data_dir,
+        "email": email
     }
+
+    requests.post("http://backend:8080/end_pipe", json=end_request)
 
 
 if __name__ == '__main__':

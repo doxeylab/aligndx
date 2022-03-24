@@ -118,7 +118,7 @@ const Live = () => {
     let restartflag = null
     let file = null
     let panels = null
-    let reload_flag = localStorage.getItem("user_reloaded")
+    let reload_flag = false //localStorage.getItem("user_reloaded")
     
     useEffect(() => {
         if (!lstate){
