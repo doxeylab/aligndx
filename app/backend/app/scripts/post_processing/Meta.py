@@ -1,8 +1,12 @@
 import pandas as pd
 import os
+from app.config.settings import get_settings
 
+settings = get_settings()
 
 class MetaModel:
+    _meta_dir = settings.FolderSettings.METADATA_FOLDER
+
     def __init__(self, panel):
         self.panel = panel
     
@@ -14,10 +18,10 @@ class MetaModel:
             return (names.strip(strip))
 
     def load(self):
-        metadata_path = os.path.join(dir, self.panel + "_metadata.csv")
+        metadata_path = os.path.join(self._meta_dir, self.panel + "_metadata.csv")
         metadata = pd.read_csv(metadata_path, sep=";")
 
-        metadata = metadata.applymap(lambda x: self._grab_id(x,prefix=">lcl|", strip=">")) 
+        metadata = metadata.applymap(lambda x: self._grab_id(id=x,prefix=">lcl|", strip=">")) 
         metadata = metadata[~metadata.isnull()]  
         metadata = metadata.apply(lambda x: pd.Series(x.dropna().values))
         metadata = metadata.fillna('')   

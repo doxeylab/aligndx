@@ -13,7 +13,8 @@ from celery.contrib import rdb
 from celery.utils.log import get_task_logger
 from celery.signals import after_setup_logger
 
-from app.scripts import salmonconfig, realtime, email_feature
+from app.scripts import salmonconfig 
+from app.scripts.post_processing.Analyze import AnalyzeQuant 
 
 from app.celery.File import File
 
@@ -111,7 +112,7 @@ def perform_chunk_analysis(upload_result, panel, index_folder, analysis_dir, rea
 
 
 @app.task
-def post_process(salmon_result, data_dir, metadata_dir, panel):
+def post_process(salmon_result, data_dir, panel):
 
     # only do post-processing if quant_file exists
     if salmon_result is None:
@@ -121,60 +122,12 @@ def post_process(salmon_result, data_dir, metadata_dir, panel):
     quant_dir = salmon_result['Quant_Dir']
     chunk_number = salmon_result['Chunk_To_Analyze']
 
-    # # configurations for post-processing
+    # configurations for post-processing
     headers = ['Name', 'TPM']
-    metadata = realtime.metadata_load(metadata_dir, panel)
 
-    # Grab datafile
-    data_fname = '{}'.format(data_dir)
-    data = None
-    try:
-        with open(data_fname) as f:
-            data = pd.read_json(f, orient="table")
-    except:
-        data = None
-
-    if data is None:
-        # first quant being analyzed
-        logger.warning('Analyzing first chunk')
-        first_quant = realtime.realtime_quant_analysis(
-            quant_dir, headers, metadata)
-        first_quant['Coverage'] = realtime.coverage_calc(
-            first_quant, headers[1])
-        first_quant.reset_index(inplace=True)
-
-        with open(data_fname, 'w') as f:
-            first_quant.to_json(f, orient="table")
-
-    else:
-        logger.warning("Retrieving previous data")
-
-        # read data from previous quant file; already has coverage
-        previous_chunk = data
-        previous_chunk.set_index('Pathogen', inplace=True)
-        logger.warning(realtime.coverage_summarizer(previous_chunk, headers))
-
-        logger.warning(
-            f"Reading current data from chunk {chunk_number}")
-
-        # read data from currentquant file and calculate coverage
-        current_chunk = realtime.realtime_quant_analysis(
-            quant_dir, headers, metadata)
-        current_chunk['Coverage'] = realtime.coverage_calc(
-            current_chunk, headers[1])
-
-        logger.warning(f"Accumulating results")
-        # sum results
-        accumulated_results = realtime.update_analysis(
-            previous_chunk, current_chunk, headers[1])
-        accumulated_results['Coverage'] = realtime.coverage_calc(
-            accumulated_results, headers[1])
-
-        accumulated_results.reset_index(inplace=True)
-
-        with open(data_fname, 'w') as f:
-            accumulated_results.to_json(f, orient="table")
-
+    quant = AnalyzeQuant(panel, quant_dir, headers, data_dir)
+    quant.accumulate()
+    
     return {"Success": True,
             "Chunk_Analyzed": chunk_number}
 
