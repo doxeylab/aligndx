@@ -205,7 +205,7 @@ async def upload_chunk(
     chain(
         tasks.process_new_upload.s(rt_dir, chunk_number), 
         tasks.perform_chunk_analysis.s(panels, INDEX_FOLDER, analysis_data_folder, results_dir),
-        tasks.post_process.s(data_dir, METADATA_FOLDER, panels),
+        tasks.post_process.s(data_dir, panels),
         tasks.pipe_status.s(rt_dir, data_dir)
     ).apply_async()
 
