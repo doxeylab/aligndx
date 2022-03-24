@@ -14,11 +14,6 @@ class CustomersDal(BaseDal[Customers]):
         stmt =  select(self._table).where(self._table.stripe_customer_id == stripe_customer_id)
         query = await self._db_session.execute(stmt)
         return query.scalars().first()
-    
-    async def get_customer_by_admin_id(self, admin_id):
-        stmt =  select(self._table).where(self._table.admin_user_id == admin_id)
-        query = await self._db_session.execute(stmt)
-        return query.scalars().first()
 
 #  -- Subscriptions DAL -- 
 
