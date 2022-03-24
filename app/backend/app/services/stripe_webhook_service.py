@@ -1,5 +1,4 @@
 from app.models.schemas.payments.subscriptions import SubscriptionSchema
-from app.models.schemas.payments.customers import CustomerSchema
 from app.services import invoice_service, subscription_service, stripe_service, customer_service
 
 # Webhook: invoice.paid
@@ -9,8 +8,8 @@ async def handle_invoice_paid(req, db):
 
     # Get subscription from db
     sub = await subscription_service.get_subscription_by_stripe_id(db, stripe_sub_id)
+    if sub == None: return False
     sub_db = SubscriptionSchema.from_orm(sub)
-    if sub_db == None: return False
 
     # Get Subscription object from Stripe incl. Invoice & Payment Intent
     sub_stripe = await stripe_service.get_subscription(

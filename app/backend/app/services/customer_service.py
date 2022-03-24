@@ -3,10 +3,31 @@ from fastapi import HTTPException, status
 
 # Database Models & DAL
 from app.db.dals.payments import CustomersDal
-from app.models.schemas.payments.customers import UpdatePaymentMethod
+from app.models.schemas.payments.customers import NewCustomer, UpdatePaymentMethod, UpdateCustomerStripeId
 
 # Services
 from app.services import stripe_service
+
+# Utils
+from datetime import datetime
+
+async def create_customer(db, current_user):
+    new_customer = NewCustomer(
+        name = current_user.name,
+        email = current_user.email,
+        creation_time = datetime.now()
+    )
+
+    customer_dal = CustomersDal(db)
+    customer_id = await customer_dal.create(new_customer)
+    return await customer_dal.get_by_id(customer_id)
+
+async def update_customer(db, customer_id, stripe_customer_id):
+    update_items = UpdateCustomerStripeId(
+        stripe_customer_id = stripe_customer_id
+    )
+    customer_dal = CustomersDal(db)
+    await customer_dal.update(customer_id, update_items)
 
 async def get_by_stripe_id(db, stripe_customer_id):
     customer_dal = CustomersDal(db)
@@ -14,12 +35,12 @@ async def get_by_stripe_id(db, stripe_customer_id):
 
 async def get_client_secret(db, current_user):
     customer_dal = CustomersDal(db)
-    customer_db = await customer_dal.get_customer_by_admin_id(current_user.id)
+    customer_db = await customer_dal.get_by_id(current_user.customer_id)
 
     if customer_db == None:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
                         detail = "Customer not found")
-    if customer_db.admin_user_id != current_user.id:
+    if current_user.is_admin == False:
         raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                         detail = "Only Admin can update payment method")
 

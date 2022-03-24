@@ -52,3 +52,6 @@ class UserInDB(User):
     customer_id: Optional[UUID]
     is_admin: bool = False
 
+class SetAdminUpdateItems(BaseSchema):
+    customer_id: UUID
+    is_admin: bool
