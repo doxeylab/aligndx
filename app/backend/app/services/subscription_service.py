@@ -1,9 +1,12 @@
+# FastAPI
+from fastapi import HTTPException, status
+
 # Database Models & DAL
 from app.db.dals.payments import SubscriptionsDal
 from app.db.dals.users import UsersDal
 from app.models.schemas.users import SetAdminUpdateItems
 from app.auth.models import UserDTO
-from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, CreateNewSubscription, UpdateInitialSubscription, UpdateItemsAfterPaymentSuccess
+from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, CreateNewSubscription, UpdateInitialSubscription, UpdateItemsAfterPaymentSuccess, SetAutoRenew, SubCancelResponse, UpdateItemsAfterCancel
 
 # Services
 from app.services import stripe_service, customer_service
@@ -30,8 +33,9 @@ async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequ
     # Create 'inactive' subscription in db
     new_subscription = CreateNewSubscription(
         is_active = False,
-        status = "initialize",
+        status = "incomplete",
         is_paid = False,
+        auto_renew = False,
         plan_description = "Standard Plan",
         stripe_price_id = req.stripe_price_id,
         customer_id = customer.id,
@@ -64,9 +68,50 @@ async def update_after_payment_success(db, subs_id, sub_stripe):
         is_active = True,
         status = "paid",
         is_paid = True,
+        auto_renew = True,
         stripe_latest_invoice_id = sub_stripe.latest_invoice.id,
         current_period_start = datetime.fromtimestamp(sub_stripe.current_period_start),
         current_period_end = datetime.fromtimestamp(sub_stripe.current_period_end),
     )
     subs_dal = SubscriptionsDal(db)
     return await subs_dal.update(subs_id, update_items)
+
+async def request_cancellation(db, current_user: UserDTO):
+    subs_dal = SubscriptionsDal(db)
+    subs = await subs_dal.get_subscription_by_customer_id(current_user.customer_id)
+
+    if subs == None:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
+                        detail = "Subscription does not exist!")
+
+    # Submit cancel request to Stripe
+    await stripe_service.cancel_subscription(subs.stripe_subscription_id)
+
+    update_items = SetAutoRenew(auto_renew=False)
+    await subs_dal.update(subs.id, update_items)
+
+    return SubCancelResponse(current_period_end=subs.current_period_end)
+
+async def cancel_subscription(db, subs_stripe_id):
+    subs_dal = SubscriptionsDal(db)
+    subs = await subs_dal.get_subscription_by_stripe_id(subs_stripe_id)
+
+    if subs == None:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
+                        detail = "Subscription does not exist!")
+    
+    update_items = UpdateItemsAfterCancel(
+        is_active = False,
+        status = 'cancelled',
+        is_paid = False,
+        is_cancelled = True,
+        cancel_date = datetime.now(),
+        auto_renew = False
+    )
+    await subs_dal.update(subs.id, update_items)
+
+    # Delete payment method on db & with Stripe
+    await customer_service.delete_payment_method(db, subs.customer_id)
+
+    return True
+    

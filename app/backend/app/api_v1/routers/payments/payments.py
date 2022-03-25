@@ -1,6 +1,5 @@
 # FastAPI
-from fastapi import APIRouter, Depends
-from fastapi import status
+from fastapi import APIRouter, Depends, status, HTTPException
 
 # auth components
 from app.auth.models import UserDTO
@@ -34,3 +33,16 @@ async def payment_card_secret(
 ):
     res = await customer_service.get_client_secret(db, current_user)
     return {"client_secret": res}
+
+# Cancel Subscription - DELETE /payments/subscriptions
+@router.delete("/subscriptions")
+async def cancel_subscription(
+    current_user: UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if current_user.is_admin == False:
+        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,
+                        detail = "Only Admin can cancel subscription")
+
+    res = await subscription_service.request_cancellation(db, current_user)
+    return {"response": res}

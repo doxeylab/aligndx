@@ -32,3 +32,10 @@ async def handle_payment_method(req, db):
 
     await customer_service.replace_payment_method(db, stripe_customer_id, payment_method_id)
     return True
+
+async def handle_cancellation(req, db):
+    # Extract the Stripe Subscription id from the Stripe Subscription Object
+    stripe_sub_id = req["data"]["object"]["id"]
+
+    # Get subscription from db
+    return await subscription_service.cancel_subscription(db, stripe_sub_id)

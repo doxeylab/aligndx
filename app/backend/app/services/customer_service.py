@@ -73,3 +73,18 @@ async def replace_payment_method(db, stripe_customer_id, payment_method_id):
         stripe_default_payment_method_id = payment_method["id"]
     )
     return await customers_dal.update(customer.id, update_items)
+
+async def delete_payment_method(db, customer_id):
+    customers_dal = CustomersDal(db)
+    customer = await customers_dal.get_by_id(customer_id)
+
+    if customer.stripe_default_payment_method_id != None:
+        await stripe_service.delete_payment_method(customer.stripe_default_payment_method_id)
+    
+    update_items = UpdatePaymentMethod(
+        payment_card_type = None,
+        card_last4 = None,
+        card_expiry = None,
+        stripe_default_payment_method_id = None
+    )
+    return await customers_dal.update(customer.id, update_items)
