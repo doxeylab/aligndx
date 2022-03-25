@@ -30,11 +30,13 @@ app = FastAPI(
     version="1.0", 
 )
 
-scheduler = AsyncIOScheduler()
-scheduler.start()
+@app.on_event('startup')
+async def start_scheduler():
+    scheduler = AsyncIOScheduler()
+    scheduler.start()
 
-scheduler.add_job(periodic_task_calls, 'interval', seconds=10)
- 
+    scheduler.add_job(periodic_task_calls, 'interval', seconds=1)
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
     exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')

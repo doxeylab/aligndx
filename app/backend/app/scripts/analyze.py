@@ -12,7 +12,7 @@ def grab_id(id, prefix, strip):
 def metadata_load(dir, panel): 
   metadata_path = os.path.join(dir, panel + "_metadata.csv")
   metadata = pd.read_csv(metadata_path, sep=";")
-  metadata = metadata.applymap(lambda x: grab_id(x,prefix=">lcl|", strip=">")) 
+  metadata = metadata.apply(lambda x: grab_id(x,prefix=">lcl|", strip=">"), axis=1) 
   metadata = metadata[~metadata.isnull()]  
   metadata = metadata.apply(lambda x: pd.Series(x.dropna().values))
   metadata = metadata.fillna('')   

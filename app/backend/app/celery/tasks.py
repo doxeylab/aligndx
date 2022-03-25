@@ -90,14 +90,13 @@ def perform_chunk_analysis(chunk_number, file_dir, panel, index_folder, real_tim
     quant_dir = "{}/quant.sf".format(results_dir)
 
     file = File.load(file_dir)
-    print(file)
 
     if os.path.isfile(quant_dir):
-        file.set_complete_chunk_analysis(chunk_number)
         os.remove(chunk)
 
         return {'Success': True,
                 'Chunk_To_Analyze': chunk_number,
+                'File_Dir': file_dir,
                 'Quant_Dir': quant_dir}
     else:
         file.set_analysis_error(chunk_number)
@@ -113,6 +112,7 @@ def post_process(salmon_result, data_dir, panel):
         return
 
     # state vars
+    file_dir = salmon_result['File_Dir']
     quant_dir = salmon_result['Quant_Dir']
     chunk_number = salmon_result['Chunk_To_Analyze']
 
@@ -122,20 +122,11 @@ def post_process(salmon_result, data_dir, panel):
     quant = AnalyzeQuant(panel, quant_dir, headers, data_dir)
     quant.accumulate()
     
+    file = File.load(file_dir)
+    file.set_complete_chunk_analysis(chunk_number)
+
     return {"Success": True,
             "Chunk_Analyzed": chunk_number}
-
-
-@app.task
-def pipe_status(filename, file_id, data_dir, email):
-    end_request = {
-        "fileName": filename,
-        "fileId": file_id,
-        "data_dir": data_dir,
-        "email": email
-    }
-
-    requests.post("http://backend:8080/end_pipe", json=end_request)
 
 
 if __name__ == '__main__':
