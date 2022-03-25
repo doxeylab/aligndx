@@ -31,6 +31,6 @@ def downgrade():
     op.drop_constraint('customer_id_fk', 'users', type_='foreignkey')
     op.drop_column('users', 'is_admin')
     op.drop_column('users', 'customer_id')
-    op.add_column('customers', sa.Column('admin_user_id', postgresql.UUID(), autoincrement=False, nullable=False))
+    op.add_column('customers', sa.Column('admin_user_id', postgresql.UUID(), autoincrement=False, nullable=True))
     op.create_foreign_key('customers_admin_user_id_fkey', 'customers', 'users', ['admin_user_id'], ['id'])
     # ### end Alembic commands ###

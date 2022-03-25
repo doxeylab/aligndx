@@ -44,6 +44,9 @@ async def stripe_events(
     
     if event and event['type'] == 'setup_intent.succeeded':
         result = await service.handle_payment_method(await req.json(), db)
+    
+    if event and event['type'] == 'customer.subscription.deleted':
+        result = await service.handle_cancellation(await req.json(), db)
 
     if result:
         return

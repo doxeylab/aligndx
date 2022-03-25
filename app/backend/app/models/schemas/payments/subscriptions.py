@@ -30,6 +30,7 @@ class CreateNewSubscription(BaseSchema):
     is_active : bool
     status : str
     is_paid : bool
+    auto_renew: bool
     plan_description : str
     stripe_price_id : str
     customer_id : UUID
@@ -47,3 +48,19 @@ class UpdateItemsAfterPaymentSuccess(BaseSchema):
     stripe_latest_invoice_id : str
     current_period_start : datetime
     current_period_end : datetime
+    auto_renew: bool
+
+class SetAutoRenew(BaseSchema):
+    auto_renew: bool
+
+class SubCancelResponse(BaseSchema):
+    current_period_end: datetime
+
+class UpdateItemsAfterCancel(BaseSchema):
+    is_active: bool
+    status: str
+    is_paid: bool
+    is_cancelled: bool
+    cancel_date: datetime
+    auto_renew: bool
+    

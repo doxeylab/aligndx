@@ -37,7 +37,7 @@ class UpdateCustomerStripeId(BaseSchema):
     stripe_customer_id: str
 
 class UpdatePaymentMethod(BaseSchema):
-    stripe_default_payment_method_id: str
-    payment_card_type: str
-    card_last4: str
-    card_expiry: str
+    stripe_default_payment_method_id: str = None
+    payment_card_type: str = None
+    card_last4: str = None
+    card_expiry: str = None

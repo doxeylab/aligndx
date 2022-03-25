@@ -27,6 +27,7 @@ class Subscriptions(Base):
     initial_start_date = Column(DateTime, nullable=True)
     is_cancelled = Column(Boolean, nullable=True)
     cancel_date = Column(DateTime, nullable=True)
+    auto_renew = Column(Boolean, nullable=False)
     current_period_start = Column(DateTime, nullable=True)
     current_period_end = Column(DateTime, nullable=True)
     stripe_customer_id = Column(String(50), nullable=False)
