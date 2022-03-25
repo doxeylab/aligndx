@@ -34,3 +34,15 @@ def periodic_task_calls():
         if all([chunk.status == 'Complete' for chunk in file.state.analysis_chunks]):
             tasks.pipe_status.s(file.filename, file.file_id, os.path.join(
                 file_dir, 'data.json'), file.email).apply_async()
+
+            for filename in os.listdir(file_dir):
+                file_path = os.path.join(file_dir, filename)
+                try:
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+                    elif os.path.isdir(file_path):
+                        os.rmdir(file_path)
+                except Exception as e:
+                    print('Failed to delete %s. Reason: %s' % (file_path, e))
+
+            os.rmdir(file_dir)

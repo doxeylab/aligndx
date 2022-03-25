@@ -23,4 +23,4 @@ class FileModel:
             pickle.dump(self, f)
 
         with open(os.path.join(self.file_dir, 'meta.json'), 'w') as f:
-            json.dump(self, f, default=lambda o: o.__dict__)
+            json.dump(self, f, default=lambda o: o.__dict__, indent=4)
