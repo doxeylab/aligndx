@@ -9,6 +9,11 @@ class CustomersDal(BaseDal[Customers]):
     @property
     def _table(self) -> Type[Customers]:
         return Customers
+    
+    async def get_customer_by_stripe_id(self, stripe_customer_id):
+        stmt =  select(self._table).where(self._table.stripe_customer_id == stripe_customer_id)
+        query = await self._db_session.execute(stmt)
+        return query.scalars().first()
 
 #  -- Subscriptions DAL -- 
 
@@ -19,6 +24,11 @@ class SubscriptionsDal(BaseDal[Subscriptions]):
     
     async def get_subscription_by_stripe_id(self, stripe_id):
         stmt =  select(self._table).where(self._table.stripe_subscription_id == stripe_id)
+        query = await self._db_session.execute(stmt)
+        return query.scalars().first()
+    
+    async def get_subscription_by_customer_id(self, customer_id):
+        stmt =  select(self._table).where(self._table.customer_id == customer_id)
         query = await self._db_session.execute(stmt)
         return query.scalars().first()
     
