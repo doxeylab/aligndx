@@ -6,7 +6,7 @@ from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user
 
 # Payments Schemas
-from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest
+from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, ChangeSubscriptionRequest
 
 # Services
 from app.services import subscription_service, customer_service
@@ -45,4 +45,18 @@ async def cancel_subscription(
                         detail = "Only Admin can cancel subscription")
 
     res = await subscription_service.request_cancellation(db, current_user)
+    return {"response": res}
+
+# Upgrade/downgrade subscription: PUT /payments/subscriptions/change-plan
+@router.put("/subscriptions/change-plan", status_code=status.HTTP_200_OK)
+async def create_subscription(
+        request: CreateSubscriptionRequest,
+        current_user: UserDTO = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
+    if current_user.is_admin == False:
+        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,
+                        detail = "Only Admin can change subscription plan")
+    
+    res = await subscription_service.change_plan(db, current_user, request)
     return {"response": res}

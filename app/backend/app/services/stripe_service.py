@@ -101,6 +101,23 @@ async def cancel_subscription(stripe_subscription_id):
     except StripeError as error:
         error_handler(error)
 
+async def change_subscription_price(stripe_subscription_id, stripe_price_id):
+    try:
+        subscription = await get_subscription(stripe_subscription_id)
+        resp = stripe.Subscription.modify(
+                subscription.id,
+                cancel_at_period_end=False,
+                proration_behavior='create_prorations',
+                items=[{
+                    'id': subscription['items']['data'][0].id,
+                    'price': stripe_price_id,
+                }]
+            )
+        return resp
+
+    except StripeError as error:
+        error_handler(error)
+
 # Stripe Error Handler
 def error_handler(error: Exception):
     raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,

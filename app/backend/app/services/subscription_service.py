@@ -6,7 +6,7 @@ from app.db.dals.payments import SubscriptionsDal
 from app.db.dals.users import UsersDal
 from app.models.schemas.users import SetAdminUpdateItems
 from app.auth.models import UserDTO
-from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, CreateNewSubscription, UpdateInitialSubscription, UpdateItemsAfterPaymentSuccess, SetAutoRenew, SubCancelResponse, UpdateItemsAfterCancel
+from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, CreateNewSubscription, UpdateInitialSubscription, UpdateItemsAfterPaymentSuccess, SetAutoRenew, SubCancelResponse, UpdateItemsAfterCancel, UpgradeSubscription
 
 # Services
 from app.services import stripe_service, customer_service
@@ -115,3 +115,21 @@ async def cancel_subscription(db, subs_stripe_id):
 
     return True
     
+async def change_plan(db, current_user: UserDTO, request):
+    subs_dal = SubscriptionsDal(db)
+    subs = await subs_dal.get_subscription_by_customer_id(current_user.customer_id)
+
+    if subs == None:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
+                        detail = "Subscription does not exist!")
+    
+    if subs.stripe_price_id == request.stripe_price_id:
+        raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                        detail = "Customer already on the requested plan.")
+    
+    # Change plan with Stripe & Update DB
+    await stripe_service.change_subscription_price(subs.stripe_subscription_id, request.stripe_price_id)
+    update_items = UpgradeSubscription(stripe_price_id = request.stripe_price_id)
+    await subs_dal.update(subs.id, update_items)
+
+    return "Subscription plan successfully changed."

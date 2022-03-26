@@ -26,6 +26,9 @@ class SubscriptionSchema(SubscriptionBase):
 class CreateSubscriptionRequest(BaseSchema):
     stripe_price_id: str
 
+class ChangeSubscriptionRequest(BaseSchema):
+    stripe_price_id: str
+
 class CreateNewSubscription(BaseSchema):
     is_active : bool
     status : str
@@ -40,6 +43,9 @@ class CreateNewSubscription(BaseSchema):
 class UpdateInitialSubscription(BaseSchema):
     stripe_subscription_id : str
     initial_start_date : datetime
+
+class UpgradeSubscription(BaseSchema):
+    stripe_price_id : str
 
 class UpdateItemsAfterPaymentSuccess(BaseSchema):
     is_active : bool
