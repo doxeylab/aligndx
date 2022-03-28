@@ -54,7 +54,7 @@ async def clean_file_upload(file_dir):
         except Exception as e:
             print('Failed to delete %s. Reason: %s' % (file_path, e))
             
-        os.rmdir(file_dir)
+    os.rmdir(file_dir)
 
 
 async def perform_file_analyses(file, file_dir):
