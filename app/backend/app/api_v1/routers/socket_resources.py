@@ -16,8 +16,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.scripts import analyze, realtime 
 from app.scripts.web_socket.manager import ConnectionManager
+from app.celery.File import File
 
 from app.celery import tasks
+from app.scripts.post_processing.Output import StoredQuantData
 
 from app.config.settings import get_settings
 
@@ -62,39 +64,37 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
 
     headers=['Name', 'TPM']
     data_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, "data.json")
-    meta_dir = "{}/{}/{}".format(REAL_TIME_UPLOADS, file_id, "meta.json")
+    file_dir = os.path.join(REAL_TIME_UPLOADS, file_id)
+    data_obj = StoredQuantData(data_dir)
 
     if current_user:
         print(f"User {current_user.id} connected!")
         try:
             while True:
-                metadata = None
-                with open(meta_dir) as f:
-                    metadata = json.load(f)
-                analysis_chunks_processed = metadata['analysis_chunks_processed']
-                total_analysis_chunks = metadata['total_analysis_chunks'] - 2
+                if os.path.isdir(file_dir):
+                    file = File.load(file_dir) 
 
-                if analysis_chunks_processed == (total_analysis_chunks):
-                    manager.disconnect(websocket)
-                    return
+                    stored_data = data_obj.load(sample_name, status="ready")     
 
-                try:
-                    stored_data = pd.read_json(data_dir, orient="table")
-                
-                except:
-                    stored_data = None
+                    if all([chunk.status == 'Complete' for chunk in file.state.analysis_chunks]):
+                        # all chunks completed, so disconnect websocket
+                        stored_data = data_obj.load(sample_name, status="complete")     
+                        await manager.send_data(stored_data, websocket)
+                        manager.disconnect(websocket)
+                        return
 
-                if stored_data is not None:
-                    stored_data.set_index('Pathogen', inplace=True)
-                    data = realtime.data_loader(stored_data, sample_name, headers, status="ready")
-                    data['progress'] = analysis_chunks_processed/total_analysis_chunks
-                    await manager.send_data(data, websocket)  
-                    await asyncio.sleep(3) 
-                
+                    if stored_data:
+                        await manager.send_data(stored_data, websocket)  
+                        await asyncio.sleep(3) 
+
+                    else:
+                        message = {"status": "pending"} 
+                        await manager.send_data(message, websocket)
+                        await asyncio.sleep(5) 
                 else:
-                    message = {"status": "pending"} 
-                    await manager.send_data(message, websocket)
-                    await asyncio.sleep(5)  
+                    # file doesn't exist, so close websocket
+                    manager.disconnect(websocket)
+                    return 
 
         except WebSocketDisconnect:
             manager.disconnect(websocket)

@@ -165,7 +165,7 @@ const Live = () => {
 
     useEffect(() => {
         if (data){
-            console.log(data.progress)
+            console.log(data.coverage)
         }
     },[data])
  
