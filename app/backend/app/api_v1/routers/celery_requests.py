@@ -28,7 +28,7 @@ async def end_pipe(endRequest : EndAnalysisPipeline, db: AsyncSession = Depends(
     data_dir = endRequest.data_dir
     email = endRequest.email
     stored_data = pd.read_json(data_dir, orient="table")
-    headers=['Name', 'TPM']
+    headers=['Gene', 'TPM']
 
     data = realtime.data_loader(stored_data, fileName, headers, status="ready")
     

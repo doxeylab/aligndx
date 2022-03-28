@@ -10,7 +10,7 @@ class MetaModel:
     def __init__(self, panel):
         self.panel = panel
     
-    def _grab_id(id, prefix, strip): 
+    def _grab_id(self, id, prefix, strip): 
       if type(id) == str:
         x = id.split(" ")   
         for names in x: 
