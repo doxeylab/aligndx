@@ -108,6 +108,6 @@ async def get_result(file_id: str, current_user: UserDTO = Depends(get_current_u
     if (not query):
         return HTTPException(status_code=404, detail="Item not found")
     
-    data = query["result"]
+    data = query.result
 
     return data

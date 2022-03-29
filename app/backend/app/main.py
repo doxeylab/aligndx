@@ -19,13 +19,24 @@ from app.api_v1.routers.payments import payments, stripe_webhooks
 # settings
 from app.config.settings import get_settings
 
+# periodic tasks
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from app.celery.periodic_tasks import periodic_task_calls
+
 
 app = FastAPI(
     title="AlignDX",
     description="This is the restful API for the AlignDX application. Here you will find the auto docs genereated for the API endpoints",
     version="1.0", 
 )
- 
+
+@app.on_event('startup')
+async def start_scheduler():
+    scheduler = AsyncIOScheduler()
+    scheduler.start()
+
+    scheduler.add_job(periodic_task_calls, 'interval', seconds=1)
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
     exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')

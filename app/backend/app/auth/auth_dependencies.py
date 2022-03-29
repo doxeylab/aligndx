@@ -170,4 +170,10 @@ async def get_current_user_ws(token: str, db):
     
     user = UserSchema.from_orm(user_res)
 
-    return UserDTO(id=user.id, name=user.name, email=user.email)
+    return UserDTO(
+        id=user.id, 
+        name=user.name, 
+        email=user.email, 
+        customer_id=user.customer_id,
+        is_admin=user.is_admin
+    )

@@ -173,7 +173,8 @@ async def start_file(
         results_dir = "{}/{}".format(REAL_TIME_RESULTS, file_id)
         os.mkdir(results_dir)
 
-        tasks.make_file_metadata.delay(rt_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks, email=current_user.email, fileId=file_id)
+        tasks.make_file_metadata.s(rt_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks,
+                                   email=current_user.email, fileId=file_id, panel=option).apply_async()
         tasks.make_file_data.delay(results_dir)
 
         return {"Result": "OK",
@@ -201,13 +202,14 @@ async def upload_chunk(
         while content := await chunk_file.read(read_batch_size):
             await f.write(content)
 
+    tasks.process_new_upload.s(rt_dir, chunk_number).apply_async()
     
-    chain(
-        tasks.process_new_upload.s(rt_dir, chunk_number), 
-        tasks.perform_chunk_analysis.s(panels, INDEX_FOLDER, analysis_data_folder, results_dir),
-        tasks.post_process.s(data_dir, METADATA_FOLDER, panels),
-        tasks.pipe_status.s(rt_dir, data_dir)
-    ).apply_async()
+    # chain(
+    #     tasks.process_new_upload.s(rt_dir, chunk_number), 
+    #     tasks.perform_chunk_analysis.s(panels, INDEX_FOLDER, analysis_data_folder, results_dir),
+    #     tasks.post_process.s(data_dir, panels),
+    #     tasks.pipe_status.s(rt_dir, data_dir)
+    # ).apply_async()
 
     uplog_dal = UploadLogsDal(db)
     log = UploadLogBase(
@@ -241,4 +243,3 @@ async def end_file(
 
     else:
         return {"Result": "Already exists"}
-

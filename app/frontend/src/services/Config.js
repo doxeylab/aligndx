@@ -37,4 +37,4 @@ export const PANELS_URL = METADATA_URL + "panels"
 export const ALLOWED_FILETYPES = ".fastq, .fastq.gz"
 
 // miscellaneous for now
-export const CHUNK_SIZE = 800000
+export const CHUNK_SIZE = 8000000

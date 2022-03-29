@@ -38,8 +38,8 @@ class AppSettings(BaseSettings):
     class UploadSettings(FolderSettings):
         # chunk settings
         read_batch_size = 4096
-        salmon_chunk_size = math.floor(4e6)
-        upload_chunk_size = 8e5
+        salmon_chunk_size = math.floor(1e9)
+        upload_chunk_size = 8e6
         chunk_ratio = salmon_chunk_size / upload_chunk_size   
 
     # Inherits foldersettings
