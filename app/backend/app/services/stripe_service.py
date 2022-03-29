@@ -1,6 +1,5 @@
 import os
 from fastapi import HTTPException, status
-from app.models.schemas.payments.customers import CustomerDTO
 
 # Stripe
 import stripe
@@ -9,13 +8,13 @@ from stripe.error import StripeError
 stripe.api_key = os.getenv("STRIPE_KEY")
 stripe.max_network_retries = 3
 
-async def create_customer(customer: CustomerDTO):
+async def create_customer(id, name, email):
     try:
         resp = stripe.Customer.create(
-            email = customer.email,
-            name = customer.name,
+            email = email,
+            name = name,
             metadata = {
-                "AlignDx_CustomerID": customer.id
+                "AlignDx_CustomerID": id
             }
         )
         return resp
@@ -112,6 +111,16 @@ async def change_subscription_price(stripe_subscription_id, stripe_price_id):
                     'id': subscription['items']['data'][0].id,
                     'price': stripe_price_id,
                 }]
+            )
+        return resp
+
+    except StripeError as error:
+        error_handler(error)
+
+async def get_upcoming_invoice(stripe_customer_id):
+    try:
+        resp = stripe.Invoice.upcoming(
+                customer = stripe_customer_id,
             )
         return resp
 

@@ -1,7 +1,7 @@
 from typing import Type
 from sqlalchemy import select
 from app.db.dals.base_dal import BaseDal
-from app.db.tables.payments import Customers, Subscriptions, Invoices
+from app.db.tables.payments import Customers, Subscriptions, Invoices, Plans
 
 #  -- Customers DAL -- 
 
@@ -32,9 +32,28 @@ class SubscriptionsDal(BaseDal[Subscriptions]):
         query = await self._db_session.execute(stmt)
         return query.scalars().first()
     
+    async def get_active_subscription_by_customer_id(self, customer_id):
+        stmt =  select(self._table)\
+            .where(self._table.customer_id == customer_id,
+                   self._table.is_active == True)
+        query = await self._db_session.execute(stmt)
+        return query.scalars().first()
+    
 #  -- Invoices DAL -- 
 
 class InvoicesDal(BaseDal[Invoices]):
     @property
     def _table(self) -> Type[Invoices]:
         return Invoices
+
+class PlansDal(BaseDal[Invoices]):
+    @property
+    def _table(self) -> Type[Plans]:
+        return Plans
+    
+    async def get_available_plan_by_id(self, plan_id):
+        stmt =  select(self._table)\
+            .where(self._table.id == plan_id,
+                   self._table.is_archived == False)
+        query = await self._db_session.execute(stmt)
+        return query.scalars().first()

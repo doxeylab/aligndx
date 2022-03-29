@@ -3,6 +3,8 @@ from fastapi import HTTPException, status
 
 # Database Models & DAL
 from app.db.dals.payments import CustomersDal
+from app.db.dals.users import UsersDal
+from app.models.schemas.users import SetAdminUpdateItems
 from app.models.schemas.payments.customers import NewCustomer, UpdatePaymentMethod, UpdateCustomerStripeId
 
 # Services
@@ -20,14 +22,27 @@ async def create_customer(db, current_user):
 
     customer_dal = CustomersDal(db)
     customer_id = await customer_dal.create(new_customer)
-    return await customer_dal.get_by_id(customer_id)
 
-async def update_customer(db, customer_id, stripe_customer_id):
-    update_items = UpdateCustomerStripeId(
-        stripe_customer_id = stripe_customer_id
+    # Set current user as admin
+    users_dal = UsersDal(db)
+    update_user = SetAdminUpdateItems(
+        customer_id = customer_id,
+        is_admin = True
     )
-    customer_dal = CustomersDal(db)
+    await users_dal.update(current_user.id, update_user)
+
+    # Create customer in Stripe & update db
+    stripe_customer = await stripe_service.create_customer(customer_id, current_user.name, current_user.email)
+    update_items = UpdateCustomerStripeId(
+        stripe_customer_id = stripe_customer.id
+    )
     await customer_dal.update(customer_id, update_items)
+    
+    return customer_id
+
+async def get_by_id(db, customer_id):
+    customer_dal = CustomersDal(db)
+    return await customer_dal.get_by_id(customer_id)
 
 async def get_by_stripe_id(db, stripe_customer_id):
     customer_dal = CustomersDal(db)

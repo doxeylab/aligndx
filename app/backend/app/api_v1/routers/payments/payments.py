@@ -6,7 +6,7 @@ from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user
 
 # Payments Schemas
-from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, ChangeSubscriptionRequest
+from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, ChangePlanRequest
 
 # Services
 from app.services import subscription_service, customer_service
@@ -50,7 +50,7 @@ async def cancel_subscription(
 # Upgrade/downgrade subscription: PUT /payments/subscriptions/change-plan
 @router.put("/subscriptions/change-plan", status_code=status.HTTP_200_OK)
 async def create_subscription(
-        request: CreateSubscriptionRequest,
+        request: ChangePlanRequest,
         current_user: UserDTO = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
