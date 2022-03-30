@@ -5,7 +5,7 @@ import pandas as pd
 from app.db.session import async_session
 
 from app.celery.File import File
-from app.config.settings import AppSettings
+from app.config.settings import settings
 
 from app.celery import tasks
 from celery import chain
@@ -16,10 +16,11 @@ from app.models.schemas.submissions import UpdateSubmissionResult
 from app.scripts.email_feature import send_email
 from app.scripts import realtime
 
+settings = settings.UploadSettings
 
-rt_dir = AppSettings.UploadSettings.REAL_TIME_UPLOADS
-index_folder = AppSettings.UploadSettings.INDEX_FOLDER
-rt_results = AppSettings.UploadSettings.REAL_TIME_RESULTS
+rt_dir = settings.REAL_TIME_UPLOADS
+index_folder = settings.INDEX_FOLDER
+rt_results = settings.REAL_TIME_RESULTS
 
 
 async def save_result(file):

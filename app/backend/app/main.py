@@ -1,4 +1,5 @@
 # python
+from operator import ge
 import os, asyncio 
 import logging 
 
@@ -36,6 +37,13 @@ async def start_scheduler():
     scheduler.start()
 
     scheduler.add_job(periodic_task_calls, 'interval', seconds=30)
+
+@app.on_event('startup')
+async def setup_configs():
+    '''
+    Initializes settings for app
+    '''
+    get_settings()
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):

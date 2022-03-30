@@ -2,12 +2,11 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from bs4 import BeautifulSoup as bs
-from app.config.settings import get_settings
+from app.config.settings import settings
 import os 
 
-# config
-app_settings = get_settings()
-settings = app_settings.NotificationSettings()
+# config 
+settings = settings.NotificationSettings
 
 baseURL = settings.base_url
 sender_email = settings.sender_email   

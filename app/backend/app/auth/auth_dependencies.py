@@ -9,11 +9,10 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status 
 from jose import JWTError, ExpiredSignatureError, jwt
 
-from app.config.settings import get_settings
+from app.config.settings import settings
 
-# config
-app_settings = get_settings()
-settings = app_settings.AuthSettings()
+# config 
+settings = settings.AuthSettings 
 
 oauth2_scheme_auto_error = settings.oauth2_scheme_auto_error
 oauth2_scheme = settings.oauth2_scheme

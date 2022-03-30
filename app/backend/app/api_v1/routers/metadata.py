@@ -2,13 +2,12 @@ import os
 
 from fastapi import APIRouter 
 
-from app.config.settings import get_settings
+from app.config.settings import settings
 
 router = APIRouter()
 
-# config
-app_settings = get_settings()
-settings = app_settings.UploadSettings()
+# config 
+settings = settings.UploadSettings
  
 INDEX_FOLDER = settings.INDEX_FOLDER
 METADATA_FOLDER = settings.METADATA_FOLDER  
