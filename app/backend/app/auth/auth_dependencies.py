@@ -11,9 +11,6 @@ from jose import JWTError, ExpiredSignatureError, jwt
 
 from app.config.settings import settings
 
-# config 
-settings = settings.AuthSettings 
-
 oauth2_scheme_auto_error = settings.oauth2_scheme_auto_error
 oauth2_scheme = settings.oauth2_scheme
 pwd_context = settings.pwd_context

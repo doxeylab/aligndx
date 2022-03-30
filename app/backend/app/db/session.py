@@ -3,8 +3,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.config.settings import settings
 
-# config 
-settings = settings.DatabaseSettings
+# config  
 
 # Enabled SQL Alchemy 2.0 API with future flag
 # Enabled logging of engine generated SQL with echo flag

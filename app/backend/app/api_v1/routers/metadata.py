@@ -6,9 +6,6 @@ from app.config.settings import settings
 
 router = APIRouter()
 
-# config 
-settings = settings.UploadSettings
- 
 INDEX_FOLDER = settings.INDEX_FOLDER
 METADATA_FOLDER = settings.METADATA_FOLDER  
 

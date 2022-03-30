@@ -5,9 +5,6 @@ from bs4 import BeautifulSoup as bs
 from app.config.settings import settings
 import os 
 
-# config 
-settings = settings.NotificationSettings
-
 baseURL = settings.base_url
 sender_email = settings.sender_email   
 password =  settings.password
