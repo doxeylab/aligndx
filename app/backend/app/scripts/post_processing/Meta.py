@@ -3,7 +3,7 @@ import os
 from app.config.settings import settings
 
 class MetaModel:
-    _meta_dir = settings.FolderSettings.METADATA_FOLDER
+    _meta_dir = settings.METADATA_FOLDER
 
     def __init__(self, panel):
         self.panel = panel

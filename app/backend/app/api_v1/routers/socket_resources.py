@@ -23,9 +23,6 @@ from app.scripts.post_processing.Output import StoredQuantData
 
 from app.config.settings import settings
 
-# config
-settings = settings.ResultSettings
-
 UPLOAD_FOLDER = settings.UPLOAD_FOLDER
 RESULTS_FOLDER = settings.RESULTS_FOLDER
 INDEX_FOLDER = settings.INDEX_FOLDER

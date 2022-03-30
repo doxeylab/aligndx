@@ -20,10 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 # settings
 from app.config.settings import settings
 
-# config setup 
-auth_settings = settings.AuthSettings
-
-ACCESS_TOKEN_EXPIRE_MINUTES = auth_settings.ACCESS_TOKEN_EXPIRE_MINUTES
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter()
 

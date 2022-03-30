@@ -16,8 +16,6 @@ from app.models.schemas.submissions import UpdateSubmissionResult
 from app.scripts.email_feature import send_email
 from app.scripts import realtime
 
-settings = settings.UploadSettings
-
 rt_dir = settings.REAL_TIME_UPLOADS
 index_folder = settings.INDEX_FOLDER
 rt_results = settings.REAL_TIME_RESULTS

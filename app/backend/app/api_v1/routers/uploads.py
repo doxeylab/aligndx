@@ -32,9 +32,6 @@ from celery import chain
 
 router = APIRouter()
 
-# config 
-settings = settings.UploadSettings
-
 read_batch_size = settings.read_batch_size
 salmon_chunk_size = settings.salmon_chunk_size
 upload_chunk_size = settings.upload_chunk_size
