@@ -49,10 +49,9 @@ const LogInAuth = (props) => {
                 context.setupUser(response)
                 setLoading(false)
                 setError(false)
-                context.loadCurrentUser();
                 history.push(props.link)
                 // force re-render of homepage
-                history.go(0);
+                context.loadCurrentUser();
             })
             .catch((error) => {
                 setLoading(false);

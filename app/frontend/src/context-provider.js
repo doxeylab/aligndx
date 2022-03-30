@@ -52,6 +52,7 @@ const GlobalContextProvider = (props) => {
 
     const logout = () => {
         localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
         setAuthenticated(false);
         setCurrentUser(null);
         history.push('/');
