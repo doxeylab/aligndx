@@ -65,3 +65,5 @@ class AppSettings(BaseSettings):
 @lru_cache()
 def get_settings() -> AppSettings: 
     return AppSettings()
+
+settings = get_settings()

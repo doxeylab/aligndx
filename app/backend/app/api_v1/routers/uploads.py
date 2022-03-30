@@ -25,16 +25,15 @@ from app.models.schemas.submissions import SubmissionBase, UpdateSubmissionDate,
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config.settings import get_settings
+from app.config.settings import settings
 
 from app.celery import tasks
 from celery import chain
 
 router = APIRouter()
 
-# config
-app_settings = get_settings()
-settings = app_settings.UploadSettings()
+# config 
+settings = settings.UploadSettings
 
 read_batch_size = settings.read_batch_size
 salmon_chunk_size = settings.salmon_chunk_size

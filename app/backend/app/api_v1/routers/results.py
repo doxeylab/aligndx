@@ -15,11 +15,10 @@ from app.models.schemas.submissions import UpdateSubmissionResult, SubmissionSch
 
 from app.scripts import analyze, realtime 
 
-from app.config.settings import get_settings
+from app.config.settings import settings
 
-# config
-app_settings = get_settings()
-settings = app_settings.ResultSettings()
+# config 
+settings = settings.ResultSettings
 
 UPLOAD_FOLDER = settings.UPLOAD_FOLDER
 RESULTS_FOLDER = settings.RESULTS_FOLDER

@@ -1,8 +1,6 @@
 import pandas as pd
 import os
-from app.config.settings import get_settings
-
-settings = get_settings()
+from app.config.settings import settings
 
 class MetaModel:
     _meta_dir = settings.FolderSettings.METADATA_FOLDER

@@ -18,11 +18,10 @@ from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # settings
-from app.config.settings import get_settings
+from app.config.settings import settings
 
-# config setup
-app_settings = get_settings()
-auth_settings = app_settings.AuthSettings()
+# config setup 
+auth_settings = settings.AuthSettings
 
 ACCESS_TOKEN_EXPIRE_MINUTES = auth_settings.ACCESS_TOKEN_EXPIRE_MINUTES
 

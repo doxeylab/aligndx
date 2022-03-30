@@ -5,10 +5,10 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.config.settings import get_settings
+from app.config.settings import settings
 from app.db.base import Base 
 
-settings = get_settings().DatabaseSettings
+settings = settings.DatabaseSettings
 
 # import os, sys
 # from dotenv import load_dotenv

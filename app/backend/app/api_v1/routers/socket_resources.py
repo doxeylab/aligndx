@@ -21,11 +21,10 @@ from app.celery.File import File
 from app.celery import tasks
 from app.scripts.post_processing.Output import StoredQuantData
 
-from app.config.settings import get_settings
+from app.config.settings import settings
 
 # config
-app_settings = get_settings()
-settings = app_settings.ResultSettings()
+settings = settings.ResultSettings
 
 UPLOAD_FOLDER = settings.UPLOAD_FOLDER
 RESULTS_FOLDER = settings.RESULTS_FOLDER
