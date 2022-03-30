@@ -4,6 +4,7 @@ from app.services import invoice_service, subscription_service, stripe_service, 
 async def handle_invoice_paid(req, db):
     # Extract the Stripe Subscription id from the Strip Invoice Object
     stripe_sub_id = req["data"]["object"]["subscription"]
+    stripe_customer_id = req["data"]["object"]["customer"]
 
     # Get subscription from db
     sub = await subscription_service.get_subscription_by_stripe_id(db, stripe_sub_id)
@@ -14,17 +15,28 @@ async def handle_invoice_paid(req, db):
         stripe_sub_id,
         ["latest_invoice.payment_intent.payment_method"]
     )
-    
+
+    # Check if plan downgrade was requested and update db if needed
+    # If subscription has scheduled plan id set means need update db to reflect new plan
+    if sub.scheduled_plan_id:
+        # TODO: confirm stripe sub plan same as scheduled plan id
+        await subscription_service.process_plan_downgrade(db, sub)
+
     # Create Invoice in db
     await invoice_service.create_invoice(db, sub_stripe.latest_invoice, sub.id, sub.customer_id)
 
     # Update Customer & Subscription items in db
     await subscription_service.update_after_payment_success(db, sub.id, sub_stripe)
-    await customer_service.update_payment_method(db, sub.customer_id, sub_stripe.latest_invoice)
+    await customer_service.update_payment_method(db, sub.customer_id, sub_stripe.latest_invoice, stripe_customer_id)
 
     return True
 
 async def handle_payment_method(req, db):
+    # Check if this req was triggered due to update-card as metadata was set to update card
+    metadata = req["data"]["object"]["metadata"]
+    if metadata == {} or 'reason' not in metadata or metadata['reason'] != 'update-card':
+        return True
+
     stripe_customer_id = req["data"]["object"]["customer"]
     payment_method_id = req["data"]["object"]["payment_method"]
 

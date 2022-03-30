@@ -59,10 +59,10 @@ async def get_client_secret(db, current_user):
         raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                         detail = "Only Admin can update payment method")
 
-    setup_intent = await stripe_service.create_setup_intent(customer_db.stripe_customer_id)
+    setup_intent = await stripe_service.create_setup_intent(customer_db)
     return setup_intent.client_secret
 
-async def update_payment_method(db, customer_id, invoice):
+async def update_payment_method(db, customer_id, invoice, stripe_customer_id):
     customers_dal = CustomersDal(db)
     update_items = UpdatePaymentMethod(
         payment_card_type = invoice["payment_intent"]["payment_method"]["card"]["brand"],
@@ -70,6 +70,10 @@ async def update_payment_method(db, customer_id, invoice):
         card_expiry = f'{invoice["payment_intent"]["payment_method"]["card"]["exp_month"]}/{invoice["payment_intent"]["payment_method"]["card"]["exp_year"]}',
         stripe_default_payment_method_id = invoice["payment_intent"]["payment_method"]["id"]
     )
+    
+    # Set this card as default for the customer in stripe
+    await stripe_service.set_default_payment_method(stripe_customer_id, invoice["payment_intent"]["payment_method"]["id"])
+    
     return await customers_dal.update(customer_id, update_items)
 
 async def replace_payment_method(db, stripe_customer_id, payment_method_id):

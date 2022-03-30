@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 # Database Models & DAL
 from app.db.dals.payments import SubscriptionsDal, PlansDal
 from app.auth.models import UserDTO
-from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, CreateNewSubscription, UpdateInitialSubscription, UpdateItemsAfterPaymentSuccess, SetAutoRenew, SubCancelResponse, UpdateItemsAfterCancel, UpgradeSubscription
+from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, CreateNewSubscription, UpdateInitialSubscription, UpdateItemsAfterPaymentSuccess, SetAutoRenew, SubCancelResponse, UpdateItemsAfterCancel, UpgradeSubscription, DowngradeSubscription, CancelDowngradeSubscription, ProcessDowngradeSubscription
 
 # Services
 from app.services import stripe_service, customer_service
@@ -137,14 +137,65 @@ async def change_plan(db, current_user: UserDTO, request):
         raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                         detail = "Customer already on the requested plan.")
     
-    # get plan entities from db for current and new plan
+    if subs.scheduled_plan_id and subs.scheduled_plan_id == request.plan_id:
+        raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                        detail = f"Request to change to plan id: {request.plan_id} already submitted.")
+    
+    # get plan entities from db for current and new requested plan
     plans_dal = PlansDal(db)
     current_plan = await plans_dal.get_by_id(subs.plan_id)
     new_plan = await plans_dal.get_available_plan_by_id(request.plan_id)
 
-    # Change plan with Stripe & Update DB
-    await stripe_service.change_subscription_price(subs.stripe_subscription_id, new_plan.stripe_price_id)
-    update_items = UpgradeSubscription(plan_id = new_plan.id)
-    await subs_dal.update(subs.id, update_items)
+    response = None
+    if new_plan.price >= current_plan.price:
+        # Upgrade Plan - Change Immediately
+        await stripe_service.upgrade_subscription(subs.stripe_subscription_id, new_plan.stripe_price_id)
+        update_items = UpgradeSubscription(plan_id = new_plan.id)
+        await subs_dal.update(subs.id, update_items)
+        # TODO: use upcoming-invoice API to estimate next invoice charges
+        response = "Subscription plan upgraded successfully."
+    else:
+        # Downgrade Plan - Schedule Change end of current period
+        stripe_schedule = await stripe_service.schedule_downgrade_subscription(subs.stripe_subscription_id, new_plan.stripe_price_id)
+        update_items = DowngradeSubscription(
+            scheduled_plan_id = new_plan.id,
+            stripe_schedule_id = stripe_schedule.id,
+            allow_downgrade = False
+        )
+        await subs_dal.update(subs.id, update_items)
+        response = "Subscription plan will be changed starting next billing cycle."
 
-    return "Subscription plan successfully changed."
+    return response
+
+async def cancel_downgrade(db, current_user: UserDTO):
+    subs_dal = SubscriptionsDal(db)
+    subs = await subs_dal.get_active_subscription_by_customer_id(current_user.customer_id)
+
+    if subs == None:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
+                        detail = "An active subscription does not exist!")
+    
+    if subs.scheduled_plan_id == None:
+        raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                        detail = "An existing request for downgrading plan doesn't exist.")
+    
+    await stripe_service.cancel_subscription_schedule(subs.stripe_schedule_id)
+    update_items = CancelDowngradeSubscription(
+            scheduled_plan_id = None,
+            stripe_schedule_id = None,
+            allow_downgrade = True
+    )
+    await subs_dal.update(subs.id, update_items)
+    return "Request to downgrade plan cancelled."
+
+# End of month: Downgrade Plan
+async def process_plan_downgrade(db, sub):
+    subs_dal = SubscriptionsDal(db)
+    # Scheduled plan id becomes the plan id
+    update_items = ProcessDowngradeSubscription(
+            scheduled_plan_id = None,
+            stripe_schedule_id = None,
+            allow_downgrade = True,
+            plan_id = sub.scheduled_plan_id
+    )
+    await subs_dal.update(sub.id, update_items)

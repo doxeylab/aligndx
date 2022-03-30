@@ -51,11 +51,15 @@ async def get_subscription(stripe_subscription_id, expand_list=[]):
     except StripeError as error:
         error_handler(error)
 
-async def create_setup_intent(stripe_customer_id):
+async def create_setup_intent(customer_db):
     try:
         resp = stripe.SetupIntent.create(
-            customer = stripe_customer_id,
-            payment_method_types=["card"],
+            customer = customer_db.stripe_customer_id,
+            payment_method_types = ["card"],
+            metadata = {
+                "AlignDx_Customer_id": customer_db.id,
+                "reason": "update-card"
+            }
         )
         return resp
 
@@ -100,7 +104,7 @@ async def cancel_subscription(stripe_subscription_id):
     except StripeError as error:
         error_handler(error)
 
-async def change_subscription_price(stripe_subscription_id, stripe_price_id):
+async def upgrade_subscription(stripe_subscription_id, stripe_price_id):
     try:
         subscription = await get_subscription(stripe_subscription_id)
         resp = stripe.Subscription.modify(
@@ -113,6 +117,51 @@ async def change_subscription_price(stripe_subscription_id, stripe_price_id):
                 }]
             )
         return resp
+
+    except StripeError as error:
+        error_handler(error)
+
+async def schedule_downgrade_subscription(stripe_subscription_id, stripe_price_id):
+    # Create a Stripe Subscription Schedule to update subs price starting next period
+    try:
+        subscription = await get_subscription(stripe_subscription_id)
+        schedule = stripe.SubscriptionSchedule.create(from_subscription = subscription.id)
+
+        schedule = stripe.SubscriptionSchedule.modify(
+                schedule.id,
+                end_behavior = 'release',
+                phases = [{
+                        # Past Phase
+                        'start_date': subscription.current_period_start,
+                        'end_date': 'now',
+                        'items': [{
+                                'price': subscription['items']['data'][0]['plan']['id']
+                        }]
+                    },{
+                        # Current Phase - Now to end of period with current price id
+                        'start_date': 'now',
+                        'end_date': subscription.current_period_end,
+                        'items': [{
+                                'price': subscription['items']['data'][0]['plan']['id']
+                        }]
+                    },
+                    {
+                        # Second Phase - Next period with the downgraded plan price id
+                        'start_date': subscription.current_period_end,
+                        'proration_behavior': 'none',
+                        'items': [{
+                                'price': stripe_price_id
+                        }]
+                    }]
+            )
+        return schedule
+
+    except StripeError as error:
+        error_handler(error)
+
+async def cancel_subscription_schedule(schedule_id):
+    try:
+        return stripe.SubscriptionSchedule.release(schedule_id)
 
     except StripeError as error:
         error_handler(error)

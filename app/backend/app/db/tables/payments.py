@@ -33,6 +33,8 @@ class Subscriptions(Base):
     stripe_latest_invoice_id = Column(String(50), nullable=True)
     stripe_subscription_id = Column(String(50), nullable=True)
     allow_downgrade = Column(Boolean, nullable=False)
+    stripe_schedule_id = Column(String(50), nullable=True)
+    scheduled_plan_id = Column(UUID(as_uuid=True), ForeignKey("plans.id"), nullable=True)
 
 class Invoices(Base):
     __tablename__ = "invoices"

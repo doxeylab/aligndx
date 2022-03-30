@@ -1,5 +1,6 @@
 from uuid import UUID
 from datetime import datetime
+from typing import Optional
 from app.models.schemas.base_schema import BaseSchema
 
 #  -- Subscriptions Schema -- 
@@ -46,6 +47,22 @@ class UpdateInitialSubscription(BaseSchema):
 
 class UpgradeSubscription(BaseSchema):
     plan_id : UUID
+
+class DowngradeSubscription(BaseSchema):
+    scheduled_plan_id: UUID
+    stripe_schedule_id: str
+    allow_downgrade: bool
+
+class CancelDowngradeSubscription(BaseSchema):
+    scheduled_plan_id: Optional[UUID]
+    stripe_schedule_id: Optional[str]
+    allow_downgrade: bool
+
+class ProcessDowngradeSubscription(BaseSchema):
+    scheduled_plan_id: Optional[UUID]
+    stripe_schedule_id: Optional[str]
+    allow_downgrade: bool
+    plan_id: UUID
 
 class UpdateItemsAfterPaymentSuccess(BaseSchema):
     is_active : bool
