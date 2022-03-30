@@ -83,17 +83,16 @@ const SignUpAuth = () => {
                     .then((res) => {
                         if (res.status == 201) {
                             const loginParams = {
-                                username: signUp.email,
+                                username: signUp.email, 
                                 password: signUp.password,
                             };
 
                             loginRequest(loginParams)
-                                .then((response) => {
-                                    localStorage.setItem("accessToken", response.access_token);
+                                .then((response) => { 
+                                    context.setupUser(response)
                                     setLoading(false)
                                     history.push("/");
                                     // force re-render of homepage
-                                    history.go(0);
                                     context.loadCurrentUser();
                                 })
                                 .catch((error) => {

@@ -35,7 +35,7 @@ async def start_scheduler():
     scheduler = AsyncIOScheduler()
     scheduler.start()
 
-    scheduler.add_job(periodic_task_calls, 'interval', seconds=1)
+    scheduler.add_job(periodic_task_calls, 'interval', seconds=30)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):

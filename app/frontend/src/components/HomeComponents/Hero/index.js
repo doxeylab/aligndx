@@ -38,7 +38,7 @@ const Hero = (props) => {
     const [showStandardUploadModal, setShowStandardUploadModal] = useState(false); 
     const [showLiveUploadModal, setShowLiveUploadModal] = useState(false); 
     const [showRestartModal, setShowRestartModal] = useState(false); 
-    const [authenticated, setAuthenticated] = useState(context.authenticated); 
+    const [authenticated, setAuthenticated] = useState(context.authenticated);
 
     const [dataFiles, setDataFiles] = useState([]);
     const { setLoad } = useContext(LoadContext);
@@ -283,6 +283,11 @@ const Hero = (props) => {
     }
         
     const handleClose = (modalstate) => modalstate(false);
+
+    useEffect(() => {
+        setAuthenticated(context.authenticated)
+        console.log(authenticated)
+    }, [context.authenticated])
  
     useEffect(() => {
         // useeffect runs on mount, so we need to simply re-run useeffect when context forces a re-render, and account for the scenario before that (useeffect runs twice) 
@@ -294,8 +299,11 @@ const Hero = (props) => {
             console.log(authenticated)
             console.log("not authenticated, so could not check unprocessed")
         }
+    }, [authenticated])
+
+    useEffect(() => {
         selectmenuoptions();    
-    }, [])
+    },[])
 
     useEffect(() => {
         console.log(dataFiles)
@@ -323,8 +331,8 @@ const Hero = (props) => {
                                     <HeroTitle>PATHOGEN<br />DETECTION</HeroTitle>
                                     <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined RNA-seq pipeline. Alternatively, go through our examples for sample results.</HeroText>
                                     <HeroBtns>
-                                        <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button>
-                                        <Button onClick={() => handleShow(setShowLiveUploadModal)}>Live</Button>
+                                        {/* <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button> */}
+                                        <Button onClick={() => handleShow(setShowLiveUploadModal)}>Upload</Button>
                                         <Button fill to="/examples">Examples</Button>
                                     </HeroBtns>
                                 </HeroBody>
@@ -340,8 +348,8 @@ const Hero = (props) => {
                         <HeroCol>
                             <Fade left duration={1000} delay={600} distance="30px">
                                 <HeroBtns2>
-                                    <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button>
-                                    <Button onClick={() => handleShow(setShowLiveUploadModal)}>Live</Button>
+                                    {/* <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button> */}
+                                    <Button onClick={() => handleShow(setShowLiveUploadModal)}>Upload</Button>
                                     <Button fill to="/examples">Example</Button>
                                 </HeroBtns2>
                             </Fade>

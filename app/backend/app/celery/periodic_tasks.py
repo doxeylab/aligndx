@@ -1,5 +1,5 @@
 import os
-
+import shutil 
 import pandas as pd
 
 from app.db.session import async_session
@@ -43,18 +43,18 @@ async def save_result(file):
     return {"Result": "OK"}
 
 
-async def clean_file_upload(file_dir):
-    for filename in os.listdir(file_dir):
-        file_path = os.path.join(file_dir, filename)
-        try:
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-            elif os.path.isdir(file_path):
-                os.rmdir(file_path)
-        except Exception as e:
-            print('Failed to delete %s. Reason: %s' % (file_path, e))
+# async def clean_file_upload(file_dir):
+#     for filename in os.listdir(file_dir):
+#         file_path = os.path.join(file_dir, filename)
+#         try:
+#             if os.path.isfile(file_path):
+#                 os.remove(file_path)
+#             elif os.path.isdir(file_path):
+#                 os.rmdir(file_path)
+#         except Exception as e:
+#             print('Failed to delete %s. Reason: %s' % (file_path, e))
             
-    os.rmdir(file_dir)
+#     os.rmdir(file_dir)
 
 
 async def perform_file_analyses(file, file_dir):
@@ -74,7 +74,9 @@ async def perform_file_analyses(file, file_dir):
 
 
 async def periodic_task_calls():
+    print(os.listdir(rt_dir))
     for file_id in os.listdir(rt_dir):
+        print("\n" + file_id + "\n")
         file_dir = os.path.join(rt_dir, file_id)
         file = File.load(file_dir)
 
@@ -82,4 +84,4 @@ async def periodic_task_calls():
 
         if all([chunk.status == 'Complete' for chunk in file.state.analysis_chunks]):
             await save_result(file)
-            await clean_file_upload(file_dir)
+            shutil.rmtree(file_dir)

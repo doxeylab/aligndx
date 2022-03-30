@@ -40,7 +40,6 @@ credentials_expiry_exception = HTTPException(
 
 async def valid_email_from_db(email: str, db):
     user_dal = UsersDal(db)
-    print(dir(user_dal))
     user_res = await user_dal.get_by_email(email)
     if user_res is None:
         return False
