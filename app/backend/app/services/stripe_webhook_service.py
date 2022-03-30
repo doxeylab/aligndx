@@ -46,6 +46,14 @@ async def handle_payment_method(req, db):
 async def handle_cancellation(req, db):
     # Extract the Stripe Subscription id from the Stripe Subscription Object
     stripe_sub_id = req["data"]["object"]["id"]
+    cancel_reason = "Cancelled - customer request"
 
-    # Get subscription from db
-    return await subscription_service.cancel_subscription(db, stripe_sub_id)
+    await subscription_service.cancel_subscription(db, stripe_sub_id, cancel_reason)
+    return True
+
+async def handle_failed_payment(db, subscription):
+    # Handle Subscription status = "past_due" --> Cancel Subscription
+    cancel_reason = "Cancelled - non-payment"
+    
+    await subscription_service.cancel_subscription(db, subscription["id"], cancel_reason)
+    return True

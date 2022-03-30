@@ -102,7 +102,7 @@ async def request_cancellation(db, current_user: UserDTO):
 
     return SubCancelResponse(current_period_end=subs.current_period_end)
 
-async def cancel_subscription(db, subs_stripe_id):
+async def cancel_subscription(db, subs_stripe_id, cancel_reason):
     subs_dal = SubscriptionsDal(db)
     subs = await subs_dal.get_subscription_by_stripe_id(subs_stripe_id)
 
@@ -112,7 +112,7 @@ async def cancel_subscription(db, subs_stripe_id):
     
     update_items = UpdateItemsAfterCancel(
         is_active = False,
-        status = 'cancelled',
+        status = cancel_reason,
         is_paid = False,
         is_cancelled = True,
         cancel_date = datetime.now(),
