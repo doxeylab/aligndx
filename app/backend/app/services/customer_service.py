@@ -3,6 +3,8 @@ from fastapi import HTTPException, status
 
 # Database Models & DAL
 from app.db.dals.payments import CustomersDal
+from app.db.dals.users import UsersDal
+from app.models.schemas.users import SetAdminUpdateItems
 from app.models.schemas.payments.customers import NewCustomer, UpdatePaymentMethod, UpdateCustomerStripeId
 
 # Services
@@ -20,14 +22,27 @@ async def create_customer(db, current_user):
 
     customer_dal = CustomersDal(db)
     customer_id = await customer_dal.create(new_customer)
-    return await customer_dal.get_by_id(customer_id)
 
-async def update_customer(db, customer_id, stripe_customer_id):
-    update_items = UpdateCustomerStripeId(
-        stripe_customer_id = stripe_customer_id
+    # Set current user as admin
+    users_dal = UsersDal(db)
+    update_user = SetAdminUpdateItems(
+        customer_id = customer_id,
+        is_admin = True
     )
-    customer_dal = CustomersDal(db)
+    await users_dal.update(current_user.id, update_user)
+
+    # Create customer in Stripe & update db
+    stripe_customer = await stripe_service.create_customer(customer_id, current_user.name, current_user.email)
+    update_items = UpdateCustomerStripeId(
+        stripe_customer_id = stripe_customer.id
+    )
     await customer_dal.update(customer_id, update_items)
+    
+    return customer_id
+
+async def get_by_id(db, customer_id):
+    customer_dal = CustomersDal(db)
+    return await customer_dal.get_by_id(customer_id)
 
 async def get_by_stripe_id(db, stripe_customer_id):
     customer_dal = CustomersDal(db)
@@ -44,10 +59,10 @@ async def get_client_secret(db, current_user):
         raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                         detail = "Only Admin can update payment method")
 
-    setup_intent = await stripe_service.create_setup_intent(customer_db.stripe_customer_id)
+    setup_intent = await stripe_service.create_setup_intent(customer_db)
     return setup_intent.client_secret
 
-async def update_payment_method(db, customer_id, invoice):
+async def update_payment_method(db, customer_id, invoice, stripe_customer_id):
     customers_dal = CustomersDal(db)
     update_items = UpdatePaymentMethod(
         payment_card_type = invoice["payment_intent"]["payment_method"]["card"]["brand"],
@@ -55,6 +70,10 @@ async def update_payment_method(db, customer_id, invoice):
         card_expiry = f'{invoice["payment_intent"]["payment_method"]["card"]["exp_month"]}/{invoice["payment_intent"]["payment_method"]["card"]["exp_year"]}',
         stripe_default_payment_method_id = invoice["payment_intent"]["payment_method"]["id"]
     )
+    
+    # Set this card as default for the customer in stripe
+    await stripe_service.set_default_payment_method(stripe_customer_id, invoice["payment_intent"]["payment_method"]["id"])
+    
     return await customers_dal.update(customer_id, update_items)
 
 async def replace_payment_method(db, stripe_customer_id, payment_method_id):
