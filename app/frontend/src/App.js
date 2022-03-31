@@ -16,6 +16,7 @@ import Team from './pages/Team';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import Pricing from './pages/Pricing';
 
 import Live from './pages/Live/';
 import Standard from './pages/Standard';
@@ -67,6 +68,7 @@ function App() {
                                         <Route path='/live' component={Live} />
                                         <Route path='/standard' component={Standard} />
                                         <Route path='/result' component={Result} />
+                                        <Route path='/pricing' component={Pricing}/>
                                         <Route component={NotFound} />
                                     </Switch>
                                     <Footer />
