@@ -28,9 +28,10 @@ import NotFound from './pages/NotFound';
 
 import {
     QueryClient,
-    QueryClientProvider,
-    ReactQueryDevtools
+    QueryClientProvider, 
   } from 'react-query'
+
+import { ReactQueryDevtools } from 'react-query/devtools'
 
 const theme = createTheme({
     typography: {
@@ -83,7 +84,7 @@ function App() {
                                 </LoadContext.Provider>
                             }
                         </GlobalContextProvider>
-                        <ReactQueryDevtools />
+                        <ReactQueryDevtools initialIsOpen={false} />
                     </QueryClientProvider>
                 </Router>
             </ThemeProvider>
