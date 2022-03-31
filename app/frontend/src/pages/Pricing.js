@@ -10,7 +10,26 @@ const Pricing = () => {
     button: {
       fontSize:"22px",
       borderRadius:"10px"
+    },
+    planType:{
+      fontWeight:"bold",
+      textAlign:"center",
+      marginBottom:"1.5rem"
+    },
+    planPrice:{
+      fontWeight:"bold",
+      fontSize:"2.5rem"
+    },
+    planInfo:{
+      fontWeight:"bold",
+      fontSize:"1.5rem"
+    },
+   li:{
+      marginBottom:"1rem"
+
     }
+
+    
   }
   return (
     <>
@@ -32,25 +51,25 @@ const Pricing = () => {
                 <Card className="p-5">
                   <Card.Header className="text-center">
                     <SendCheck color="DodgerBlue" size={96} />
-                    <h1 className="font-weight-bold mb-4">Basic</h1>
+                    <h1 className="" style={styles.planType}>Basic</h1>
                   </Card.Header>
                   <Card.Body className="text-center">
                     <div>
-                      <span className="h1 font-weight-bold">$100</span>
+                      <span style={styles.planPrice}>$100</span>
                       <span className="h3">
                         / month
                       </span>
                     </div>
                     <ul className="list-unstyled my-5 text-left">
-                      <li className="mb-3">
+                      <li style={styles.li}>
                         <CheckCircleFill color="green" size={20} />
-                        <span className="h4 font-weight-bold">
+                        <span style={styles.planInfo}>
                           &nbsp;Up to 100GB
                         </span>
                       </li>
-                      <li className="mb-3">
+                      <li style={styles.li}>
                         <CheckCircleFill color="green" size={20} />
-                        <span className="h4 font-weight-bold">
+                        <span style={styles.planInfo}>
                           &nbsp;Description:
                         </span>
                       </li>
@@ -71,25 +90,25 @@ const Pricing = () => {
                 <Card className="p-5">
                   <Card.Header className="text-center">
                     <SendCheck color="DodgerBlue" size={96} />
-                    <h1 className="font-weight-bold mb-4">Premium</h1>
+                    <h1 className="" style={styles.planType}>Premium</h1>
                   </Card.Header>
                   <Card.Body className="text-center">
                     <div>
-                      <span className="h1 font-weight-bold">$150</span>
+                    <span style={styles.planPrice}>$150</span>
                       <span className="h3">
                         / month
                       </span>
                     </div>
                     <ul className="list-unstyled my-5 text-left">
-                      <li className="mb-3">
+                      <li style={styles.li}>
                         <CheckCircleFill color="green" size={20} />
-                        <span className="h4 font-weight-bold">
+                        <span style={styles.planInfo}>
                           &nbsp;Up to 500GB
                         </span>
                       </li>
-                      <li className="mb-3">
+                      <li style={styles.li}>
                         <CheckCircleFill color="green" size={20} />
-                        <span className="h4 font-weight-bold">
+                        <span style={styles.planInfo}>
                           &nbsp;Description:
                         </span>
                       </li>
@@ -110,22 +129,22 @@ const Pricing = () => {
                 <Card className="p-5">
                   <Card.Header className="text-center">
                     <SendCheck color="DodgerBlue" size={96} />
-                    <h1 className="font-weight-bold mb-4">Custom Quote</h1>
+                    <h1 className="" style={styles.planType}>Custom Quote</h1>
                   </Card.Header>
                   <Card.Body className="text-center">
                     <div>
-                      <span className="h1 font-weight-bold">Contact Us</span>
+                    <span style={styles.planPrice}>Contact Us</span>
                     </div>
                     <ul className="list-unstyled my-5 text-left">
-                      <li className="mb-3">
+                      <li style={styles.li}>
                         <CheckCircleFill color="green" size={20} />
-                        <span className="h4 font-weight-bold">
+                        <span style={styles.planInfo}>
                           &nbsp;Unlimited Data
                         </span>
                       </li>
-                      <li className="mb-3">
+                      <li style={styles.li}>
                         <CheckCircleFill color="green" size={20} />
-                        <span className="h4 font-weight-bold">
+                        <span style={styles.planInfo}>
                           &nbsp;Description:
                         </span>
                       </li>
