@@ -39,4 +39,51 @@ Please place your code in the appropriate directory, as is described below:
 You can think of components as dumb pieces of code, that only serve to describe how to generate some piece of UI (example, a button). When you want to create a form, or a table that needs that button, create a higherorder component. Now you want to add some state to your UI! Ideally, you do this in the containers folder. Finally, we put it all together in the pages folder, where you add whatever components together, to generate some web-page. 
 
 # KEEP IN MIND
-Always aim to keep code modular if it is necessary. If you expect your code to be re-used many times within the app, seperate the logic so that it can be used in that manner. If it is a one-off/specific use-case, just keep the code within the scope of that file.
+Always aim to keep code modular if it is necessary. If you expect your code to be re-used many times within the app, seperate the logic so that it can be used in that manner. If it is a one-off/specific use-case, just keep the code within the scope of that file. 
+
+Also: you won't always know where a component belongs, because sometimes, we don't know how the code will evolve! Start with the components folder, and move on from there
+
+# Imports
+
+To keep imports simple, follow this pattern:
+
+``` 
+└── SomeDirectory
+    └── MyModule
+        └── index.js
+```
+
+This way, we can simply import using ```import {MyModule} from "./path/to/MyModule"``` where index.js would look something like:
+
+```
+const MyModule = () => {
+    // some stuff
+    return {
+        //some stuff
+    }
+}
+
+export const MyModule;
+```
+
+We can further extend this for multiple exports in one file by using ```import {MyModule1, MyModule2} from "./path/to/MyModule"```, where index.js would look like this:
+
+
+```
+const MyModule1 = () => {
+    // some stuff
+    return {
+        //some stuff
+    }
+}
+
+const MyModule2 = () => {
+    // some stuff
+    return {
+        //some stuff
+    }
+}
+
+export const MyModule1;
+export const MyModule2;
+```
