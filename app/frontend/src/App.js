@@ -17,7 +17,7 @@ import Contact from './pages/Contact';
 import Team from './pages/Team';
 
 import Signup from './pages/Signup';
-import Login from './pages/Login';
+import { Login } from './pages/Login';
 import Profile from './pages/Profile';
 
 import Live from './pages/Live/';

@@ -1,6 +1,6 @@
 import { get, post, put, destroy } from '../Base'
 
-const results_endpoint = "results/"
+const results_endpoint = "results"
 
 export const Result = {
     get_standard: () => 

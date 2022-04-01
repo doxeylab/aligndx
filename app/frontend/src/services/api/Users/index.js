@@ -1,6 +1,6 @@
 import { get, post, put, destroy } from '../Base'
 
-const users_endpoint = "users/"
+const users_endpoint = "users"
 
 export const Users = {
     login: (params) => 

@@ -1,6 +1,7 @@
 import React, {useContext, useLayoutEffect, useState} from 'react';
 import {getCurrentUser} from "./http-common";
 import {useHistory} from "react-router-dom";
+import { Users } from './services/api/Users';
 
 const GlobalContext = React.createContext({
     authenticated: false,
@@ -74,7 +75,7 @@ const GlobalContextProvider = (props) => {
 
     const loadCurrentUser = () => {
         if (localStorage.getItem("accessToken")) {
-            getCurrentUser()
+            Users.me()
             .then((response) => {
                 setAuthenticated(true)
                 localStorage.setItem("userMeta", JSON.stringify(response))

@@ -1,6 +1,6 @@
 import { get, post, put, destroy } from '../Base'
 
-const uploads_endpoint = "uploads/"
+const uploads_endpoint = "uploads"
 
 export const Uploads = {
     start_file: (params) =>

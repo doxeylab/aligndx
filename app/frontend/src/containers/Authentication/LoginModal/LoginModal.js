@@ -1,7 +1,6 @@
-import BaseModal from "../BaseModal";
+import BaseModal from "../../../components/Modals/BaseModal";
 import LogInAuth from "../../Authentication/LogInAuth/LogInAuth"
 import { Box, Typography } from "@mui/material";
-import { Row, Col, Container } from "react-bootstrap";
 import { FormContainer } from "./StyledLoginModal";
 
 const LogInModal = (props) => {

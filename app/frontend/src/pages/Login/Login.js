@@ -1,14 +1,14 @@
-import React, { useEffect } from 'react';
-import { Col, Container, Row } from 'react-bootstrap';
-import Fade from 'react-reveal/Fade';
-import LoginImg from "../assets/LoginImg.svg";
-import { LogInAuth } from '../components/Authentication';
-import { Section } from '../components/Common/PageElement';
-import { useState } from 'react';
-import { FormContainer } from '../components/Authentication/StyledForm';
+import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
+import { Section } from '../../components/Common/PageElement';
+import { LogInAuth } from '../../containers/Authentication'
+
+import { Col, Container, Row } from 'react-bootstrap';
+import Fade from 'react-reveal/Fade';
 import { Alert, Box, IconButton, Collapse} from '@mui/material';
+
+import LoginImg from "../../assets/LoginImg.svg";
 import CloseIcon from '@mui/icons-material/Close';
 
 const Login = () => {
@@ -57,9 +57,7 @@ const Login = () => {
                 <Row className="justify-content-md-center">
                     <Col md={5}>
                         <Fade left duration={1000} delay={600} distance="30px">
-                            <FormContainer>
-                                <LogInAuth link={link} />
-                            </FormContainer>
+                            <LogInAuth link={link} />
                         </Fade>
                     </Col>
                     <Col md={{ span: 5, offset: 1 }} style={{ display: 'flex', alignItems: 'center' }}>
