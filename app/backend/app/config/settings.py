@@ -14,7 +14,7 @@ class AppSettings(BaseSettings):
     oauth2_scheme_auto_error = OAuth2PasswordBearer(tokenUrl="users/token")
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/token", auto_error=False)
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    SECRET_KEY = os.getenv("SECRET_KEY")
+    SECRET_KEY: str = os.getenv("SECRET_KEY")
     ALGORITHM = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
     REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30
@@ -42,13 +42,13 @@ class AppSettings(BaseSettings):
 
     # Notification settings
 
-    sender_email = os.getenv("NOTIFICATION_EMAIL") 
-    password = os.getenv("NOTIFICATION_EMAIL_PASSWORD")
-    base_url = os.getenv("BASE_URL")
+    sender_email: str = os.getenv("NOTIFICATION_EMAIL") 
+    password: str = os.getenv("NOTIFICATION_EMAIL_PASSWORD")
+    base_url: str = os.getenv("BASE_URL")
 
     #  -- Db settings --
     
-    DATABASE_URL = os.getenv("DATABASE_URL")
+    DATABASE_URL: str = os.getenv("DATABASE_URL")
     @property
     def async_database_url(self) -> Optional[str]:
         return (
