@@ -1,5 +1,4 @@
-//export const URL = process.env.REACT_APP_BACKEND_ACCESS_URL
-export const URL = "http://localhost:8080/"
+export const URL = process.env.REACT_APP_BACKEND_ACCESS_URL
 
 // -- Uploads --
 // -- Regular/legacy --
