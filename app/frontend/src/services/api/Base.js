@@ -14,17 +14,15 @@ apiClient.interceptors.request.use((config) => {
 
     return ({
       ...config,
-      headers: {
-          headers
-      },
+      headers: headers
     })
   },
     error => Promise.reject(error),
   );
   
-  apiClient.interceptors.response.use((response) =>
-    response,
-    async (error) => {
+  apiClient.interceptors.response.use((response) => {
+    return response;
+  }, async (error) => {
       return Promise.reject(error.response.data);
     },
   );

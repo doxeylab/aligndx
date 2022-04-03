@@ -1,4 +1,6 @@
 import React, {useContext, useLayoutEffect, useState} from 'react';
+import {useQuery} from 'react-query'
+
 import {getCurrentUser} from "./http-common";
 import {useHistory} from "react-router-dom";
 import { Users } from './services/api/Users';
@@ -72,34 +74,32 @@ const GlobalContextProvider = (props) => {
         localStorage.setItem("refreshToken", response.refresh_token);
     }
 
-
     const loadCurrentUser = () => {
+        const {status, data, error} = useQuery('user_data', Users.me, {
+            enabled: false
+        })
+
         if (localStorage.getItem("accessToken")) {
             Users.me()
-            .then((response) => {
-                setAuthenticated(true)
-                localStorage.setItem("userMeta", JSON.stringify(response))
-                setCurrentUser(response)
-            })
-            .catch((e) => {
-                if (e.status === 401) {
-                    if (e.detail == "Expired"){
+                .then((response) => {
+                    setAuthenticated(true)
+                    localStorage.setItem("userMeta", JSON.stringify(response))
+                    setCurrentUser(response)
+                })
+                .catch((e) => {
+                    if (e.status === 401) {
+                        if (e.detail == "Expired"){
+                        }
                     }
-                }
-                setAuthenticated(false)
-                setCurrentUser(null)
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
-                localStorage.removeItem("userMeta");
-                history.push('/login');
-                history.go(0);
-            });
+                    setAuthenticated(false)
+                    setCurrentUser(null)
+                    localStorage.removeItem("accessToken");
+                    localStorage.removeItem("refreshToken");
+                    localStorage.removeItem("userMeta");
+                    history.push('/login');
+                });
         }
-    };
-
-    useLayoutEffect(() => {
-            loadCurrentUser()
-    }, [])
+    }; 
 
     return (
         <GlobalContext.Provider

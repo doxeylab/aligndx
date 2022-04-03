@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQueryClient, useQuery} from 'react-query'
+import { useQuery} from 'react-query'
 
 import { CircularProgress, Grid} from '@mui/material';
 
@@ -14,6 +14,7 @@ import Form from 'react-bootstrap/Form';
 import { Link, useHistory } from "react-router-dom";
 import { useGlobalContext } from "../../../context-provider";
 import { Users } from "../../../services/api/Users"
+import { loginRequest } from "../../../http-common";
 
 const LogInAuth = (props) => {
     const history = useHistory();
@@ -24,38 +25,6 @@ const LogInAuth = (props) => {
         password: ""
     })
     const [invalid, setInvalid] = useState(true);
- 
-    const onChangeEmail = (e) => {
-        setLogin({ ...login, email: e.target.value })
-    }
-
-    const onChangePassword = (e) => {
-        setLogin({ ...login, password: e.target.value })
-    }
-
-    const loginPayload = {
-        username: login.email,
-        password: login.password,
-    }
-
-    const loginParams = new URLSearchParams(loginPayload)
-    
-    const {status, data, error, refetch, isLoading} = useQuery("user_data", Users.login(
-        loginParams
-    ), {
-        enabled: false
-    })
-
-    if (status === "success") {
-        console.log("TESTINGNG")
-        context.setupUser(data)
-        history.push("/")
-        context.loadCurrentUser();
-    }
-
-    if (status === "error"){
-        console.log(error)
-    }
     
     const handleLogin = () => {
         const emailformat =  /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -65,6 +34,40 @@ const LogInAuth = (props) => {
         else {
             setInvalid(false)
         }
+    }
+ 
+    const onChangeEmail = (e) => {
+        setLogin({ ...login, email: e.target.value })
+        handleLogin()
+    }
+
+    const onChangePassword = (e) => {
+        setLogin({ ...login, password: e.target.value })
+        handleLogin()
+
+    }
+
+    const loginPayload = {
+        username: login.email,
+        password: login.password,
+    }
+ 
+    const loginParams = new URLSearchParams(loginPayload)
+    
+    const {status, data, error, refetch, isLoading} = useQuery(["user_auth", loginParams], () => Users.login(loginParams), {
+        enabled: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        retryOnMount: false 
+    })
+
+    if (status === "success") {
+        context.setupUser(data.data)
+        // history.push("/")
+    }
+
+    if (status === "error"){
+        console.log(error)
     }
 
     return (

@@ -69,7 +69,6 @@ const Login = () => {
             </Container>
         </Section>
         </>
-
     );
 }
 

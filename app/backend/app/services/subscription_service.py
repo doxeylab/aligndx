@@ -102,17 +102,20 @@ async def request_cancellation(db, current_user: UserDTO):
 
     return SubCancelResponse(current_period_end=subs.current_period_end)
 
-async def cancel_subscription(db, subs_stripe_id):
+async def cancel_subscription(db, subs_stripe_id, cancel_reason):
     subs_dal = SubscriptionsDal(db)
     subs = await subs_dal.get_subscription_by_stripe_id(subs_stripe_id)
 
     if subs == None:
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
-                        detail = "Subscription does not exist!")
+        raise HTTPException(status_code = 404, detail = "Subscription does not exist!")
+    
+    # A subs could have already been cancelled due to non-payment
+    if subs.is_cancelled == True:
+        return
     
     update_items = UpdateItemsAfterCancel(
         is_active = False,
-        status = 'cancelled',
+        status = cancel_reason,
         is_paid = False,
         is_cancelled = True,
         cancel_date = datetime.now(),
