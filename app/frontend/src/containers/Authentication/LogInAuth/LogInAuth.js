@@ -14,7 +14,9 @@ import Form from 'react-bootstrap/Form';
 import { Link, Redirect, useHistory } from "react-router-dom";
 import { useGlobalContext } from "../../../context-provider";
 import { useUsers } from "../../../api/Users"
-import { loginRequest } from "../../../http-common";
+
+import * as yup from "yup";
+
 
 const LogInAuth = (props) => {
     const history = useHistory();
@@ -72,9 +74,16 @@ const LogInAuth = (props) => {
         console.log(error)
     }
 
+    // const schema = yup.object({
+    //     email: yup.string().email().required('No email provided'),
+    //     password: yup.string()
+    //         .required('No password provided.')
+    //         .min(8, 'Password is too short - should be 8 chars minimum.')
+    //         .matches(/[a-zA-Z]/, 'Password can only contain Latin letters.')
+    // })
+
     return (
         <FormContainer>
-            <h1>Log In</h1>
             <FormInput>
                 <Col>
                     <Form.Label>Email</Form.Label>
