@@ -1,8 +1,11 @@
-import { get, post, put, destroy } from '../Base'
+import useAxios from '../useAxios'
 
 const users_endpoint = "users"
 
-export const Users = {
+export const useUsers = () => {
+    const {get, post, put, destroy } = useAxios();
+
+    return {
     login: (params) => 
         post(`${users_endpoint}/token`, params),
     signup: (params) => 
@@ -15,4 +18,6 @@ export const Users = {
         get(`${users_endpoint}/incomplete`),
     linked_results: () => 
         get(`${users_endpoint}/linked_results`)
+    }
+    
 }

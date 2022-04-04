@@ -1,9 +1,8 @@
-import React, {useContext, useLayoutEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {useQuery} from 'react-query'
 
-import {getCurrentUser} from "./http-common";
 import {useHistory} from "react-router-dom";
-import { Users } from './services/api/Users';
+import { useUsers } from './api/Users';
 
 const GlobalContext = React.createContext({
     authenticated: false,
@@ -32,6 +31,7 @@ const GlobalContextProvider = (props) => {
     }
     
     const history = useHistory();
+    const users = useUsers();
     const [authenticated, setAuthenticated] = useState(initialAuth);
     const [currentUser, setCurrentUser] = useState(initialUser);
 
@@ -74,32 +74,29 @@ const GlobalContextProvider = (props) => {
         localStorage.setItem("refreshToken", response.refresh_token);
     }
 
-    const loadCurrentUser = () => {
-        const {status, data, error} = useQuery('user_data', Users.me, {
-            enabled: false
-        })
+    const {status, data, error, refetch} = useQuery('user_data',users.me, {
+          enabled: false
+      })
 
-        if (localStorage.getItem("accessToken")) {
-            Users.me()
-                .then((response) => {
-                    setAuthenticated(true)
-                    localStorage.setItem("userMeta", JSON.stringify(response))
-                    setCurrentUser(response)
-                })
-                .catch((e) => {
-                    if (e.status === 401) {
-                        if (e.detail == "Expired"){
-                        }
-                    }
-                    setAuthenticated(false)
-                    setCurrentUser(null)
-                    localStorage.removeItem("accessToken");
-                    localStorage.removeItem("refreshToken");
-                    localStorage.removeItem("userMeta");
-                    history.push('/login');
-                });
+    const loadCurrentUser = () => {
+        refetch()
+    };
+
+    useEffect(() => {
+        if (status === "success") {
+            setAuthenticated(true)
+            localStorage.setItem("userMeta", JSON.stringify(data.data))
+            setCurrentUser(data.data)
         }
-    }; 
+        if (status === "error") {
+            setAuthenticated(false)
+            setCurrentUser(null)
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("userMeta");
+            history.push('/login');
+        }
+    }, [status, data]) 
 
     return (
         <GlobalContext.Provider

@@ -12,12 +12,13 @@ import Form from 'react-bootstrap/Form';
 
 import { Link, useHistory } from "react-router-dom";
 import { useGlobalContext } from "../../../context-provider";
-import { Users } from "../../../services/api/Users"
-
+import { useUsers } from "../../../api/Users";
 
 const SignUpAuth = () => {
     const history = useHistory();
     const context = useGlobalContext();
+    const users = useUsers();
+
     const [loading, setLoading] = useState(false)
     const [confirmPass, setConfirmPass] = useState(false)
     const [error, setError] = useState({
@@ -84,7 +85,7 @@ const SignUpAuth = () => {
                     password: signUp.password,
                 };
 
-                Users.signup(signupParams)
+                users.signup(signupParams)
                     .then((res) => {
                         if (res.status == 201) {
                             const loginParams = {
@@ -92,7 +93,7 @@ const SignUpAuth = () => {
                                 password: signUp.password,
                             };
 
-                            Users.login(loginParams)
+                            users.login(loginParams)
                                 .then((response) => { 
                                     context.setupUser(response)
                                     setLoading(false)

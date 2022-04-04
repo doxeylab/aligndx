@@ -11,14 +11,15 @@ import { ErrorMsg, FormBtn, FormContainer, FormInput } from '../StyledForm';
 import { Col, Row } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 
-import { Link, useHistory } from "react-router-dom";
+import { Link, Redirect, useHistory } from "react-router-dom";
 import { useGlobalContext } from "../../../context-provider";
-import { Users } from "../../../services/api/Users"
+import { useUsers } from "../../../api/Users"
 import { loginRequest } from "../../../http-common";
 
 const LogInAuth = (props) => {
     const history = useHistory();
     const context = useGlobalContext();
+    const users = useUsers()
 
     const [login, setLogin] = useState({
         email: "",
@@ -54,7 +55,7 @@ const LogInAuth = (props) => {
  
     const loginParams = new URLSearchParams(loginPayload)
     
-    const {status, data, error, refetch, isLoading} = useQuery(["user_auth", loginParams], () => Users.login(loginParams), {
+    const {status, data, error, refetch, isLoading} = useQuery(["user_auth", loginParams], () => users.login(loginParams), {
         enabled: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -63,7 +64,8 @@ const LogInAuth = (props) => {
 
     if (status === "success") {
         context.setupUser(data.data)
-        // history.push("/")
+        context.loadCurrentUser()
+        return <Redirect push to="/" />
     }
 
     if (status === "error"){
