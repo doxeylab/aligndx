@@ -96,6 +96,7 @@ const SignUpAuth = () => {
 
                             users.login(loginParams)
                                 .then((response) => { 
+                                    console.log(`response was ${response}`)
                                     context.setupUser(response)
                                     setLoading(false)
                                     history.push("/");

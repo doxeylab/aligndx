@@ -47,10 +47,11 @@ const LogInForm = () => {
     // life cycle hook for monitoring mutation status, and setting up auth context
     useEffect(() => {
         if (status === "success") {
+            console.log(data)
             setInvalid(false)
             context.setupUser(data.data)
             context.loadCurrentUser()
-            return <Redirect push to="/" />
+            history.push('/')
         }
 
         if (status === "error") {
