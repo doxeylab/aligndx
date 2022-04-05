@@ -11,7 +11,7 @@ import { useUsers } from "../../api/Users"
 import * as yup from "yup";
 
 
-const LogInForm = () => {
+const LogInForm = (props) => {
     /**
      * A SignIn/LogIn Form with validation
      */
@@ -47,11 +47,10 @@ const LogInForm = () => {
     // life cycle hook for monitoring mutation status, and setting up auth context
     useEffect(() => {
         if (status === "success") {
-            console.log(data)
             setInvalid(false)
             context.setupUser(data.data)
             context.loadCurrentUser()
-            history.push('/')
+            history.push(props.link)
         }
 
         if (status === "error") {

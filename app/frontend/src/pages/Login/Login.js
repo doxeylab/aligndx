@@ -22,7 +22,7 @@ const Login = () => {
             setLink(location.state.link)
             setShowAlert(true)
         }
-    },[])
+    },[link])
  
     return (
         <>
@@ -58,7 +58,7 @@ const Login = () => {
                     <Col md={5}>
                         <Fade left duration={1000} delay={600} distance="30px">
                             {/* <LogInAuth link={link} /> */}
-                            <LogInForm />
+                            <LogInForm link={link}/>
                         </Fade>
                     </Col>
                     <Col md={{ span: 5, offset: 1 }} style={{ display: 'flex', alignItems: 'center' }}>
