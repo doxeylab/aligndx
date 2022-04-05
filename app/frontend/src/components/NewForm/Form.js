@@ -1,34 +1,48 @@
-import { useForm, Controller} from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Alert, FormLabel, TextField } from "@mui/material";
-import { useEffect } from "react";
-import { FormContainer, FormInput } from "./StyledForm";
-import Button from '../../components/Button'
+import { FormContainer, StyledTextField, StyledButton } from "./StyledForm";
 
-const Form = ({...props}) => {
-    const schema = props.schema
+const Form = ({ schema, onSubmit, name, btnlabel, children }) => {
     let schema_names = Object.keys(schema.fields)
-    const { register, handleSubmit, formState:{ errors } } = useForm({
+    const { control, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema)
-      });
-
-    useEffect( () =>{
-        console.log(errors)
-    }, [errors])
+    });
+    
     return (
-        <FormContainer onSubmit={handleSubmit(props.onSubmit)}>
-            {schema_names.map((s) =>
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <FormContainer>
+                <h1>{name}</h1>
                 <>
-                    <TextField id="standard-basic" label={s} variant="standard" />
-
-                    <FormInput {...register(s)}/>
-                    <Alert severity="error">This is an error alert — check it out!</Alert>
-                    <p>{errors[s]?.message}</p>
+                    {schema_names.map((s) =>
+                        <Controller
+                            name={s}
+                            control={control}
+                            defaultValue=""
+                            render={({ field }) =>
+                                <>
+                                    <StyledTextField
+                                        {...field}
+                                        id="filled-basic"
+                                        type={s}
+                                        label={s.replace(/(?<=\b)[a-z](?=\w*)/g, c => c.toUpperCase())}
+                                        variant="filled"
+                                        error={!!errors[s]}
+                                        helperText={errors[s] ? errors[s]?.message : ''} />
+                                </>
+                            }
+                        />
+                    )}
                 </>
-            )}
-            <Button> Log in</Button>
-
-        </FormContainer>
+                {children}
+                <StyledButton
+                    size='large'
+                    variant="contained"
+                    type="submit" 
+                    >
+                    {btnlabel}
+                    </StyledButton>
+            </FormContainer>
+        </form>
     );
 }
 

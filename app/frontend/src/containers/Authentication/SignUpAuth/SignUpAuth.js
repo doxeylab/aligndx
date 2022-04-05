@@ -83,15 +83,16 @@ const SignUpAuth = () => {
                     name: signUp.name,
                     email: signUp.email,
                     password: signUp.password,
-                };
+                }; 
 
                 users.signup(signupParams)
                     .then((res) => {
                         if (res.status == 201) {
-                            const loginParams = {
+                            const loginPayload = {
                                 username: signUp.email, 
                                 password: signUp.password,
                             };
+                            let loginParams = new URLSearchParams(loginPayload)
 
                             users.login(loginParams)
                                 .then((response) => { 

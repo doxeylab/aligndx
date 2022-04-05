@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { Section } from '../../components/Common/PageElement';
-import { LogInAuth } from '../../containers/Authentication'
+import { LogInAuth, LogInForm } from '../../containers/Authentication'
 
 import { Col, Container, Row } from 'react-bootstrap';
 import Fade from 'react-reveal/Fade';
@@ -57,7 +57,8 @@ const Login = () => {
                 <Row className="justify-content-md-center">
                     <Col md={5}>
                         <Fade left duration={1000} delay={600} distance="30px">
-                            <LogInAuth link={link} />
+                            {/* <LogInAuth link={link} /> */}
+                            <LogInForm />
                         </Fade>
                     </Col>
                     <Col md={{ span: 5, offset: 1 }} style={{ display: 'flex', alignItems: 'center' }}>
