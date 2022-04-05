@@ -21,6 +21,7 @@ export const FormContainer = styled(Grid)`
 
 export const StyledTextField = styled(TextField)`
     margin-bottom: 1em;
+    body { font-size: 1.6em }
     width: 100%;
 ` 
 
