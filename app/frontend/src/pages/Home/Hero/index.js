@@ -1,31 +1,23 @@
-// React
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
-// external libraries
 import axios from 'axios';
 import Fade from 'react-reveal/Fade';
 
-// Components
-import { Section } from '../../Common/PageElement';
-import Button from '../../Button';
-import UploadModal from '../../Modals/UploadModal';
-import RestartModal from '../../Modals/RestartModal';
-import StartFile from '../../ChunkController/chunkStarter';
+import { Section } from '../../../components/Common/PageElement';
+import Button from '../../../components/Button';
+import UploadModal from '../../../components/Modals/UploadModal';
+import RestartModal from '../../../components/Modals/RestartModal';
+import StartFile from '../../../components/ChunkController/chunkStarter';
 
-// Styling
 import { Col, Container, Row } from 'react-bootstrap';
 import HomePageArt from '../../../assets/HomePageArt.svg';
 import './CustomModal.css';
 import { HeroBody, HeroBtns, HeroBtns2, HeroCol, HeroImage, HeroText, HeroTitle } from './StyledHero';
 
-// Context
 import { LoadContext } from '../../../LoadContext';
 import {useGlobalContext} from "../../../context-provider";
 
-// Testing  
-
-// Config
 import { UPLOAD_URL, PANELS_URL} from '../../../services/Config';
 import { STANDARD_RESULTS, CHUNKED_RESULTS, INCOMPLETE_URL } from '../../../services/Config';
 import { Typography } from '@mui/material';
@@ -162,58 +154,7 @@ const Hero = (props) => {
             setLoad(false) 
         }  
          
-    }
-
-    // const uploadchunked = () => {
-    //     setLoad(true) 
-
-    //     if (authenticated) {
-    //         const formData = new FormData();
-  
-    //         dataFiles.forEach(file => {
-    //             formData.append('files', file)
-    //         })
-    //         selectedDetections.forEach(x => {
-    //             formData.append("panel", x)
-    //         })
-            
-    //         const token = localStorage.getItem("accessToken")
-
-    //         try {
-    //             StartFile(token, dataFiles[0], selectedDetections)
-    //                 .then(
-    //                     (res) => {
-    //                         setLoad(false)
-    //                         const fileId = res.data.File_ID;
-    //                         ChunkProcessor(token, dataFiles[0], selectedDetections, res.data)
-    //                             .then(
-    //                                 (res) => {
-    //                                     history.push({
-    //                                         pathname: "/standard/#/?id=" + fileId,
-    //                                         state: {
-    //                                             response: res.data,
-    //                                             file: dataFiles[0],
-    //                                             panels: selectedDetections,
-    //                                             resource: CHUNKED_RESULTS   
-    //                                         }
-    //                                     }
-    //                                     )
-    //                                 }
-    //                             )
-    //                     }
-    //                 )
-    //         }
-    //         catch (e) {
-    //             console.log(e)
-    //         }
-    //     }
-    //     else {  
-    //         alert("Please sign in to use this service")
-    //         setLoad(false) 
-    //     }  
-         
-    // }
-
+    } 
     
     const uploadlive = () => {
         // setLoad(true) 
@@ -286,7 +227,6 @@ const Hero = (props) => {
 
     useEffect(() => {
         setAuthenticated(context.authenticated)
-        console.log(authenticated)
     }, [context.authenticated])
  
     useEffect(() => {
@@ -304,22 +244,13 @@ const Hero = (props) => {
     useEffect(() => {
         selectmenuoptions();    
     },[])
-
-    useEffect(() => {
-        console.log(dataFiles)
-    }, [dataFiles])
  
     useEffect(() => {
-        console.log(selectedRestartData)
         if (selectedRestartData){
             setRestart({...restart, restartflag: true})
         }
     }, [selectedRestartData])
-
-    useEffect(() => {
-        console.log(restart)
-    }, [restart])
- 
+    
     return (
         <>
             <Section id="hero" center>

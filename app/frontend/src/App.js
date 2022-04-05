@@ -11,7 +11,7 @@ import Navbar from './components/NavBar';
 import GlobalContextProvider from "./context-provider";
 import { LoadContext } from './LoadContext';
 
-import Home from "./pages/Home";
+import {Home} from "./pages/Home";
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Team from './pages/Team';
