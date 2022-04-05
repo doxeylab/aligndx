@@ -2,6 +2,7 @@ from typing import Dict
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess 
+import asyncio 
 
 app = FastAPI(
     title="AlignDX",
@@ -21,9 +22,7 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message": "This is the salmon container!"}
-
-import asyncio 
+    return {"message": "This is the kraken2 container!"}
 
 @app.post("/")
 async def run(command : Dict[str, list]):   
