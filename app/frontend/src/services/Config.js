@@ -29,6 +29,7 @@ export const LINKED_RESULTS = USERS + "linked_results/"
 const base_ws_url = "ws"
 const socket_url = URL + "livegraphs"
 export const WEBSOCKET_URL = socket_url.replace(/http/, base_ws_url)
+
 // export const WEBSOCKET_URL = "ws://aligndx.uwaterloo.ca:8080/livegraphs"
 // export const WEBSOCKET_URL = "ws://localhost:8080/livegraphs"
 
@@ -37,7 +38,7 @@ export const METADATA_URL = URL + "metadata/"
 export const PANELS_URL = METADATA_URL + "panels"
 
 // allowed filetypes
-export const ALLOWED_FILETYPES = ".fastq, .fastq.gz"
+export const ALLOWED_FILETYPES = ".fastq"
 
 // miscellaneous for now
 export const CHUNK_SIZE = 8000000

@@ -3,7 +3,7 @@ import React from 'react';
 // Packages
 import { Col, Container, Row } from 'react-bootstrap';
 // Components
-import { Section, Title } from '../../Common/PageElement';
+import { Section, Title } from '../../../components/Common/PageElement';
 import { TutorialBody, TutorialItem, TutorialText, TutorialTitle } from './StyledTutorial';
 import { TutorialContent } from './TutorialContent';
 

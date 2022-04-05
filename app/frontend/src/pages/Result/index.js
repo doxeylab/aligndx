@@ -15,7 +15,7 @@ import { Col, Container, Row } from 'react-bootstrap';
 // Components
 import Barchart from '../../components/BarChart';
 import { Section, Title } from '../../components/Common/PageElement';
-import LogInModal from '../../components/Modals/LoginModal/LoginModal';
+import LogInModal from '../../containers/Authentication';
 import { Redirect } from 'react-router-dom';
 
 // Styling

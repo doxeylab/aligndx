@@ -1,18 +1,24 @@
-import { CircularProgress } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useState } from "react";
+
+import { CircularProgress, Grid, FormControl } from '@mui/material';
+
+import Button from '../../../components/Button'
+import Checkbox from '../../../components/Checkbox';
+
+import { ErrorMsg, FormBtn, FormContainer, FormInput } from '../StyledForm';
+
 import { Col, Row } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
+
 import { Link, useHistory } from "react-router-dom";
-import FacebookIcon from "../../../assets/AuthenticationIcons/facebook-icon.png";
-import GoogleIcon from "../../../assets/AuthenticationIcons/google-icon.png";
 import { useGlobalContext } from "../../../context-provider";
-import { loginRequest, signupRequest } from "../../../http-common";
-import Button from '../../Button';
-import { ErrorMsg, FormBtn, FormContainer, FormInput } from '../StyledForm';
+import { useUsers } from "../../../api/Users";
 
 const SignUpAuth = () => {
     const history = useHistory();
     const context = useGlobalContext();
+    const users = useUsers();
+
     const [loading, setLoading] = useState(false)
     const [confirmPass, setConfirmPass] = useState(false)
     const [error, setError] = useState({
@@ -77,23 +83,23 @@ const SignUpAuth = () => {
                     name: signUp.name,
                     email: signUp.email,
                     password: signUp.password,
-                };
+                }; 
 
-                signupRequest(signupParams)
+                users.signup(signupParams)
                     .then((res) => {
                         if (res.status == 201) {
-                            const loginParams = {
+                            const loginPayload = {
                                 username: signUp.email, 
                                 password: signUp.password,
                             };
+                            let loginParams = new URLSearchParams(loginPayload)
 
-                            loginRequest(loginParams)
+                            users.login(loginParams)
                                 .then((response) => { 
-                                    context.setupUser(response)
+                                    context.setupUser(response.data)
                                     setLoading(false)
-                                    history.push("/");
-                                    // force re-render of homepage
                                     context.loadCurrentUser();
+                                    history.push("/");
                                 })
                                 .catch((error) => {
                                     setLoading(false);
@@ -152,18 +158,6 @@ const SignUpAuth = () => {
             <Row>
                 <Col style={{ textAlign: "center" }}>
                     <p>Already have an account? <Link to="/login">Login</Link></p>
-                </Col>
-            </Row>
-
-            <Row>
-                <Col style={{ textAlign: "center" }}>
-                    <p>Or connect with</p>
-                </Col>
-            </Row>
-            <Row>
-                <Col style={{ display: 'flex', justifyContent: "center" }}>
-                    <img src={GoogleIcon} alt='google-icon' width="25" height="25" style={{ margin: "10px" }} />
-                    <img src={FacebookIcon} alt='facebook-icon' width="25" height="25" style={{ margin: "10px" }} />
                 </Col>
             </Row>
         </FormContainer>
