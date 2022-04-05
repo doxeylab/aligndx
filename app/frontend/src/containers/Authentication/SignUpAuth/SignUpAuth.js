@@ -96,12 +96,10 @@ const SignUpAuth = () => {
 
                             users.login(loginParams)
                                 .then((response) => { 
-                                    console.log(`response was ${response}`)
-                                    context.setupUser(response)
+                                    context.setupUser(response.data)
                                     setLoading(false)
-                                    history.push("/");
-                                    // force re-render of homepage
                                     context.loadCurrentUser();
+                                    history.push("/");
                                 })
                                 .catch((error) => {
                                     setLoading(false);
