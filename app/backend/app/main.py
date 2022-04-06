@@ -124,3 +124,9 @@ async def root():
 @app.get("/api/v1")
 async def root():
     return {"message": "API_v1"}
+
+# Stripe Publishable Key for front-end
+@app.get("/stripe-key")
+async def root():
+    settings = get_settings()
+    return {"key": settings.stripe_publishable_key}
