@@ -80,7 +80,7 @@ services:
     ports:
       - "8002:80"
     volumes:
-      - ./salmon/app:/app/app:ro
+      - ./tool/app/:/app/app/:ro
       - ./backend/results:/app/results
       - ./backend/uploads:/app/uploads
       - ./backend/indexes:/app/indexes:ro

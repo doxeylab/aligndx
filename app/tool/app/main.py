@@ -24,8 +24,8 @@ app.add_middleware(
 )
 
 @app.post("/")
-async def run(command : Dict[str, list]):   
-    commands = " ".join(str(x) for x in command['commands'])
+async def run(commands_lst : list):   
+    commands = " ".join(str(x) for x in commands_lst)
     proc = await asyncio.create_subprocess_shell(
         commands,
         stdout=asyncio.subprocess.PIPE,
@@ -41,3 +41,4 @@ async def run(command : Dict[str, list]):
         print("stderr:")
         print(stderr.decode())
         return stderr.decode()
+        
