@@ -27,7 +27,7 @@ def commands(indexpath, filepath, resultspath, fastqtype="single"):
                 "-o",
                 resultspath,
             ]
-        return {"commands" : command_list}
+        return command_list
     if fastqtype == "single":
         command_list = [
                 "salmon",
@@ -46,7 +46,7 @@ def commands(indexpath, filepath, resultspath, fastqtype="single"):
                 "-o",
                 resultspath,
             ] 
-        return {"commands" : command_list}
+        return command_list
     else:
         return "Invalid fastqtype"
  

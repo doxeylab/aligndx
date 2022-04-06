@@ -83,6 +83,7 @@ def perform_chunk_analysis(chunk_number, file_dir, panel, index_folder, real_tim
     analysis_dir = os.path.join(file_dir, 'salmon_data')
     chunk = os.path.join(analysis_dir, f'{chunk_number}.fastq')
     commands = salmonconfig.commands(indexpath, chunk, results_dir)
+    print(commands)
 
     with requests.Session() as s:
         s.post("http://salmon:80/", json=commands)

@@ -73,9 +73,7 @@ async def perform_file_analyses(file, file_dir):
 
 
 async def periodic_task_calls():
-    print(os.listdir(rt_dir))
     for file_id in os.listdir(rt_dir):
-        print("\n" + file_id + "\n")
         file_dir = os.path.join(rt_dir, file_id)
         file = File.load(file_dir)
 
