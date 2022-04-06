@@ -6,10 +6,10 @@ import App from './App';
 // Stripe
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import { URL } from './config/Settings'
+import fetchStripeKey from './services/StripeStartupService';
 
 (async () => {
-  const { key } = await fetch(`${URL}stripe-key`).then(r => r.json())
+  const key = await fetchStripeKey()
   const stripePromise = loadStripe(key);
 
   ReactDOM.render(
