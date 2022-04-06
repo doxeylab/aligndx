@@ -141,9 +141,11 @@ async def start_file(
     filename: str = Body(...),
     number_of_chunks: int = Body(...),
     panels: List[str] = Body(...),
+    # process: str = Body(...),
     db: AsyncSession = Depends(get_db)
 ):
     for option in panels:
+        process="rna-seq"
 
         submission_type = "real-time"
 
@@ -170,7 +172,7 @@ async def start_file(
         os.mkdir(results_dir)
 
         tasks.make_file_metadata.s(rt_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks,
-                                   email=current_user.email, fileId=file_id, panel=option).apply_async()
+                                   email=current_user.email, fileId=file_id, panel=option, process=process).apply_async()
         tasks.make_file_data.delay(results_dir)
 
         return {"Result": "OK",

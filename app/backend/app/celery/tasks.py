@@ -33,9 +33,9 @@ app.config_from_object('app.celery.celeryconfig')
 #     logger.addHandler(fh)
 
 @app.task
-def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size, num_upload_chunks, email, fileId, panel):
+def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size, num_upload_chunks, email, fileId, panel, process):
     file = File(fileId, file_dir, filename, email, chunk_ratio=analysis_chunk_size /
-                upload_chunk_size, num_upload_chunks=num_upload_chunks, panel=panel)
+                upload_chunk_size, num_upload_chunks=num_upload_chunks, panel=panel, process=process)
     file.save()
 
     return {'Success': True}

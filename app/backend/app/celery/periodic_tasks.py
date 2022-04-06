@@ -49,7 +49,7 @@ async def perform_file_analyses(file, file_dir):
             print(f'Analyzing {file.file_id} chunk {chunk.chunk_number}')
             file.set_start_chunk_analysis(chunk.chunk_number)
             tasks.perform_chunk_analysis.s(
-                    "rna-seq", chunk.chunk_number, file_dir, file.panel, results_dir).apply_async()
+                    file.process, chunk.chunk_number, file_dir, file.panel, results_dir).apply_async()
 
 
 async def periodic_task_calls():
