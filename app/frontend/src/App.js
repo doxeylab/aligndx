@@ -25,6 +25,8 @@ import Live from './pages/Live/';
 import Standard from './pages/Standard';
 import Result from './pages/Result';
 
+import Checkout from './pages/Checkout';
+
 import NotFound from './pages/NotFound';
 
 import {
@@ -79,6 +81,7 @@ function App() {
                                             <Route path='/standard' component={Standard} />
                                             <Route path='/result' component={Result} />
                                             <Route path='/pricing' component={Pricing}/>
+                                            <Route path='/checkout' component={Checkout}/>
                                             <Route component={NotFound} />
                                         </Switch>
                                         <Footer />
