@@ -41,35 +41,15 @@ async def save_result(file):
 
     return {"Result": "OK"}
 
-
-# async def clean_file_upload(file_dir):
-#     for filename in os.listdir(file_dir):
-#         file_path = os.path.join(file_dir, filename)
-#         try:
-#             if os.path.isfile(file_path):
-#                 os.remove(file_path)
-#             elif os.path.isdir(file_path):
-#                 os.rmdir(file_path)
-#         except Exception as e:
-#             print('Failed to delete %s. Reason: %s' % (file_path, e))
-            
-#     os.rmdir(file_dir)
-
-
 async def perform_file_analyses(file, file_dir):
     results_dir = os.path.join(rt_results, file.file_id)
-    data_dir = os.path.join(results_dir, "data.json")
 
     for chunk in file.state.analysis_chunks:
         if chunk.status == 'Ready':
             print(f'Analyzing {file.file_id} chunk {chunk.chunk_number}')
             file.set_start_chunk_analysis(chunk.chunk_number)
-
-            chain(
-                tasks.perform_chunk_analysis.s(
-                    chunk.chunk_number, file_dir, file.panel, index_folder, results_dir),
-                tasks.post_process.s(data_dir, file.panel),
-            ).apply_async()
+            tasks.perform_chunk_analysis.s(
+                    "rna-seq", chunk.chunk_number, file_dir, file.panel, results_dir).apply_async()
 
 
 async def periodic_task_calls():
