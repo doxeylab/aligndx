@@ -3,10 +3,13 @@ from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess 
 import asyncio 
+import socket
+
+title = socket.gethostname()
 
 app = FastAPI(
-    title="AlignDX",
-    description="This is the restful API for the AlignDX application. Here you will find the auto docs genereated for the API endpoints",
+    title=f'{title}',
+    description=f'API for {title}',
     version="1.0",
 )
 
@@ -19,10 +22,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.get("/")
-async def root():
-    return {"message": "This is the kraken2 container!"}
 
 @app.post("/")
 async def run(command : Dict[str, list]):   
