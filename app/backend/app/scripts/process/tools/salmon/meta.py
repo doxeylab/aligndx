@@ -2,7 +2,7 @@ import pandas as pd
 import os
 from app.config.settings import settings
 
-class MetaModel:
+class Meta:
     _meta_dir = settings.METADATA_FOLDER
 
     def __init__(self, panel):

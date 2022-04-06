@@ -1,14 +1,14 @@
 import pandas as pd
 import numpy as np
-from app.scripts.post_processing.Meta import MetaModel
+from app.scripts.process.tools.salmon.meta import Meta 
 
-class AnalyzeQuant():
+class Analyze():
     def __init__(self, panel, quant, headers, data_fname) -> None:
         self.panel = panel
         self.quant = quant
         self.headers = headers
         self.data_fname = data_fname
-        self.metadata = MetaModel(self.panel).load()
+        self.metadata = Meta(self.panel).load()
     
     def _coverage(self, df, header):
         '''

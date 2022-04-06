@@ -1,9 +1,10 @@
-import chunk
 import os
-from app.scripts.process.tools.Salmon.post_processing.Analyze import AnalyzeQuant
+from app.scripts.process.tools.salmon.analyze import Analyze
+from app.scripts.process.tools.salmon.output import Output
+
 from app.config.settings import settings
 
-class Setup():
+class Salmon():
     _index_dir = settings.INDEX_FOLDER
 
     def __init__(self, panel, chunk_number, in_dir, out_dir) -> None:
@@ -14,6 +15,7 @@ class Setup():
         self.chunk_dir = "{}/{}".format(self.out_dir, self.chunk_number)
         self.commands = []
         self.access_point = "http://salmon:80/"
+        self.data_dir = os.path.join(self.out_dir, "data.json")
 
     def configure(self) -> list:
         '''
@@ -81,7 +83,13 @@ class Setup():
         '''
         quant_dir = "{}/quant.sf".format(self.chunk_dir) 
         headers = ['Name', 'TPM']
-        data_dir = os.path.join(self.out_dir, "data.json")
 
-        quant = AnalyzeQuant(self.panel, quant_dir, headers, data_dir)
+        quant = Analyze(self.panel, quant_dir, headers, self.data_dir)
         quant.accumulate()
+
+    def load_data(self):
+        '''
+        Loads data 
+        '''
+        output = Output(self.data_dir)
+        return output.load()

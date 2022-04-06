@@ -1,3 +1,4 @@
+from concurrent.futures import process
 import os
 import shutil 
 import pandas as pd
@@ -14,7 +15,7 @@ from app.db.dals.submissions import SubmissionsDal
 from app.models.schemas.submissions import UpdateSubmissionResult
 
 from app.scripts.email_feature import send_email
-from app.scripts import realtime
+from app.scripts.process.controller import Controller
 
 rt_dir = settings.REAL_TIME_UPLOADS
 index_folder = settings.INDEX_FOLDER
@@ -25,12 +26,9 @@ async def save_result(file):
     db = async_session()
 
     results_dir = os.path.join(rt_results, file.file_id)
-    data_dir = os.path.join(results_dir, "data.json")
 
-    stored_data = pd.read_json(data_dir, orient="table")
-    headers = ['Gene', 'TPM']
-
-    data = realtime.data_loader(stored_data, file.filename, headers, status="ready")
+    process=Controller(file.process, file.panel, out_dir=results_dir) 
+    data = process.load_data()
 
     sub_dal = SubmissionsDal(db)
     result = await sub_dal.update(file.file_id, UpdateSubmissionResult(result=data))

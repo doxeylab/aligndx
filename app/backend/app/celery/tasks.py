@@ -13,7 +13,7 @@ from celery.contrib import rdb
 from celery.utils.log import get_task_logger
 from celery.signals import after_setup_logger
 
-from app.scripts.process.Entry import Initialize
+from app.scripts.process.controller import Controller
 
 from app.celery.File import File
 
@@ -66,8 +66,7 @@ def perform_chunk_analysis(process, chunk_number, file_dir, panel, results_dir):
     analysis_dir = os.path.join(file_dir, 'salmon_data')
     chunk = os.path.join(analysis_dir, f'{chunk_number}.fastq')
 
-    process = Initialize(process=process, panel=panel, chunk_number=chunk_number, in_dir=chunk, out_dir=results_dir)
-    print(process.commands)
+    process = Controller(process=process, panel=panel, chunk_number=chunk_number, in_dir=chunk, out_dir=results_dir)
     resp = requests.post(process.access_point, json=process.commands)
 
     file = File.load(file_dir)
