@@ -46,6 +46,12 @@ class AppSettings(BaseSettings):
     password: str = os.getenv("NOTIFICATION_EMAIL_PASSWORD")
     base_url: str = os.getenv("BASE_URL")
 
+    # Payments Stripe settings
+
+    stripe_key: str = os.getenv("STRIPE_KEY") 
+    stripe_webhook_secret: str = os.getenv("STRIPE_WEBHOOK_SECRET")
+    stripe_publishable_key: str = os.getenv("STRIPE_PUBLISHABLE_KEY")
+
     #  -- Db settings --
     
     DATABASE_URL: str = os.getenv("DATABASE_URL")
