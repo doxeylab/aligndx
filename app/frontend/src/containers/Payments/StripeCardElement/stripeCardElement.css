@@ -1,0 +1,62 @@
+#card-form {
+    width: 30vw;
+    min-width: 500px;
+    align-self: center;
+    border-radius: 7px;
+    padding: 0 20px 0 20px;
+}
+
+.card-element {
+    margin-bottom: 10px;
+}
+
+.card-element > label {
+    color: #6b7c93;
+    font-weight: 300;
+    font-size: 18px;
+    letter-spacing: 0.025em;
+    margin-bottom: 0;
+}
+
+.StripeElement {
+    display: block;
+    margin: 0 0 20px 0;
+    max-width: 500px;
+    padding: 10px 14px;
+    box-shadow: rgb(50 50 93 / 15%) 0px 1px 3px, rgb(0 0 0 / 2%) 0px 1px 0px;
+    border-radius: 4px;
+    background-color: rgb(250, 255, 189);
+}
+  
+#error-message {
+    color: rgb(212, 55, 19);
+    font-size: 16px;
+    line-height: 20px;
+    padding: 12px 0 12px 0;
+    /* text-align: center; */
+}
+  
+  /* Buttons and links */
+#pay-button {
+    background: #5469d4;
+    font-family: Arial, sans-serif;
+    color: #ffffff;
+    border-radius: 4px;
+    border: 0;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: block;
+    transition: all 0.2s ease;
+    box-shadow: 0px 4px 5.5px 0px rgba(0, 0, 0, 0.07);
+}
+  
+button:hover {
+    filter: contrast(115%);
+}
+  
+button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
