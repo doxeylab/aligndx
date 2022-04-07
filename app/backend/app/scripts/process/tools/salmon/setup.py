@@ -4,18 +4,19 @@ from app.scripts.process.tools.salmon.output import Output
 
 from app.config.settings import settings
 
-class Salmon():
+class Setup():
     _index_dir = settings.INDEX_FOLDER
 
-    def __init__(self, panel, chunk_number, in_dir, out_dir) -> None:
+    def __init__(self, panel, chunk_number, in_dir, out_dir, chunk_dir, data_dir) -> None:
         self.panel = panel
         self.chunk_number = chunk_number
         self.in_dir = in_dir
         self.out_dir = out_dir
-        self.chunk_dir = "{}/{}".format(self.out_dir, self.chunk_number)
-        self.commands = []
-        self.access_point = "http://salmon:80/"
-        self.data_dir = os.path.join(self.out_dir, "data.json")
+        self.chunk_dir = chunk_dir
+        self.data_dir = data_dir
+
+        self.access_point = settings.ACCESS_POINTS['salmon'] 
+
 
     def configure(self) -> list:
         '''
