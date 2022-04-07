@@ -14,7 +14,6 @@ from app.db.dals.users import UsersDal
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.scripts import analyze, realtime 
 from app.scripts.web_socket.manager import ConnectionManager
 from app.celery.File import File
 

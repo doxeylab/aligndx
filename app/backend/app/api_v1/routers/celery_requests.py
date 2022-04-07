@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.schemas.submissions import UpdateSubmissionResult
 
 from app.scripts.email_feature import send_email
-from app.scripts import analyze, realtime 
 import pandas as pd 
 
 router = APIRouter()

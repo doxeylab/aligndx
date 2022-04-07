@@ -16,7 +16,6 @@ from fastapi import Depends
 
 from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user
-from app.scripts import salmonconfig 
 
 from app.db.dals.phi_logs import UploadLogsDal
 from app.db.dals.submissions import SubmissionsDal  
@@ -48,25 +47,7 @@ REAL_TIME_RESULTS = settings.REAL_TIME_RESULTS
 
 for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULTS,  REAL_TIME_UPLOADS, REAL_TIME_RESULTS):
     if not os.path.isdir(dirname):
-        os.mkdir(dirname)
-
-# @router.get("/{token}")
-# async def fileretrieve(token: str):
-#     id = await ModelSample.get(token)
-#     print(id)
-#     return {'token': id}
-
-
-@router.post("/test_salmon_container")
-async def ping_salmon():
-    try:
-        commands = {"commands": ["salmon"]}
-        x = requests.post("http://salmon:80/", json=commands)
-        print(x.text)
-        return x.text
-    except Exception as e:
-        return e
-
+        os.mkdir(dirname) 
 
 @router.post("/")
 async def file_upload(
@@ -80,6 +61,7 @@ async def file_upload(
     for file in files:
 
         for option in panel:
+            process = "rna-seq"
             # get file name
             sample_name = file.filename.split('.')[0]
             chosen_panel = str(option.lower()) + "_index"
@@ -95,8 +77,7 @@ async def file_upload(
             file_id = str(query)
 
             # for deleting
-            sample_folder = os.path.join(STANDARD_UPLOADS, file_id)
-            sample_dir = os.path.join(STANDARD_UPLOADS, file_id, sample_name)
+            sample_dir = os.path.join(STANDARD_UPLOADS, file_id)
 
             # create directory for uploaded sample, only if it hasn't been uploaded before
             if not os.path.isdir(sample_dir):
@@ -104,20 +85,14 @@ async def file_upload(
 
             # declare upload location
             file_location = os.path.join(sample_dir, file.filename)
+            results_dir = os.path.join(STANDARD_RESULTS, file_id)
 
             # open file using write, binary permissions
             with open(file_location, "wb+") as f:
                 shutil.copyfileobj(file.file, f)
-
-            indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
-            results_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
-
-            commands = salmonconfig.commands(
-                indexpath, file_location, results_dir)
-            commands_lst.append(commands)
-
-            call_salmon(commands_lst, sample_folder) 
-
+    
+            tasks.perform_chunk_analysis.s(process=process, chunk_number=None, file_dir=file_location, panel=option.lower(), results_dir=results_dir) 
+ 
     return {"Result": "OK",
             "File_ID": file_id}
 
@@ -191,24 +166,14 @@ async def upload_chunk(
 ):
 
     rt_dir = "{}/{}".format(REAL_TIME_UPLOADS, file_id)
-    upload_data = "{}/{}/{}.fastq".format(rt_dir, "upload_data", chunk_number)
-    analysis_data_folder = "{}/{}".format(rt_dir, "salmon_data")
-    results_dir = "{}/{}".format(REAL_TIME_RESULTS, file_id)
-    data_dir = "{}/{}".format(results_dir, "data.json")
+    upload_data = "{}/{}/{}.fastq".format(rt_dir, "upload_data", chunk_number) 
     
     async with aiofiles.open(upload_data, 'wb') as f:
         while content := await chunk_file.read(read_batch_size):
             await f.write(content)
 
-    tasks.process_new_upload.s(rt_dir, chunk_number).apply_async()
+    tasks.process_new_upload.s(rt_dir, chunk_number).apply_async() 
     
-    # chain(
-    #     tasks.process_new_upload.s(rt_dir, chunk_number), 
-    #     tasks.perform_chunk_analysis.s(panels, INDEX_FOLDER, analysis_data_folder, results_dir),
-    #     tasks.post_process.s(data_dir, panels),
-    #     tasks.pipe_status.s(rt_dir, data_dir)
-    # ).apply_async()
-
     uplog_dal = UploadLogsDal(db)
     log = UploadLogBase(
         submission_id=file_id,
