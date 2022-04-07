@@ -45,9 +45,6 @@ STANDARD_RESULTS = settings.STANDARD_RESULTS
 REAL_TIME_UPLOADS = settings.REAL_TIME_UPLOADS
 REAL_TIME_RESULTS = settings.REAL_TIME_RESULTS
 
-for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULTS,  REAL_TIME_UPLOADS, REAL_TIME_RESULTS):
-    if not os.path.isdir(dirname):
-        os.mkdir(dirname) 
 
 @router.post("/")
 async def file_upload(

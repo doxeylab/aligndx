@@ -19,7 +19,9 @@ class AppSettings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
     REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30
 
-    #  -- Default directory tree -- 
+    #  -- User Data -- 
+
+    #  -- App Data --
     
     INDEX_FOLDER = './indexes' 
 
@@ -32,6 +34,10 @@ class AppSettings(BaseSettings):
 
     REAL_TIME_UPLOADS = UPLOAD_FOLDER + '/real_time'
     REAL_TIME_RESULTS = RESULTS_FOLDER + '/real_time' 
+    
+    for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULTS,  REAL_TIME_UPLOADS,  REAL_TIME_RESULTS):
+        if not os.path.isdir(dirname):
+            os.mkdir(dirname) 
 
     # Chunk settings
 
