@@ -5,6 +5,7 @@ import { withRouter } from "react-router-dom";
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
+
 import './stripeCardElement.css';
 
 import { 
@@ -45,9 +46,7 @@ const StripeCardElement = (props) => {
     const elements = useElements();
     const options = useOptions();
     const history = useHistory();
-
-    const [clientSecret] = useState(props.clientSecret);
-    const [errorMessage, setErrorMessage] = useState('error: card not working')
+    const [errorMessage, setErrorMessage] = useState(null)
 
     const handlePayment = async (e) => {
         e.preventDefault();
@@ -59,7 +58,7 @@ const StripeCardElement = (props) => {
         const cardNumberElement = elements.getElement(CardNumberElement);
         
         // Use card Element to tokenize payment details
-        let { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        let { error, paymentIntent } = await stripe.confirmCardPayment(props.clientSecret, {
             payment_method: {
                 card: cardNumberElement,
                 billing_details: {
@@ -90,7 +89,7 @@ const StripeCardElement = (props) => {
 
     return (
         <>
-            <Modal show={props.showModal} onHide={() => props.hideModal(false)} centered>
+            <Modal animation={false} show={props.showModal} onHide={() => props.hideModal(false)} centered>
                 <Form id="card-form" onSubmit={handlePayment}>
                     <Modal.Header>
                         <Modal.Title>Payment Details</Modal.Title>

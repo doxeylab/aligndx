@@ -1,5 +1,7 @@
 // React
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
+import { useQuery } from 'react-query'
 
 // Bootstrap
 import Container from 'react-bootstrap/Container'
@@ -14,9 +16,13 @@ import { Section } from '../../components/Common/PageElement'
 import StripeCardElement from '../../containers/Payments/StripeCardElement'
 import AddressForm from '../../containers/Payments/AddressForm'
 import OrderSummary from '../../containers/Payments/OrderSummary'
+import { usePayments } from '../../api/Payments'
 
 const Checkout = () => {
-    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const { search } = useLocation();
+    const payments = usePayments();
+    const [showPaymentModal, setShowPaymentModal] = useState(null);
+    const [clientSecret, setClientSecret] = useState(null);
     const [address, setAddress] = useState({
         line1: '1000 Front St. E',
         line2: 'Suite 1003',
@@ -25,7 +31,28 @@ const Checkout = () => {
         postalCode: 'M4H 3N8',
         country: 'CA'
     });
-
+    const onSuccess = (data, error) => {
+        console.log('on success ....');
+        if (data) {
+            console.log('success-data: ', data.data);
+            console.log('secret: ', data.data.client_secret);
+            setClientSecret(data.data.client_secret)
+            setShowPaymentModal(true)
+        }
+    }
+    const plan_id = new URLSearchParams(search).get('plan_id')
+    const {status, data, error, refetch, isLoading} = useQuery('new_subscription', () => payments.create_subscription({plan_id: plan_id}), {
+        enabled: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        retryOnMount: false,
+        onSuccess: onSuccess
+    })
+    
+    console.log('status: ', status)
+    console.log('data: ', data)
+    console.log('error: ', error)
+    console.log('isLoading: ', isLoading)
     return (
         <Section id='checkout-page'>
             <Container>
@@ -33,10 +60,19 @@ const Checkout = () => {
                     <Col xs={12} md={7} id='checkout-form-container'>
                         <div className='paper'>
                             <AddressForm address={address} setAddress={setAddress} />
-                            <StripeCardElement showModal={showPaymentModal} hideModal={setShowPaymentModal} />
+                            <StripeCardElement
+                                showModal={showPaymentModal}
+                                hideModal={setShowPaymentModal}
+                                clientSecret={clientSecret}
+                                address={address}
+                                plan_id={plan_id}
+                            />
                             <div className='box mt-5'>
                                 <Button variant='primary' size='lg' style={{fontSize: '18px'}} onClick={() => setShowPaymentModal(true)}>
                                     Payment Details
+                                </Button>
+                                <Button variant='primary' size='lg' style={{fontSize: '18px'}} onClick={refetch}>
+                                    Subscribe
                                 </Button>
                             </div>
                         </div>
