@@ -59,9 +59,9 @@ const Live = () => {
             setUploadProgress(JSON.parse(uploadProgress))
             setAnalysisProgress(JSON.parse(analysisProgress))
 
-            setData(JSON.parse(data))
-            setSample(JSON.parse(sample))
-            setPathogens(JSON.parse(pathogens))
+            setData(data)
+            setSample(sample)
+            setPathogens(pathogens)
         }
         
         catch (err) {
