@@ -1,4 +1,4 @@
-import os, asyncio 
+import os, asyncio
 from pydantic import BaseModel
 
 from fastapi import APIRouter, Depends, status
@@ -20,14 +20,7 @@ from app.celery.File import File
 from app.config.settings import settings
 
 UPLOAD_FOLDER = settings.UPLOAD_FOLDER
-RESULTS_FOLDER = settings.RESULTS_FOLDER
-INDEX_FOLDER = settings.INDEX_FOLDER
-METADATA_FOLDER = settings.METADATA_FOLDER
-STANDARD_UPLOADS = settings.STANDARD_UPLOADS
-STANDARD_RESULTS = settings.STANDARD_RESULTS
-REAL_TIME_UPLOADS = settings.REAL_TIME_UPLOADS
-REAL_TIME_RESULTS = settings.REAL_TIME_RESULTS
-
+RESULTS_FOLDER = settings.RESULTS_FOLDER 
 
 router = APIRouter() 
 
@@ -48,27 +41,34 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
     query = await users_dal.get_submission(current_user.id, file_id)
 
     submission = SubmissionSchema.from_orm(query)
-    file_dir = os.path.join(REAL_TIME_UPLOADS, file_id)
-    controller = Controller(process=submission.submission_type,panel=submission.panel,out_dir=file_dir)
+    upload_dir = os.path.join(UPLOAD_FOLDER, file_id)
+    results_dir = os.path.join(RESULTS_FOLDER, file_id)
+    controller = Controller(process=submission.submission_type,panel=submission.panel,out_dir=results_dir)
 
 
     if current_user:
         print(f"User {current_user.id} connected!")
         try:
             while True:
-                if os.path.isdir(file_dir):
-                    file = File.load(file_dir) 
+                if os.path.isdir(upload_dir):
+                    file = File.load(upload_dir) 
 
                     stored_data = controller.load_data()     
 
                     if all([chunk.status == 'Complete' for chunk in file.state.analysis_chunks]):
                         # all chunks completed, so disconnect websocket
-                        stored_data = controller.load_data()     
+                        stored_data = controller.load_data()
+                        stored_data['status'] = "complete"
+                        stored_data['sample_name'] = submission.name
+
                         await manager.send_data(stored_data, websocket)
                         manager.disconnect(websocket)
                         return
 
                     if stored_data:
+                        stored_data['status'] = "ready"
+                        stored_data['sample_name'] = submission.name
+
                         await manager.send_data(stored_data, websocket)  
                         await asyncio.sleep(3) 
 

@@ -21,23 +21,17 @@ class AppSettings(BaseSettings):
 
     #  -- User Data -- 
 
-    #  -- App Data --
-    
-    INDEX_FOLDER = './indexes' 
-
     UPLOAD_FOLDER = './uploads' 
     RESULTS_FOLDER = './results'
-    METADATA_FOLDER = "./metadata"  
 
-    STANDARD_UPLOADS = UPLOAD_FOLDER + '/standard'
-    STANDARD_RESULTS = RESULTS_FOLDER + '/standard'
-
-    REAL_TIME_UPLOADS = UPLOAD_FOLDER + '/real_time'
-    REAL_TIME_RESULTS = RESULTS_FOLDER + '/real_time' 
-    
-    for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULTS,  REAL_TIME_UPLOADS,  REAL_TIME_RESULTS):
+    for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER):
         if not os.path.isdir(dirname):
             os.mkdir(dirname) 
+
+    #  -- External Files or MetaData --
+    
+    INDEX_FOLDER = './indexes' 
+    METADATA_FOLDER = "./metadata"  
 
     # Chunk settings
 

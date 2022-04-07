@@ -63,7 +63,7 @@ def process_new_upload(self, file_dir, new_chunk_number):
 
 @app.task
 def perform_chunk_analysis(process, chunk_number, file_dir, panel, results_dir):
-    analysis_dir = os.path.join(file_dir, 'salmon_data')
+    analysis_dir = os.path.join(file_dir, 'tool_data')
     chunk = os.path.join(analysis_dir, f'{chunk_number}.fastq')
 
     process = Controller(process=process, panel=panel, chunk_number=chunk_number, in_dir=chunk, out_dir=results_dir)

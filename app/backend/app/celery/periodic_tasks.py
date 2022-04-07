@@ -1,4 +1,3 @@
-from concurrent.futures import process
 import os
 import shutil 
 import pandas as pd
@@ -9,7 +8,6 @@ from app.celery.File import File
 from app.config.settings import settings
 
 from app.celery import tasks
-from celery import chain
 
 from app.db.dals.submissions import SubmissionsDal
 from app.models.schemas.submissions import UpdateSubmissionResult
@@ -17,18 +15,17 @@ from app.models.schemas.submissions import UpdateSubmissionResult
 from app.scripts.email_feature import send_email
 from app.scripts.process.controller import Controller
 
-rt_dir = settings.REAL_TIME_UPLOADS
-index_folder = settings.INDEX_FOLDER
-rt_results = settings.REAL_TIME_RESULTS
-
+uploads_dir = settings.UPLOAD_FOLDER
+index_dir = settings.INDEX_FOLDER
+results_dir = settings.RESULTS_FOLDER
 
 async def save_result(file):
     db = async_session()
 
-    results_dir = os.path.join(rt_results, file.file_id)
+    out_dir = os.path.join(results_dir, file.file_id)
 
-    process=Controller(file.process, file.panel, out_dir=results_dir) 
-    data = process.load_data()
+    controller =Controller(file.process, file.panel, out_dir=out_dir) 
+    data = controller.load_data()
 
     sub_dal = SubmissionsDal(db)
     result = await sub_dal.update(file.file_id, UpdateSubmissionResult(result=data))
@@ -40,19 +37,19 @@ async def save_result(file):
     return {"Result": "OK"}
 
 async def perform_file_analyses(file, file_dir):
-    results_dir = os.path.join(rt_results, file.file_id)
+    out_dir = os.path.join(results_dir, file.file_id)
 
     for chunk in file.state.analysis_chunks:
         if chunk.status == 'Ready':
             print(f'Analyzing {file.file_id} chunk {chunk.chunk_number}')
             file.set_start_chunk_analysis(chunk.chunk_number)
             tasks.perform_chunk_analysis.s(
-                    file.process, chunk.chunk_number, file_dir, file.panel, results_dir).apply_async()
+                    file.process, chunk.chunk_number, file_dir, file.panel, out_dir).apply_async()
 
 
 async def periodic_task_calls():
-    for file_id in os.listdir(rt_dir):
-        file_dir = os.path.join(rt_dir, file_id)
+    for file_id in os.listdir(uploads_dir):
+        file_dir = os.path.join(uploads_dir, file_id)
         file = File.load(file_dir)
 
         await perform_file_analyses(file, file_dir)

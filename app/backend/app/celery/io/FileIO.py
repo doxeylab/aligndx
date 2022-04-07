@@ -42,7 +42,7 @@ class FileIO:
         return (residual_data, chunk_data)
 
     def assemble_chunk(self, chunk_number, upload_deps):
-        with open(os.path.join(self.file_dir, 'salmon_data', f'{chunk_number}.fastq'), 'wb') as af:
+        with open(os.path.join(self.file_dir, 'tool_data', f'{chunk_number}.fastq'), 'wb') as af:
             for relative_num, upload_chunk_num in enumerate(upload_deps):
                 upload_chunk_fname = os.path.join(
                     self.file_dir, 'upload_data', f'{upload_chunk_num}.fastq')
@@ -57,15 +57,15 @@ class FileIO:
         return residual_data
 
     def merge_residue(self, data, chunk_number):
-        with open(os.path.join(self.file_dir, 'salmon_data', f'{chunk_number}.fastq'), 'ab') as af:
-            with open(os.path.join(self.file_dir, 'salmon_data', f'{chunk_number}_residue.fastq')) as rf:
+        with open(os.path.join(self.file_dir, 'tool_data', f'{chunk_number}.fastq'), 'ab') as af:
+            with open(os.path.join(self.file_dir, 'tool_data', f'{chunk_number}_residue.fastq')) as rf:
                 af.write(rf.read())
-        os.remove(os.path.join(self.file_dir, 'salmon_data', f'{chunk_number}_residue.fastq'))
+        os.remove(os.path.join(self.file_dir, 'tool_data', f'{chunk_number}_residue.fastq'))
 
     def write_residue(self, data, chunk_number, inplace=False):
         if inplace:
-            with open(os.path.join(self.file_dir, 'salmon_data', f'{chunk_number}.fastq'), 'ab') as af:
+            with open(os.path.join(self.file_dir, 'tool_data', f'{chunk_number}.fastq'), 'ab') as af:
                 af.write(data)
         else:
-            with open(os.path.join(self.file_dir, 'salmon_data', f'{chunk_number}_residue.fastq'), 'wb') as rf:
+            with open(os.path.join(self.file_dir, 'tool_data', f'{chunk_number}_residue.fastq'), 'wb') as rf:
                 rf.write(data)
