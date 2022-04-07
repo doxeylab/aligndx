@@ -85,6 +85,19 @@ services:
       - ./backend/uploads:/app/uploads
       - ./backend/indexes:/app/indexes:ro
       - ./backend/metadata:/app/metadata:ro
+  
+  kraken2:
+    build:
+      context: tool
+      dockerfile: docker/kraken2/Dockerfile
+    command: uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port 80
+    tty: true
+    ports:
+      - "8003:80"
+    volumes:
+      - ./tool/app/:/app/app/:ro
+      - ./backend/results:/app/results
+      - ./backend/uploads:/app/uploads
 
   rabbitmq:
     image: rabbitmq:3.9

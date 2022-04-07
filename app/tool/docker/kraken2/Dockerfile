@@ -12,5 +12,5 @@ RUN apt-get update \
     && python -m pip install --upgrade pip \
     && python -m pip install --no-cache-dir -r requirements.txt  
  
-WORKDIR /app/
+COPY /app ./app
 ENV PYTHONPATH=/app
