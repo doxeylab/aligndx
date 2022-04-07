@@ -10,7 +10,7 @@ const DataProgressBar = (props) => {
         animated
         variant="info"
         now={props.percentage}
-        label={`${props.percentage}%`}
+        label={`${props.percentage.toFixed(1)}%`}
       />
     </>
   );
