@@ -56,8 +56,8 @@ const Live = () => {
 
     const datahandler = (data, sample, pathogens, uploadProgress, analysisProgress) => {
         try {
-            setUploadProgress(JSON.parse(uploadProgress))
-            setAnalysisProgress(JSON.parse(analysisProgress))
+            setUploadProgress(uploadProgress)
+            setAnalysisProgress(analysisProgress)
 
             setData(data)
             setSample(sample)
@@ -104,7 +104,7 @@ const Live = () => {
                 }
                 if (obj.result.status == "pending"){
                     console.log(`Transaction status is ${obj.result.status}`)  
-                    callback("null", "", "null",
+                    callback(null, "", null,
                         obj.progress.upload, obj.progress.analysis)
                 }
 
@@ -181,71 +181,69 @@ const Live = () => {
     },[data])
  
     return (
-        <Section>
+        <Section id="result">
             <Container>
                 <Row>
                     <Col>
                         <DataProgressBar caption="Uploading..." percentage={100 * uploadProgress} />
                     </Col>
                 </Row>
-                { uploadProgress == 1.0 ? <Row><Col>You can close your browser now.</Col></Row> : <></>}
+                { uploadProgress == 1.0 ? <Row><Col><p>You can close your browser now.</p></Col></Row> : <></>}
                 <Row>
                     <Col>
                         <DataProgressBar caption="Analyzing..." percentage={100 * analysisProgress} />
                     </Col>
                 </Row>
                 <Row>
-                    {data ?
-                        <Section id="result">
-                            <Container>
-                                <Row>
-                                    <Col>
-                                        <Title>Result</Title>
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <ResultTitle>{sample}</ResultTitle>
-                                </Row>
-                                <Row>
-                                    <Accordion style={{ width: "100%" }} defaultExpanded={true} >
-                                        <AccordionSummary
-                                            expandIcon={<ExpandMoreIcon />}
-                                            aria-controls="panel1a-content"
-                                            id="panel1a-header"
-                                        >
-                                            <ResultAccordionImg src={data.detected === "Negative" ? Red_X : Green_Check}></ResultAccordionImg>
-                                            <ResultAccordianTitle detection={data.detected}>{data.detected}</ResultAccordianTitle>
-                                        </AccordionSummary>
-                                        <AccordionDetails>
-                                            <Typography>
-                                                <Row style={{ padding: "25px" }}>
-                                                    <Col style={{ padding: "25px" }}>
-                                                        <div className='barGraph'>
-                                                            <Barchart data={data} yLabel={data.ylabel} xLabel={data.xlabel} col="coverage" xkey="Pathogen" ykey="Coverage" />
-                                                        </div>
-                                                    </Col>
-                                                    <Col style={{ padding: "25px" }}>
-                                                        <div>
-                                                            <h1>
-                                                                {data.title}
-                                                            </h1>
-                                                            <p>
-                                                                {data.text}
-                                                            </p>
-                                                        </div>
-                                                    </Col>
-                                                </Row>
-                                            </Typography>
-                                        </AccordionDetails>
-                                    </Accordion>
-                                </Row>
-                            </Container>
-                        </Section>
-                        :
-                        <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>LOADING...</h1>
-                    }
-                </Row>
-            </Container>
+            {data ?
+                <Container>
+                    <Row>
+                        <Col>
+                            <Title>Result</Title>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <ResultTitle>{sample}</ResultTitle>
+                    </Row>
+                    <Row>
+                        <Accordion style={{ width: "100%" }} defaultExpanded={true} >
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel1a-content"
+                                id="panel1a-header"
+                            >
+                                <ResultAccordionImg src={data.detected === "Negative" ? Red_X : Green_Check}></ResultAccordionImg>
+                                <ResultAccordianTitle detection={data.detected}>{data.detected}</ResultAccordianTitle>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Typography>
+                                    <Row style={{ padding: "25px" }}>
+                                        <Col style={{ padding: "25px" }}>
+                                            <div className='barGraph'>
+                                                <Barchart data={data} yLabel={data.ylabel} xLabel={data.xlabel} col="coverage" xkey="Pathogen" ykey="Coverage" />
+                                            </div>
+                                        </Col>
+                                        <Col style={{ padding: "25px" }}>
+                                            <div>
+                                                <h1>
+                                                    {data.title}
+                                                </h1>
+                                                <p>
+                                                    {data.text}
+                                                </p>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                </Typography>
+                            </AccordionDetails>
+                        </Accordion>
+                    </Row>
+                </Container>
+            :
+            <h1 style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>LOADING...</h1>
+        }
+        </Row>
+        </Container>
         </Section>
     )
 }
