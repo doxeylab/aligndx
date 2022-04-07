@@ -38,12 +38,12 @@ const ConfirmationModal = (props) => {
               <CheckCircleIcon color="success" sx={{ fontSize: 100 }} />
             </Box>
             <Box display="flex" justifyContent="center" alignItems="center">
-              <Typography id="modal-modal-title" variant="h4" component="h6">
+              <Typography id="modal-modal-title" variant="h3" component="h6">
                 {props.title}
               </Typography>
             </Box>
             <Box display="flex" justifyContent="center" alignItems="center">
-              <Typography id="modal-modal-description" mt={5}>
+              <Typography id="modal-modal-description" mt={5} sx={{ fontSize: "1.6rem"}}>
                 {props.body}
               </Typography>
             </Box>
@@ -51,7 +51,7 @@ const ConfirmationModal = (props) => {
               <Typography id="modal-modal-footer" mt={5}>
                 <Button
                   variant="contained"
-                  
+                  sx={{ fontSize: "1.6rem", letterSpacing: '0.1rem'}}
                   onClick={handleClose.bind(this,props.path)}
                   color="success"
                 >

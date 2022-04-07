@@ -7,7 +7,7 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
 import './stripeCardElement.css';
-
+import ConfirmationModal from '../../../components/Modals/ConfirmationModal'
 import { 
     CardCvcElement, 
     CardExpiryElement, 
@@ -47,9 +47,11 @@ const StripeCardElement = (props) => {
     const options = useOptions();
     const history = useHistory();
     const [errorMessage, setErrorMessage] = useState(null)
+    const [showConfirmModal, setShowConfirmModal] = useState(false)
 
     const handlePayment = async (e) => {
         e.preventDefault();
+        setErrorMessage(null)
 
         // Make sure stripe & elements exist
         if (!stripe || !elements) return;
@@ -76,20 +78,30 @@ const StripeCardElement = (props) => {
         })
 
         if (error) {
-            console.log(error)
-            setErrorMessage('An error occured with payment process!');
-            return
+            setErrorMessage(error.message);
         }
 
         if (paymentIntent && paymentIntent.status === 'succeeded') {
             console.log('Success: redirecting ...');
+            setShowConfirmModal(true)
             // history.push('/profile');
         }
     }
 
+    const handleHideModal = () => {
+        setErrorMessage(null)
+        props.hideModal(false)
+    }
+
     return (
         <>
-            <Modal animation={false} show={props.showModal} onHide={() => props.hideModal(false)} centered>
+            <ConfirmationModal 
+                open={showConfirmModal}
+                title={'Awesome'}
+                body={'Payment processed successfuly!'}
+                path={'/profile'}
+            />
+            <Modal animation={false} show={props.showModal} onHide={handleHideModal} centered>
                 <Form id="card-form" onSubmit={handlePayment}>
                     <Modal.Header>
                         <Modal.Title>Payment Details</Modal.Title>

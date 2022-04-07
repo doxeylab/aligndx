@@ -1,5 +1,4 @@
 #card-form {
-    width: 30vw;
     min-width: 500px;
     align-self: center;
     border-radius: 7px;
@@ -52,11 +51,11 @@
     box-shadow: 0px 4px 5.5px 0px rgba(0, 0, 0, 0.07);
 }
   
-button:hover {
+#pay-button:hover {
     filter: contrast(115%);
 }
   
-button:disabled {
+#pay-button:disabled {
     opacity: 0.5;
     cursor: default;
 }

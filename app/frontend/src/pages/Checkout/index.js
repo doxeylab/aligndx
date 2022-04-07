@@ -32,12 +32,14 @@ const Checkout = () => {
         country: 'CA'
     });
     const onSuccess = (data, error) => {
-        console.log('on success ....');
         if (data) {
-            console.log('success-data: ', data.data);
-            console.log('secret: ', data.data.client_secret);
             setClientSecret(data.data.client_secret)
             setShowPaymentModal(true)
+        }
+    }
+    const onError = (error) => {
+        if (error.response.data.detail) {
+            console.error('Error Message: ', error.response.data.detail)
         }
     }
     const plan_id = new URLSearchParams(search).get('plan_id')
@@ -46,7 +48,8 @@ const Checkout = () => {
         refetchOnWindowFocus: false,
         retry: false,
         retryOnMount: false,
-        onSuccess: onSuccess
+        onSuccess: onSuccess,
+        onError: onError
     })
     
     console.log('status: ', status)
