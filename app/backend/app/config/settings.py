@@ -31,6 +31,7 @@ class AppSettings(BaseSettings):
     #  -- External Files or MetaData --
     
     INDEX_FOLDER = './indexes' 
+    KRAKEN_DB = ''
     METADATA_FOLDER = "./metadata"  
 
     # Chunk settings
