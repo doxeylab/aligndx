@@ -1,6 +1,4 @@
-import os, asyncio, importlib, json
-from typing import Optional
-import pandas as pd 
+import os, asyncio 
 from pydantic import BaseModel
 
 from fastapi import APIRouter, Depends, status
@@ -15,10 +13,9 @@ from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.scripts.web_socket.manager import ConnectionManager
-from app.celery.File import File
+from app.scripts.process.controller import Controller
 
-from app.celery import tasks
-from app.scripts.post_processing.Output import StoredQuantData
+from app.celery.File import File
 
 from app.config.settings import settings
 
@@ -38,7 +35,7 @@ for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULT
 
 router = APIRouter() 
 
-# -- Realtime upload results --
+# -- chunked upload results --
 
 manager = ConnectionManager()
 
@@ -55,12 +52,9 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
     query = await users_dal.get_submission(current_user.id, file_id)
 
     submission = SubmissionSchema.from_orm(query)
-    sample_name = submission.name
-
-    headers=['Name', 'TPM']
-    data_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, "data.json")
     file_dir = os.path.join(REAL_TIME_UPLOADS, file_id)
-    data_obj = StoredQuantData(data_dir)
+    controller = Controller(process=submission.submission_type,panel=submission.panel,out_dir=file_dir)
+
 
     if current_user:
         print(f"User {current_user.id} connected!")
@@ -69,11 +63,11 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
                 if os.path.isdir(file_dir):
                     file = File.load(file_dir) 
 
-                    stored_data = data_obj.load(sample_name, status="ready")     
+                    stored_data = controller.load_data()     
 
                     if all([chunk.status == 'Complete' for chunk in file.state.analysis_chunks]):
                         # all chunks completed, so disconnect websocket
-                        stored_data = data_obj.load(sample_name, status="complete")     
+                        stored_data = controller.load_data()     
                         await manager.send_data(stored_data, websocket)
                         manager.disconnect(websocket)
                         return
