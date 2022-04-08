@@ -25,12 +25,13 @@ const Checkout = () => {
     const [showPaymentModal, setShowPaymentModal] = useState(null);
     const [clientSecret, setClientSecret] = useState(null);
     const [address, setAddress] = useState({
-        line1: '1000 Front St. E',
-        line2: 'Suite 1003',
-        city: 'Toronto',
-        state: 'Ontario',
-        postalCode: 'M4H 3N8',
-        country: 'CA'
+        company: '',
+        line1: '',
+        line2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: ''
     });
     const onSuccess = (data) => {
         if (data) {

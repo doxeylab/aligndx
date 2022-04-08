@@ -22,6 +22,16 @@ const AddressForm = ({address, setAddress}) => {
             </h1>
             <hr className="mb-5"/>
             <Form.Group className="mb-3">
+                <Form.Label>Company</Form.Label>
+                <Form.Control 
+                    type="text" 
+                    placeholder="Company"
+                    onChange={handleChange}
+                    name="company"
+                    value={address.company}
+                />
+            </Form.Group>
+            <Form.Group className="mb-3">
                 <Form.Label>Address Line</Form.Label>
                 <Form.Control 
                     type="text" 
@@ -52,13 +62,16 @@ const AddressForm = ({address, setAddress}) => {
                 </Form.Group>
                 <Form.Group as={Col}>
                     <Form.Label>Province/State</Form.Label>
-                    <Form.Control 
-                        type="text" 
-                        placeholder="Province or State"
+                    <Form.Control
+                        as='select'
                         onChange={handleChange}
                         name="state"
                         value={address.state}
-                    />
+                    >
+                        <option value="Alberta">Alberta</option>
+                        <option value="Ontario">Ontario</option>
+                        <option value="Other">Other</option>
+                    </Form.Control>
                 </Form.Group>
             </Form.Row>
             <Form.Row className="mb-3">
@@ -74,7 +87,12 @@ const AddressForm = ({address, setAddress}) => {
                 </Form.Group>
                 <Form.Group as={Col}>
                     <Form.Label>Country</Form.Label>
-                    <Form.Control as='select'>
+                    <Form.Control
+                        as='select'
+                        onChange={handleChange}
+                        name="country"
+                        value={address.country}
+                    >
                         <option value="US">USA</option>
                         <option value="CA">Canada</option>
                         <option value="OTHER">Other</option>
