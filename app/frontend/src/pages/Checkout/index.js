@@ -8,6 +8,7 @@ import Container from 'react-bootstrap/Container'
 import Col from 'react-bootstrap/Col'
 import Row from 'react-bootstrap/Row'
 import Button from 'react-bootstrap/Button'
+import Spinner from 'react-bootstrap/Spinner'
 
 // Custom CSS
 import './checkoutStyles.css';
@@ -31,7 +32,7 @@ const Checkout = () => {
         postalCode: 'M4H 3N8',
         country: 'CA'
     });
-    const onSuccess = (data, error) => {
+    const onSuccess = (data) => {
         if (data) {
             setClientSecret(data.data.client_secret)
             setShowPaymentModal(true)
@@ -40,10 +41,12 @@ const Checkout = () => {
     const onError = (error) => {
         if (error.response.data.detail) {
             console.error('Error Message: ', error.response.data.detail)
+            return;
         }
+        console.error(error)
     }
     const plan_id = new URLSearchParams(search).get('plan_id')
-    const {status, data, error, refetch, isLoading} = useQuery('new_subscription', () => payments.create_subscription({plan_id: plan_id}), {
+    const {refetch, isLoading} = useQuery('new_subscription', () => payments.create_subscription({plan_id: plan_id}), {
         enabled: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -51,11 +54,7 @@ const Checkout = () => {
         onSuccess: onSuccess,
         onError: onError
     })
-    
-    console.log('status: ', status)
-    console.log('data: ', data)
-    console.log('error: ', error)
-    console.log('isLoading: ', isLoading)
+
     return (
         <Section id='checkout-page'>
             <Container>
@@ -71,11 +70,23 @@ const Checkout = () => {
                                 plan_id={plan_id}
                             />
                             <div className='box mt-5'>
-                                <Button variant='primary' size='lg' style={{fontSize: '18px'}} onClick={() => setShowPaymentModal(true)}>
-                                    Payment Details
-                                </Button>
-                                <Button variant='primary' size='lg' style={{fontSize: '18px'}} onClick={refetch}>
-                                    Subscribe
+                                <Button
+                                    variant='primary'
+                                    size='lg'
+                                    style={{fontSize: '18px'}}
+                                    onClick={refetch}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 
+                                        <>
+                                            <Spinner as="span"
+                                                animation="border"
+                                                size="lg"
+                                            />
+                                            <span>Loading...</span>
+                                        </>
+                                    : 
+                                        "Payment Details"}
                                 </Button>
                             </div>
                         </div>
