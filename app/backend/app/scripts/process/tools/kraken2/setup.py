@@ -20,10 +20,15 @@ class Setup():
         '''
         returns a command list for salmon using the generated parameters
         '''
-        commands = self._generate_commands()
+        report_name = "{}/{}".format(self.chunk_dir, "report.txt")
+        kraken_out =  "{}/{}".format(self.chunk_dir, "kraken.out")
+        braken_out =  "{}/{}".format(self.chunk_dir, "braken.out")
+        classification_lvl = "S"
+
+        commands = self._generate_commands(settings.KRAKEN_DB, report_name, kraken_out, braken_out, classification_lvl, self.in_dir)
         return commands
 
-    def _generate_commands(self, krakendb, report_name, out_name, in_name, in_name2 = None, fastqtype="single"):
+    def _generate_commands(self, krakendb, report_name, kraken_out, bracken_out, classification_lvl, in_name, in_name2 = None, fastqtype="single"):
         """
         private method to generate command list
         """
@@ -35,22 +40,20 @@ class Setup():
                 "--report",
                 report_name,
                 "--output",
-                out_name,
+                kraken_out,
                 in_name,
-            ]
-        if fastqtype == "paired":
-            command_lst = [
-                "kraken2",
-                "--db",
+                "|",
+                "bracken",
+                "-d",
                 krakendb,
-                "--paired",
-                "--report",
+                "-l",
+                classification_lvl,
+                "-i",
                 report_name,
-                "--output",
-                out_name,
-                in_name,
-                in_name2
-            ]
+                "-o",
+                bracken_out
+            ] 
+
         return command_lst 
     
     def post_process(self):
