@@ -70,22 +70,31 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
                 if os.path.isdir(file_dir):
                     file = File.load(file_dir) 
 
-                    stored_data = data_obj.load(sample_name, status="ready")     
+                    stored_data = data_obj.load(sample_name, status="ready")    
+
+                    analysis_progress = len([chunk for chunk in file.state.analysis_chunks if chunk.status == 'Complete']) / len(file.state.analysis_chunks)
+                    upload_progress = len([chunk for chunk in file.state.upload_chunks if chunk.status == 'Uploaded']) / len(file.state.upload_chunks)
+                    progress_data = {'analysis': analysis_progress, 'upload': upload_progress}
 
                     if all([chunk.status == 'Complete' for chunk in file.state.analysis_chunks]):
                         # all chunks completed, so disconnect websocket
                         stored_data = data_obj.load(sample_name, status="complete")     
-                        await manager.send_data(stored_data, websocket)
+                        resp = {'progress': progress_data, 'result': stored_data}
+
+                        await manager.send_data(resp, websocket)
                         manager.disconnect(websocket)
                         return
 
                     if stored_data:
-                        await manager.send_data(stored_data, websocket)  
+                        resp = {'progress': progress_data, 'result': stored_data}
+
+                        await manager.send_data(resp, websocket)  
                         await asyncio.sleep(3) 
 
                     else:
-                        message = {"status": "pending"} 
-                        await manager.send_data(message, websocket)
+                        resp = {'progress': progress_data, 'result': {'status': 'pending'}}
+
+                        await manager.send_data(resp, websocket)
                         await asyncio.sleep(5) 
                 else:
                     # file doesn't exist, so close websocket
