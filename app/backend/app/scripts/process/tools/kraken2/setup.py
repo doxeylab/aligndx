@@ -1,20 +1,14 @@
-from doctest import OutputChecker
 import os 
+
+from app.scripts.process.base import Base
 
 from app.config.settings import settings
 import os
-class Setup():
+class Setup(Base):
     _index_dir = settings.INDEX_FOLDER
     _kraken_db = settings.KRAKEN_DB
 
-    def __init__(self, panel, chunk_number, in_dir, out_dir, chunk_dir, data_dir) -> None:
-        self.panel = panel
-        self.chunk_number = chunk_number
-        self.in_dir = in_dir
-        self.out_dir = out_dir
-        self.chunk_dir = chunk_dir
-        self.data_dir = data_dir
-        
+    def __init__(self) -> None:
         self.sum_header = "Name"
         self.access_point = settings.ACCESS_POINTS['kraken2'] 
 

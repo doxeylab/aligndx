@@ -1,20 +1,17 @@
 import os
 import pandas as pd
 import numpy as np
+
+from app.scripts.process.base import Base
+
 from app.scripts.process.tools.salmon.meta import Meta
 
 from app.config.settings import settings
 
-class Setup():
+class Setup(Base):
     _index_dir = settings.INDEX_FOLDER
 
-    def __init__(self, panel, chunk_number, in_dir, out_dir, chunk_dir, data_dir) -> None:
-        self.panel = panel
-        self.chunk_number = chunk_number
-        self.in_dir = in_dir
-        self.out_dir = out_dir
-        self.chunk_dir = chunk_dir
-        self.data_dir = data_dir
+    def __init__(self) -> None: 
 
         self.sum_header = "Name"
         self.metadata = Meta(self.panel).load()
