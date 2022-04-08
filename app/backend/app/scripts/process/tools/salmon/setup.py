@@ -1,6 +1,7 @@
 import os
-from app.scripts.process.tools.salmon.analyze import Analyze
-from app.scripts.process.tools.salmon.output import Output
+import pandas as pd
+import numpy as np
+from app.scripts.process.tools.salmon.meta import Meta
 
 from app.config.settings import settings
 
@@ -15,9 +16,14 @@ class Setup():
         self.chunk_dir = chunk_dir
         self.data_dir = data_dir
 
+        self.sum_header = "Name"
+        self.metadata = Meta(self.panel).load()
+
+        self.headers = ['Name', 'TPM']
+        self.quant = os.path.join(self.chunk_dir, "quant.sf")
         self.access_point = settings.ACCESS_POINTS['salmon'] 
 
-
+    @property
     def configure(self) -> list:
         '''
         returns a command list for salmon using the generated parameters
@@ -77,20 +83,75 @@ class Setup():
             return command_list
         else:
             return "Invalid fastqtype"
+
+
+    def _coverage(self, df, header):
+        '''
+        Calculates coverage for given df
+        '''
+        hits = df.copy()
+        
+        hits = hits[hits[header] > 0] 
+
+        all_count = df.groupby(['Pathogen'])['Gene'].apply(np.count_nonzero)
+        hits_count = hits.groupby(['Pathogen'])['Gene'].apply(np.count_nonzero)
+        coverage = np.round(hits_count.astype(np.double)/all_count.astype(np.double) * 100, decimals=2)
+        coverage.fillna(0, inplace=True)
+        
+        return coverage.to_frame("Coverage")
     
-    def post_process(self):
+    def transform(self):
         '''
-        Performs some transformations on quant data based on panel
+        Reads in quant file and returns the resulting matches sorted by the loaded metadata panel 
+        Parses tool output to return a dataframe
         '''
-        quant_dir = "{}/quant.sf".format(self.chunk_dir) 
-        headers = ['Name', 'TPM']
+         # Read in quant.sf file into pandas, grab chosen headers and drop na values
+        df = pd.read_csv(self.quant, sep="\t") 
+        df = df.loc[:, df.columns.isin(self.headers)]  
+        df = df.dropna()   
 
-        quant = Analyze(self.panel, quant_dir, headers, self.data_dir)
-        quant.accumulate()
+        df_list = []
+        for col in self.metadata:
 
-    def load_data(self):
+          # match samples to metadata to subset pathogen hits
+          sample = df.copy()
+
+          sample = sample[sample['Name'].isin(self.metadata[col])]
+          sample = sample.dropna()       
+          sample = sample.reset_index(drop=True)
+          sample['Pathogen'] = col
+
+          sample.rename(columns={"Name":"Gene"}, inplace=True)
+
+          # sample.set_index("Pathogen", inplace=True)  
+
+          # generate copy of pathogen results so it doesn't write over previous df
+          new_df = sample.copy()  
+          df_list.append(new_df)
+
+        matches_df = pd.concat(df_list)  
+
+        matches_df.set_index("Pathogen", inplace=True)
+        matches_df['Coverage'] = self._coverage(matches_df, self.headers[1])
+        matches_df.reset_index(inplace=True)
+
+        return matches_df 
+    
+    def data_loader(self, df):
         '''
-        Loads data 
-        '''
-        output = Output(self.data_dir)
-        return output.load()
+        Loads data for frontend given dataframe from data.json
+        ''' 
+        headers=['Gene', 'TPM']
+        c = df.copy()
+        c = c.groupby(["Pathogen","Coverage"]).count().drop(headers, axis=1)  
+        c = c.index.to_frame(index=False)
+        c = c.to_dict(orient="records")
+
+        data = {
+          "coverage": c,
+          "title": "Transcriptome Coverage Estimate",
+          "xlabel": "Pathogens",
+          "ylabel": "Coverage (%)",
+        }
+
+        return data 

@@ -67,6 +67,7 @@ def perform_chunk_analysis(process, chunk_number, file_dir, panel, out_dir):
     chunk = os.path.join(analysis_dir, f'{chunk_number}.fastq')
 
     process = Controller(process=process, panel=panel, chunk_number=chunk_number, in_dir=chunk, out_dir=out_dir)
+    print(process.commands)
     resp = requests.post(process.access_point, json=process.commands)
 
     file = File.load(file_dir)

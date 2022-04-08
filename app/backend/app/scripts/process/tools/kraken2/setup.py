@@ -1,3 +1,4 @@
+from doctest import OutputChecker
 import os 
 
 from app.config.settings import settings
@@ -13,9 +14,11 @@ class Setup():
         self.out_dir = out_dir
         self.chunk_dir = chunk_dir
         self.data_dir = data_dir
-
+        
+        self.sum_header = "Name"
         self.access_point = settings.ACCESS_POINTS['kraken2'] 
 
+    @property
     def configure(self) -> list:
         '''
         returns a command list for salmon using the generated parameters
@@ -56,15 +59,15 @@ class Setup():
 
         return command_lst 
     
-    def post_process(self):
+    def transform(self):
         '''
-        Performs some transformations on output data
+        Parses tool output to return a dataframe
         '''
+         # Read in quant.sf file into pandas, grab chosen headers and drop na values
         pass
-
-
-    def load_data(self):
+    
+    def data_loader(self, df):
         '''
-        Loads data 
-        '''
-        pass
+        Loads data for frontend given dataframe from data.json
+        ''' 
+        pass 

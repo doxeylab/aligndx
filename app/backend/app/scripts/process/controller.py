@@ -1,6 +1,9 @@
 import os
 import importlib
 
+from app.scripts.process.output import Output
+from app.scripts.process.analyze import Analyze
+
 from app.config.settings import settings
 
 AVAILABLE_TOOLS = settings.TOOLS
@@ -34,7 +37,21 @@ class Controller():
         )
 
         self.access_point = self.tool_instance.access_point
-        self.commands = self.tool_instance.configure()
-        self.post_process = self.tool_instance.post_process
-        self.load_data = self.tool_instance.load_data
-        
+        self.commands = self.tool_instance.configure
+        self.transform = self.tool_instance.transform
+        self.data_loader = self.tool_instance.data_loader
+        self.sum_header = self.tool_instance.sum_header
+    
+    def post_process(self):
+        '''
+        Performs some transformations on output data using tool parser (self.transform)
+        '''
+        data = Analyze(self.panel, self.out_dir, self.data_dir, self.transform, self.sum_header)
+        data.accumulate()
+
+    def load_data(self):
+        '''
+        Loads data from data.json using tool data_loader
+        '''
+        output = Output(self.data_dir, self.data_loader)
+        return output.load() 
