@@ -88,11 +88,10 @@ async def start_file(
     filename: str = Body(...),
     number_of_chunks: int = Body(...),
     panels: List[str] = Body(...),
-    # process: str = Body(...),
+    process: str = Body(...),
     db: AsyncSession = Depends(get_db)
 ):
     for option in panels:
-        process="rna-seq"
 
         submission_type = process 
 
@@ -150,7 +149,7 @@ async def upload_chunk(
         size_kilobytes=math.ceil(upload_chunk_size / 1024),
         creation_time=datetime.now()
     )
-    query = uplog_dal.create(log)
+    query = await uplog_dal.create(log)
     
     return {"Result": "OK"}
 

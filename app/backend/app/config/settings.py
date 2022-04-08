@@ -22,11 +22,7 @@ class AppSettings(BaseSettings):
     #  -- User Data -- 
 
     UPLOAD_FOLDER = './uploads' 
-    RESULTS_FOLDER = './results'
-
-    for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER):
-        if not os.path.isdir(dirname):
-            os.mkdir(dirname) 
+    RESULTS_FOLDER = './results' 
 
     #  -- External Files or MetaData --
     
@@ -60,6 +56,7 @@ class AppSettings(BaseSettings):
     #  -- Db settings --
     
     DATABASE_URL: str = os.getenv("DATABASE_URL")
+    DB_LOGS = False
     @property
     def async_database_url(self) -> Optional[str]:
         return (

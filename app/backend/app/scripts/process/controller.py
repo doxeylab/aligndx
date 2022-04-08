@@ -14,6 +14,12 @@ class Controller():
         self.in_dir = in_dir 
         
         self.chunk_dir = "{}/{}".format(self.out_dir, self.chunk_number)
+
+        if chunk_number is not None:
+            if not os.path.isdir(self.chunk_dir):
+                print(f"creating {self.chunk_dir}")
+                os.mkdir(self.chunk_dir)
+
         self.data_dir = os.path.join(self.out_dir, "data.json")
 
         self.tool = AVAILABLE_TOOLS[self.process]

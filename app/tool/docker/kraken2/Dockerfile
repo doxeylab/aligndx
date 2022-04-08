@@ -14,6 +14,7 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
  rsync \
  cpanminus \
  && apt install python3-pip -y\
+ && apt install python -y\
  && rm -rf /var/lib/apt/lists/* && apt-get autoclean
 
 # perl module required for kraken2-build
@@ -34,9 +35,9 @@ cd Bracken-${BVER} && \
 chmod +x ./install_bracken.sh &&\
 ./install_bracken.sh .
 
-ENV PATH="$PATH:/kraken2-${K2VER}" \
-    PATH="$PATH:/Bracken-${BVER}" \
-    LC_ALL=C
+ENV PATH="$PATH:/kraken2-${K2VER}"
+ENV PATH="$PATH:/Bracken-${BVER}" 
+ENV PATH="$PATH:/bin/python2.7"
 
 WORKDIR /app/
 

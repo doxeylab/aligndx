@@ -1,7 +1,7 @@
 import os 
 
 from app.config.settings import settings
-
+import os
 class Setup():
     _index_dir = settings.INDEX_FOLDER
     _kraken_db = settings.KRAKEN_DB
@@ -42,7 +42,7 @@ class Setup():
                 "--output",
                 kraken_out,
                 in_name,
-                "|",
+                ";",
                 "bracken",
                 "-d",
                 krakendb,

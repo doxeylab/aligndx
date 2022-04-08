@@ -8,7 +8,7 @@ import { Section } from '../../../components/Common/PageElement';
 import Button from '../../../components/Button';
 import UploadModal from '../../../components/Modals/UploadModal';
 import RestartModal from '../../../components/Modals/RestartModal';
-import StartFile from '../../../components/ChunkController/chunkStarter';
+import StartFile from '../../../containers/ChunkController/chunkStarter'
 
 import { Col, Container, Row } from 'react-bootstrap';
 import HomePageArt from '../../../assets/HomePageArt.svg';
@@ -35,6 +35,8 @@ const Hero = (props) => {
     const [dataFiles, setDataFiles] = useState([]);
     const { setLoad } = useContext(LoadContext);
     const [selectedDetections, setSelectedDetections] = useState([]);
+    const [process, setProcess] = useState("");
+
 
     const [options,setOptions] = useState([]);  
     const [restart,setRestart] = useState({
@@ -87,76 +89,9 @@ const Hero = (props) => {
 
     const detectionCallback = (detections) => {
         setSelectedDetections(detections) 
-    } 
+    }  
 
     const upload = () => {
-        setLoad(true) 
-
-        if (authenticated) {
-            const formData = new FormData();
-  
-            dataFiles.forEach(file => {
-                formData.append('files', file)
-            })
-            selectedDetections.forEach(x => {
-                formData.append("panel", x)
-            })
-
-            var resource = UPLOAD_URL
-            const token = localStorage.getItem("accessToken")
-
-            const config = { 
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                onUploadProgress: progressEvent => {
-                var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-                props.changeProgress(percentCompleted)
-              }
-            }
-
-            axios.post(resource, formData, config)
-                .then((res) => {
-                    setLoad(false)
-                    const fileId = res.data.File_ID;  
-                    history.push({
-                        pathname: "/standard/#/?id=" + fileId,
-                        state: {
-                            response: res.data,
-                            file: dataFiles[0],
-                            panels: selectedDetections,
-                            resource: STANDARD_RESULTS   
-                        }
-                    }
-                    )
-                })
-                .catch(function (error) {
-                    if (error.response) {
-                        // The request was made and the server responded with a status code
-                        // that falls out of the range of 2xx
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        console.log(error.response.headers);
-                    } else if (error.request) {
-                        // The request was made but no response was received
-                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                        // http.ClientRequest in node.js
-                        console.log(error.request);
-                    } else {
-                        // Something happened in setting up the request that triggered an Error
-                        console.log('Error', error.message);
-                    }
-                    console.log(error.config);
-                });
-        }
-        else {  
-            alert("Please sign in to use this service")
-            setLoad(false) 
-        }  
-         
-    } 
-    
-    const uploadlive = () => {
         // setLoad(true) 
 
         if (authenticated) {
@@ -185,7 +120,7 @@ const Hero = (props) => {
 
             }
             else {
-                StartFile(token, dataFiles[0], selectedDetections)
+                StartFile(token, dataFiles[0], selectedDetections, process)
                 .then(
                     (res) => {
                         setLoad(false)
@@ -214,16 +149,21 @@ const Hero = (props) => {
          
     }
 
-    const handleShow = (modalstate) => {
+    const handleShow = (modalstate, process) => {
         if (authenticated){
             modalstate(true);
+            setProcess(process)
         }
         else {
             alert("Please sign in to use this service")
+            setProcess('')
         }
     }
         
-    const handleClose = (modalstate) => modalstate(false);
+    const handleClose = (modalstate) => {
+        modalstate(false);
+        setProcess('')
+    }
 
     useEffect(() => {
         setAuthenticated(context.authenticated)
@@ -244,7 +184,11 @@ const Hero = (props) => {
     useEffect(() => {
         selectmenuoptions();    
     },[])
- 
+
+    useEffect(() => {
+        console.log(process)
+    }, [process])
+
     useEffect(() => {
         if (selectedRestartData){
             setRestart({...restart, restartflag: true})
@@ -260,10 +204,10 @@ const Hero = (props) => {
                             <Fade left duration={1000} delay={600} distance="30px">
                                 <HeroBody>
                                     <HeroTitle>PATHOGEN<br />DETECTION</HeroTitle>
-                                    <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined RNA-seq pipeline. Alternatively, go through our examples for sample results.</HeroText>
+                                    <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined pipelines. Alternatively, go through our examples for sample results.</HeroText>
                                     <HeroBtns>
-                                        {/* <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button> */}
-                                        <Button onClick={() => handleShow(setShowLiveUploadModal)}>Upload</Button>
+                                        <Button onClick={() => handleShow(setShowStandardUploadModal, "rna-seq")}>RNA-Seq</Button>
+                                        <Button onClick={() => handleShow(setShowLiveUploadModal, "metagenomics")}>Metagenomics</Button>
                                         <Button fill to="/examples">Examples</Button>
                                     </HeroBtns>
                                 </HeroBody>
@@ -279,8 +223,8 @@ const Hero = (props) => {
                         <HeroCol>
                             <Fade left duration={1000} delay={600} distance="30px">
                                 <HeroBtns2>
-                                    {/* <Button onClick={() => handleShow(setShowStandardUploadModal)}>Standard</Button> */}
-                                    <Button onClick={() => handleShow(setShowLiveUploadModal)}>Upload</Button>
+                                    <Button onClick={() => handleShow(setShowStandardUploadModal)}>RNA-Seq</Button>
+                                    <Button onClick={() => handleShow(setShowLiveUploadModal)}>Metagenomics</Button>
                                     <Button fill to="/examples">Example</Button>
                                 </HeroBtns2>
                             </Fade>
@@ -304,7 +248,7 @@ const Hero = (props) => {
 
                 title={
                     <Typography variant='h4'>
-                        Standard
+                        RNA-Seq
                     </Typography>
                 }
             ></UploadModal>
@@ -320,11 +264,11 @@ const Hero = (props) => {
                 detectionCallback={detectionCallback}
                 selectedDetections={selectedDetections}
                 
-                upload={uploadlive}
+                upload={upload}
                 
                 title={
                     <Typography variant='h4'>
-                        Live Uploads
+                        Metagenomics
                     </Typography>
                 }
             ></UploadModal> 
@@ -334,7 +278,7 @@ const Hero = (props) => {
                     handleClose(setShowRestartModal)
                     handleClose(setSelectedRestartData)
                 }}
-                upload={uploadlive}
+                upload={upload}
                 data={restart.data}
 
                 selectedFiles={dataFiles}

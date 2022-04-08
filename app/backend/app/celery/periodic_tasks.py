@@ -43,6 +43,7 @@ async def perform_file_analyses(file, file_dir):
         if chunk.status == 'Ready':
             print(f'Analyzing {file.file_id} chunk {chunk.chunk_number}')
             file.set_start_chunk_analysis(chunk.chunk_number)
+            print(chunk.chunk_number)
             tasks.perform_chunk_analysis.s(
                     file.process, chunk.chunk_number, file_dir, file.panel, out_dir).apply_async()
 

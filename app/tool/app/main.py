@@ -26,6 +26,7 @@ app.add_middleware(
 @app.post("/")
 async def run(commands_lst : list):   
     commands = " ".join(str(x) for x in commands_lst)
+    print(f"The commands were: {commands}")
     proc = await asyncio.create_subprocess_shell(
         commands,
         stdout=asyncio.subprocess.PIPE,
