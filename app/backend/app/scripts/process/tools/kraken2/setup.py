@@ -8,9 +8,10 @@ class Setup(Base):
     _index_dir = settings.INDEX_FOLDER
     _kraken_db = settings.KRAKEN_DB
 
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.sum_header = "Name"
-        self.access_point = settings.ACCESS_POINTS['kraken2'] 
+        self.access_point = settings.ACCESS_POINTS['kraken2']
 
     @property
     def configure(self) -> list:

@@ -28,12 +28,12 @@ class Controller():
         self.tool = AVAILABLE_TOOLS[self.process]
         self.tool_class = getattr(importlib.import_module("app.scripts.process.tools." + self.tool + ".setup"),"Setup")
         self.tool_instance= self.tool_class(
-                self.panel,
-                self.chunk_number,
-                self.in_dir,
-                self.out_dir, 
-                self.chunk_dir,
-                self.data_dir
+                panel=self.panel,
+                chunk_number=self.chunk_number,
+                in_dir=self.in_dir,
+                out_dir=self.out_dir, 
+                chunk_dir=self.chunk_dir,
+                data_dir=self.data_dir
         )
 
         self.access_point = self.tool_instance.access_point

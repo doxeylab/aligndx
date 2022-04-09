@@ -11,7 +11,8 @@ from app.config.settings import settings
 class Setup(Base):
     _index_dir = settings.INDEX_FOLDER
 
-    def __init__(self) -> None: 
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
         self.sum_header = "Name"
         self.metadata = Meta(self.panel).load()
@@ -19,6 +20,7 @@ class Setup(Base):
         self.headers = ['Name', 'TPM']
         self.quant = os.path.join(self.chunk_dir, "quant.sf")
         self.access_point = settings.ACCESS_POINTS['salmon'] 
+
 
     @property
     def configure(self) -> list:
