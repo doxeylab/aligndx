@@ -1,13 +1,25 @@
+import { useState } from "react";
 import Form from "react-bootstrap/Form"
 import Col from "react-bootstrap/Col"
 
 // Custom CSS
 import './addressFormStyles.css';
 
-const AddressForm = ({address, setAddress}) => {
+import { countryList } from "./countriesList"
+import { provincesList } from "./provincesList"
+import { statesList } from "./statesList"
 
-    function handleChange(event) {
+const AddressForm = ({address, setAddress}) => {
+    const [countries] = useState(countryList);
+    const [provinces] = useState(provincesList);
+    const [states] = useState(statesList);
+    const [selectedCountry, setSelectedCountry] = useState(null);
+
+    const handleChange = (event) => {
         const {name, value, type, checked} = event.target
+        if (name === 'country') {
+            setSelectedCountry(value)
+        }
         setAddress(prevFormData => {
             return {
                 ...prevFormData,
@@ -15,6 +27,7 @@ const AddressForm = ({address, setAddress}) => {
             }
         });
     }
+
     return (
         <Form id='address-form'>
             <h1>
@@ -68,9 +81,18 @@ const AddressForm = ({address, setAddress}) => {
                         name="state"
                         value={address.state}
                     >
-                        <option value="Alberta">Alberta</option>
-                        <option value="Ontario">Ontario</option>
-                        <option value="Other">Other</option>
+                        <option key={''} value={''}>--- Choose ---</option>
+                        {
+                            (() => {
+                                if (selectedCountry === 'Canada') {
+                                    return (provinces.map(p => <option key={p.name} value={p.name}>{p.name}</option>))
+                                } else if (selectedCountry === 'USA') {
+                                    return (states.map(s => <option key={s} value={s}>{s}</option>))
+                                } else {
+                                    return (<option key={'Other'} value={'Other'}>Other</option>)
+                                }
+                            })()
+                        }
                     </Form.Control>
                 </Form.Group>
             </Form.Row>
@@ -93,9 +115,10 @@ const AddressForm = ({address, setAddress}) => {
                         name="country"
                         value={address.country}
                     >
-                        <option value="US">USA</option>
-                        <option value="CA">Canada</option>
-                        <option value="OTHER">Other</option>
+                        <option key={''} value={''}>--- Choose ---</option>
+                        <option key={'Canada'} value={'Canada'}>Canada</option>
+                        <option key={'USA'} value={'USA'}>USA</option>
+                        {countries.map((c) => <option key={c} value={c}>{c}</option>)}
                     </Form.Control>
                 </Form.Group>
             </Form.Row>
