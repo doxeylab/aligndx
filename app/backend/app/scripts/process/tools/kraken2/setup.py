@@ -1,4 +1,5 @@
 import os 
+import pandas as pd 
 
 from app.scripts.process.base import Base
 
@@ -12,18 +13,20 @@ class Setup(Base):
         super().__init__(*args, **kwargs)
         self.sum_header = "Name"
         self.access_point = settings.ACCESS_POINTS['kraken2']
+        
+        self.report_name = "{}/{}".format(self.chunk_dir, "report.txt")
+        self.kraken_out =  "{}/{}".format(self.chunk_dir, "kraken.out")
+        self.braken_out =  "{}/{}".format(self.chunk_dir, "braken.out")
 
     @property
     def configure(self) -> list:
         '''
         returns a command list for salmon using the generated parameters
         '''
-        report_name = "{}/{}".format(self.chunk_dir, "report.txt")
-        kraken_out =  "{}/{}".format(self.chunk_dir, "kraken.out")
-        braken_out =  "{}/{}".format(self.chunk_dir, "braken.out")
+      
         classification_lvl = "S"
 
-        commands = self._generate_commands(settings.KRAKEN_DB, report_name, kraken_out, braken_out, classification_lvl, self.in_dir)
+        commands = self._generate_commands(settings.KRAKEN_DB, self.report_name, self.kraken_out, self.braken_out, classification_lvl, self.in_dir)
         return commands
 
     def _generate_commands(self, krakendb, report_name, kraken_out, bracken_out, classification_lvl, in_name, in_name2 = None, fastqtype="single"):
@@ -56,13 +59,27 @@ class Setup(Base):
     
     def transform(self):
         '''
-        Parses tool output to return a dataframe
+        Parses tool output, performs some mutations and returns a dataframe
         '''
          # Read in quant.sf file into pandas, grab chosen headers and drop na values
-        pass
+        df = pd.read_csv(self.braken_out, sep="\t")
+        return df
+
     
     def data_loader(self, df):
         '''
         Loads data for frontend given dataframe from data.json
         ''' 
-        pass 
+        c = df.copy()
+        c = c[['name', 'fraction_total_reads']]
+        c.rename(columns={'name': 'Pathogen', 'fraction_total_reads': 'Coverage'}, inplace=True)
+        c = c.to_dict(orient="records")
+
+        data = {
+          "coverage": c,
+          "title": "Transcriptome Coverage Estimate",
+          "xlabel": "Pathogens",
+          "ylabel": "Coverage (%)",
+        }
+
+        return data 
