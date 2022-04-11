@@ -32,7 +32,7 @@ const Checkout = () => {
         city: '',
         state: '',
         postalCode: '',
-        country: 'Canada'
+        country: 'CA'
     });
     const onSuccess = (data) => {
         if (data) {

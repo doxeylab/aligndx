@@ -13,7 +13,7 @@ const AddressForm = ({address, setAddress, validated, submit}) => {
     const [countries] = useState(countryList);
     const [provinces] = useState(provincesList);
     const [states] = useState(statesList);
-    const [selectedCountry, setSelectedCountry] = useState("Canada");
+    const [selectedCountry, setSelectedCountry] = useState("CA");
     
 
     const handleChange = (event) => {
@@ -91,9 +91,9 @@ const AddressForm = ({address, setAddress, validated, submit}) => {
                         <option key={''} value={''}>--- Choose ---</option>
                         {
                             (() => {
-                                if (selectedCountry === 'Canada') {
+                                if (selectedCountry === 'CA') {
                                     return (provinces.map(p => <option key={p.name} value={p.name}>{p.name}</option>))
-                                } else if (selectedCountry === 'USA') {
+                                } else if (selectedCountry === 'US') {
                                     return (states.map(s => <option key={s} value={s}>{s}</option>))
                                 } else {
                                     return (<option key={'Other'} value={'Other'}>Other</option>)
@@ -131,9 +131,7 @@ const AddressForm = ({address, setAddress, validated, submit}) => {
                         value={address.country}
                     >
                         <option key={''} value={''}>--- Choose ---</option>
-                        <option key={'Canada'} value={'Canada'}>Canada</option>
-                        <option key={'USA'} value={'USA'}>USA</option>
-                        {countries.map((c) => <option key={c} value={c}>{c}</option>)}
+                        {countries.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
                     </Form.Control>
                     <Form.Control.Feedback type="invalid">
                         Please select a valid Country.
