@@ -19,7 +19,7 @@ import Team from './pages/Team';
 
 import Signup from './pages/Signup';
 import { Login } from './pages/Login';
-import Profile from './pages/Profile';
+import MyResults from './pages/MyResults';
 import Pricing from './pages/Pricing';
 
 import Live from './pages/Live/';
@@ -77,7 +77,7 @@ function App() {
                                             <Route path='/team' component={Team} />
                                             <Route path='/signup' component={Signup} />
                                             <Route path='/login' component={Login} />
-                                            <Route path='/profile' component={Profile} />
+                                            <Route path='/myresults' component={MyResults} />
                                             <Route path='/live' component={Live} />
                                             <Route path='/standard' component={Standard} />
                                             <Route path='/result' component={Result} />

@@ -10,7 +10,7 @@ import { useGlobalContext } from "../context-provider";
 import ResultsTable from '../components/TableComponents/ResultsTable'
 
 
-const Profile = () => {
+const MyResults = () => {
     const [data, setData] = useState(null);
     const context = useGlobalContext();
 
@@ -57,4 +57,4 @@ const Profile = () => {
     )
 }
 
-export default Profile
+export default MyResults

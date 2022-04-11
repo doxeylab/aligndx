@@ -95,12 +95,12 @@ const NavBar = () => {
                 >
                     {context.authenticated ? (
                         <div>
-                            <Link to="/profile">
+                            <Link to="/myresults">
                                 <MenuItem>
                                     <ListItemIcon>
                                         <i className="fas fa-user"></i>
                                     </ListItemIcon>
-                                    <p>Profile</p>
+                                    <p>My Results</p>
                                 </MenuItem>
                             </Link>
 
