@@ -1,11 +1,19 @@
+import { useState } from "react";
 import { Button, Container, Card } from "react-bootstrap";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { SendCheck, CheckCircleFill } from "react-bootstrap-icons";
 import { Section } from "../components/Common/PageElement";
-
+import { useHistory } from 'react-router-dom';
+import { withRouter } from "react-router-dom";
+import { useGlobalContext } from "../context-provider";
 
 const Pricing = () => {
+  const history = useHistory();
+  const context = useGlobalContext();
+  const [basicPlan] = useState('1eb6215c-d84d-4446-af78-cd6ca152a781')
+  const [premiumPlan] = useState('cfacc273-5336-43cb-9bd2-86975f1d74f8')
+
   const styles = {
     button: {
       fontSize:"22px",
@@ -30,6 +38,14 @@ const Pricing = () => {
     }
 
     
+  }
+
+  const linkToCheckout = (plan_id) => {
+    if (!context.authenticated) {
+      history.push('/signup')
+    } else {
+      history.push(`/checkout?plan_id=${plan_id}`)
+    }
   }
   return (
     <>
@@ -76,7 +92,7 @@ const Pricing = () => {
                     </ul>
                   </Card.Body>
                   <Card.Footer className="text-center">
-                    <Button variant="primary" style={styles.button}>
+                    <Button variant="primary" style={styles.button} onClick={() => linkToCheckout(basicPlan)}>
                       Join now
                     </Button>
                   </Card.Footer>
@@ -115,7 +131,7 @@ const Pricing = () => {
                     </ul>
                   </Card.Body>
                   <Card.Footer className="text-center">
-                    <Button variant="primary" style={styles.button}>
+                    <Button variant="primary" style={styles.button} onClick={() => linkToCheckout(premiumPlan)}>
                       Join now
                     </Button>
                   </Card.Footer>
@@ -164,4 +180,4 @@ const Pricing = () => {
     </>
   );
 };
-export default Pricing;
+export default withRouter(Pricing);

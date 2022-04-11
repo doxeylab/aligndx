@@ -1,0 +1,7 @@
+#address-form label, #address-form input, #address-form select {
+    font-size: 1.6rem;
+}
+
+#address-form .invalid-feedback {
+    font-size: 1.3rem;
+}

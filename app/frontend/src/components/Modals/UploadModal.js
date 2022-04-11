@@ -23,7 +23,7 @@ const UploadModal = (props) => {
                 <Container>
                         <Row style={{ marginBottom: '1.5rem' }}>
                             <Col>
-                                <DataProgressBar percentage = {dataPercentUsage}/>
+                                <DataProgressBar caption = "Data Remaining in Subscription Plan" percentage = {dataPercentUsage}/>
                             </Col>
                         </Row>
                         <Row style={{ marginBottom: '1.5rem' }}>

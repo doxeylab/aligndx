@@ -1,5 +1,6 @@
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import GlobalStyle from './StyledGlobal';
+import './styles/fonts.css'
 
 import React, { Fragment, useState } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -24,6 +25,8 @@ import Pricing from './pages/Pricing';
 import Live from './pages/Live/';
 import Standard from './pages/Standard';
 import Result from './pages/Result';
+
+import Checkout from './pages/Checkout';
 
 import NotFound from './pages/NotFound';
 
@@ -79,6 +82,7 @@ function App() {
                                             <Route path='/standard' component={Standard} />
                                             <Route path='/result' component={Result} />
                                             <Route path='/pricing' component={Pricing}/>
+                                            <Route path='/checkout' component={Checkout}/>
                                             <Route component={NotFound} />
                                         </Switch>
                                         <Footer />
