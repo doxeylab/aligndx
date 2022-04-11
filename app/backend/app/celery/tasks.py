@@ -13,8 +13,7 @@ from celery.contrib import rdb
 from celery.utils.log import get_task_logger
 from celery.signals import after_setup_logger
 
-from app.scripts import salmonconfig 
-from app.scripts.post_processing.Analyze import AnalyzeQuant 
+from app.scripts.process.controller import Controller
 
 from app.celery.File import File
 
@@ -34,9 +33,9 @@ app.config_from_object('app.celery.celeryconfig')
 #     logger.addHandler(fh)
 
 @app.task
-def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size, num_upload_chunks, email, fileId, panel):
+def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size, num_upload_chunks, email, fileId, panel, process):
     file = File(fileId, file_dir, filename, email, chunk_ratio=analysis_chunk_size /
-                upload_chunk_size, num_upload_chunks=num_upload_chunks, panel=panel)
+                upload_chunk_size, num_upload_chunks=num_upload_chunks, panel=panel, process=process)
     file.save()
 
     return {'Success': True}
@@ -62,72 +61,24 @@ def process_new_upload(self, file_dir, new_chunk_number):
     return {'Success': True}
 
 
-class SalmonMemoryError(Exception):
-    """Exception raised for salmon not outputting quant files, due to memory availability
-
-    Attributes:
-        None
-    """
-
-    def __init__(self, dir, message="Salmon did not complete correctly"):
-        self.dir = dir
-        self.message = message
-        super().__init__(self.message)
-
-
-@app.task(throws=(SalmonMemoryError,), autoretry_for=(SalmonMemoryError,), retry_backoff=5)
-def perform_chunk_analysis(chunk_number, file_dir, panel, index_folder, real_time_results):
-    indexpath = os.path.join(index_folder, panel + "_index")
-    results_dir = "{}/{}".format(real_time_results, chunk_number)
-
-    analysis_dir = os.path.join(file_dir, 'salmon_data')
+@app.task
+def perform_chunk_analysis(process, chunk_number, file_dir, panel, out_dir):
+    analysis_dir = os.path.join(file_dir, 'tool_data')
     chunk = os.path.join(analysis_dir, f'{chunk_number}.fastq')
-    commands = salmonconfig.commands(indexpath, chunk, results_dir)
 
-    with requests.Session() as s:
-        s.post("http://salmon:80/", json=commands)
-
-    quant_dir = "{}/quant.sf".format(results_dir)
+    process = Controller(process=process, panel=panel, chunk_number=chunk_number, in_dir=chunk, out_dir=out_dir)
+    print(process.commands)
+    resp = requests.post(process.access_point, json=process.commands)
 
     file = File.load(file_dir)
 
-    if os.path.isfile(quant_dir):
-        os.remove(chunk)
-
-        return {'Success': True,
-                'Chunk_To_Analyze': chunk_number,
-                'File_Dir': file_dir,
-                'Quant_Dir': quant_dir}
-    else:
+    if resp.raise_for_status():
         file.set_analysis_error(chunk_number)
 
-        raise SalmonMemoryError(quant_dir)
-
-
-@app.task
-def post_process(salmon_result, data_dir, panel):
-
-    # only do post-processing if quant_file exists
-    if salmon_result is None:
-        return
-
-    # state vars
-    file_dir = salmon_result['File_Dir']
-    quant_dir = salmon_result['Quant_Dir']
-    chunk_number = salmon_result['Chunk_To_Analyze']
-
-    # configurations for post-processing
-    headers = ['Name', 'TPM']
-
-    quant = AnalyzeQuant(panel, quant_dir, headers, data_dir)
-    quant.accumulate()
-    
-    file = File.load(file_dir)
-    file.set_complete_chunk_analysis(chunk_number)
-
-    return {"Success": True,
-            "Chunk_Analyzed": chunk_number}
-
+    else:
+        process.post_process()
+        file.set_complete_chunk_analysis(chunk_number=chunk_number)
+        return {'Success': True}
 
 if __name__ == '__main__':
     app.worker_main()

@@ -10,7 +10,8 @@ RUN apt-get update \
     && apt install python3-pip -y \
     && python -m pip --version \
     && python -m pip install --upgrade pip \
-    && python -m pip install --no-cache-dir -r requirements.txt  
- 
-WORKDIR /app/
+    && python -m pip install --no-cache-dir -r requirements.txt  \
+    && rm -rf /var/lib/apt/lists/* && apt-get autoclean
+
+COPY /app ./app
 ENV PYTHONPATH=/app

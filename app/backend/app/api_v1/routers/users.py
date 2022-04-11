@@ -1,23 +1,18 @@
-# python libraries
 from datetime import timedelta
 
-# FastAPI
 from fastapi import APIRouter, Depends
 from fastapi import HTTPException, status 
 from fastapi.security import OAuth2PasswordRequestForm
 
-# auth components
 import app.auth.auth_dependencies as auth
 from app.auth.models import UserTemp, Token, User
 from app.auth.auth_dependencies import get_current_user
 from app.auth.models import UserDTO, RefreshRequest
 
-# db components
 from app.db.dals.users import UsersDal
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-# settings
 from app.config.settings import settings
 
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES

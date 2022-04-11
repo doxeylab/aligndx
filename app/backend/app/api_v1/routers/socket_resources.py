@@ -1,6 +1,4 @@
-import os, asyncio, importlib, json
-from typing import Optional
-import pandas as pd 
+import os, asyncio
 from pydantic import BaseModel
 
 from fastapi import APIRouter, Depends, status
@@ -14,32 +12,19 @@ from app.db.dals.users import UsersDal
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.scripts import analyze, realtime 
 from app.scripts.web_socket.manager import ConnectionManager
-from app.celery.File import File
+from app.scripts.process.controller import Controller
 
-from app.celery import tasks
-from app.scripts.post_processing.Output import StoredQuantData
+from app.celery.File import File
 
 from app.config.settings import settings
 
 UPLOAD_FOLDER = settings.UPLOAD_FOLDER
-RESULTS_FOLDER = settings.RESULTS_FOLDER
-INDEX_FOLDER = settings.INDEX_FOLDER
-METADATA_FOLDER = settings.METADATA_FOLDER
-STANDARD_UPLOADS = settings.STANDARD_UPLOADS
-STANDARD_RESULTS = settings.STANDARD_RESULTS
-REAL_TIME_UPLOADS = settings.REAL_TIME_UPLOADS
-REAL_TIME_RESULTS = settings.REAL_TIME_RESULTS
-
-for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULTS,  REAL_TIME_UPLOADS, REAL_TIME_RESULTS):
-    if not os.path.isdir(dirname):
-        os.mkdir(dirname)
-
+RESULTS_FOLDER = settings.RESULTS_FOLDER 
 
 router = APIRouter() 
 
-# -- Realtime upload results --
+# -- chunked upload results --
 
 manager = ConnectionManager()
 
@@ -56,36 +41,41 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
     query = await users_dal.get_submission(current_user.id, file_id)
 
     submission = SubmissionSchema.from_orm(query)
-    sample_name = submission.name
+    upload_dir = os.path.join(UPLOAD_FOLDER, file_id)
+    results_dir = os.path.join(RESULTS_FOLDER, file_id)
+    controller = Controller(process=submission.submission_type,panel=submission.panel,out_dir=results_dir)
 
-    headers=['Name', 'TPM']
-    data_dir = "{}/{}/{}".format(REAL_TIME_RESULTS, file_id, "data.json")
-    file_dir = os.path.join(REAL_TIME_UPLOADS, file_id)
-    data_obj = StoredQuantData(data_dir)
 
     if current_user:
         print(f"User {current_user.id} connected!")
         try:
             while True:
-                if os.path.isdir(file_dir):
-                    file = File.load(file_dir) 
+                if os.path.isdir(upload_dir):
+                    file = File.load(upload_dir) 
 
-                    stored_data = data_obj.load(sample_name, status="ready")    
-
+                    stored_data = controller.load_data() 
                     analysis_progress = len([chunk for chunk in file.state.analysis_chunks if chunk.status == 'Complete']) / len(file.state.analysis_chunks)
                     upload_progress = len([chunk for chunk in file.state.upload_chunks if chunk.status == 'Uploaded']) / len(file.state.upload_chunks)
                     progress_data = {'analysis': analysis_progress, 'upload': upload_progress}
 
                     if all([chunk.status == 'Complete' for chunk in file.state.analysis_chunks]):
                         # all chunks completed, so disconnect websocket
-                        stored_data = data_obj.load(sample_name, status="complete")     
-                        resp = {'progress': progress_data, 'result': stored_data}
-
-                        await manager.send_data(resp, websocket)
+                        stored_data = controller.load_data()
+                        stored_data['status'] = "complete"
+                        stored_data['sample_name'] = submission.name
+                        stored_data['progress_data'] = progress_data
+                      
+                        await manager.send_data(stored_data, websocket) 
                         manager.disconnect(websocket)
                         return
 
                     if stored_data:
+                        stored_data['status'] = "ready"
+                        stored_data['sample_name'] = submission.name
+                        stored_data['progress_data'] = progress_data
+    
+
+                        await manager.send_data(stored_data, websocket)  
                         resp = {'progress': progress_data, 'result': stored_data}
 
                         await manager.send_data(resp, websocket)  

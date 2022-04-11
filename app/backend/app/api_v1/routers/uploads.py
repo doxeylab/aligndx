@@ -1,22 +1,17 @@
-# python libraries
-## system utils
 from http.client import HTTPException
-import sys, os, shutil, math, traceback, importlib
+import os, shutil, math
 
-import aiofiles, asyncio 
-from uuid import uuid4
+import aiofiles 
 from datetime import datetime
 from typing import List 
 
-import requests
 from app.models.schemas.phi_logs import UploadLogBase
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, File, UploadFile, Form, Body
+from fastapi import APIRouter, HTTPException, File, UploadFile, Form, Body
 from fastapi import Depends
 
 from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user
-from app.scripts import salmonconfig 
 
 from app.db.dals.phi_logs import UploadLogsDal
 from app.db.dals.submissions import SubmissionsDal  
@@ -28,7 +23,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config.settings import settings
 
 from app.celery import tasks
-from celery import chain
 
 router = APIRouter()
 
@@ -39,33 +33,6 @@ chunk_ratio = settings.chunk_ratio
 
 UPLOAD_FOLDER = settings.UPLOAD_FOLDER
 RESULTS_FOLDER = settings.RESULTS_FOLDER
-INDEX_FOLDER = settings.INDEX_FOLDER
-METADATA_FOLDER = settings.METADATA_FOLDER
-STANDARD_UPLOADS = settings.STANDARD_UPLOADS
-STANDARD_RESULTS = settings.STANDARD_RESULTS
-REAL_TIME_UPLOADS = settings.REAL_TIME_UPLOADS
-REAL_TIME_RESULTS = settings.REAL_TIME_RESULTS
-
-for dirname in (UPLOAD_FOLDER, RESULTS_FOLDER, STANDARD_UPLOADS, STANDARD_RESULTS,  REAL_TIME_UPLOADS, REAL_TIME_RESULTS):
-    if not os.path.isdir(dirname):
-        os.mkdir(dirname)
-
-# @router.get("/{token}")
-# async def fileretrieve(token: str):
-#     id = await ModelSample.get(token)
-#     print(id)
-#     return {'token': id}
-
-
-@router.post("/test_salmon_container")
-async def ping_salmon():
-    try:
-        commands = {"commands": ["salmon"]}
-        x = requests.post("http://salmon:80/", json=commands)
-        print(x.text)
-        return x.text
-    except Exception as e:
-        return e
 
 
 @router.post("/")
@@ -80,6 +47,7 @@ async def file_upload(
     for file in files:
 
         for option in panel:
+            process = "rna-seq"
             # get file name
             sample_name = file.filename.split('.')[0]
             chosen_panel = str(option.lower()) + "_index"
@@ -95,8 +63,7 @@ async def file_upload(
             file_id = str(query)
 
             # for deleting
-            sample_folder = os.path.join(STANDARD_UPLOADS, file_id)
-            sample_dir = os.path.join(STANDARD_UPLOADS, file_id, sample_name)
+            sample_dir = os.path.join(UPLOAD_FOLDER, file_id)
 
             # create directory for uploaded sample, only if it hasn't been uploaded before
             if not os.path.isdir(sample_dir):
@@ -104,36 +71,16 @@ async def file_upload(
 
             # declare upload location
             file_location = os.path.join(sample_dir, file.filename)
+            results_dir = os.path.join(RESULTS_FOLDER, file_id)
 
             # open file using write, binary permissions
             with open(file_location, "wb+") as f:
                 shutil.copyfileobj(file.file, f)
-
-            indexpath = os.path.join(INDEX_FOLDER, chosen_panel)
-            results_dir = os.path.join(STANDARD_RESULTS, file_id, sample_name)
-
-            commands = salmonconfig.commands(
-                indexpath, file_location, results_dir)
-            commands_lst.append(commands)
-
-            call_salmon(commands_lst, sample_folder) 
-
+    
+            tasks.perform_chunk_analysis.s(process=process, chunk_number=None, file_dir=file_location, panel=option.lower(), results_dir=results_dir) 
+ 
     return {"Result": "OK",
             "File_ID": file_id}
-
-
-async def standard_process(commands_lst, file_dir):
-    loop = asyncio.get_running_loop()
-    future = await loop.run_in_executor(None, call_salmon, commands_lst, file_dir)
-
-
-def call_salmon(commands_lst, file_dir):
-
-    with requests.Session() as s:
-        for commands in commands_lst:
-            s.post("http://salmon:80/", json=commands)
-    shutil.rmtree(file_dir)
-
 
 @router.post("/start-file")
 async def start_file(
@@ -141,13 +88,12 @@ async def start_file(
     filename: str = Body(...),
     number_of_chunks: int = Body(...),
     panels: List[str] = Body(...),
+    process: str = Body(...),
     db: AsyncSession = Depends(get_db)
 ):
     for option in panels:
 
-        submission_type = "real-time"
-
-        # it's worth noting that uuid4 generates random numbers, but the possibility of having a collision is so low, it's been estimated that it would take 90 years for such to occur.
+        submission_type = process 
 
         response = SubmissionBase(
             name=filename,
@@ -162,15 +108,15 @@ async def start_file(
         file_id = str(query)
 
 
-        rt_dir = "{}/{}".format(REAL_TIME_UPLOADS, file_id)
-        os.mkdir(rt_dir)
-        os.mkdir("{}/{}".format(rt_dir, "upload_data"))
-        os.mkdir("{}/{}".format(rt_dir, "salmon_data"))
-        results_dir = "{}/{}".format(REAL_TIME_RESULTS, file_id)
+        file_dir = "{}/{}".format(UPLOAD_FOLDER, file_id)
+        os.mkdir(file_dir)
+        os.mkdir("{}/{}".format(file_dir, "upload_data"))
+        os.mkdir("{}/{}".format(file_dir, "tool_data"))
+        results_dir = "{}/{}".format(RESULTS_FOLDER, file_id)
         os.mkdir(results_dir)
 
-        tasks.make_file_metadata.s(rt_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks,
-                                   email=current_user.email, fileId=file_id, panel=option).apply_async()
+        tasks.make_file_metadata.s(file_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks,
+                                   email=current_user.email, fileId=file_id, panel=option, process=process).apply_async()
         tasks.make_file_data.delay(results_dir)
 
         return {"Result": "OK",
@@ -179,7 +125,6 @@ async def start_file(
 
 @router.post("/upload-chunk")
 async def upload_chunk(  
-    background_tasks: BackgroundTasks,
     current_user: UserDTO = Depends(get_current_user),
     chunk_number: int = Form(...),
     file_id: str = Form(...),
@@ -188,25 +133,15 @@ async def upload_chunk(
     db: AsyncSession = Depends(get_db)
 ):
 
-    rt_dir = "{}/{}".format(REAL_TIME_UPLOADS, file_id)
-    upload_data = "{}/{}/{}.fastq".format(rt_dir, "upload_data", chunk_number)
-    analysis_data_folder = "{}/{}".format(rt_dir, "salmon_data")
-    results_dir = "{}/{}".format(REAL_TIME_RESULTS, file_id)
-    data_dir = "{}/{}".format(results_dir, "data.json")
+    file_dir = "{}/{}".format(UPLOAD_FOLDER, file_id)
+    upload_data = "{}/{}/{}.fastq".format(file_dir, "upload_data", chunk_number) 
     
     async with aiofiles.open(upload_data, 'wb') as f:
         while content := await chunk_file.read(read_batch_size):
             await f.write(content)
 
-    tasks.process_new_upload.s(rt_dir, chunk_number).apply_async()
+    tasks.process_new_upload.s(file_dir, chunk_number).apply_async() 
     
-    # chain(
-    #     tasks.process_new_upload.s(rt_dir, chunk_number), 
-    #     tasks.perform_chunk_analysis.s(panels, INDEX_FOLDER, analysis_data_folder, results_dir),
-    #     tasks.post_process.s(data_dir, panels),
-    #     tasks.pipe_status.s(rt_dir, data_dir)
-    # ).apply_async()
-
     uplog_dal = UploadLogsDal(db)
     log = UploadLogBase(
         submission_id=file_id,
@@ -214,7 +149,7 @@ async def upload_chunk(
         size_kilobytes=math.ceil(upload_chunk_size / 1024),
         creation_time=datetime.now()
     )
-    query = uplog_dal.create(log)
+    query = await uplog_dal.create(log)
     
     return {"Result": "OK"}
 

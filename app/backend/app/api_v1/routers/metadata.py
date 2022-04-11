@@ -6,7 +6,6 @@ from app.config.settings import settings
 
 router = APIRouter()
 
-INDEX_FOLDER = settings.INDEX_FOLDER
 METADATA_FOLDER = settings.METADATA_FOLDER  
 
 @router.get("/panels")

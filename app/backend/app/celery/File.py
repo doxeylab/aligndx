@@ -6,12 +6,13 @@ from app.celery.io.FileIO import FileIO
 
 
 class File:
-    def __init__(self, file_id, file_dir, filename, email, panel, state=None, chunk_ratio=None, num_upload_chunks=None):
+    def __init__(self, file_id, file_dir, filename, email, panel, process, state=None, chunk_ratio=None, num_upload_chunks=None):
         self.file_id = file_id
         self.file_dir = file_dir
         self.filename = filename
         self.email = email
         self.panel = panel
+        self.process = process
 
         if state is None:
             num_analysis_chunks = math.ceil(num_upload_chunks / chunk_ratio)
@@ -38,7 +39,7 @@ class File:
         model = FileModel.load(file_dir)
 
         file = File(model.file_id, file_dir, model.filename,
-                    model.email, model.panel, model.state)
+                    model.email, model.panel, model.process, model.state)
 
         return file
 
@@ -73,5 +74,5 @@ class File:
 
     def save(self):
         model = FileModel(self.state, self.file_dir,
-                          self.file_id, self.filename, self.email, self.panel)
+                          self.file_id, self.filename, self.email, self.panel, self.process)
         model.write()

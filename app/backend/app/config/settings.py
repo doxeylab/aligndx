@@ -19,19 +19,16 @@ class AppSettings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
     REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30
 
-    #  -- Default directory tree -- 
-    
-    INDEX_FOLDER = './indexes' 
+    #  -- User Data -- 
 
     UPLOAD_FOLDER = './uploads' 
-    RESULTS_FOLDER = './results'
+    RESULTS_FOLDER = './results' 
+
+    #  -- External Files or MetaData --
+    
+    INDEX_FOLDER = './indexes' 
+    KRAKEN_DB = './indexes/16S_Greengenes_k2db'
     METADATA_FOLDER = "./metadata"  
-
-    STANDARD_UPLOADS = UPLOAD_FOLDER + '/standard'
-    STANDARD_RESULTS = RESULTS_FOLDER + '/standard'
-
-    REAL_TIME_UPLOADS = UPLOAD_FOLDER + '/real_time'
-    REAL_TIME_RESULTS = RESULTS_FOLDER + '/real_time' 
 
     # Chunk settings
 
@@ -39,6 +36,10 @@ class AppSettings(BaseSettings):
     salmon_chunk_size = math.floor(1e9)
     upload_chunk_size = 8e6
     chunk_ratio = salmon_chunk_size / upload_chunk_size   
+
+    # Tool settings
+    TOOLS = {"rna-seq": "salmon", "metagenomics": "kraken2"}
+    ACCESS_POINTS = {"salmon": "http://salmon:80/", "kraken2": "http://kraken2:80/"}
 
     # Notification settings
 
@@ -55,6 +56,7 @@ class AppSettings(BaseSettings):
     #  -- Db settings --
     
     DATABASE_URL: str = os.getenv("DATABASE_URL")
+    DB_LOGS = False
     @property
     def async_database_url(self) -> Optional[str]:
         return (

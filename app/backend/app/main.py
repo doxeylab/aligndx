@@ -14,7 +14,7 @@ from fastapi.exceptions import RequestValidationError
 from app.auth.auth_dependencies import get_current_user 
 
 # routers
-from app.api_v1.routers import uploads, results, users, socket_resources, metadata, celery_requests
+from app.api_v1.routers import uploads, results, users, socket_resources, metadata 
 from app.api_v1.routers.payments import payments, stripe_webhooks
 
 # settings
@@ -104,11 +104,7 @@ app.include_router(
 app.include_router(
     socket_resources.router
 )
-
-app.include_router(
-    celery_requests.router
-)
-
+ 
 
 app.include_router(
     metadata.router,
