@@ -96,22 +96,23 @@ const Live = () => {
 
             ws.onmessage = function (event) {
                 const obj = JSON.parse(event.data)
-                if (obj.result.status == "complete"){
-                    console.log(`Transaction status is ${obj.result.status}`);
-                    callback(obj.result, obj.result.sample, obj.result.pathogens,
+                console.log(obj)
+                if (obj.status == "complete"){
+                    console.log(`Transaction status is ${obj.status}`);
+                    callback(obj, obj.sample, obj.pathogens,
                         obj.progress.upload, obj.progress.analysis);
                     ws.close();
                 }
-                if (obj.result.status == "pending"){
-                    console.log(`Transaction status is ${obj.result.status}`)  
+                if (obj.status == "pending"){
+                    console.log(`Transaction status is ${obj.status}`)  
                     callback(null, "", null,
                         obj.progress.upload, obj.progress.analysis)
                 }
 
-                if (obj.result.status == "ready"){
-                    console.log(`Transaction status is ${obj.result.status}`)  
+                if (obj.status == "ready"){
+                    console.log(`Transaction status is ${obj.status}`)  
                     // console.log(event.data)
-                    callback(event.data.result, event.data.result.sample, event.data.result.pathogens,
+                    callback(event.data, event.data.sample, event.data.pathogens,
                         obj.progress.upload, obj.progress.analysis)
                 } 
             }

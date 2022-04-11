@@ -63,7 +63,7 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
                         stored_data = controller.load_data()
                         stored_data['status'] = "complete"
                         stored_data['sample_name'] = submission.name
-                        stored_data['progress_data'] = progress_data
+                        stored_data['progress'] = progress_data
                       
                         await manager.send_data(stored_data, websocket) 
                         manager.disconnect(websocket)
@@ -72,18 +72,14 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
                     if stored_data:
                         stored_data['status'] = "ready"
                         stored_data['sample_name'] = submission.name
-                        stored_data['progress_data'] = progress_data
+                        stored_data['progress'] = progress_data
     
 
                         await manager.send_data(stored_data, websocket)  
-                        resp = {'progress': progress_data, 'result': stored_data}
-
-                        await manager.send_data(resp, websocket)  
                         await asyncio.sleep(3) 
 
                     else:
-                        resp = {'progress': progress_data, 'result': {'status': 'pending'}}
-
+                        resp = {'progress': progress_data, 'status': 'pending' }
                         await manager.send_data(resp, websocket)
                         await asyncio.sleep(5) 
                 else:
