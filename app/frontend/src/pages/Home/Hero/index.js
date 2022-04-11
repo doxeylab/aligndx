@@ -268,7 +268,6 @@ const Hero = (props) => {
                 
                 title={
                     <Typography variant='h4'>
-                        Metagenomics
                     </Typography>
                 }
             ></UploadModal> 
