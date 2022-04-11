@@ -24,6 +24,7 @@ const Checkout = () => {
     const payments = usePayments();
     const [showPaymentModal, setShowPaymentModal] = useState(null);
     const [clientSecret, setClientSecret] = useState(null);
+    const [validated, setValidated] = useState(false);
     const [address, setAddress] = useState({
         company: '',
         line1: '',
@@ -31,7 +32,7 @@ const Checkout = () => {
         city: '',
         state: '',
         postalCode: '',
-        country: ''
+        country: 'Canada'
     });
     const onSuccess = (data) => {
         if (data) {
@@ -55,14 +56,30 @@ const Checkout = () => {
         onSuccess: onSuccess,
         onError: onError
     })
-
+    const handleAddressForm = (event) => {
+        const form = event.currentTarget;
+        if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        setValidated(true);
+        if (form.checkValidity() === true) {
+            event.preventDefault();
+            refetch()
+        }
+    }
     return (
         <Section id='checkout-page'>
             <Container>
                 <Row>
                     <Col xs={12} md={7} id='checkout-form-container'>
                         <div className='paper'>
-                            <AddressForm address={address} setAddress={setAddress} />
+                            <AddressForm
+                                address={address}
+                                setAddress={setAddress}
+                                validated={validated}
+                                submit={handleAddressForm}
+                            />
                             <StripeCardElement
                                 showModal={showPaymentModal}
                                 hideModal={setShowPaymentModal}
@@ -75,8 +92,9 @@ const Checkout = () => {
                                     variant='primary'
                                     size='lg'
                                     style={{fontSize: '18px'}}
-                                    onClick={refetch}
                                     disabled={isLoading}
+                                    type='submit'
+                                    form='address-form'
                                 >
                                     {isLoading ? 
                                         <>
