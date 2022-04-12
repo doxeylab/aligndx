@@ -204,7 +204,7 @@ const Hero = (props) => {
                             <Fade left duration={1000} delay={600} distance="30px">
                                 <HeroBody>
                                     <HeroTitle>PATHOGEN<br />DETECTION</HeroTitle>
-                                    <HeroText>Analyze your .fastq or .fastq.gz files with out streamlined pipelines. Alternatively, go through our examples for sample results.</HeroText>
+                                    <HeroText>Analyze your .fastq or .fastq.gz files with our streamlined pipeline. Alternatively, go through our examples for sample results.</HeroText>
                                     <HeroBtns>
                                         {/* <Button onClick={() => handleShow(setShowStandardUploadModal, "rna-seq")}>RNA-Seq</Button> */}
                                         <Button onClick={() => handleShow(setShowLiveUploadModal, "metagenomics")}>Upload</Button>
