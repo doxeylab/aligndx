@@ -1,0 +1,78 @@
+.side-menu {
+    background-color: #fff;
+    color: rgba(0, 0, 0, 0.87);
+    -webkit-transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    border-radius: 8px;
+    box-shadow: 0px 3px 5px -1px rgb(0 0 0 / 20%), 0px 5px 8px 0px rgb(0 0 0 / 14%), 0px 1px 14px 0px rgb(0 0 0 / 12%);
+}
+
+.side-menu-list {
+    display: flex;
+    flex-direction: column;
+    padding: 0 1.6rem 1.6rem 1.6rem;
+    list-style: none;
+}
+
+.side-menu-header {
+    border-radius: 8px 8px 0 0;
+    background-color: #08629D;
+    color: #fff;
+    text-align: center;
+    padding: 1rem 1.6rem;
+}
+
+.side-menu-header > span {
+    font-size: 2rem;
+    letter-spacing: 0.02857em;
+}
+
+.side-menu-list div {
+    margin: 0px;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.02857em;
+    color: rgb(52, 71, 103);
+    display: flex;
+    align-items: center;
+    border-radius: 0.375rem;
+    padding: 1rem 1.6rem;
+    transition: background-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    cursor: pointer;
+}
+
+.side-menu-list div:hover {
+    background-color: rgb(240, 242, 245);
+}
+
+.custom-card {
+    margin-bottom: 24px;
+    background-color: #fff;
+    color: rgba(0, 0, 0, 0.87);
+    -webkit-transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    border-radius: 8px;
+    box-shadow: 0px 3px 5px -1px rgb(0 0 0 / 20%), 0px 5px 8px 0px rgb(0 0 0 / 14%), 0px 1px 14px 0px rgb(0 0 0 / 12%);
+}
+
+.custom-card .header h2 {
+    border-radius: 8px 8px 0 0;
+    background-color: #08629D;
+    color: #fff;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 500;
+    letter-spacing: 0.02857em;
+    padding: 1rem 1.6rem;
+    line-height: 3rem;
+}
+
+.custom-card .main-content {
+    padding: 16px;
+}
+
+@media (min-width: 768px) {
+    .side-menu {
+        position: fixed;
+    }
+}
