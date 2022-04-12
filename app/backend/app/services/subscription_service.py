@@ -13,9 +13,9 @@ from app.services import stripe_service, customer_service
 from datetime import datetime
 
 async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequest, db):
-    # Check if plan is valid and available
+    # Get plan id based on the tax rate and is available (not archived)
     plans_dal = PlansDal(db)
-    plan = await plans_dal.get_available_plan_by_id(req.plan_id)
+    plan = await plans_dal.get_available_plan_by_name(req.plan_name, req.tax_rate)
     if plan == None:
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                         detail = "This plan doesn't exist or isn't available")
@@ -27,7 +27,6 @@ async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequ
         if sub:
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                         detail = "An active subscription already exists for customer")
-
 
     # Create customer in db & stripe if doesn't exist
     customer_id = None
@@ -44,7 +43,7 @@ async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequ
     # Create 'inactive' subscription in db
     new_subscription = CreateNewSubscription(
         customer_id = customer.id,
-        plan_id = req.plan_id,
+        plan_id = plan.id,
         is_active = False,
         status = "incomplete",
         is_paid = False,
