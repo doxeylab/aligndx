@@ -11,7 +11,8 @@ const ResultCard = ({ result }) => {
 
     return (
         <Grid>
-            <AccordionComponent summary={
+            <AccordionComponent 
+                summary={
                 <Grid container alignItems={"center"}>
                     <Grid item xs={10}>
                         <h1>
