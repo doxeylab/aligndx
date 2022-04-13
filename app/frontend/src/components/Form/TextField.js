@@ -3,7 +3,6 @@ import { Controller, useFormContext } from "react-hook-form";
 
 const TextField = ({name, label, type, autoComplete, hint }) => {
     const methods = useFormContext();
-
     return (
         <Controller
             name={name}

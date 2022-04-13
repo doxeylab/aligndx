@@ -5,7 +5,8 @@ import { CircularProgress } from "@mui/material";
 
 const Form = ({ schema, onSubmit, name, btnlabel,loading, children }) => {
     const methods = useForm({
-        resolver: yupResolver(schema)
+        resolver: yupResolver(schema),
+        mode:"all"
     });
 
     return (

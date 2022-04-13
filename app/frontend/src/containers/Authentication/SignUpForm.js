@@ -97,7 +97,7 @@ const SignUpForm = () => {
         signUp.mutate(data)
     } 
 
-    const passwordhint="Rules: 8-25 characters, with minimum 5 characters, 1 upper case, 1 lower case, 1 number and 1 special case"
+    // const passwordhint="Rules: 8-25 characters, with minimum 5 characters, 1 upper case, 1 lower case, 1 number and 1 special case"
 
     return (
         <Form
@@ -116,7 +116,7 @@ const SignUpForm = () => {
                     <TextField name={"email"} label={"email"} type={"email"} autoComplete={"email"} />
                 </Grid>
             </Grid>
-            <TextField name={"password"} label={"password"} type={"password"} autoComplete={"new-password"} hint={passwordhint}/>
+            <TextField name={"password"} label={"password"} type={"password"} autoComplete={"new-password"}/>
             <TextField name={"confirmpassword"} label={"confirm password"} type={"password"} autoComplete={"new-password"} />
 
             {invalid ? <Grid container justifyContent={"center"}>
