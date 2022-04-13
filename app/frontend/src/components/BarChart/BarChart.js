@@ -32,7 +32,7 @@ const BarChart = ({data, yLabel, xLabel, ykey, xkey}) => {
     // eslint-disable-next-line
     const svg_width = 900;
     const svg_height = 400;
-    var margin = { top: 10, right: 10, bottom: 65, left: 50 },
+    var margin = { top: 10, right: 10, bottom: 160, left: 50 },
         height = svg_height - margin.top - margin.bottom;
 
     // Setting Width & Height of SVG
@@ -57,7 +57,7 @@ const BarChart = ({data, yLabel, xLabel, ykey, xkey}) => {
         x_label.selectAll("text")   
             .attr("transform",
                 "translate(" + (dimensions.width/2) + " ," + 
-                                (height + margin.top + 55) + ")")
+                                (height + margin.top + 150) + ")")
             .style("text-anchor", "middle")
             .style("font-size", "14px")
             .text(xLabel);
