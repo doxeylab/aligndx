@@ -90,7 +90,7 @@ function App() {
                                 </LoadContext.Provider>
                             }
                         </GlobalContextProvider>
-                        <ReactQueryDevtools initialIsOpen={false} />
+                        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
                     </QueryClientProvider>
                 </Router>
             </ThemeProvider>

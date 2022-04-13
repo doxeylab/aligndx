@@ -1,49 +1,32 @@
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import { useEffect, useState } from 'react';
-import { BootstrapInput } from './StyledForm';
+import { StyledTextField } from "./StyledForm"
+import { Controller, useFormContext } from "react-hook-form";
 
-const TextField = ({ defaultvalue, formlabel, placeholder, type, valueCallback, errorMsg, errorCallback }) => {
-    const [value, setValue] = useState(defaultvalue === undefined ? `` : defaultvalue);
-    const [error, setError] = useState(false)
-
-    useEffect(() => {
-        errorCallback(error);
-        valueCallback(value);
-    }, [value, error])
-
-    const handleChange = (event) => {
-        setValue(event.target.value)
-        if (event.target.value === "") {
-            setError(false)
-        } else {
-            switch (type) {
-                case "email":
-                    const regex = new RegExp(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/gm)
-                    setError(!regex.test(value))
-                    break;
-                default:
-                    setError(false)
-                // code block
-            }
-        }
-    }
+const TextField = ({name, label, type, autoComplete, hint }) => {
+    const methods = useFormContext();
 
     return (
-        <FormControl fullWidth>
-            {formlabel !== undefined ?
-                <FormLabel>{formlabel}</FormLabel>
-                :
-                ``
+        <Controller
+            name={name}
+            control={methods?.control}
+            defaultValue=""
+            render={({ field }) =>
+                <>
+                    <StyledTextField
+                        {...field}
+                        inputProps={{ style: { fontSize: "1.3em"} }} // font size of input text
+                        InputLabelProps={{ style: { fontSize: "1.3em" } }} // font size of input label
+                        FormHelperTextProps={{ style: { fontSize: "1em"}}}
+                        autoComplete={autoComplete}
+                        id="filled-basic"
+                        type={type}
+                        label={label.replace(/(?<=\b)[a-z](?=\w*)/g, c => c.toUpperCase())}
+                        variant="filled"
+                        error={!!methods?.formState.errors[name]}
+                        helperText={methods?.formState.errors[name] ? methods?.formState.errors[name]?.message : (hint ? hint : " ")} />
+                </>
             }
-            <BootstrapInput
-                defaultValue={defaultvalue}
-                onChange={handleChange}
-                placeholder={placeholder}
-                errorMsg={errorMsg}
-            />
-        </FormControl>
+        />
     )
 }
 
-export default TextField
+export default TextField;

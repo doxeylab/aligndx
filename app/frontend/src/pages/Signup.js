@@ -3,6 +3,7 @@ import { Col, Container, Row } from 'react-bootstrap';
 import Fade from 'react-reveal/Fade';
 import SignUpImg from "../assets/SignUpImg.svg";
 import { SignUpAuth } from '../containers/Authentication';
+import { SignUpForm } from "../containers/Authentication";
 import { Section } from '../components/Common/PageElement';
 
 const SignUp = () => {
@@ -12,7 +13,8 @@ const SignUp = () => {
                 <Row className="justify-content-md-center">
                     <Col md={5}>
                         <Fade left duration={1000} delay={600} distance="30px">
-                            <SignUpAuth />
+                            {/* <SignUpAuth /> */}
+                            <SignUpForm/>
                         </Fade>
                     </Col>
                     <Col md={{ span: 5, offset: 1 }} style={{ display: 'flex', alignItems: 'center' }}>

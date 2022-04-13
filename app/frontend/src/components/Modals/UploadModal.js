@@ -3,7 +3,7 @@ import BaseModal from "./BaseModal";
 
 
 // Components 
-import { DropdownMenu} from '../Form';
+import { DropdownMenu} from '../DropdownMenu';
 import UploadComponent from '../UploadComponent';
 import Button from '../Button'
 import DataProgressBar from '../DataProgressBar';

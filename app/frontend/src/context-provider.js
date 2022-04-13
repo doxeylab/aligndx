@@ -56,17 +56,21 @@ const GlobalContextProvider = (props) => {
     const logout = () => {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
+        localStorage.removeItem("userMeta");
         setAuthenticated(false);
         setCurrentUser(null);
-        history.push('/');
-        history.go(0);
+        history.push('/login');
     }
 
     const expiryLogout = () => {
         let token = localStorage.getItem("accessToken")
         let payload = decodeToken(token)
-        let expiry = Date().getTime() > payload.exp * 1000 
-        setTimeout(()=> logout(), expiry)
+        let expiry = (payload.exp * 1000) 
+        console.log(expiry)
+        // if (Date.now() >= expiry) {
+        //     logout()
+        // }
+        // let expiry = new Date(payload.exp * 1000).getTime() 
     }
 
     const setupUser = (response) => {
@@ -75,7 +79,8 @@ const GlobalContextProvider = (props) => {
     }
 
     const {status, data, error, refetch} = useQuery('user_data',users.me, {
-          enabled: false
+          enabled: false,
+          retry: false
       })
 
     const loadCurrentUser = () => {
@@ -94,9 +99,12 @@ const GlobalContextProvider = (props) => {
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
             localStorage.removeItem("userMeta");
-            history.push('/login');
         }
     }, [status, data]) 
+
+    useEffect(() => {
+        loadCurrentUser()
+    }, [])
 
     return (
         <GlobalContext.Provider
