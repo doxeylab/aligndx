@@ -37,11 +37,11 @@ const LogInForm = (props) => {
                 /^(?=.*[a-z])(?=.*[A-Z])/,
                 "Must Contain One Uppercase, One Lowercase"
               )
-              .matches(
+            .matches(
                 /^(?=.*[!@#\$%\^&\*])/,
                 "Must Contain One Special Case Character"
               )
-              .matches(/^(?=.{6,20}$)\D*\d/, "Must Contain One Number"),
+            .matches(/^(?=.{6,20}$)\D*\d/, "Must Contain One Number"),
     })
 
     // mutation function used to update auth serverstate
