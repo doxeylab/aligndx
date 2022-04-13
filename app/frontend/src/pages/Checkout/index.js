@@ -25,6 +25,7 @@ const Checkout = () => {
     const [showPaymentModal, setShowPaymentModal] = useState(null);
     const [clientSecret, setClientSecret] = useState(null);
     const [validated, setValidated] = useState(false);
+    const [taxRate, setTaxRate] = useState(0);
     const [address, setAddress] = useState({
         company: '',
         line1: '',
@@ -47,8 +48,8 @@ const Checkout = () => {
         }
         console.error(error)
     }
-    const plan_id = new URLSearchParams(search).get('plan_id')
-    const {refetch, isLoading} = useQuery('new_subscription', () => payments.create_subscription({plan_id: plan_id}), {
+    const planName = new URLSearchParams(search).get('plan_name')
+    const {refetch, isLoading} = useQuery('new_subscription', () => payments.create_subscription({plan_name: planName, tax_rate: taxRate}), {
         enabled: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -65,6 +66,7 @@ const Checkout = () => {
         setValidated(true);
         if (form.checkValidity() === true) {
             event.preventDefault();
+            // Call back-end api to create an inactive subscription and get client-secret
             refetch()
         }
     }
@@ -78,6 +80,7 @@ const Checkout = () => {
                                 address={address}
                                 setAddress={setAddress}
                                 validated={validated}
+                                setTaxRate={setTaxRate}
                                 submit={handleAddressForm}
                             />
                             <StripeCardElement
@@ -85,7 +88,6 @@ const Checkout = () => {
                                 hideModal={setShowPaymentModal}
                                 clientSecret={clientSecret}
                                 address={address}
-                                plan_id={plan_id}
                             />
                             <div className='box mt-5'>
                                 <Button

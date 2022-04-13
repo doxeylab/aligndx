@@ -11,8 +11,8 @@ import { useGlobalContext } from "../context-provider";
 const Pricing = () => {
   const history = useHistory();
   const context = useGlobalContext();
-  const [basicPlan] = useState('1eb6215c-d84d-4446-af78-cd6ca152a781')
-  const [premiumPlan] = useState('cfacc273-5336-43cb-9bd2-86975f1d74f8')
+  const [basicPlan] = useState('Basic Plan');
+  const [premiumPlan] = useState('Premium Plan');
 
   const styles = {
     button: {
@@ -40,11 +40,11 @@ const Pricing = () => {
     
   }
 
-  const linkToCheckout = (plan_id) => {
+  const linkToCheckout = (plan_name) => {
     if (!context.authenticated) {
       history.push('/signup')
     } else {
-      history.push(`/checkout?plan_id=${plan_id}`)
+      history.push(`/checkout?plan_name=${plan_name}`)
     }
   }
   return (
