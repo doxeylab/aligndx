@@ -31,7 +31,7 @@ class CreateSubscriptionRequest(BaseSchema):
     tax_rate: int
 
 class ChangePlanRequest(BaseSchema):
-    plan_id: UUID
+    plan_name: str
 
 class CreateNewSubscription(BaseSchema):
     customer_id: UUID
