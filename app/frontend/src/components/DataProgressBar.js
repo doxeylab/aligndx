@@ -1,17 +1,22 @@
-import ProgressBar from "react-bootstrap/ProgressBar";
+import CircularProgressWithLabel from './CircularProgressWithLabel'
 
 const DataProgressBar = (props) => {
   return (
     <>
+      {props.percentage === 100 ?
+      <div>{props.endcaption}</div>
+        :
       <div>{props.caption}</div>
-      <ProgressBar
+      }
+      <CircularProgressWithLabel value={props.percentage} />
+      {/* <ProgressBar
         style={{ height: "50px" }}
         stripped
         animated
         variant="info"
         now={props.percentage}
         label={`${props.percentage.toFixed(1)}%`}
-      />
+      /> */}
     </>
   );
 };
