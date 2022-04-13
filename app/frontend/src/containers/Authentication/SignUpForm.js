@@ -18,8 +18,8 @@ const SignUpForm = () => {
     const history = useHistory();
     const context = useGlobalContext();
     const users = useUsers()
-    const [invalid, setInvalid] = useState(false);
-
+    const [invalid, setInvalid] = useState(false); 
+    
     // validation object for form validation
     const schema = yup.object({
         name: yup
@@ -33,19 +33,19 @@ const SignUpForm = () => {
             .required('No email provided'),
         password: yup
             .string()
-            .required('No password provided.')
+            .required('No password provided. Rules: 8-25 characters, with minimum 5 characters, 1 upper case, 1 lower case, 1 number and 1 special case')
             .min(8, 'Password is too short - should be 8 chars minimum.')
             .max(25, 'Exceeded password length limit')
             .matches(/^(?=.{5,})/, "Must Contain 5 Characters")
             .matches(
                 /^(?=.*[a-z])(?=.*[A-Z])/,
                 "Must Contain One Uppercase, One Lowercase"
-              )
-              .matches(
+            )
+            .matches(
                 /^(?=.*[!@#\$%\^&\*])/,
                 "Must Contain One Special Case Character"
-              )
-              .matches(/^(?=.{6,20}$)\D*\d/, "Must Contain One Number"),
+            )
+            .matches(/^(?=.{6,20}$)\D*\d/, "Must Contain One Number"),
         confirmpassword: yup
             .string()
             .required('No password provided.')
@@ -65,21 +65,21 @@ const SignUpForm = () => {
     }
 
     const login = useMutation(sendLogin, {
-        onSuccess:(data) => {
+        onSuccess: (data) => {
             setInvalid(false)
             context.setupUser(data.data)
             context.loadCurrentUser()
             history.push('/')
         },
-        onError:(error) => {
+        onError: (error) => {
             if (error?.response?.status === 401) {
                 setInvalid(true)
-            } 
+            }
         }
     })
- 
+
     const signUp = useMutation(sendSignUp, {
-        onSuccess:(data, variables, context) => {
+        onSuccess: (data, variables, context) => {
             setInvalid(false)
             let loginpayload = {
                 "username": variables.email,
@@ -87,7 +87,7 @@ const SignUpForm = () => {
             }
             login.mutate(loginpayload)
         },
-        onError:(error) => {
+        onError: (error) => {
             console.log(error)
         }
     })
@@ -95,9 +95,7 @@ const SignUpForm = () => {
     // Form handling for calling mutation function
     const signupFormHandler = (data) => {
         signUp.mutate(data)
-    } 
-
-    // const passwordhint="Rules: 8-25 characters, with minimum 5 characters, 1 upper case, 1 lower case, 1 number and 1 special case"
+    }
 
     return (
         <Form
@@ -116,7 +114,7 @@ const SignUpForm = () => {
                     <TextField name={"email"} label={"email"} type={"email"} autoComplete={"email"} />
                 </Grid>
             </Grid>
-            <TextField name={"password"} label={"password"} type={"password"} autoComplete={"new-password"}/>
+            <TextField name={"password"} label={"password"} type={"password"} autoComplete={"new-password"} />
             <TextField name={"confirmpassword"} label={"confirm password"} type={"password"} autoComplete={"new-password"} />
 
             {invalid ? <Grid container justifyContent={"center"}>

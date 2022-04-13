@@ -27,8 +27,9 @@ const LogInForm = (props) => {
             .string()
             .email()
             .required('No email provided'),
-        password: yup.string()
-            .required('No password provided.')
+        password: yup
+            .string()
+            .required('No password provided. Rules: 8-25 characters, with minimum 5 characters, 1 upper case, 1 lower case, 1 number and 1 special case')
             .min(8, 'Password is too short - should be 8 chars minimum.')
             .max(25, 'Exceeded password length limit')
             .matches(/^(?=.{5,})/, "Must Contain 5 Characters")
