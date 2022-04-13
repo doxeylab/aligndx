@@ -18,9 +18,9 @@ const useResizeObserver = ref => {
     return dimensions;
 }
 
-const BarChart = ({data, yLabel, xLabel, ykey, xkey, col}) => {
+const BarChart = ({data, yLabel, xLabel, ykey, xkey}) => {
     // Filter NumReads of 0
-    var filterData = data[col].filter(hit => hit[ykey] !== 0) 
+    var filterData = data.filter(hit => hit[ykey] !== 0) 
     // Resize Obeserver
     const wrapperRef = useRef();
     const dimensions = useResizeObserver(wrapperRef)
