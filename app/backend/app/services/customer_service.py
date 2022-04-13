@@ -13,10 +13,11 @@ from app.services import stripe_service
 # Utils
 from datetime import datetime
 
-async def create_customer(db, current_user):
+async def create_customer(db, current_user, tax_rate):
     new_customer = NewCustomer(
         name = current_user.name,
         email = current_user.email,
+        tax_rate = tax_rate,
         creation_time = datetime.now()
     )
 
