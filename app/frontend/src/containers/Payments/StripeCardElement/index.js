@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import { withRouter } from "react-router-dom";
 
 import Modal from 'react-bootstrap/Modal'
@@ -45,7 +44,6 @@ const StripeCardElement = (props) => {
     const stripe = useStripe();
     const elements = useElements();
     const options = useOptions();
-    const history = useHistory();
     const [errorMessage, setErrorMessage] = useState(null)
     const [showConfirmModal, setShowConfirmModal] = useState(false)
 
@@ -82,9 +80,7 @@ const StripeCardElement = (props) => {
         }
 
         if (paymentIntent && paymentIntent.status === 'succeeded') {
-            console.log('Success: redirecting ...');
             setShowConfirmModal(true)
-            // history.push('/profile');
         }
     }
 
