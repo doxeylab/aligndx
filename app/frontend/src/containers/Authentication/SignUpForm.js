@@ -25,8 +25,8 @@ const SignUpForm = () => {
         name: yup
             .string()
             .required("No name provided")
-            .min(5, 'Username is too short - should be 5 chars minimum')
-            .matches(/[a-zA-Z]/, 'Password can only contain Latin letters.'),
+            .min(5, 'Minimum 5 characters')
+            .matches(/^[aA-zZ\s]+$/, 'Alphabet characters only'),
         email: yup
             .string()
             .email()

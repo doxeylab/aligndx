@@ -21,7 +21,7 @@ export const FormContainer = styled(Grid)`
 
 export const StyledTextField = styled(TextField)`
     margin-bottom: 1em;
-    width: 100%;
+    width: 100%; 
 ` 
 
 export const StyledButton = styled(Button)`

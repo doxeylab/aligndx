@@ -12,18 +12,17 @@ import Navbar from './components/NavBar';
 import GlobalContextProvider from "./context-provider";
 import { LoadContext } from './LoadContext';
 
-import {Home} from "./pages/Home";
+import Home from "./pages/Home";
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Team from './pages/Team';
 
 import Signup from './pages/Signup';
-import { Login } from './pages/Login';
+import Login from './pages/Login';
 import MyResults from './pages/MyResults';
 import Pricing from './pages/Pricing';
 
 import Live from './pages/Live/';
-import Standard from './pages/Standard';
 import Result from './pages/Result';
 
 import Checkout from './pages/Checkout';
@@ -79,7 +78,6 @@ function App() {
                                             <Route path='/login' component={Login} />
                                             <Route path='/myresults' component={MyResults} />
                                             <Route path='/live' component={Live} />
-                                            <Route path='/standard' component={Standard} />
                                             <Route path='/result' component={Result} />
                                             <Route path='/pricing' component={Pricing}/>
                                             <Route path='/checkout' component={Checkout}/>
