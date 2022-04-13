@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 
 import ChunkProcessor from '../../containers/ChunkController/chunkProcessor'
-import Results from '../../containers/Results';
+import {ResultCard} from '../../containers/Results';
 
 import { Grid } from '@mui/material';
 import { Container } from '@mui/material';
@@ -108,7 +108,7 @@ const Live = () => {
         <Section id="result">
                <Container>
                     {data? 
-                <Results result={data}/>
+                <ResultCard result={data}/>
                 :
                 null}
                </Container>

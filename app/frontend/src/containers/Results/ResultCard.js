@@ -2,13 +2,12 @@
 import React, { useState } from 'react';
 
 import { Grid } from '@mui/material';
-import Barchart from '../../components/BarChart';
 import AccordionComponent from '../../components/AccordionComponent'
 import DataProgressBar from '../../components/DataProgressBar';
-
+import Result from './Result';
 import LoadingSpinner from '../../components/LoadingSpinner'
 
-const Results = ({ result }) => {
+const ResultCard = ({ result }) => {
 
     return (
         <Grid>
@@ -26,11 +25,11 @@ const Results = ({ result }) => {
                         <DataProgressBar caption="Analyzing..." endcaption="Analyzed" percentage={100 * result.progress.analysis} />
                     </Grid>
                 </Grid>
-            }>
+            }> 
                 {result?.status === 'pending' ?
                     <LoadingSpinner />
                     :
-                    <Barchart data={result} yLabel={result.ylabel} xLabel={result.xlabel} col="coverage" xkey="Pathogen" ykey="Coverage" />
+                    <Result result={result} />
                 }
 
             </AccordionComponent>
@@ -38,4 +37,4 @@ const Results = ({ result }) => {
     )
 }
 
-export default Results;
+export default ResultCard;
