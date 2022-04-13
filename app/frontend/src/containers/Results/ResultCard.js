@@ -15,9 +15,9 @@ const ResultCard = ({ result }) => {
                 summary={
                 <Grid container alignItems={"center"}>
                     <Grid item xs={10}>
-                        <h1>
+                        <h2 >
                             {result.sample_name}
-                        </h1>
+                        </h2>
                     </Grid>
                     <Grid item xs={1}>
                         <DataProgressBar caption="Uploading..." endcaption="Uploaded" percentage={100 * result.progress.upload} />
