@@ -15,7 +15,6 @@ class CustomerBase(BaseSchema):
     card_last4: Optional[str]
     card_expiry: Optional[str]
     is_admin: bool
-    tax_rate: int
 
 class CustomerSchema(CustomerBase):
     id: UUID
@@ -26,12 +25,10 @@ class CustomerDTO(BaseSchema):
     email: str
     stripe_customer_id: Optional[str]
     is_admin: bool
-    tax_rate: int
 
 class NewCustomer(BaseSchema):
     name : str
     email : str
-    tax_rate: int
     creation_time: datetime
 
 class UpdateCustomerStripeId(BaseSchema):
