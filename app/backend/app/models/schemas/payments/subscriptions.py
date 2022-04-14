@@ -25,11 +25,13 @@ class SubscriptionBase(BaseSchema):
 class SubscriptionSchema(SubscriptionBase):
     id: UUID
 
+
 class CreateSubscriptionRequest(BaseSchema):
-    plan_id: UUID
+    plan_name: str
+    tax_rate: int
 
 class ChangePlanRequest(BaseSchema):
-    plan_id: UUID
+    plan_name: str
 
 class CreateNewSubscription(BaseSchema):
     customer_id: UUID

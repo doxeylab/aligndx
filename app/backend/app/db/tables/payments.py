@@ -14,6 +14,7 @@ class Customers(Base):
     payment_card_type = Column(String(50), nullable=True)
     card_last4 = Column(String(50), nullable=True)
     card_expiry = Column(String(50), nullable=True)
+    tax_rate = Column(Integer(), nullable=True)
 
 class Subscriptions(Base):
     __tablename__ = "subscriptions"
@@ -64,9 +65,12 @@ class Plans(Base):
 
     name = Column(String(50), nullable=False)
     description = Column(String(200), nullable=False)
-    price = Column(Integer, nullable=False)
-    data_limit = Column(Float, nullable=False)
+    base_price = Column(Integer, nullable=False)
+    tax_amount = Column(Integer, nullable=False)
+    total_price = Column(Integer, nullable=False)
+    tax_rate = Column(Integer, nullable=False)
+    data_limit_mb = Column(Float, nullable=False)
+    stripe_price_id = Column(String(50), nullable=False)
     creation_time = Column(DateTime, nullable=False)
     is_archived = Column(Boolean, nullable=True)
     archived_time = Column(DateTime, nullable=True)
-    stripe_price_id = Column(String(50), nullable=False)

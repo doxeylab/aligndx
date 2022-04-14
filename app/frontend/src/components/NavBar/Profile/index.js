@@ -63,7 +63,7 @@ const Profile = () => {
             <Dropdown.Menu as={CustomMenu}>
                 <ProfileMenuItem
                     href="/myresults/"><FaUserAlt /> My Results</ProfileMenuItem>
-                <ProfileMenuItem href="/"><FaCogs /> Settings</ProfileMenuItem>
+                <ProfileMenuItem href="/settings"><FaCogs /> Settings</ProfileMenuItem>
                 <ProfileMenuItem onClick={context.logout}><FaSignOutAlt /> Sign Out</ProfileMenuItem>
             </Dropdown.Menu>
         </Dropdown>

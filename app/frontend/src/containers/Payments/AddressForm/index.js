@@ -9,7 +9,7 @@ import { countryList } from "./countriesList"
 import { provincesList } from "./provincesList"
 import { statesList } from "./statesList"
 
-const AddressForm = ({address, setAddress, validated, submit}) => {
+const AddressForm = ({address, setAddress, validated, setTaxRate, submit}) => {
     const [countries] = useState(countryList);
     const [provinces] = useState(provincesList);
     const [states] = useState(statesList);
@@ -20,6 +20,10 @@ const AddressForm = ({address, setAddress, validated, submit}) => {
         const {name, value} = event.target
         if (name === 'country') {
             setSelectedCountry(value)
+        }
+        if (name === 'state' && selectedCountry === 'CA' && value !== '') {
+            const provData = provinces.find(p => p.name === value)
+            setTaxRate(provData.taxRate)
         }
         setAddress(prevFormData => {
             return {...prevFormData, [name]: value}

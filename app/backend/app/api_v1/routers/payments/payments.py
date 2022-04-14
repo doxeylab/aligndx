@@ -7,9 +7,10 @@ from app.auth.auth_dependencies import get_current_user
 
 # Payments Schemas
 from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, ChangePlanRequest
+from app.models.schemas.payments.plans import AllPlansResponse
 
 # Services
-from app.services import subscription_service, customer_service
+from app.services import subscription_service, customer_service, plans_service
 from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -41,7 +42,7 @@ async def cancel_subscription(
     db: AsyncSession = Depends(get_db)
 ):
     if current_user.is_admin == False:
-        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,
+        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,
                         detail = "Only Admin can cancel subscription")
 
     res = await subscription_service.request_cancellation(db, current_user)
@@ -55,7 +56,7 @@ async def change_plan(
         db: AsyncSession = Depends(get_db)
 ):
     if current_user.is_admin == False:
-        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,
+        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,
                         detail = "Only Admin can change subscription plan")
     
     res = await subscription_service.change_plan(db, current_user, request)
@@ -68,8 +69,14 @@ async def cancel_downgrade(
         db: AsyncSession = Depends(get_db)
 ):
     if current_user.is_admin == False:
-        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,
+        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,
                         detail = "Only Admin can change subscription plan")
     
     res = await subscription_service.cancel_downgrade(db, current_user)
     return {"response": res}
+
+# Get all available plans
+@router.get("/plans", response_model=AllPlansResponse)
+async def get_plans(db: AsyncSession = Depends(get_db)):
+    res = await plans_service.get_all_plans(db)
+    return {"plans": res}

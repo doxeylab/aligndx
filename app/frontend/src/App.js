@@ -25,6 +25,7 @@ import Live from './pages/Live/';
 import Result from './pages/Result';
 
 import Checkout from './pages/Checkout';
+import Settings from './pages/Settings';
 
 import NotFound from './pages/NotFound';
 import TestPage from './pages/TestPage';
@@ -76,6 +77,7 @@ function App() {
                                             <Route path='/pricing' component={Pricing}/>
                                             <Route path='/checkout' component={Checkout}/>
                                             {/* <Route path='/testpage' component={TestPage}/> */}
+                                            <Route path='/settings' component={Settings}/>
                                             <Route component={NotFound} />
                                         </Switch>
                                         <Footer />

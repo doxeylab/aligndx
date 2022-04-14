@@ -1,0 +1,12 @@
+#transactions-table th {
+    font-size: 1.6rem;
+}
+
+#transactions-table td {
+    font-size: 1.4rem;
+    vertical-align: middle;
+}
+
+#transactions-table td:last-child {
+    text-align: center;
+}
