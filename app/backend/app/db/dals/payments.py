@@ -40,12 +40,12 @@ class SubscriptionsDal(BaseDal[Subscriptions]):
         return query.scalars().first()
     
 #  -- Invoices DAL -- 
-
 class InvoicesDal(BaseDal[Invoices]):
     @property
     def _table(self) -> Type[Invoices]:
         return Invoices
 
+#  -- Plans DAL -- 
 class PlansDal(BaseDal[Invoices]):
     @property
     def _table(self) -> Type[Plans]:
@@ -58,3 +58,9 @@ class PlansDal(BaseDal[Invoices]):
                 self._table.is_archived == False)
         query = await self._db_session.execute(stmt)
         return query.scalars().first()
+
+    async def get_all_available_plans(self):
+        stmt =  select(self._table)\
+            .where(self._table.is_archived == False)
+        query = await self._db_session.execute(stmt)
+        return query.scalars()
