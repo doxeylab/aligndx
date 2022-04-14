@@ -1,5 +1,5 @@
 // React
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useQuery } from 'react-query'
 
@@ -24,6 +24,8 @@ const Checkout = () => {
     const payments = usePayments();
     const [showPaymentModal, setShowPaymentModal] = useState(null);
     const [clientSecret, setClientSecret] = useState(null);
+    const [plans, setPlans] = useState([]);
+    const [selectedPlan, setSelectedPlan] = useState(null);
     const [validated, setValidated] = useState(false);
     const [taxRate, setTaxRate] = useState(0);
     const [address, setAddress] = useState({
@@ -35,12 +37,26 @@ const Checkout = () => {
         postalCode: '',
         country: 'CA'
     });
+    const selectedPlanName = new URLSearchParams(search).get('plan_name');
+
+    useEffect(() => {
+        // Select plan based on selected Canadian province's tax rate
+        // Effect is triggered by changing Canadian province and its corresponding tax rate
+        const plan = plans.find(p => p.name === selectedPlanName && p.tax_rate === taxRate);
+        setSelectedPlan(plan)
+    }, [taxRate, selectedPlanName, plans]);
+
+    const onPlansSuccess = (data) => {
+        if (data) setPlans(data.data.plans);
+    }
+
     const onSuccess = (data) => {
         if (data) {
             setClientSecret(data.data.client_secret)
             setShowPaymentModal(true)
         }
     }
+
     const onError = (error) => {
         if (error.response.data.detail) {
             console.error('Error Message: ', error.response.data.detail)
@@ -48,8 +64,9 @@ const Checkout = () => {
         }
         console.error(error)
     }
-    const planName = new URLSearchParams(search).get('plan_name')
-    const {refetch, isLoading} = useQuery('new_subscription', () => payments.create_subscription({plan_name: planName, tax_rate: taxRate}), {
+    
+    // Create new inactive subscription based on selected plan id
+    const {refetch, isLoading} = useQuery('new_subscription', () => payments.create_subscription({plan_id: selectedPlan.id}), {
         enabled: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -57,6 +74,17 @@ const Checkout = () => {
         onSuccess: onSuccess,
         onError: onError
     })
+
+    // Fetch all available plans
+    useQuery('get_all_plans', () => payments.get_all_plans(), {
+        enabled: true,
+        refetchOnWindowFocus: false,
+        retry: false,
+        retryOnMount: false,
+        onSuccess: onPlansSuccess,
+        onError: onError
+    })
+
     const handleAddressForm = (event) => {
         const form = event.currentTarget;
         if (form.checkValidity() === false) {
@@ -66,7 +94,6 @@ const Checkout = () => {
         setValidated(true);
         if (form.checkValidity() === true) {
             event.preventDefault();
-            // Call back-end api to create an inactive subscription and get client-secret
             refetch()
         }
     }
@@ -113,9 +140,11 @@ const Checkout = () => {
                         </div>
                     </Col>
                     <Col xs={12} md={5}>
-                        <div className='paper'>
-                            <OrderSummary />
-                        </div>
+                        { selectedPlan &&
+                            <div className='paper'>
+                                <OrderSummary plan={selectedPlan} />
+                            </div>
+                        }
                     </Col>
                 </Row>
             </Container>
