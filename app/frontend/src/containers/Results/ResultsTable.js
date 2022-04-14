@@ -15,8 +15,8 @@ const ResultsTable = () => {
     const incomplete = useQuery('incomplete', () => users.index_submissions(), {
         retry: false,
         enabled: false,
-        onSuccess: (data) => {
-            data.forEach((data) => {
+        onSuccess: (data, variables, context) => {
+            data.data.forEach((data) => {
                 rows.push(
                     createData(data.id, data.result, data.name, data.created_date, data.panel)
                 )
