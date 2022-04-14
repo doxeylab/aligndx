@@ -30,12 +30,27 @@ class FileIO:
 
     def divide_residue(self, data):
         lines = data.split(b'\n')
+        
+        # lines within which to check for a consistent FASTQ-like pattern
+        lines_bufsize = 64
+        lines_buf = lines[:lines_bufsize]
 
-        # a single plus is always the 3rd whole line of a sequence
-        first_plus_line = lines.index(b'+')
-        # adding 2 modulo 4 then 4 to the line number would give us the first line of the next sequence
-        sequence_start_line = ((first_plus_line + 2) % 4) + 4
+        # function to check that all 1st lines start with @ and all third lines start with +
+        def is_fastq_like(buf):
+            for i, line in enumerate(buf):
+                if i % 4 == 0:
+                    if not line.startswith(b'@'):
+                        return False
+                if i % 4 == 2:
+                    if not line.startswith(b'+'):
+                        return False
+            return True
 
+        # iterate from 0..4, checking for a pattern of 2-spaced lines starting with @ and +
+        for start in range(4, 8):
+            if is_fastq_like(lines_buf[start:]):
+                sequence_start_line = start
+        
         residual_data = b'\n'.join(lines[:sequence_start_line])
         chunk_data = b'\n'.join(lines[sequence_start_line:])
 
