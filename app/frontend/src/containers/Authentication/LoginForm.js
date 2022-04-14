@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useMutation } from 'react-query'
 
-import { Form, TextField } from "../../components/Form"; 
-import { Switch, FormControlLabel, FormGroup, Grid, Link, Alert} from '@mui/material';
+import { Form, TextField } from "../../components/Form";
+import { Switch, FormControlLabel, FormGroup, Grid, Link, Alert } from '@mui/material';
 
 import { useHistory } from "react-router-dom";
 import { useGlobalContext } from "../../context-provider";
@@ -36,11 +36,11 @@ const LogInForm = (props) => {
             .matches(
                 /^(?=.*[a-z])(?=.*[A-Z])/,
                 "Must Contain One Uppercase, One Lowercase"
-              )
+            )
             .matches(
                 /^(?=.*[!@#\$%\^&\*])/,
                 "Must Contain One Special Case Character"
-              )
+            )
             .matches(/^(?=.{6,20}$)\D*\d/, "Must Contain One Number"),
     })
 
@@ -51,16 +51,16 @@ const LogInForm = (props) => {
     }
 
     const login = useMutation(sendLogin, {
-        onSuccess:(data) => {
+        onSuccess: (data) => {
             setInvalid(false)
             context.setupUser(data.data)
             context.loadCurrentUser()
             history.push(props.link)
         },
-        onError:(error) => {
+        onError: (error) => {
             if (error?.response?.status === 401) {
                 setInvalid(true)
-            } 
+            }
         }
     })
 
@@ -69,11 +69,11 @@ const LogInForm = (props) => {
         data['username'] = data['email']
         delete data['email']
         login.mutate(data)
-    } 
+    }
 
-    const switchHandler = (event) =>{
+    const switchHandler = (event) => {
         setChecked(event.target.checked)
-    } 
+    }
 
     return (
         <Form
@@ -83,22 +83,22 @@ const LogInForm = (props) => {
             btnlabel={"Sign In"}
             loading={login.isLoading}
         >
-           <TextField name={"email"} label={"email"} type={"email"} autoComplete={"email"}/>
-           <TextField name={"password"} label={"password"} type={"password"} autoComplete={"new-password"}/>
+            <TextField name={"email"} label={"email"} type={"email"} autoComplete={"email"} />
+            <TextField name={"password"} label={"password"} type={"password"} autoComplete={"new-password"} />
 
             {invalid ? <Grid container justifyContent={"center"}>
                 <Alert severity="error" variant="outlined">Invalid credentials!</Alert>
             </Grid> :
                 null}
             <Grid container direction={"row"} justifyContent={"center"}>
-                <Grid item p={1} xs={6} container justifyContent={"flex-start"} alignItems={"center"}>
+                <Grid item  xs container justifyContent={"flex-start"} alignItems={"center"}>
                     <FormGroup>
-                        <FormControlLabel control={<Switch defaultChecked checked={checked} onChange={switchHandler}/>} label="Remember Me" />
+                        <FormControlLabel control={<Switch defaultChecked checked={checked} onChange={switchHandler} />} label="Remember Me" />
                     </FormGroup>
                 </Grid>
-                <Grid item p={1} xs={6} container justifyContent={"flex-end"} alignItems={"center"}>
+                <Grid item  xs container justifyContent={"flex-end"} alignItems={"center"}>
                     <FormGroup>
-                        <FormControlLabel control={<Link href="/404">Forgot Password</Link>} />
+                        <FormControlLabel control={<Link href="/404" >Forgot Password</Link>} />
                     </FormGroup>
                 </Grid>
             </Grid>

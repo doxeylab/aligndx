@@ -32,21 +32,25 @@ import TestPage from './pages/TestPage';
 
 import {
     QueryClient,
-    QueryClientProvider, 
-  } from 'react-query'
+    QueryClientProvider,
+} from 'react-query'
 
 import { ReactQueryDevtools } from 'react-query/devtools'
 
 const theme = createTheme({
     typography: {
         fontFamily: 'Montserrat',
+        fontSize: '18'
+    },
+    palette: {
+        mode: 'light'
     }
 });
 
 const queryClient = new QueryClient();
 
 function App() {
-    const [load, setLoad] = useState(false) 
+    const [load, setLoad] = useState(false)
     return (
         <Fragment>
             <GlobalStyle />
@@ -74,10 +78,10 @@ function App() {
                                             <Route path='/myresults' component={MyResults} />
                                             <Route path='/live' component={Live} />
                                             <Route path='/result' component={Result} />
-                                            <Route path='/pricing' component={Pricing}/>
-                                            <Route path='/checkout' component={Checkout}/>
+                                            <Route path='/pricing' component={Pricing} />
+                                            <Route path='/checkout' component={Checkout} />
                                             {/* <Route path='/testpage' component={TestPage}/> */}
-                                            <Route path='/settings' component={Settings}/>
+                                            <Route path='/settings' component={Settings} />
                                             <Route component={NotFound} />
                                         </Switch>
                                         <Footer />

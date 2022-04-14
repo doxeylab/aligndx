@@ -110,7 +110,7 @@ export default function EnhancedTable({ tableName, rows, headCells, contentgener
                     <EnhancedTableToolbar numSelected={selected.length} tableName={tableName} deletefn={() => deletefn(selected)}/>
                     <TableContainer >
                         <Table
-                            sx={{ minWidth: 750 }}
+                            sx={{ minWidth: 750}}
                             aria-labelledby="tableTitle"
                             size={'medium'}
                         >

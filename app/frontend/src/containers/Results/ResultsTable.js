@@ -3,7 +3,7 @@ import { useMutate, useQuery } from 'react-query'
 import { useUsers } from '../../api/Users'
 import { EnhancedTable } from "../../components/TableComponents";
 import Result from "./Result";
-
+import { ResultsContainer } from './StyledResult';
 import exampleresultstable from "../../assets/test_datasets/example_results_table.json"
 
 const ResultsTable = () => {
@@ -11,7 +11,7 @@ const ResultsTable = () => {
     const example_data = exampleresultstable
 
     const users = useUsers()
- 
+
     const incomplete = useQuery('incomplete', () => users.index_submissions(), {
         retry: false,
         enabled: false,
@@ -24,11 +24,11 @@ const ResultsTable = () => {
 
         },
         onError: (error) => {
-            // example_data.forEach((data) => {
-            //     rows.push(
-            //         createData(data.id, data.result, data.name, data.created_date, data.panel)
-            //     )
-            // })
+            example_data.forEach((data) => {
+                rows.push(
+                    createData(data.id, data.result, data.name, data.created_date, data.panel)
+                )
+            })
         }
     })
 
@@ -78,14 +78,15 @@ const ResultsTable = () => {
     }, [])
 
     return (
-        <EnhancedTable 
-            tableName="My Results" 
-            rows={rows} 
-            headCells={headCells} 
+        <EnhancedTable
+            tableName="My Results"
+            rows={rows}
+            headCells={headCells}
             contentgenerator={contentgenerator}
             deletefn={deletefn}
-            >
+        >
         </EnhancedTable>
+
     )
 }
 

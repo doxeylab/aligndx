@@ -11,10 +11,7 @@ const TextField = ({name, label, type, autoComplete, hint }) => {
             render={({ field }) =>
                 <>
                     <StyledTextField
-                        {...field}
-                        inputProps={{ style: { fontSize: "1.3em"} }} // font size of input text
-                        InputLabelProps={{ style: { fontSize: "1.3em" } }} // font size of input label
-                        FormHelperTextProps={{ style: { fontSize: "1em"}}}
+                        {...field} 
                         autoComplete={autoComplete}
                         id="filled-basic"
                         type={type}
