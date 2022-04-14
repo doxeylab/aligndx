@@ -55,10 +55,14 @@ const Login = () => {
                         null}
                     <Grid container alignItems="center" justifyContent="center">
                         <Grid item xs={12} sm={6}>
-                            <LogInForm link={link} />
+                            <Fade left duration={1000} delay={600} distance="30px">
+                                <LogInForm link={link} />
+                            </Fade>
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <img src={LoginImg} alt='loginImg' />
+                            <Fade right duration={1000} delay={600} distance="30px">
+                                <img src={LoginImg} alt='loginImg' />
+                            </Fade>
                         </Grid>
                     </Grid>
                 </Container>

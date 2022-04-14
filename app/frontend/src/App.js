@@ -40,7 +40,7 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 const theme = createTheme({
     typography: {
         fontFamily: 'Montserrat',
-        fontSize: '18'
+        fontSize: '16'
     },
     palette: {
         mode: 'light'
