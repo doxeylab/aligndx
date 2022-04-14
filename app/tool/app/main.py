@@ -35,7 +35,7 @@ async def run(commands_lst : list):
     stdout, stderr = await proc.communicate()  
     
     if proc.returncode != 0:
-        raise HTTPException(status_code=400, detail=stderr.decode())
+        raise HTTPException(status_code=400, detail=f'There was a return code of {proc.returncode} with the following message: {stderr.decode()}')
     else:
-        return stdout
+        return stdout.decode()
         

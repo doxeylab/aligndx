@@ -72,8 +72,9 @@ def perform_chunk_analysis(process, chunk_number, file_dir, panel, out_dir):
 
     file = File.load(file_dir)
 
-    if resp.raise_for_status():
+    if resp.status_code == 400:
         file.set_analysis_error(chunk_number)
+        return {'Success': False}
 
     else:
         process.post_process()
