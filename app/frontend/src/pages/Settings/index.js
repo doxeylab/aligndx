@@ -14,12 +14,14 @@ import CurrentPlan from '../../containers/Settings/CurrentPlan';
 import ChangePlan from '../../containers/Settings/ChangePlan';
 import PaymentMethod from '../../containers/Settings/PaymentMethod';
 import Transactions from '../../containers/Settings/Transactions';
+import CancelPlan from '../../containers/Settings/CancelPlan';
 
 const Settings = () => {
     const currentPlanRef = useRef();
     const changePlanRef = useRef();
     const paymentMethodRef = useRef();
     const transactionsRef = useRef();
+    const cancelPlanRef = useRef();
 
     const scrollTo = (ref) => {
         if (ref && ref.current) {
@@ -51,6 +53,9 @@ const Settings = () => {
                                 <li className='side-menu-item'>
                                     <div>Manager Users</div>
                                 </li>
+                                <li className='side-menu-item'>
+                                    <div onClick={() => scrollTo(cancelPlanRef)}>Cancel Plan</div>
+                                </li>
                             </ul>
                         </div>
                     </Col>
@@ -66,6 +71,9 @@ const Settings = () => {
                         </div>
                         <div ref={transactionsRef}>
                             <Transactions />
+                        </div>
+                        <div ref={cancelPlanRef}>
+                            <CancelPlan />
                         </div>
                     </Col>
                 </Row>

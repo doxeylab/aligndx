@@ -33,7 +33,7 @@ const ChangePlan = () => {
                     <Col sm={5}><span style={{fontSize: '1.5rem'}}>Monthly Price:</span></Col>
                     <Col sm={7}><h4>$100 + HST</h4></Col>
                     <Col sm={{ span: 7, offset: 5 }} style={{marginTop:'16px'}}>
-                        <Button style={{width: '100%', fontSize: '1.8rem'}} variant="outline-primary">Update Plan</Button>
+                        <Button style={{width: '100%', fontSize: '1.8rem'}} variant="outline-primary">Change Plan</Button>
                     </Col>
                 </Row>
             </div>
