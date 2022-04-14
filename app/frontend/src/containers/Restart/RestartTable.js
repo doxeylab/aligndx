@@ -1,7 +1,7 @@
-import BaseTable from "./BaseTable";
+import {SimpleTable} from "../../components/TableComponents";
 import { Col, Container, Row } from 'react-bootstrap';
-import UploadComponent from '../UploadComponent';
-import Button from "../Button";
+import UploadComponent from '../../components/UploadComponent';
+import Button from "../../components/Button";
 
 const result_modal = (props) => {
     return (
@@ -37,11 +37,11 @@ const RestartTable = (props) => {
 
     data.forEach(point => organize_data(point))
     return (
-        <BaseTable
+        <SimpleTable
             headers={headers}
             data={re_organized_data}
             setSelectedData={props.setSelectedRestartData}
-        ></BaseTable>
+        ></SimpleTable>
     )
 }
 

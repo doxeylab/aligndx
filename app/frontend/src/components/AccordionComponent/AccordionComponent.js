@@ -6,7 +6,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 const AccordionComponent = ({ summary, children}) => {
 
     return (
-        <Accordion style={{ width: "100%" }} >
+        <Accordion style={{ width: "100%" }} defaultExpanded>
             <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1a-content"

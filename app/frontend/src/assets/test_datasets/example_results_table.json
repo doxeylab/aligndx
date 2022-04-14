@@ -1,0 +1,1456 @@
+[
+    {
+      "id": "4626b12d-44eb-45d3-9803-e5752b0d6408",
+      "name": "this one",
+      "panel": "zacterial",
+      "finished_date": "2022-04-13T17:52:53.596712",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "buble pathogen I made up",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-06-13T17:52:49.605549"
+    },
+    {
+      "id": "fe7036be-1bd4-41af-b897-ef82025f5ff4",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T18:03:29.611533",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T18:02:21.712582"
+    },
+    {
+      "id": "382a2a2a-49aa-4e8a-b301-f9669d66f78c",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T18:13:06.966220",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T18:13:03.088003"
+    },
+    {
+      "id": "a37f977c-4819-4206-899d-6df4e607a3e9",
+      "name": "sars_cov_2_iontorrent.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T18:05:23.315199",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T18:05:18.763541"
+    },
+    {
+      "id": "37e5a475-4860-4e0c-a2f9-a2166995c6b5",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T17:48:28.869590",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T17:44:01.494219"
+    },
+    {
+      "id": "55a4ac98-c111-4858-b53e-997b92649b3d",
+      "name": "sars_cov_2_iontorrent.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T18:06:50.079332",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T18:06:45.912928"
+    },
+    {
+      "id": "2e0e6c4d-4bae-4fca-b447-7824fc428de3",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T18:08:40.014306",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T18:08:36.122667"
+    },
+    {
+      "id": "d382b2a6-6ad9-469a-b602-b55b7b2daee8",
+      "name": "sars_cov_2_iontorrent.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T18:15:20.155721",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T18:15:16.104595"
+    },
+    {
+      "id": "32ad61a3-051e-4ee1-9fee-ee360f48f762",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T18:19:44.509190",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T18:19:40.498275"
+    },
+    {
+      "id": "e798a502-215c-48fc-a6ac-10c7a34e2fc6",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T18:54:47.181630",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T18:54:42.950373"
+    },
+    {
+      "id": "f1b023c8-dc3f-4b41-9ad8-49e98702458f",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T18:52:47.725072",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T18:52:43.756389"
+    },
+    {
+      "id": "5d4227df-bf94-4f13-ad19-5cf3c080240a",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T18:55:26.412020",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T18:55:20.934261"
+    },
+    {
+      "id": "50afe59d-ed77-445a-b4fb-a7425b84459e",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T18:57:18.349718",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T18:57:14.277737"
+    },
+    {
+      "id": "babcad42-f50a-4785-9dc1-cf8c6faec3fe",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T19:23:50.762762",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T19:23:46.355084"
+    },
+    {
+      "id": "615cbae8-01da-4480-91aa-f99646158d26",
+      "name": "sars_cov_2_iontorrent.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T19:00:27.223746",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T19:00:22.106151"
+    },
+    {
+      "id": "7e7237cf-0449-4081-8345-dfb134263165",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T19:05:14.613743",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T19:05:10.445463"
+    },
+    {
+      "id": "60ae4aef-4b43-4de3-8060-a134f6908f51",
+      "name": "sars_cov_2_iontorrent.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T19:10:16.495888",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T19:10:12.121577"
+    },
+    {
+      "id": "d1cf441b-4b7f-4746-84e4-c74f21e9941a",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T19:34:24.671520",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T19:34:20.455409"
+    },
+    {
+      "id": "ebc491d4-358e-4a19-af80-271c91c357ab",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T20:19:25.501793",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T20:19:21.245356"
+    },
+    {
+      "id": "9a43c783-1f24-4dcc-929f-b422e025da3f",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T19:36:34.178618",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T19:35:05.465947"
+    },
+    {
+      "id": "27fcee2d-dedf-4b26-99c5-8067f7cbd2bf",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T20:02:08.470387",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T20:02:04.228649"
+    },
+    {
+      "id": "590eea7c-debb-4904-9c99-52bb26d4ba32",
+      "name": "sars_cov_2_iontorrent.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T20:26:40.042036",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T20:26:35.897234"
+    },
+    {
+      "id": "df78ad0d-c4fe-4f10-ae80-de31f7b12676",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T23:10:39.177124",
+      "result": null,
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T23:10:35.050580"
+    },
+    {
+      "id": "7ef5c529-5606-4730-83c5-dcbbb48080a2",
+      "name": "sars_test.fastq",
+      "panel": "bacterial",
+      "finished_date": "2022-04-13T23:11:42.958078",
+      "result": {
+        "data": [
+          {
+            "Pathogen": "Corynebacterium durum",
+            "Coverage": 0.0915
+          },
+          {
+            "Pathogen": "Salinispora tropica",
+            "Coverage": 0.009600000000000001
+          },
+          {
+            "Pathogen": "Janthinobacterium lividum",
+            "Coverage": 0.15644000000000002
+          },
+          {
+            "Pathogen": "Pseudomonas stutzeri",
+            "Coverage": 0.21847000000000003
+          },
+          {
+            "Pathogen": "Haemophilus parainfluenzae",
+            "Coverage": 0.026730000000000004
+          },
+          {
+            "Pathogen": "Acinetobacter schindleri",
+            "Coverage": 0.05192
+          },
+          {
+            "Pathogen": "Pseudomonas veronii",
+            "Coverage": 0.09904
+          },
+          {
+            "Pathogen": "Propionibacterium acnes",
+            "Coverage": 0.19791
+          },
+          {
+            "Pathogen": "Actinobacillus parahaemolyticus",
+            "Coverage": 0.02108
+          },
+          {
+            "Pathogen": "Prevotella melaninogenica",
+            "Coverage": 0.07334
+          },
+          {
+            "Pathogen": "Veillonella dispar",
+            "Coverage": 0.02262
+          },
+          {
+            "Pathogen": "Pseudomonas balearica",
+            "Coverage": 0.030500000000000003
+          }
+        ],
+        "title": "Transcriptome Coverage Estimate",
+        "xlabel": "Pathogens",
+        "ylabel": "Coverage (%)"
+      },
+      "submission_type": "metagenomics",
+      "user_id": "2b1430e9-7534-41e5-b8c1-03326724a1b7",
+      "created_date": "2022-04-13T23:11:38.963850"
+    }
+  ]

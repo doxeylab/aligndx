@@ -1,8 +1,8 @@
 import React from 'react';
-import BaseModal from "./BaseModal";
+import BaseModal from "../../components/Modals/BaseModal";
 
 // Components 
-import RestartTable from '../TableComponents/RestartTable';
+import RestartTable from './RestartTable';
 
 // Styling
 import { Col, Container, Row } from 'react-bootstrap';

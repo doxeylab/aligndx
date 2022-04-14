@@ -27,6 +27,7 @@ import Result from './pages/Result';
 import Checkout from './pages/Checkout';
 
 import NotFound from './pages/NotFound';
+import TestPage from './pages/TestPage';
 
 import {
     QueryClient,
@@ -44,13 +45,7 @@ const theme = createTheme({
 const queryClient = new QueryClient();
 
 function App() {
-    const [load, setLoad] = useState(false)
-    const [progress, setProgress] = useState(0)
-
-    const changeProgress = (prog) => {
-        setProgress(prog)
-    }
-
+    const [load, setLoad] = useState(false) 
     return (
         <Fragment>
             <GlobalStyle />
@@ -59,7 +54,7 @@ function App() {
                     <QueryClientProvider client={queryClient}>
                         <GlobalContextProvider>
                             {load ?
-                                <Loading progress={progress} />
+                                <Loading />
                                 :
                                 <LoadContext.Provider value={{ load, setLoad }}>
                                     <Background>
@@ -67,7 +62,7 @@ function App() {
                                         <Switch>
                                             {/* <Route path='/' exact component={Home} /> */}
                                             <Route path='/' exact>
-                                                <Home changeProgress={changeProgress} />
+                                                <Home />
                                             </Route>
                                             <Route path='/home' component={Home} />
                                             <Route path='/about' component={About} />
@@ -80,6 +75,7 @@ function App() {
                                             <Route path='/result' component={Result} />
                                             <Route path='/pricing' component={Pricing}/>
                                             <Route path='/checkout' component={Checkout}/>
+                                            {/* <Route path='/testpage' component={TestPage}/> */}
                                             <Route component={NotFound} />
                                         </Switch>
                                         <Footer />

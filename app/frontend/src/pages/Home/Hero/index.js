@@ -7,7 +7,7 @@ import Fade from 'react-reveal/Fade';
 import { Section } from '../../../components/Common/PageElement';
 import Button from '../../../components/Button';
 import UploadModal from '../../../components/Modals/UploadModal';
-import RestartModal from '../../../components/Modals/RestartModal';
+import {RestartModal} from '../../../containers/Restart';
 import StartFile from '../../../containers/ChunkController/chunkStarter'
 
 import { Col, Container, Row } from 'react-bootstrap';

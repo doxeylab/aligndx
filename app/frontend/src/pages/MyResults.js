@@ -1,13 +1,11 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
-import { Section, Title } from '../components/Common/PageElement';
-import ResultCardComponent from '../components/CardComponents/ResultCardComponent';
-import { ResultHeader } from '../components/CardComponents/ResultCardComponent/StyledResultCard';
+import { Section, Title } from '../components/Common/PageElement'; 
 import { STANDARD_SUBMISSIONS_URL } from '../services/Config';
 import { useGlobalContext } from "../context-provider";
 
-import ResultsTable from '../components/TableComponents/ResultsTable'
+import ResultsTable from '../containers/Results/ResultsTable';
 
 
 const MyResults = () => {
@@ -39,20 +37,7 @@ const MyResults = () => {
 
     return (
         <Section id="profile">
-            <Container>
-                <Row>
-                    <Col>
-                        <Title>Saved Results</Title>
-                    </Col>
-                </Row>
-                <Row>
-                    {data? 
-                        <ResultsTable data={data}></ResultsTable> 
-                        :
-                        null                
-                    }
-                </Row>
-            </Container>
+            <ResultsTable />
         </Section>
     )
 }
