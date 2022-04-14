@@ -20,11 +20,9 @@ const ConfirmationModal = (props) => {
   };
   const history = useHistory();  
   const handleClose = (param) => {
-   
    history.push(param)
-    
-    console.log("test");
-  };
+  }
+  
   return (
     <>
       <Modal

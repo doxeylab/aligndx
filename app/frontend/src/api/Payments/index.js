@@ -8,5 +8,7 @@ export const usePayments = () => {
     return {
     create_subscription: (params) => 
         post(`${payments_endpoint}/subscriptions`, params),
+    get_all_plans: (params) => 
+        get(`${payments_endpoint}/plans`, params),
     }
 }

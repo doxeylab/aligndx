@@ -3,7 +3,7 @@ import Card from 'react-bootstrap/Card'
 import Col from 'react-bootstrap/Col'
 import Row from 'react-bootstrap/Row'
 
-const OrderSummary = () => {
+const OrderSummary = (props) => {
     return (
         <>
             <Card.Header>
@@ -14,18 +14,18 @@ const OrderSummary = () => {
             <Card.Body>
                 <Row>
                     <Col >
-                        <h4>Basic Plan - 100gb</h4>
+                        <h4>{props.plan.description}</h4>
                     </Col>
                     <Col style={{display:'flex', justifyContent:'flex-end'}}>
-                        <h4>C $ 100.00</h4>
+                        <h4>C$ {parseFloat(props.plan.base_price/100).toFixed(2)}</h4>
                     </Col>
                 </Row>
                 <Row>
                     <Col>
-                        <h4>Tax - 13% HST</h4>
+                        <h4>Tax - {props.plan.tax_rate}% HST</h4>
                     </Col>
                     <Col style={{display:'flex', justifyContent:'flex-end'}}>
-                        <h4>C $ 13.00</h4>
+                        <h4>C$ {parseFloat(props.plan.tax_amount/100).toFixed(2)}</h4>
                     </Col>
                 </Row>
             </Card.Body>
@@ -35,7 +35,7 @@ const OrderSummary = () => {
                         <h3>Total</h3>
                     </Col>
                     <Col>
-                        <h3 style={{display:'flex', justifyContent:'flex-end'}}>C $ 113.00</h3>
+                        <h3 style={{display:'flex', justifyContent:'flex-end'}}>C$ {parseFloat(props.plan.total_price/100).toFixed(2)}</h3>
                     </Col>
                 </Row>
             </Card.Footer>
