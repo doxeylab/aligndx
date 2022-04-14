@@ -14,7 +14,6 @@ class Customers(Base):
     payment_card_type = Column(String(50), nullable=True)
     card_last4 = Column(String(50), nullable=True)
     card_expiry = Column(String(50), nullable=True)
-    tax_rate = Column(Integer(), nullable=True)
 
 class Subscriptions(Base):
     __tablename__ = "subscriptions"

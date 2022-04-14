@@ -13,9 +13,9 @@ from app.services import stripe_service, customer_service
 from datetime import datetime
 
 async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequest, db):
-    # Get plan id based on the tax rate and is available (not archived)
+    # Check if plan is valid and available (not archived)
     plans_dal = PlansDal(db)
-    plan = await plans_dal.get_available_plan_by_name(req.plan_name, req.tax_rate)
+    plan = await plans_dal.get_available_plan_by_id(req.plan_id)
     if plan == None:
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                         detail = "This plan doesn't exist or isn't available")
@@ -31,10 +31,10 @@ async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequ
     # Create customer in db & stripe if doesn't exist
     customer_id = None
     if current_user.customer_id == None:
-        customer_id = await customer_service.create_customer(db, current_user, req.tax_rate)
+        customer_id = await customer_service.create_customer(db, current_user)
     else:
         if current_user.is_admin == False:
-            raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED,
+            raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,
                         detail = "Only an Admin can create new subscriptions")
         customer_id = current_user.customer_id
 
@@ -131,38 +131,39 @@ async def change_plan(db, current_user: UserDTO, request):
     subs_dal = SubscriptionsDal(db)
     subs = await subs_dal.get_active_subscription_by_customer_id(current_user.customer_id)
 
-    if subs == None:
-        raise HTTPException(status_code = 404, detail = "An active subscription does not exist!")
-    
-    customer_dal = CustomersDal(db)
-    customer = await customer_dal.get_by_id(current_user.customer_id)
-    
     # get plan entities from db for current and new requested plan
     plans_dal = PlansDal(db)
     current_plan = await plans_dal.get_by_id(subs.plan_id)
-    requested_plan = await plans_dal.get_available_plan_by_name(request.plan_name, customer.tax_rate)
+    new_plan = await plans_dal.get_available_plan_by_id(request.plan_id)
+
+    if subs == None:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
+                        detail = "An active subscription does not exist!")
     
-    if subs.plan_id == requested_plan.id:
+    if current_plan.name == new_plan.name:
         raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                         detail = "Customer already on the requested plan.")
     
-    if subs.scheduled_plan_id and subs.scheduled_plan_id == requested_plan.id:
-        raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
-                        detail = f"Request to change to plan name: {requested_plan.name} already submitted.")
+    # Check if a downgrade is already scheduled
+    if subs.scheduled_plan_id:
+        scheduled_plan = await plans_dal.get_by_id(subs.scheduled_plan_id)
+        if scheduled_plan.name == new_plan.name:
+            raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                            detail = f"Request to change to plan name: '{scheduled_plan.name}' already submitted.")
 
     response = None
-    if requested_plan.base_price >= current_plan.base_price:
+    if new_plan.base_price >= current_plan.base_price:
         # Upgrade Plan - Change Immediately
-        await stripe_service.upgrade_subscription(subs.stripe_subscription_id, requested_plan.stripe_price_id)
-        update_items = UpgradeSubscription(plan_id = requested_plan.id)
+        await stripe_service.upgrade_subscription(subs.stripe_subscription_id, new_plan.stripe_price_id)
+        update_items = UpgradeSubscription(plan_id = new_plan.id)
         await subs_dal.update(subs.id, update_items)
         # TODO: use upcoming-invoice API to estimate next invoice charges
         response = "Subscription plan upgraded successfully."
     else:
-        # Downgrade Plan - Schedule Change end of current period
-        stripe_schedule = await stripe_service.schedule_downgrade_subscription(subs.stripe_subscription_id, requested_plan.stripe_price_id)
+        # Downgrade Plan - Schedule a change for end of current period
+        stripe_schedule = await stripe_service.schedule_downgrade_subscription(subs.stripe_subscription_id, new_plan.stripe_price_id)
         update_items = DowngradeSubscription(
-            scheduled_plan_id = requested_plan.id,
+            scheduled_plan_id = new_plan.id,
             stripe_schedule_id = stripe_schedule.id,
             allow_downgrade = False
         )

@@ -51,10 +51,9 @@ class PlansDal(BaseDal[Invoices]):
     def _table(self) -> Type[Plans]:
         return Plans
     
-    async def get_available_plan_by_name(self, plan_name, tax_rate):
+    async def get_available_plan_by_id(self, plan_id):
         stmt =  select(self._table)\
-            .where(self._table.name == plan_name,
-                self._table.tax_rate == tax_rate,
+            .where(self._table.id == plan_id,
                 self._table.is_archived == False)
         query = await self._db_session.execute(stmt)
         return query.scalars().first()
