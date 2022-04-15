@@ -29,7 +29,7 @@ const SignUpForm = () => {
             .matches(/^[aA-zZ\s]+$/, 'Alphabet characters only'),
         email: yup
             .string()
-            .email()
+            .email('Must be a valid email')
             .required('No email provided'),
         password: yup
             .string()
