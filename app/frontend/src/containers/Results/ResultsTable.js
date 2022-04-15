@@ -16,18 +16,16 @@ const ResultsTable = () => {
         enabled: false,
         onSuccess: (data, variables, context) => {
             data.data.forEach((data) => {
-                let result = {...data.result, id: data.id}
                 rows.push(
-                    createData(data.id, result, data.name, data.created_date, data.panel)
+                    createData(data.id, data.result, data.name, data.created_date, data.panel)
                 )
             })
 
         },
         onError: (error) => {
             example_data.forEach((data) => {
-                let result = {...data.result, id: data.id}
                 rows.push(
-                    createData(data.id, result, data.name, data.created_date, data.panel)
+                    createData(data.id, data.result, data.name, data.created_date, data.panel)
                 )
             })
         }

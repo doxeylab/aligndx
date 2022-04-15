@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import useComponentId from '../../hooks/useComponentId'
 
 const useResizeObserver = ref => {
     const [dimensions, setDimensions] = useState(null);
