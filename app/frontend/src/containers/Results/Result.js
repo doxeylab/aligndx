@@ -6,7 +6,7 @@ const Result = ({ result }) => {
     if (result) {
         return (
             <>
-            <Barchart data={result.data} yLabel={result.ylabel} xLabel={result.xlabel} xkey="Pathogen" ykey="Coverage" />
+            <Barchart id={result.id} data={result.data} yLabel={result.ylabel} xLabel={result.xlabel} xkey="Pathogen" ykey="Coverage" />
             </>
         )
     }
