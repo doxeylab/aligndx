@@ -1,22 +1,8 @@
-import styled from 'styled-components';
+import { styled } from '@mui/system';
+import { Button as MuiButton } from '@mui/material';
 
-export const BtnText = styled.span`
-    ${props => 
-        props.disabled ?
-            `color: #ABABAB`
-        :
-            props.fill ? 
-                `color: #fff;
-                `
-            :
-                `background-image: linear-gradient(to right, #2f8ae1, #1861a6);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                `
-    }
-`
 
-export const Btn = styled.button`
+export const Btn = styled(MuiButton)`
     display: inline-block;
     width: 100%;
     position: relative;
@@ -70,14 +56,13 @@ export const Btn = styled.button`
                     }
                 }
 
-                &:hover ${BtnText} {
+                &:hover ${props.children} {
                     -webkit-text-fill-color: #fff;
                     text-decoration: none;
                 }
                 `
     }
 
-    font-size: 1.6rem;
     border-width: 0.2rem;
     border-radius: 0.8rem;
 `

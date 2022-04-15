@@ -1,18 +1,24 @@
 import React from 'react';
 import { Btn, BtnText } from './StyledButton';
-import { Button as MuiButton } from '@mui/material';
+import {Button as MuiButton} from '@mui/material'
 
-const Button = ({ children, fill, to, disabled, ...buttonProps }) => {
+const Button = ({ children, fill, to, disabled, variant, ...buttonProps }) => {
     return (
         <MuiButton 
-            variant='contained'
+            variant={variant? variant: 'contained'}
             disabled={disabled} 
             {...buttonProps}
             >
                 {children}
         </MuiButton>
-        // <Btn type="button" fill={fill ? true : false} disabled={disabled} {...buttonProps}>
-        //     <BtnText fill={fill ? true : false} disabled={disabled}>{children}</BtnText>
+        // <Btn
+        //     variant={variant? variant: 'contained'}
+        //     fill={fill ? true : false} 
+        //     disabled={disabled}
+        //     color="error"
+        //     {...buttonProps}
+        //     >
+        //     {children}
         // </Btn>
     )
 }

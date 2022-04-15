@@ -3,7 +3,6 @@ import { useMutate, useQuery } from 'react-query'
 import { useUsers } from '../../api/Users'
 import { EnhancedTable } from "../../components/TableComponents";
 import Result from "./Result";
-import { ResultsContainer } from './StyledResult';
 import exampleresultstable from "../../assets/test_datasets/example_results_table.json"
 
 const ResultsTable = () => {

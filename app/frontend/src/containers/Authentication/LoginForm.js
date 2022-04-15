@@ -97,12 +97,7 @@ const LogInForm = (props) => {
                     </FormGroup>
                 </Grid>
                 <Grid item xs container justifyContent={"flex-end"} alignItems={"center"}>
-                    <FormGroup>
-                        <FormControlLabel control={
-                            <Link href="/404">Forgot Password</Link>
-                            }
-                            />
-                    </FormGroup>
+                        <Link href="/404">Forgot Password</Link>
                 </Grid>
             </Grid>
         </Form>

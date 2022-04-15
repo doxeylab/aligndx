@@ -160,7 +160,7 @@ const NavBar = () => {
                         : (
                             <>
                                 <Link to="/login">
-                                    <Button >Log In</Button>
+                                    <Button color={'primary'}>Log In</Button>
                                 </Link>
                                 <Link to="/signup">
                                     <Button fill={true} to="/signup">Sign Up</Button>
