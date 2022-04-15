@@ -27,7 +27,7 @@ class AppSettings(BaseSettings):
     #  -- External Files or MetaData --
     
     INDEX_FOLDER = './indexes' 
-    KRAKEN_DB = './indexes/16S_Greengenes_k2db'
+    KRAKEN_DB = './indexes/kraken_db'
     METADATA_FOLDER = "./metadata"  
 
     # Chunk settings

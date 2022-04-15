@@ -1,5 +1,5 @@
 from typing import Dict
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess 
 import asyncio 
@@ -32,14 +32,10 @@ async def run(commands_lst : list):
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE)
 
-    stdout, stderr = await proc.communicate() 
-    if stdout:
-        print("stdout:")
-        print(stdout.decode())
+    stdout, stderr = await proc.communicate()  
+    
+    if proc.returncode != 0:
+        raise HTTPException(status_code=400, detail=f'There was a return code of {proc.returncode} with the following message: {stderr.decode()}')
+    else:
         return stdout.decode()
-    if stderr:
-        print(f"commands were {commands}")
-        print("stderr:")
-        print(stderr.decode())
-        return stderr.decode()
         

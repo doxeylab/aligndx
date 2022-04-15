@@ -147,7 +147,7 @@ class Setup(Base):
         c = c.to_dict(orient="records")
 
         data = {
-          "coverage": c,
+          "data": c,
           "title": "Transcriptome Coverage Estimate",
           "xlabel": "Pathogens",
           "ylabel": "Coverage (%)",

@@ -1,13 +1,16 @@
 import React from 'react';
 import { Section } from '../../components/Common/PageElement'
+import NotFoundimg from '../../assets/NotFound.svg'
+import { Container, Grid } from '@mui/material';
 
 const NotFound = () => (
     <div>
         <Section>
-            <div style={{ display: 'flex', marginLeft: "auto", marginRight: "auto", width: "10%" }}>
-                <iframe src="https://giphy.com/embed/VwoJkTfZAUBSU" style={{ display: 'block', marginLeft: "auto", marginRight: "auto", width: "100%", pointerEvents: "none" }} frameBorder="0" class="giphy-embed" allowFullScreen>
-                </iframe>
-            </div>
+                <Grid container justifyContent={'center'} alignItems={'center'}>
+                    <Grid item xs={4}>
+                        <img src={NotFoundimg} alt='notfound' />
+                    </Grid>
+                </Grid>
         </Section>
     </div>
 );

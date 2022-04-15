@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import { csvParse, filter } from 'd3';
 
 const useResizeObserver = ref => {
     const [dimensions, setDimensions] = useState(null);
@@ -19,9 +18,10 @@ const useResizeObserver = ref => {
     return dimensions;
 }
 
-const BarChart = ({data, yLabel, xLabel, ykey, xkey, col}) => {
+const BarChart = ({id, data, yLabel, xLabel, ykey, xkey}) => { 
+
     // Filter NumReads of 0
-    var filterData = data[col].filter(hit => hit[ykey] !== 0) 
+    var filterData = data.filter(hit => hit[ykey] !== 0) 
     // Resize Obeserver
     const wrapperRef = useRef();
     const dimensions = useResizeObserver(wrapperRef)
@@ -33,11 +33,12 @@ const BarChart = ({data, yLabel, xLabel, ykey, xkey, col}) => {
     // eslint-disable-next-line
     const svg_width = 900;
     const svg_height = 400;
-    var margin = { top: 10, right: 10, bottom: 65, left: 50 },
+    var margin = { top: 10, right: 10, bottom: 160, left: 50 },
         height = svg_height - margin.top - margin.bottom;
 
+
     // Setting Width & Height of SVG
-    const svg = d3.selectAll(".chart").attr("height", svg_height);
+    const svg = d3.selectAll(`.chart${id}`).attr("height", svg_height);
 
     // Initiate and Transform Main Chart, Brush, and Axes
     const focus = svg.selectAll(".focus")
@@ -58,7 +59,7 @@ const BarChart = ({data, yLabel, xLabel, ykey, xkey, col}) => {
         x_label.selectAll("text")   
             .attr("transform",
                 "translate(" + (dimensions.width/2) + " ," + 
-                                (height + margin.top + 55) + ")")
+                                (height + margin.top + 150) + ")")
             .style("text-anchor", "middle")
             .style("font-size", "14px")
             .text(xLabel);
@@ -124,7 +125,7 @@ const BarChart = ({data, yLabel, xLabel, ykey, xkey, col}) => {
             <h1 ref={wrapperRef} style={{display: "flex", justifyContent: "center", alignItems: "center", height: "400px"}}>There is no data</h1>
         :
             <div className="main" ref={wrapperRef}>
-                <svg className="chart" ref={svgRef} style={{width: '100%'}}>
+                <svg className={`chart${id}`} ref={svgRef} style={{width: '100%'}}>
                     <g className="focus"></g>
                     <g className="x-axis"></g>
                     <g className="y-axis"></g>

@@ -1,23 +1,30 @@
-import InputBase from '@mui/material/InputBase';
-import styled from 'styled-components';
+import { styled } from '@mui/system';
+import { TextField, Grid, Paper} from '@mui/material';
 
-export const BootstrapInput = styled(InputBase)`
-    & .MuiInputAdornment-root {
-        position: absolute;
-        right: 9px;
-    }
-    & .MuiInputBase-input {
-        position: relative;
-        border: 1px solid ${props => props.errorMsg ? "#FF0000" : "#C4C4C4"};
-        border-radius: 4px;
-        font-size: 1rem;
-        padding: 10px 39px 10px 12px;
-        &:hover {
-            border: 1px solid #333;
-        }
+import Button from '../Button';
+
+export const FormContainer = styled(Paper)`
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 1.2rem;
+    padding: 3.5rem;
+    justify-content: center;
+    align-items: center;
+
+    h1,h2,h3,h4,h5,h6 {
+        color: inherit;
+        margin-bottom: 2.5rem;
     }
 `
 
-export const Placeholder = styled.p`
-    color: #aaa;
+export const StyledTextField = styled(TextField)`
+    margin-bottom: 1em;
+    width: 100%; 
+` 
+
+export const StyledButton = styled(Button)`
+    margin-top: 1.5em;
+    margin-bottom: 3em;
+    padding: 1rem;
 `

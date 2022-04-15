@@ -47,3 +47,7 @@ export const ResultAccordianTitle = styled.h1`
         `color: #55c245`
     }
 `
+
+export const ResultsContainer = styled.div`
+    font-size: 1.5rem;
+`

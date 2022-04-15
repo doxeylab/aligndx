@@ -3,7 +3,7 @@ import BaseModal from "./BaseModal";
 
 
 // Components 
-import { DropdownMenu} from '../Form';
+import { DropdownMenu} from '../DropdownMenu';
 import UploadComponent from '../UploadComponent';
 import Button from '../Button'
 import DataProgressBar from '../DataProgressBar';
@@ -23,7 +23,10 @@ const UploadModal = (props) => {
                 <Container>
                         <Row style={{ marginBottom: '1.5rem' }}>
                             <Col>
-                                <DataProgressBar caption = "Data Remaining in Subscription Plan" percentage = {dataPercentUsage}/>
+                                Date remaining in Subscription Plan
+                            </Col>
+                            <Col>
+                                <DataProgressBar percentage = {dataPercentUsage}/>
                             </Col>
                         </Row>
                         <Row style={{ marginBottom: '1.5rem' }}>

@@ -79,7 +79,7 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
                         await asyncio.sleep(3) 
 
                     else:
-                        resp = {'progress': progress_data, 'status': 'pending' }
+                        resp = {'status': 'pending','sample_name':submission.name,'progress': progress_data}
                         await manager.send_data(resp, websocket)
                         await asyncio.sleep(5) 
                 else:

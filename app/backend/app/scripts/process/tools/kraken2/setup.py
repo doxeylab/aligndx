@@ -25,11 +25,12 @@ class Setup(Base):
         '''
       
         classification_lvl = "S"
+        threshold_lvl= 0
 
-        commands = self._generate_commands(settings.KRAKEN_DB, self.report_name, self.kraken_out, self.braken_out, classification_lvl, self.in_dir)
+        commands = self._generate_commands(settings.KRAKEN_DB, self.report_name, self.kraken_out, self.braken_out, classification_lvl, threshold_lvl, self.in_dir)
         return commands
 
-    def _generate_commands(self, krakendb, report_name, kraken_out, bracken_out, classification_lvl, in_name, in_name2 = None, fastqtype="single"):
+    def _generate_commands(self, krakendb, report_name, kraken_out, bracken_out, classification_lvl, threshold_lvl, in_name, in_name2 = None, fastqtype="single"):
         """
         private method to generate command list
         """
@@ -49,6 +50,8 @@ class Setup(Base):
                 krakendb,
                 "-l",
                 classification_lvl,
+                "-t",
+                threshold_lvl,
                 "-i",
                 report_name,
                 "-o",
@@ -76,7 +79,7 @@ class Setup(Base):
         c = c.to_dict(orient="records")
 
         data = {
-          "coverage": c,
+          "data": c,
           "title": "Transcriptome Coverage Estimate",
           "xlabel": "Pathogens",
           "ylabel": "Coverage (%)",

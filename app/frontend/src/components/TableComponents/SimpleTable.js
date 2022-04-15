@@ -65,7 +65,7 @@ const Row = (props) => {
     )
 }
 
-const BaseTable = (props) => {
+const SimpleTable = (props) => {
     return (
         <TableContainer component={Paper}>
             <Table aria-label="collapsible table" stickyHeader={true}>
@@ -87,4 +87,4 @@ const BaseTable = (props) => {
     );
 }
 
-export default BaseTable
+export default SimpleTable;

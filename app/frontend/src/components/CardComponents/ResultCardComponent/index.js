@@ -17,7 +17,6 @@ const ResultCardComponent = (props) => {
     const data = [JSON.parse(props.data)] 
 
     return (
-        <div>
             <Accordion style={{ width: "100%" }}>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
@@ -51,7 +50,6 @@ const ResultCardComponent = (props) => {
                     </Typography>
                 </AccordionDetails>
             </Accordion>
-        </div>
 
 
     )
