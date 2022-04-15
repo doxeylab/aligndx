@@ -61,9 +61,9 @@ function App() {
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <GlobalStyles
-                    styles={{
-                        body: { backgroundColor: "#7caedd" },
-                    }}
+                    // styles={{
+                    //     body: { backgroundColor: "#7caedd" },
+                    // }}
                 />
                 <Router>
                     <QueryClientProvider client={queryClient}>
