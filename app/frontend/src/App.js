@@ -1,5 +1,6 @@
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import GlobalStyle from './StyledGlobal';
+import { CssBaseline, GlobalStyles } from "@mui/material";
 
 import React, { Fragment, useState } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -40,10 +41,13 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 const theme = createTheme({
     typography: {
         fontFamily: 'Montserrat',
-        fontSize: '16'
+        fontSize: '16',
     },
     palette: {
-        mode: 'light'
+        type: 'dark',
+        primary: {
+            main: "#2578c7" /*or whatever color you desire */
+        }
     }
 });
 
@@ -55,6 +59,12 @@ function App() {
         <Fragment>
             <GlobalStyle />
             <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <GlobalStyles
+                    styles={{
+                        body: { backgroundColor: "#7caedd" },
+                    }}
+                />
                 <Router>
                     <QueryClientProvider client={queryClient}>
                         <GlobalContextProvider>

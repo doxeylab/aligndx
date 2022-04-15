@@ -1,6 +1,7 @@
 import { styled } from '@mui/system';
+import { TextField, Grid} from '@mui/material';
 
-import { TextField, Button, Grid} from '@mui/material';
+import Button from '../Button';
 
 export const FormContainer = styled(Grid)`
     display: flex;
@@ -12,8 +13,8 @@ export const FormContainer = styled(Grid)`
     justify-content: center;
     align-items: center;
 
-    h1 {
-        color: #1861a7;
+    h1,h2,h3,h4,h5,h6 {
+        color: inherit;
         margin-bottom: 2.5rem;
     }
 `

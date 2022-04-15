@@ -93,12 +93,15 @@ const LogInForm = (props) => {
             <Grid container direction={"row"} justifyContent={"center"}>
                 <Grid item  xs container justifyContent={"flex-start"} alignItems={"center"}>
                     <FormGroup>
-                        <FormControlLabel control={<Switch defaultChecked checked={checked} onChange={switchHandler} />} label="Remember Me" />
+                        <FormControlLabel control={<Switch checked={checked} onChange={switchHandler} />} label="Remember Me" />
                     </FormGroup>
                 </Grid>
-                <Grid item  xs container justifyContent={"flex-end"} alignItems={"center"}>
+                <Grid item xs container justifyContent={"flex-end"} alignItems={"center"}>
                     <FormGroup>
-                        <FormControlLabel control={<Link href="/404" >Forgot Password</Link>} />
+                        <FormControlLabel control={
+                            <Link href="/404">Forgot Password</Link>
+                            }
+                            />
                     </FormGroup>
                 </Grid>
             </Grid>

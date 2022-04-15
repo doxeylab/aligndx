@@ -1,7 +1,7 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { FormContainer, StyledTextField, StyledButton } from "./StyledForm";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 
 const Form = ({ schema, onSubmit, name, btnlabel,loading, children }) => {
     const methods = useForm({
@@ -13,7 +13,7 @@ const Form = ({ schema, onSubmit, name, btnlabel,loading, children }) => {
         <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
                 <FormContainer>
-                    <h1>{name}</h1>
+                    <Typography variant="h4">{name}</Typography>
                     {children}
                     <StyledButton
                         size='large'
