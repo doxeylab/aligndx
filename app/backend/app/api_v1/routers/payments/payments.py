@@ -10,7 +10,7 @@ from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest,
 from app.models.schemas.payments.plans import AllPlansResponse
 
 # Services
-from app.services import subscription_service, customer_service, plans_service
+from app.services import subscription_service, customer_service, plans_service, settings_page_service
 from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -43,7 +43,7 @@ async def cancel_subscription(
 ):
     if current_user.is_admin == False:
         raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,
-                        detail = "Only Admin can cancel subscription")
+                        detail = "Admin access required.")
 
     res = await subscription_service.request_cancellation(db, current_user)
     return {"response": res}
@@ -57,7 +57,7 @@ async def change_plan(
 ):
     if current_user.is_admin == False:
         raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,
-                        detail = "Only Admin can change subscription plan")
+                        detail = "Admin access required.")
     
     res = await subscription_service.change_plan(db, current_user, request)
     return {"response": res}
@@ -70,7 +70,7 @@ async def cancel_downgrade(
 ):
     if current_user.is_admin == False:
         raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,
-                        detail = "Only Admin can change subscription plan")
+                        detail = "Admin access required.")
     
     res = await subscription_service.cancel_downgrade(db, current_user)
     return {"response": res}
@@ -80,3 +80,15 @@ async def cancel_downgrade(
 async def get_plans(db: AsyncSession = Depends(get_db)):
     res = await plans_service.get_all_plans(db)
     return {"plans": res}
+
+# Settings Page Endpoint
+@router.get("/settings")
+async def settings_page(
+    current_user: UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if current_user.is_admin:
+        res = await settings_page_service.get_admin_settings(db, current_user)
+    else:
+        res = await settings_page_service.get_non_admin_settings(db, current_user)
+    return res

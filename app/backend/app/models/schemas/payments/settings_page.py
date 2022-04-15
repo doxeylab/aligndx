@@ -1,8 +1,6 @@
-import email
 from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
-
 from app.models.schemas.base_schema import BaseSchema
 
 class Customer(BaseSchema):
@@ -13,11 +11,16 @@ class Customer(BaseSchema):
     card_last4: str
     card_expiry: str
 
+class CustomerNonAdmin(BaseSchema):
+    id: UUID
+    name: str
+    email: str
+
 class Subscription(BaseSchema):
     id: UUID
     is_active: bool
-    is_cancelled: bool
-    cancel_date: datetime
+    is_cancelled: Optional[bool]
+    cancel_date: Optional[datetime]
     current_period_start: datetime
     current_period_end: datetime
     is_paid: bool
@@ -41,7 +44,7 @@ class Invoice(BaseSchema):
     amount_paid: int
     stripe_invoice_number: str
     payment_card_type: str
-    card_last4: str
+    payment_card_last4: str
     stripe_payment_receipt_url: str
 
 class User(BaseSchema):
@@ -50,11 +53,16 @@ class User(BaseSchema):
     email: str
     is_admin: bool
 
-class SettingsPageResponse(BaseSchema):
+class AdminSettingsPageResponse(BaseSchema):
     customer: Customer
     subscription: Subscription
     current_plan: Plan
-    scheduled_plan: Optional[UUID]
+    scheduled_plan: Optional[Plan]
     available_plans: List[Plan]
     invoices: List[Invoice]
     users: List[User]
+
+class NonAdminSettingsPageResponse(BaseSchema):
+    customer: CustomerNonAdmin
+    subscription: Subscription
+    current_plan: Plan
