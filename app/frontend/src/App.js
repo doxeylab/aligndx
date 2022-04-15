@@ -31,6 +31,8 @@ import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import TestPage from './pages/TestPage';
 
+import { Paper } from '@mui/material';
+import { grey, blue, amber, indigo} from '@mui/material/colors';
 import {
     QueryClient,
     QueryClientProvider,
@@ -38,23 +40,52 @@ import {
 
 import { ReactQueryDevtools } from 'react-query/devtools'
 
-const theme = createTheme({
+const getDesignTokens = (mode) => ({
     typography: {
         fontFamily: 'Montserrat',
-        fontSize: '16',
+        fontSize: '18',
     },
     palette: {
-        type: 'dark',
-        primary: {
-            main: "#2578c7" /*or whatever color you desire */
-        }
-    }
-});
+      mode,
+      ...(mode === 'light'
+        ? {
+            // palette values for light mode
+            primary: {
+                main: '#2578c7'
+            },
+            text: {
+              primary: grey[900],
+              secondary: grey[800],
+            },
+          }
+        : {
+            // palette values for dark mode
+            primary: {
+                main: indigo[900]
+            },  
+            background: {
+              default: indigo[800],
+              paper: indigo[400],
+            },
+            text: {
+              primary: grey[50],
+              secondary: grey[50],
+            },
+            error: {
+                main: amber[400]
+            }, 
+          }),
+    },
+  });
 
 const queryClient = new QueryClient();
 
 function App() {
     const [load, setLoad] = useState(false)
+    const [mode, setMode] = useState('light')
+
+    const theme = createTheme(getDesignTokens(mode));
+
     return (
         <Fragment>
             <GlobalStyle />
@@ -65,6 +96,7 @@ function App() {
                     //     body: { backgroundColor: "#7caedd" },
                     // }}
                 />
+                <Paper>
                 <Router>
                     <QueryClientProvider client={queryClient}>
                         <GlobalContextProvider>
@@ -102,6 +134,7 @@ function App() {
                         {/* <ReactQueryDevtools initialIsOpen={false} /> */}
                     </QueryClientProvider>
                 </Router>
+                </Paper>
             </ThemeProvider>
         </Fragment>
     );

@@ -1,12 +1,11 @@
 import { styled } from '@mui/system';
-import { TextField, Grid} from '@mui/material';
+import { TextField, Grid, Paper} from '@mui/material';
 
 import Button from '../Button';
 
-export const FormContainer = styled(Grid)`
+export const FormContainer = styled(Paper)`
     display: flex;
     flex-direction: column;
-    background-color: #fff;
     box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.2);
     border-radius: 1.2rem;
     padding: 3.5rem;
@@ -27,6 +26,5 @@ export const StyledTextField = styled(TextField)`
 export const StyledButton = styled(Button)`
     margin-top: 1.5em;
     margin-bottom: 3em;
-    width: 25%;
     padding: 1rem;
 `
