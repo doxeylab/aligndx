@@ -1,7 +1,7 @@
-import { StyledTextField } from "./StyledForm"
 import { Controller, useFormContext } from "react-hook-form";
+import { StyledTextField } from "./StyledForm";
 
-const TextField = ({name, label, type, autoComplete, hint }) => {
+const FormTextField = ({name, label, type, autoComplete, hint }) => {
     const methods = useFormContext();
     return (
         <Controller
@@ -25,4 +25,4 @@ const TextField = ({name, label, type, autoComplete, hint }) => {
     )
 }
 
-export default TextField;
+export default FormTextField;

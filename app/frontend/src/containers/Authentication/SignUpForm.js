@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useMutation } from 'react-query'
 
-import { Form, TextField } from "../../components/Form";
+import { Form, FormTextField } from "../../components/Form";
 import { FormControlLabel, FormGroup, Grid, Link, Alert } from '@mui/material';
 
 import { useHistory } from "react-router-dom";
@@ -107,15 +107,15 @@ const SignUpForm = () => {
         >
             <Grid container direction={"row"} justifyContent={"center"} columnSpacing={2}>
                 <Grid item xs={6} container justifyContent={"flex-start"} alignItems={"center"}>
-                    <TextField name={"name"} label={"name"} type={"name"} />
+                    <FormTextField name={"name"} label={"name"} type={"name"} />
 
                 </Grid>
                 <Grid item xs={6} container justifyContent={"flex-end"} alignItems={"center"}>
-                    <TextField name={"email"} label={"email"} type={"email"} autoComplete={"email"} />
+                    <FormTextField name={"email"} label={"email"} type={"email"} autoComplete={"email"} />
                 </Grid>
             </Grid>
-            <TextField name={"password"} label={"password"} type={"password"} autoComplete={"new-password"} />
-            <TextField name={"confirmpassword"} label={"confirm password"} type={"password"} autoComplete={"new-password"} />
+            <FormTextField name={"password"} label={"password"} type={"password"} autoComplete={"new-password"} />
+            <FormTextField name={"confirmpassword"} label={"confirm password"} type={"password"} autoComplete={"new-password"} />
 
             {invalid ? <Grid container justifyContent={"center"}>
                 <Alert severity="error" variant="outlined">Invalid credentials!</Alert>

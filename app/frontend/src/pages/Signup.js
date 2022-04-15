@@ -10,7 +10,7 @@ const SignUp = () => {
         <Section center id="signup">
             <Container>
                 <Grid container alignItems="center" justifyContent="center">
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12} sm={5}>
                         <Fade left duration={1000} delay={600} distance="30px">
                             <SignUpForm />
                         </Fade>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useMutation } from 'react-query'
 
-import { Form, TextField } from "../../components/Form";
+import { Form, FormTextField } from "../../components/Form";
 import { Switch, FormControlLabel, FormGroup, Grid, Link, Alert } from '@mui/material';
 
 import { useHistory } from "react-router-dom";
@@ -83,8 +83,8 @@ const LogInForm = (props) => {
             btnlabel={"Sign In"}
             loading={login.isLoading}
         >
-            <TextField name={"email"} label={"email"} type={"email"} autoComplete={"email"} />
-            <TextField name={"password"} label={"password"} type={"password"} autoComplete={"new-password"} />
+            <FormTextField name={"email"} label={"email"} type={"email"} autoComplete={"email"} />
+            <FormTextField name={"password"} label={"password"} type={"password"} autoComplete={"new-password"} />
 
             {invalid ? <Grid container justifyContent={"center"}>
                 <Alert severity="error" variant="outlined">Invalid credentials!</Alert>

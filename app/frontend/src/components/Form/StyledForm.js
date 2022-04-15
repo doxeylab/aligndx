@@ -8,7 +8,6 @@ export const FormContainer = styled(Grid)`
     background-color: #fff;
     box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.2);
     border-radius: 1.2rem;
-    width: 100%;
     padding: 3.5rem;
     justify-content: center;
     align-items: center;
