@@ -206,7 +206,9 @@ async def process_plan_downgrade(db, sub):
     await subs_dal.update(sub.id, update_items)
 
 async def get_recent(db, customer_id):
-    # Get an active subscription or a most recently cancelled one
+    '''
+    returns either an active subscription or a most recently cancelled one.
+    '''
     subs_dal = SubscriptionsDal(db)
     active_sub = await subs_dal.get_active_subscription_by_customer_id(customer_id)
     

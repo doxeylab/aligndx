@@ -73,3 +73,11 @@ class PlansDal(BaseDal[Invoices]):
             .where(self._table.is_archived == False)
         query = await self._db_session.execute(stmt)
         return query.scalars()
+    
+    async def get_eligible_plans_tax_rate(self, current_plan_name, tax_rate):
+        stmt =  select(self._table)\
+            .where(self._table.is_archived == False,
+                    self._table.name != current_plan_name,
+                    self._table.tax_rate == tax_rate)
+        query = await self._db_session.execute(stmt)
+        return query.scalars()

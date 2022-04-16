@@ -5,6 +5,10 @@ from app.auth.models import UserDTO
 from fastapi import status, HTTPException
 
 async def get_admin_settings(db, current_user: UserDTO):
+    '''
+    returns entities needed for front-end settings page where user logged in as 'Admin'.
+    '''
+
     if current_user.customer_id == None:
         raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                         detail = "A customer entity doesn't exist.")
@@ -18,7 +22,7 @@ async def get_admin_settings(db, current_user: UserDTO):
     if sub.scheduled_plan_id:
         scheduled_plan = await plans_service.get_plan_by_id(db, sub.scheduled_plan_id)
     
-    plans = await plans_service.get_all_plans(db)
+    plans = await plans_service.get_eligible_plans(db, current_plan.name, current_plan.tax_rate)
 
     invoices = await invoice_service.get_all_invoices(db, current_user.customer_id)
 
@@ -36,6 +40,10 @@ async def get_admin_settings(db, current_user: UserDTO):
     return response_model
 
 async def get_non_admin_settings(db, current_user: UserDTO):
+    '''
+    returns entities needed for front-end settings page where user logged in is 'Not Admin'.
+    '''
+
     if current_user.customer_id == None:
         raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                         detail = "A customer entity doesn't exist.")
