@@ -59,3 +59,11 @@ class UsersDal(BaseDal[Users]):
         query = await self._db_session.execute(stmt)
         result = query.scalars().first()
         return result.submissions
+    
+    async def get_all_users_for_customer(self, customer_id: UUID):
+        '''
+        returns all users for a specific customer
+        '''
+        stmt = (select(self._table).where(self._table.customer_id == customer_id))
+        query = await self._db_session.execute(stmt)
+        return query.scalars()

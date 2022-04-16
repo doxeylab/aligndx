@@ -204,3 +204,20 @@ async def process_plan_downgrade(db, sub):
             plan_id = sub.scheduled_plan_id
     )
     await subs_dal.update(sub.id, update_items)
+
+async def get_recent(db, customer_id):
+    '''
+    returns either an active subscription or a most recently cancelled one.
+    '''
+    subs_dal = SubscriptionsDal(db)
+    active_sub = await subs_dal.get_active_subscription_by_customer_id(customer_id)
+    
+    if active_sub == None:
+        cancelled_sub = await subs_dal.get_recently_cancelled_subscription(customer_id)
+
+        if cancelled_sub == None:
+            raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                        detail = "Customer neither has an active subscription nor a past cancelled one.")
+        return cancelled_sub
+
+    return active_sub

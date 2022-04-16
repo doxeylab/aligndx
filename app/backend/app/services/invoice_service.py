@@ -31,3 +31,13 @@ async def create_invoice(db, stripe_invoice, sub_id, customer_id):
     invoice_dal = InvoicesDal(db)
     invoice_id = await invoice_dal.create(new_invoice)
     return invoice_id
+
+async def get_all_invoices(db, customer_id):
+    invoice_dal = InvoicesDal(db)
+    invoices = await invoice_dal.get_by_customer_id(customer_id)
+
+    invoices_list = []
+    for invoice in invoices:
+        invoices_list.append(invoice)
+
+    return invoices_list
