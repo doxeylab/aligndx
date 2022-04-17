@@ -7,9 +7,9 @@ class Customer(BaseSchema):
     id: UUID
     name: str
     email: str
-    payment_card_type: str
-    card_last4: str
-    card_expiry: str
+    payment_card_type: str = None
+    card_last4: str = None
+    card_expiry: str = None
 
 class CustomerNonAdmin(BaseSchema):
     id: UUID
@@ -54,15 +54,16 @@ class User(BaseSchema):
     is_admin: bool
 
 class AdminSettingsPageResponse(BaseSchema):
-    customer: Customer
-    subscription: Subscription
-    current_plan: Plan
-    scheduled_plan: Optional[Plan]
-    available_plans: List[Plan]
-    invoices: List[Invoice]
+    current_user: User
+    customer: Customer = None
+    subscription: Subscription = None
+    current_plan: Plan = None
+    scheduled_plan: Optional[Plan] = None
+    available_plans: List[Plan] = None
+    invoices: List[Invoice] = None
     users: List[User]
 
 class NonAdminSettingsPageResponse(BaseSchema):
-    customer: CustomerNonAdmin
-    subscription: Subscription
-    current_plan: Plan
+    current_user: User
+    customer: CustomerNonAdmin = None
+    subscription: Subscription = None

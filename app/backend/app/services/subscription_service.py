@@ -213,11 +213,6 @@ async def get_recent(db, customer_id):
     active_sub = await subs_dal.get_active_subscription_by_customer_id(customer_id)
     
     if active_sub == None:
-        cancelled_sub = await subs_dal.get_recently_cancelled_subscription(customer_id)
-
-        if cancelled_sub == None:
-            raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
-                        detail = "Customer neither has an active subscription nor a past cancelled one.")
-        return cancelled_sub
+        return await subs_dal.get_recently_cancelled_subscription(customer_id)
 
     return active_sub
