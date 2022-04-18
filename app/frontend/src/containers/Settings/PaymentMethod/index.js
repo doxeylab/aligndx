@@ -2,7 +2,7 @@ import Col from 'react-bootstrap/Col'
 import Row from 'react-bootstrap/Row'
 import Button from "react-bootstrap/Button"
 
-const PaymentMethod = () => {
+const PaymentMethod = (props) => {
     return (
         <div className="custom-card">
             <div className='header'>
@@ -15,11 +15,11 @@ const PaymentMethod = () => {
             <div  className='main-content'>
                 <Row>
                     <Col sm={5}><span style={{fontSize: '1.5rem'}}>Current Payment Method:</span></Col>
-                    <Col sm={7}><h4>Visa</h4></Col>
+                    <Col sm={7}><h4>{props.customer.payment_card_type.toUpperCase()}</h4></Col>
                     <Col sm={5}><span style={{fontSize: '1.5rem'}}>Card Number:</span></Col>
-                    <Col sm={7}><h4>•••• •••• •••• 4242</h4></Col>
+                    <Col sm={7}><h4>•••• •••• •••• {props.customer.card_last4}</h4></Col>
                     <Col sm={5}><span style={{fontSize: '1.5rem'}}>Expiry:</span></Col>
-                    <Col sm={7}><h4>Exp: 02/25</h4></Col>
+                    <Col sm={7}><h4>{props.customer.card_expiry}</h4></Col>
                     <Col sm={{ span: 7, offset: 5 }} style={{marginTop:'16px'}}>
                         <Button style={{width: '100%', fontSize: '1.8rem'}} variant="outline-primary">Update Card</Button>
                     </Col>
