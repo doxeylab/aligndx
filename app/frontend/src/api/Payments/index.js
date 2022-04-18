@@ -10,5 +10,8 @@ export const usePayments = () => {
         post(`${payments_endpoint}/subscriptions`, params),
     get_all_plans: (params) => 
         get(`${payments_endpoint}/plans`, params),
+    get_settings_page_data: (params) => 
+        get(`${payments_endpoint}/settings`, params),
     }
+
 }

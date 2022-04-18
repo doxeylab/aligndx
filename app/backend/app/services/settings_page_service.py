@@ -23,7 +23,7 @@ async def get_admin_settings(db, current_user: UserDTO):
                 customer = customer,
                 users = users
             )
-
+    current_plan = await plans_service.get_plan_by_id(db, sub.plan_id)
     invoices = await invoice_service.get_all_invoices(db, current_user.customer_id)
 
     if sub.is_active == False:
@@ -31,12 +31,12 @@ async def get_admin_settings(db, current_user: UserDTO):
             current_user = current_user,
             customer = customer,
             subscription = sub,
+            current_plan = current_plan,
             invoices = invoices,
             users = users
         )
 
     # return the following if there is an active subscription
-    current_plan = await plans_service.get_plan_by_id(db, sub.plan_id)
 
     scheduled_plan = None
     if sub.scheduled_plan_id:
