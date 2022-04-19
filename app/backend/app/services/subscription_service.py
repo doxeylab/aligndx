@@ -90,8 +90,14 @@ async def request_cancellation(db, current_user: UserDTO):
     subs = await subs_dal.get_active_subscription_by_customer_id(current_user.customer_id)
 
     if subs == None:
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
-                        detail = "An active subscription does not exist!")
+        raise HTTPException(status_code = 404, detail = "An active subscription does not exist!")
+    
+    if subs.auto_renew == False:
+        raise HTTPException(status_code = 400, detail = "Subscription cancel request already submitted.")
+    
+    # If subs already scheduled to downgrade: cancel the downgrade req first
+    if subs.stripe_schedule_id:
+        await cancel_downgrade(db, current_user)
 
     # Submit cancel request to Stripe
     await stripe_service.cancel_subscription(subs.stripe_subscription_id)
@@ -126,7 +132,25 @@ async def cancel_subscription(db, subs_stripe_id, cancel_reason):
     await customer_service.delete_payment_method(db, subs.customer_id)
 
     return True
+
+async def reactivate_subscription(db, current_user: UserDTO):
+    subs_dal = SubscriptionsDal(db)
+    subs = await subs_dal.get_active_subscription_by_customer_id(current_user.customer_id)
+
+    if subs == None:
+        raise HTTPException(status_code = 404, detail = "Subscription does not exist!")
+
+    if subs.auto_renew == True:
+        raise HTTPException(status_code = 400, detail = "Existing cancel request not found. Subscription already set to auto-renew.")
     
+    # Submit reactivation request to Stripe
+    await stripe_service.reactivate_subscription(subs.stripe_subscription_id)
+
+    update_items = SetAutoRenew(auto_renew=True)
+    await subs_dal.update(subs.id, update_items)
+
+    return 'Subscription reactivated and is set to auto-renew.'
+
 async def change_plan(db, current_user: UserDTO, request):
     subs_dal = SubscriptionsDal(db)
     subs = await subs_dal.get_active_subscription_by_customer_id(current_user.customer_id)
@@ -150,6 +174,10 @@ async def change_plan(db, current_user: UserDTO, request):
         if scheduled_plan.name == new_plan.name:
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                             detail = f"Request to change to plan name: '{scheduled_plan.name}' already submitted.")
+    
+    # Check of Subscription is set to cancel at end of period: if yes, reactivate subs first
+    if subs.auto_renew == False:
+        await reactivate_subscription(db, current_user)
 
     response = None
     if new_plan.base_price >= current_plan.base_price:
