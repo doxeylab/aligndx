@@ -10,7 +10,7 @@
 .side-menu-list {
     display: flex;
     flex-direction: column;
-    padding: 0 1.6rem 1.6rem 1.6rem;
+    padding: 0 1.6rem 0 1.6rem;
     list-style: none;
 }
 
@@ -29,7 +29,6 @@
 
 .side-menu-list div {
     margin: 0px;
-    font-family: Roboto, Helvetica, Arial, sans-serif;
     font-size: 1.6rem;
     letter-spacing: 0.02857em;
     color: rgb(52, 71, 103);
@@ -39,6 +38,10 @@
     padding: 1rem 1.6rem;
     transition: background-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
     cursor: pointer;
+}
+
+.side-menu-list div:last-child {
+    padding-bottom: 0;
 }
 
 .side-menu-list div:hover {

@@ -52,7 +52,7 @@ const Settings = () => {
         console.error(error)
     }
 
-    const {refetch, isLoading} = useQuery('new_subscription', () => payments.get_settings_page_data(), {
+    const {refetch, isLoading} = useQuery('settings_page_data', () => payments.get_settings_page_data(), {
         enabled: true,
         refetchOnWindowFocus: false,
         retry: false,
@@ -78,8 +78,7 @@ const Settings = () => {
                                     <li className='side-menu-item'>
                                         <div onClick={() => scrollTo(currentPlanRef)}>Current Plan</div>
                                     </li>
-                                    { settingsData.current_user.is_admin && settingsData.subscription.is_active && <>
-                                        
+                                    { settingsData.current_user.is_admin && settingsData.subscription?.is_active && <>
                                         <li className='side-menu-item'>
                                             <div onClick={() => scrollTo(changePlanRef)}>Change Plan</div>
                                         </li>
@@ -92,11 +91,12 @@ const Settings = () => {
                                         <li className='side-menu-item'>
                                             <div onClick={() => scrollTo(cancelPlanRef)}>Cancel Plan</div>
                                         </li>
-                                        
                                     </>}
-                                    <li className='side-menu-item'>
-                                        <div onClick={() => scrollTo(transactionsRef)}>Transactions</div>
-                                    </li>
+                                    { settingsData.current_user.is_admin && 
+                                        <li className='side-menu-item'>
+                                            <div onClick={() => scrollTo(transactionsRef)}>Transactions</div>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </Col>
@@ -110,12 +110,14 @@ const Settings = () => {
                                     sub={settingsData.subscription}
                                 />
                             </div>
-                            { settingsData.current_user.is_admin && settingsData.subscription.is_active &&
+                            { settingsData.current_user.is_admin && settingsData.subscription?.is_active &&
                                 <>
                                     <div ref={changePlanRef}>
                                         <ChangePlan
                                             plans={settingsData.available_plans}
                                             current_plan={settingsData.current_plan}
+                                            scheduled_plan={settingsData.scheduled_plan}
+                                            refreshData={refetch}
                                         />
                                     </div>
                                     <div ref={paymentMethodRef}>
@@ -129,9 +131,11 @@ const Settings = () => {
                                     </div>
                                 </>
                             }
-                            <div ref={transactionsRef}>
-                                <Transactions invoices={settingsData.invoices}/>
-                            </div>
+                            { settingsData.current_user.is_admin &&
+                                <div ref={transactionsRef}>
+                                    <Transactions invoices={settingsData.invoices}/>
+                                </div>
+                            }
                         </Col>
                     </Row>
                 }

@@ -3,7 +3,7 @@ import useAxios from '../useAxios'
 const payments_endpoint = "payments"
 
 export const usePayments = () => {
-    const {get, post, put, destroy } = useAxios();
+    const {get, post, put, delete: destroy } = useAxios();
 
     return {
     create_subscription: (params) => 
@@ -12,6 +12,10 @@ export const usePayments = () => {
         get(`${payments_endpoint}/plans`, params),
     get_settings_page_data: (params) => 
         get(`${payments_endpoint}/settings`, params),
+    change_plan: (params) => 
+        put(`${payments_endpoint}/subscriptions/change-plan`, params),
+    cancel_change_plan: (params) => 
+        destroy(`${payments_endpoint}/subscriptions/change-plan`, params),
     }
 
 }
