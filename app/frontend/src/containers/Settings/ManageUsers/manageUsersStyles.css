@@ -1,0 +1,12 @@
+#manageUsers-table th {
+    font-size: 1.6rem;
+}
+
+#manageUsers-table td {
+    font-size: 1.4rem;
+    vertical-align: middle;
+}
+
+#manageUsers-table td:last-child {
+    text-align: center;
+}
