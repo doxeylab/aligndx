@@ -121,7 +121,7 @@ const Settings = () => {
                                         />
                                     </div>
                                     <div ref={paymentMethodRef}>
-                                        <PaymentMethod customer={settingsData.customer} />
+                                        <PaymentMethod customer={settingsData.customer} refreshData={refetch} />
                                     </div>
                                     <div ref={cancelPlanRef}>
                                         <CancelPlan sub={settingsData.subscription}/>

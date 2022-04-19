@@ -16,6 +16,8 @@ export const usePayments = () => {
         put(`${payments_endpoint}/subscriptions/change-plan`, params),
     cancel_change_plan: (params) => 
         destroy(`${payments_endpoint}/subscriptions/change-plan`, params),
+    update_payment_method: (params) => 
+        get(`${payments_endpoint}/update-card/secret`, params),
     }
 
 }
