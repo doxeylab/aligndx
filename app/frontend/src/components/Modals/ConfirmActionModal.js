@@ -1,12 +1,11 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import Modal from "@mui/material/Modal";
-import { useHistory } from "react-router-dom";
 
 
-const ConfirmationModal = (props) => {
+const ConfirmActionModal = (props) => {
   const style = {
     position: "absolute",
     top: "50%",
@@ -18,26 +17,23 @@ const ConfirmationModal = (props) => {
     boxShadow: 24,
     p: 4,
   };
-  const history = useHistory();  
-  const handleClose = (param) => {
-    if (props.path) {
-      history.push(props.path)
-    } else {
-      props.onClose(false)
-    }
+
+  const handleClose = () => {
+    props.onClose(false)
   }
   
   return (
     <>
       <Modal
         open={props.open}
+        onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
         <div>
           <Box sx={style}>
             <Box display="flex" justifyContent="center" alignItems="center">
-              <CheckCircleIcon color="success" sx={{ fontSize: 100 }} />
+              <ErrorOutlineIcon color="warning" sx={{ fontSize: 100 }} />
             </Box>
             <Box display="flex" justifyContent="center" alignItems="center">
               <Typography id="modal-modal-title" variant="h3" component="h6">
@@ -51,13 +47,23 @@ const ConfirmationModal = (props) => {
             </Box>
             <Box display="flex" justifyContent="center" alignItems="center">
               <Typography id="modal-modal-footer" mt={5}>
-                <Button
+              <Button
                   variant="contained"
                   sx={{ fontSize: "1.6rem", letterSpacing: '0.1rem'}}
-                  onClick={handleClose}
+                  onClick={props.onYes}
+                  disabled={props.isLoading}
                   color="success"
                 >
-                  Close
+                  Yes
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{ fontSize: "1.6rem", letterSpacing: '0.1rem', ml: 2}}
+                  disabled={props.isLoading}
+                  onClick={handleClose}
+                  color="warning"
+                >
+                  No
                 </Button>
               </Typography>
             </Box>
@@ -67,4 +73,4 @@ const ConfirmationModal = (props) => {
     </>
   );
 }
-export default ConfirmationModal;
+export default ConfirmActionModal;

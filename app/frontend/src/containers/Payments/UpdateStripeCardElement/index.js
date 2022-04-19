@@ -1,12 +1,8 @@
 import { useMemo, useState } from 'react';
-import { withRouter } from "react-router-dom";
-
-import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
+import Modal from 'react-bootstrap/Modal'
 import Spinner from "react-bootstrap/Spinner"
-
-import './stripeCardElement.css';
 import ConfirmationModal from '../../../components/Modals/ConfirmationModal'
 import { 
     CardCvcElement, 
@@ -41,13 +37,13 @@ const useOptions = () => {
     return options;
 };
 
-const StripeCardElement = (props) => {
+const UpdateStripeCardElement = (props) => {
     const stripe = useStripe();
     const elements = useElements();
     const options = useOptions();
     const [errorMessage, setErrorMessage] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
-    const [showConfirmModal, setShowConfirmModal] = useState(false)
+    const [openSuccessModal, setOpenSuccessModal] = useState(false);
 
     const handlePayment = async (e) => {
         e.preventDefault();
@@ -55,26 +51,18 @@ const StripeCardElement = (props) => {
 
         // Make sure stripe & elements exist
         if (!stripe || !elements) return;
-
-        setIsLoading(true);
         
+        setIsLoading(true);
+
         // Reference to mounted Card Element
         const cardNumberElement = elements.getElement(CardNumberElement);
         
         // Use card Element to tokenize payment details
-        let { error, paymentIntent } = await stripe.confirmCardPayment(props.clientSecret, {
+        let { error, setupIntent } = await stripe.confirmCardSetup(props.clientSecret, {
             payment_method: {
                 card: cardNumberElement,
                 billing_details: {
-                    name: props.name,
-                    address: {
-                        line1: props.address.line1,
-                        line2: props.address.line2,
-                        city: props.address.city,
-                        state: props.address.state,
-                        postal_code: props.address.postalCode,
-                        country: props.address.country
-                    }
+                    name: ''
                 }
             }
         })
@@ -84,9 +72,9 @@ const StripeCardElement = (props) => {
             setErrorMessage(error.message);
         }
 
-        if (paymentIntent && paymentIntent.status === 'succeeded') {
+        if (setupIntent && setupIntent.status === 'succeeded') {
             setIsLoading(false);
-            setShowConfirmModal(true)
+            props.success();
         }
     }
 
@@ -98,10 +86,10 @@ const StripeCardElement = (props) => {
     return (
         <>
             <ConfirmationModal 
-                open={showConfirmModal}
+                open={openSuccessModal}
                 title={'Awesome'}
-                body={'Payment processed successfuly!'}
-                path={'/profile'}
+                body={'Requested changes were successful.'}
+                onClose={setOpenSuccessModal}
             />
             <Modal animation={false} show={props.showModal} onHide={handleHideModal} centered>
                 <Form id="card-form" onSubmit={handlePayment}>
@@ -143,13 +131,13 @@ const StripeCardElement = (props) => {
                             id='pay-button'
                             type='submit'
                         >
-                            {isLoading ? <Spinner className='mr-4' as="span" animation="border" /> : 'Submit'}
+                            {isLoading ? <Spinner className='mr-4' as="span" animation="border" /> : 'Update Card'}
                         </Button>
                     </Modal.Footer>
                 </Form>
             </Modal>
         </>
-    )
+    );
 }
 
-export default withRouter(StripeCardElement)
+export default UpdateStripeCardElement;

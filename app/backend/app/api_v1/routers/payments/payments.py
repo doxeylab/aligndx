@@ -48,6 +48,19 @@ async def cancel_subscription(
     res = await subscription_service.request_cancellation(db, current_user)
     return {"response": res}
 
+# Reactivate Subscription - PUT /payments/subscriptions
+@router.put("/subscriptions")
+async def reactivate_subscription(
+    current_user: UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if current_user.is_admin == False:
+        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,
+                        detail = "Admin access required.")
+
+    res = await subscription_service.reactivate_subscription(db, current_user)
+    return {"response": res}
+
 # Upgrade/downgrade subscription: PUT /payments/subscriptions/change-plan
 @router.put("/subscriptions/change-plan", status_code=status.HTTP_200_OK)
 async def change_plan(

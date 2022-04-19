@@ -104,6 +104,17 @@ async def cancel_subscription(stripe_subscription_id):
     except StripeError as error:
         error_handler(error)
 
+async def reactivate_subscription(stripe_subscription_id):
+    try:
+        resp = stripe.Subscription.modify(
+                stripe_subscription_id,
+                cancel_at_period_end = False
+            )
+        return resp
+
+    except StripeError as error:
+        error_handler(error)
+
 async def upgrade_subscription(stripe_subscription_id, stripe_price_id):
     try:
         subscription = await get_subscription(stripe_subscription_id)
