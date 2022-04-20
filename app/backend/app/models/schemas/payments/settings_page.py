@@ -27,6 +27,8 @@ class Subscription(BaseSchema):
     auto_renew: bool
     plan_id: UUID
     scheduled_plan_id: Optional[UUID]
+    data_used: float
+    data_limit_mb: float
 
 class Plan(BaseSchema):
     id: UUID

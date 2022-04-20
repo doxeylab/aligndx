@@ -25,6 +25,20 @@ class SubscriptionBase(BaseSchema):
 class SubscriptionSchema(SubscriptionBase):
     id: UUID
 
+class SubscriptionDTO(BaseSchema):
+    id: UUID
+    is_active: bool
+    is_cancelled: Optional[bool]
+    cancel_date: Optional[datetime]
+    current_period_start: datetime
+    current_period_end: datetime
+    is_paid: bool
+    auto_renew: bool
+    plan_id: UUID
+    scheduled_plan_id: Optional[UUID]
+    data_used: float
+    data_limit_mb: float
+
 class CreateSubscriptionRequest(BaseSchema):
     plan_id: UUID
 
@@ -36,6 +50,8 @@ class CreateNewSubscription(BaseSchema):
     plan_id: UUID
     is_active: bool
     status: str
+    data_used: float
+    data_limit_mb: float
     is_paid: bool
     auto_renew: bool
     allow_downgrade: bool
@@ -47,6 +63,7 @@ class UpdateInitialSubscription(BaseSchema):
 
 class UpgradeSubscription(BaseSchema):
     plan_id : UUID
+    data_limit_mb: float
 
 class DowngradeSubscription(BaseSchema):
     scheduled_plan_id: UUID
@@ -63,6 +80,8 @@ class ProcessDowngradeSubscription(BaseSchema):
     stripe_schedule_id: Optional[str]
     allow_downgrade: bool
     plan_id: UUID
+    data_used: float
+    data_limit_mb: float
 
 class UpdateItemsAfterPaymentSuccess(BaseSchema):
     is_active : bool
@@ -73,6 +92,7 @@ class UpdateItemsAfterPaymentSuccess(BaseSchema):
     current_period_end : datetime
     auto_renew: bool
     allow_downgrade: bool
+    data_used: float
 
 class SetAutoRenew(BaseSchema):
     auto_renew: bool
@@ -87,4 +107,6 @@ class UpdateItemsAfterCancel(BaseSchema):
     is_cancelled: bool
     cancel_date: datetime
     auto_renew: bool
-    
+
+class UpdateData(BaseSchema):
+    data_used: float
