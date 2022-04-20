@@ -15,6 +15,7 @@ const ChangePlan = (props) => {
     const [plans] = useState(props.plans);
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [isUpgrade, setIsUpgrade] = useState(true);
+    const [errorMessage, setErrorMessage] = useState(null);
     const [openConfirmModal, setOpenConfirmModal] = useState(false);
     const [openSuccessModal, setOpenSuccessModal] = useState(false);
     const [openConfirmModalCancelChange, setOpenConfirmModalCancelChange] = useState(false);
@@ -53,6 +54,11 @@ const ChangePlan = (props) => {
     }
 
     const onError = (error) => {
+        console.log(error.response)
+        if (error.response.status === 402) {
+            setOpenConfirmModal(false);
+            setErrorMessage('Your credit card declined. Please update your payment method before upgrading the plan.');
+        }
         if (error.response.data.detail) {
             console.error('Error Message: ', error.response.data.detail)
             return;
@@ -120,6 +126,16 @@ const ChangePlan = (props) => {
                 </Row>
             </div>
             <div className='main-content'>
+                {errorMessage && 
+                    <Row>
+                        <Col sm={12}>
+                            <Alert variant='danger'>
+                                <Alert.Heading style={{fontSize: '2rem'}}>Payment Error</Alert.Heading>
+                                <p style={{fontSize: '1.6rem'}}>{errorMessage}</p>
+                            </Alert>
+                        </Col>
+                    </Row>
+                }
                 {!props.scheduled_plan ? <>
                     <Row>
                         <Col sm={5}><span style={{fontSize: '1.5rem'}}>Select New Plan:</span></Col>

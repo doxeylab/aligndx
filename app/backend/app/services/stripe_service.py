@@ -121,7 +121,8 @@ async def upgrade_subscription(stripe_subscription_id, stripe_price_id):
         resp = stripe.Subscription.modify(
                 subscription.id,
                 cancel_at_period_end=False,
-                proration_behavior='create_prorations',
+                proration_behavior='always_invoice',
+                payment_behavior='error_if_incomplete',
                 items=[{
                     'id': subscription['items']['data'][0].id,
                     'price': stripe_price_id,
@@ -130,7 +131,11 @@ async def upgrade_subscription(stripe_subscription_id, stripe_price_id):
         return resp
 
     except StripeError as error:
-        error_handler(error)
+        if error.http_status == 402:
+            raise HTTPException(status_code = status.HTTP_402_PAYMENT_REQUIRED,
+                detail = 'Credit card declined. Please update your payment method details.')
+        else:
+            error_handler(error)
 
 async def schedule_downgrade_subscription(stripe_subscription_id, stripe_price_id):
     # Create a Stripe Subscription Schedule to update subs price starting next period
