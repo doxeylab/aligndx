@@ -42,11 +42,19 @@ async def stripe_events(
     if event and event['type'] == 'invoice.paid':
         result = await service.handle_invoice_paid(await req.json(), db)
     
+    # Handle customer.subscription.updated Event
     if event and event['type'] == 'customer.subscription.updated':
         payload = await req.json()
         subscription = payload["data"]["object"]
+
+        # Handle subscription status = "past_due"
         if subscription['status'] == "past_due":
             result = await service.handle_failed_payment(db, subscription)
+        
+        # Handle subscription status = "incomplete_expired"
+        if subscription['status'] == "incomplete_expired":
+            result = await service.handle_incomplete_subs(db, subscription)
+            
         else:
             result = True
     

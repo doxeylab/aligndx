@@ -270,3 +270,16 @@ async def update_data_usage(db, customer_id, data_amount_mb):
     update_items = UpdateData(data_used = new_data_used)
     
     await subs_dal.update(subs.id, update_items)
+
+async def delete_incomplete_subscription(db, subs_stripe_id):
+    """
+    Delete subscription where status = 'incomplete'
+    """
+    subs_dal = SubscriptionsDal(db)
+    subs = await subs_dal.get_subscription_by_stripe_id(subs_stripe_id)
+
+    if subs == None:
+        raise HTTPException(status_code = 404, detail = "Subscription does not exist!")
+    
+    if subs.is_active == False and subs.status == 'incomplete':
+        await subs_dal.delete_by_id(subs.id)

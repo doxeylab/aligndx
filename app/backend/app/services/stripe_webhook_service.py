@@ -57,3 +57,13 @@ async def handle_failed_payment(db, subscription):
     
     await subscription_service.cancel_subscription(db, subscription["id"], cancel_reason)
     return True
+
+async def handle_incomplete_subs(db, subscription):
+    """
+    Subscriptions with 'incomplete_expired' status are subs where the payment process was never completed.
+    In the db they are marked with status "incomplete". Stripe sends this event after 24 hours
+    if the payment process was not completed.
+    """
+    
+    await subscription_service.delete_incomplete_subscription(db, subscription["id"])
+    return True
