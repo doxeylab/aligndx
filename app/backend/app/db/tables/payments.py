@@ -28,6 +28,8 @@ class Subscriptions(Base):
     is_cancelled = Column(Boolean, nullable=True)
     cancel_date = Column(DateTime, nullable=True)
     auto_renew = Column(Boolean, nullable=False)
+    data_used = Column(Float, nullable=True)
+    data_limit_mb = Column(Float, nullable=True)
     current_period_start = Column(DateTime, nullable=True)
     current_period_end = Column(DateTime, nullable=True)
     stripe_latest_invoice_id = Column(String(50), nullable=True)

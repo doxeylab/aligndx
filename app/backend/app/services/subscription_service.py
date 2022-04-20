@@ -2,12 +2,12 @@
 from fastapi import HTTPException, status
 
 # Database Models & DAL
-from app.db.dals.payments import CustomersDal, SubscriptionsDal, PlansDal
+from app.db.dals.payments import SubscriptionsDal, PlansDal
 from app.auth.models import UserDTO
-from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, CreateNewSubscription, UpdateInitialSubscription, UpdateItemsAfterPaymentSuccess, SetAutoRenew, SubCancelResponse, UpdateItemsAfterCancel, UpgradeSubscription, DowngradeSubscription, CancelDowngradeSubscription, ProcessDowngradeSubscription
+from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, CreateNewSubscription, UpdateInitialSubscription, UpdateItemsAfterPaymentSuccess, SetAutoRenew, SubCancelResponse, UpdateItemsAfterCancel, UpgradeSubscription, DowngradeSubscription, CancelDowngradeSubscription, ProcessDowngradeSubscription, UpdateData
 
 # Services
-from app.services import stripe_service, customer_service
+from app.services import stripe_service, customer_service, plans_service
 
 # Utils
 from datetime import datetime
@@ -47,6 +47,8 @@ async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequ
         is_active = False,
         status = "incomplete",
         is_paid = False,
+        data_used = 0.0,
+        data_limit_mb = plan.data_limit_mb,
         auto_renew = False,
         allow_downgrade = True,
         creation_time = datetime.now()
@@ -71,6 +73,10 @@ async def get_subscription_by_stripe_id(db, stripe_id):
     subs_dal = SubscriptionsDal(db)
     return await subs_dal.get_subscription_by_stripe_id(stripe_id)
 
+async def get_active_subscription(db, current_user: UserDTO):
+    subs_dal = SubscriptionsDal(db)
+    return await subs_dal.get_active_subscription_by_customer_id(current_user.customer_id)
+
 async def update_after_payment_success(db, subs_id, sub_stripe):
     update_items = UpdateItemsAfterPaymentSuccess(
         is_active = True,
@@ -80,7 +86,8 @@ async def update_after_payment_success(db, subs_id, sub_stripe):
         stripe_latest_invoice_id = sub_stripe.latest_invoice.id,
         current_period_start = datetime.fromtimestamp(sub_stripe.current_period_start),
         current_period_end = datetime.fromtimestamp(sub_stripe.current_period_end),
-        allow_downgrade = True
+        allow_downgrade = True,
+        data_used = 0.0
     )
     subs_dal = SubscriptionsDal(db)
     return await subs_dal.update(subs_id, update_items)
@@ -181,9 +188,12 @@ async def change_plan(db, current_user: UserDTO, request):
 
     response = None
     if new_plan.base_price >= current_plan.base_price:
-        # Upgrade Plan - Change Immediately
+        # Upgrade Plan - Change Immediately, set new higher data limit
         await stripe_service.upgrade_subscription(subs.stripe_subscription_id, new_plan.stripe_price_id)
-        update_items = UpgradeSubscription(plan_id = new_plan.id)
+        update_items = UpgradeSubscription(
+            plan_id = new_plan.id,
+            data_limit_mb = new_plan.data_limit_mb,
+        )
         await subs_dal.update(subs.id, update_items)
         # TODO: use upcoming-invoice API to estimate next invoice charges
         response = "Subscription plan upgraded successfully."
@@ -223,13 +233,17 @@ async def cancel_downgrade(db, current_user: UserDTO):
 
 # End of month: Downgrade Plan
 async def process_plan_downgrade(db, sub):
+    # Scheduled plan id becomes the new plan id
+    new_plan = await plans_service.get_plan_by_id(sub.scheduled_plan_id)
+
     subs_dal = SubscriptionsDal(db)
-    # Scheduled plan id becomes the plan id
     update_items = ProcessDowngradeSubscription(
             scheduled_plan_id = None,
             stripe_schedule_id = None,
             allow_downgrade = True,
-            plan_id = sub.scheduled_plan_id
+            plan_id = new_plan.id,
+            data_used = 0.0,
+            data_limit_mb = new_plan.data_limit_mb,
     )
     await subs_dal.update(sub.id, update_items)
 
@@ -244,3 +258,15 @@ async def get_recent(db, customer_id):
         return await subs_dal.get_recently_cancelled_subscription(customer_id)
 
     return active_sub
+
+async def update_data_usage(db, customer_id, data_amount_mb):
+    subs_dal = SubscriptionsDal(db)
+    subs = await subs_dal.get_active_subscription_by_customer_id(customer_id)
+    
+    if subs == None:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
+                        detail = "An active subscription does not exist!")
+    new_data_used = subs.data_used + data_amount_mb
+    update_items = UpdateData(data_used = new_data_used)
+    
+    await subs_dal.update(subs.id, update_items)

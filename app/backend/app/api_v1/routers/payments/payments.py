@@ -6,7 +6,7 @@ from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user
 
 # Payments Schemas
-from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, ChangePlanRequest
+from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, ChangePlanRequest, SubscriptionDTO
 from app.models.schemas.payments.plans import AllPlansResponse
 
 # Services
@@ -25,6 +25,14 @@ async def create_subscription(
     ):
     res = await subscription_service.create_subscription(current_user, request, db)
     return {"client_secret": res}
+
+# Get active subscription: GET /payments/subscriptions
+@router.get("/subscriptions", response_model=SubscriptionDTO)
+async def get_active_subscription(
+        current_user: UserDTO = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+    ):
+    return await subscription_service.get_active_subscription(db, current_user)
 
 # Get a client secret to render Payment Element
 @router.get("/update-card/secret")
