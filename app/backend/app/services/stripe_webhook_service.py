@@ -30,9 +30,11 @@ async def activate_initial_subscription(db, sub, sub_stripe, stripe_customer_id)
      # Create Invoice in db
     await invoice_service.create_invoice(db, sub_stripe.latest_invoice, sub.id, sub.customer_id)
 
-    # Update Customer & Subscription items in db
+    # Update Subscription items in db
     await subscription_service.update_after_payment_success(db, sub.id, sub_stripe)
-    await customer_service.update_payment_method(db, sub.customer_id, sub_stripe.latest_invoice, stripe_customer_id)
+
+    # Update payment card details in the customer table
+    await customer_service.set_payment_method(db, sub.customer_id, sub_stripe.latest_invoice, stripe_customer_id)
 
 async def process_subscription_renewal(db, sub, sub_stripe):
     """
@@ -60,10 +62,10 @@ async def process_other_payments(db, sub, sub_stripe):
     await invoice_service.create_invoice(db, sub_stripe.latest_invoice, sub.id, sub.customer_id)
 
 async def handle_payment_method(req, db):
-    # Check if this req was triggered due to update-card as metadata was set to update card
-    metadata = req["data"]["object"]["metadata"]
-    if metadata == {} or 'reason' not in metadata or metadata['reason'] != 'update-card':
-        return True
+    """
+    This webhook is triggered when customer successfuly updates their credit card.
+    Front-end -> Settings Page -> Update Payment Method, if success this method is triggered.
+    """
 
     stripe_customer_id = req["data"]["object"]["customer"]
     payment_method_id = req["data"]["object"]["payment_method"]
