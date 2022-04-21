@@ -48,10 +48,9 @@ class AppSettings(BaseSettings):
     base_url: str = os.getenv("BASE_URL")
 
     # Payments Stripe settings
-
-    stripe_key: str = os.getenv("STRIPE_KEY") 
-    stripe_webhook_secret: str = os.getenv("STRIPE_WEBHOOK_SECRET")
+    stripe_secret_key: str = os.getenv("STRIPE_SECRET_KEY") 
     stripe_publishable_key: str = os.getenv("STRIPE_PUBLISHABLE_KEY")
+    stripe_webhook_secret: str = os.getenv("STRIPE_WEBHOOK_SECRET")
 
     #  -- Db settings --
     
