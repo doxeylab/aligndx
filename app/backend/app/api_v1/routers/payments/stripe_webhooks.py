@@ -39,8 +39,9 @@ async def stripe_events(
 
     # Handle Events
     result = None
+    # Handle invoice.paid Event
     if event and event['type'] == 'invoice.paid':
-        result = await service.handle_invoice_paid(await req.json(), db)
+        result = await service.handle_invoice_pmt_succeeded(db, await req.json())
     
     # Handle customer.subscription.updated Event
     if event and event['type'] == 'customer.subscription.updated':
