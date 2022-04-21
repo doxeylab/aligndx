@@ -1,20 +1,21 @@
 # FastAPI
 from fastapi import APIRouter, Request, Header, HTTPException, Response, Depends, status
 
+# Settings
+from app.config.settings import settings
+
 # Services
 from app.services import stripe_webhook_service as service
 from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
-# os
-import os
-from typing import Optional
-
 # Stripe
 import stripe
 from stripe.error import StripeError
 
-webhook_secret = os.environ.get("STRIPE_WEBHOOK_SECRET")
+from typing import Optional
+
+webhook_secret = settings.stripe_webhook_secret
 
 router = APIRouter()
 

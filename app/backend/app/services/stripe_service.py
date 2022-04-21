@@ -1,11 +1,14 @@
-import os
+# FastAPI
 from fastapi import HTTPException, status
+
+# Settings
+from app.config.settings import settings
 
 # Stripe
 import stripe
 from stripe.error import StripeError
 
-stripe.api_key = os.getenv("STRIPE_KEY")
+stripe.api_key = settings.stripe_secret_key
 stripe.max_network_retries = 3
 
 async def create_customer(id, name, email):
