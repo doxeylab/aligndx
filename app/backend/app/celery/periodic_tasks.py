@@ -1,7 +1,6 @@
 import os
 import shutil
 import pandas as pd
-from sympy import Q
 
 from app.db.session import async_session
 
@@ -40,7 +39,7 @@ async def save_result(file):
     customer_id = user.customer_id
 
     result = await sub_dal.update(file.file_id, UpdateSubmissionResult(result=data))
-    update_data_usage(db, customer_id, data_amount_mb=sub.file_size / 1024)
+    await update_data_usage(db, customer_id, data_amount_mb=(sub.file_size / (1024**2)))
 
     result_link = f'/result?submission={file.file_id}'
     send_email(receiver_email=file.email,
