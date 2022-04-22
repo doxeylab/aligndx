@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON
+from sqlalchemy import Column, Float, Integer, String, ForeignKey, DateTime, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -10,6 +10,7 @@ class Submissions(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     name = Column(String, nullable=False)
     submission_type = Column(String, nullable=False)
+    file_size = Column(Float, nullable=False)
     panel = Column(String)
     created_date = Column(DateTime, nullable=False)
     finished_date = Column(DateTime, nullable=True)

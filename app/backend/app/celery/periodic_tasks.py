@@ -1,5 +1,5 @@
 import os
-import shutil 
+import shutil
 import pandas as pd
 
 from app.db.session import async_session
@@ -10,31 +10,44 @@ from app.config.settings import settings
 from app.celery import tasks
 
 from app.db.dals.submissions import SubmissionsDal
+from app.db.dals.users import UsersDal
 from app.models.schemas.submissions import UpdateSubmissionResult
 
 from app.scripts.email_feature import send_email
 from app.scripts.process.controller import Controller
 
+from app.services.subscription_service import update_data_usage
+
 uploads_dir = settings.UPLOAD_FOLDER
 index_dir = settings.INDEX_FOLDER
 results_dir = settings.RESULTS_FOLDER
+
 
 async def save_result(file):
     db = async_session()
 
     out_dir = os.path.join(results_dir, file.file_id)
 
-    controller =Controller(file.process, file.panel, out_dir=out_dir) 
+    controller = Controller(file.process, file.panel, out_dir=out_dir)
     data = controller.load_data()
 
     sub_dal = SubmissionsDal(db)
+    user_dal = UsersDal(db)
+
+    sub = await sub_dal.get_by_id(file.file_id)
+    user = await user_dal.get_by_id(sub.user_id)
+    customer_id = user.customer_id
+
     result = await sub_dal.update(file.file_id, UpdateSubmissionResult(result=data))
+    await update_data_usage(db, customer_id, data_amount_mb=(sub.file_size / (1024**2)))
 
     result_link = f'/result?submission={file.file_id}'
-    send_email(receiver_email=file.email, sample=file.filename, link=result_link)
+    send_email(receiver_email=file.email,
+               sample=file.filename, link=result_link)
     print(f"sent email to {file.email}")
 
     return {"Result": "OK"}
+
 
 async def perform_file_analyses(file, file_dir):
     out_dir = os.path.join(results_dir, file.file_id)
@@ -45,7 +58,7 @@ async def perform_file_analyses(file, file_dir):
             file.set_start_chunk_analysis(chunk.chunk_number)
             print(chunk.chunk_number)
             tasks.perform_chunk_analysis.s(
-                    file.process, chunk.chunk_number, file_dir, file.panel, out_dir).apply_async()
+                file.process, chunk.chunk_number, file_dir, file.panel, out_dir).apply_async()
 
 
 async def periodic_task_calls():
