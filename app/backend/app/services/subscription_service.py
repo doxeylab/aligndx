@@ -231,10 +231,10 @@ async def cancel_downgrade(db, current_user: UserDTO):
     await subs_dal.update(subs.id, update_items)
     return "Request to downgrade plan cancelled."
 
-# End of month: Downgrade Plan
 async def process_plan_downgrade(db, sub):
+    # End of month: Downgrade Plan
     # Scheduled plan id becomes the new plan id
-    new_plan = await plans_service.get_plan_by_id(sub.scheduled_plan_id)
+    new_plan = await plans_service.get_plan_by_id(db, sub.scheduled_plan_id)
 
     subs_dal = SubscriptionsDal(db)
     update_items = ProcessDowngradeSubscription(
