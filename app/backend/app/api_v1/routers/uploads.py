@@ -87,6 +87,7 @@ async def start_file(
     current_user: UserDTO = Depends(get_current_user),
     filename: str = Body(...),
     number_of_chunks: int = Body(...),
+    file_size: float = Body(...),
     panels: List[str] = Body(...),
     process: str = Body(...),
     db: AsyncSession = Depends(get_db)
@@ -98,6 +99,7 @@ async def start_file(
         response = SubmissionBase(
             name=filename,
             panel=option.lower(),
+            file_size=file_size,
             created_date=datetime.now(),
             submission_type=submission_type,
             user_id=current_user.id

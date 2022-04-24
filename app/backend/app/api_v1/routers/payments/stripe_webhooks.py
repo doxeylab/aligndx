@@ -1,20 +1,21 @@
 # FastAPI
 from fastapi import APIRouter, Request, Header, HTTPException, Response, Depends, status
 
+# Settings
+from app.config.settings import settings
+
 # Services
 from app.services import stripe_webhook_service as service
 from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
-# os
-import os
-from typing import Optional
-
 # Stripe
 import stripe
 from stripe.error import StripeError
 
-webhook_secret = os.environ.get("STRIPE_WEBHOOK_SECRET")
+from typing import Optional
+
+webhook_secret = settings.stripe_webhook_secret
 
 router = APIRouter()
 
@@ -39,14 +40,23 @@ async def stripe_events(
 
     # Handle Events
     result = None
+    # Handle invoice.paid Event
     if event and event['type'] == 'invoice.paid':
-        result = await service.handle_invoice_paid(await req.json(), db)
+        result = await service.handle_invoice_pmt_succeeded(db, await req.json())
     
+    # Handle customer.subscription.updated Event
     if event and event['type'] == 'customer.subscription.updated':
         payload = await req.json()
         subscription = payload["data"]["object"]
+
+        # Handle subscription status = "past_due"
         if subscription['status'] == "past_due":
             result = await service.handle_failed_payment(db, subscription)
+        
+        # Handle subscription status = "incomplete_expired"
+        if subscription['status'] == "incomplete_expired":
+            result = await service.handle_incomplete_subs(db, subscription)
+            
         else:
             result = True
     

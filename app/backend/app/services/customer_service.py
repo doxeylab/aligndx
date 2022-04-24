@@ -62,23 +62,30 @@ async def get_client_secret(db, current_user):
     setup_intent = await stripe_service.create_setup_intent(customer_db)
     return setup_intent.client_secret
 
-async def update_payment_method(db, customer_id, invoice, stripe_customer_id):
+async def set_payment_method(db, customer_id, invoice, stripe_customer_id):
+    payment_method_id = invoice["payment_intent"]["payment_method"]["id"]
+
     customers_dal = CustomersDal(db)
     update_items = UpdatePaymentMethod(
         payment_card_type = invoice["payment_intent"]["payment_method"]["card"]["brand"],
         card_last4 = invoice["payment_intent"]["payment_method"]["card"]["last4"],
         card_expiry = f'{invoice["payment_intent"]["payment_method"]["card"]["exp_month"]}/{invoice["payment_intent"]["payment_method"]["card"]["exp_year"]}',
-        stripe_default_payment_method_id = invoice["payment_intent"]["payment_method"]["id"]
+        stripe_default_payment_method_id = payment_method_id
     )
     
     # Set this card as default for the customer in stripe
-    await stripe_service.set_default_payment_method(stripe_customer_id, invoice["payment_intent"]["payment_method"]["id"])
+    await stripe_service.set_default_payment_method(stripe_customer_id, payment_method_id)
     
     return await customers_dal.update(customer_id, update_items)
 
 async def replace_payment_method(db, stripe_customer_id, payment_method_id):
     customer = await get_by_stripe_id(db, stripe_customer_id)
+
+    if customer == None:
+        raise HTTPException(status_code = 400, detail = "Customer not found in db.")
+
     if customer.stripe_default_payment_method_id != None:
+        # Delete existing payment method, if exists
         await stripe_service.delete_payment_method(customer.stripe_default_payment_method_id)
 
     await stripe_service.set_default_payment_method(customer.stripe_customer_id, payment_method_id)

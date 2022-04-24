@@ -1,11 +1,14 @@
-import os
+# FastAPI
 from fastapi import HTTPException, status
+
+# Settings
+from app.config.settings import settings
 
 # Stripe
 import stripe
 from stripe.error import StripeError
 
-stripe.api_key = os.getenv("STRIPE_KEY")
+stripe.api_key = settings.stripe_secret_key
 stripe.max_network_retries = 3
 
 async def create_customer(id, name, email):
@@ -52,14 +55,17 @@ async def get_subscription(stripe_subscription_id, expand_list=[]):
         error_handler(error)
 
 async def create_setup_intent(customer_db):
+    """
+    Setup intent is used to update a customer's payment method
+    Returns: 'SetupIntent' object which contains a 'client_secret'.
+    Docs: https://stripe.com/docs/api/setup_intents/object
+    The 'client_secret' is used by front-end and linked to Stripe Credit Card Form elements
+        to process credit card.
+    """
     try:
         resp = stripe.SetupIntent.create(
             customer = customer_db.stripe_customer_id,
             payment_method_types = ["card"],
-            metadata = {
-                "AlignDx_Customer_id": customer_db.id,
-                "reason": "update-card"
-            }
         )
         return resp
 
@@ -67,6 +73,10 @@ async def create_setup_intent(customer_db):
         error_handler(error) 
 
 async def get_payment_method(pm_id):
+    """
+    This method returns the 'Payment Method' object for given payment method id
+    Docs: https://stripe.com/docs/api/payment_methods/object
+    """
     try:
         resp = stripe.PaymentMethod.retrieve(pm_id)
         return resp
@@ -75,6 +85,10 @@ async def get_payment_method(pm_id):
         error_handler(error)
 
 async def delete_payment_method(pm_id):
+    """
+    This method takes the payment method id of a credit card and deletes it.
+    Docs: https://stripe.com/docs/api/payment_methods/detach
+    """
     try:
         resp = stripe.PaymentMethod.detach(pm_id)
         return resp
@@ -82,11 +96,17 @@ async def delete_payment_method(pm_id):
     except StripeError as error:
         error_handler(error)
 
-async def set_default_payment_method(stripe_customer_id, pm_id):
+async def set_default_payment_method(stripe_customer_id, stripe_payment_method_id):
+    """
+    This method takes the payment method id of a credit card and sets it as
+        the default card to pay for all future invoices.
+    Returns: Stripe's Customer Object
+    Docs: https://stripe.com/docs/api/customers/update
+    """
     try:
         resp = stripe.Customer.modify(
                 stripe_customer_id,
-                invoice_settings={"default_payment_method": pm_id},
+                invoice_settings={"default_payment_method": stripe_payment_method_id},
             )
         return resp
 
@@ -104,13 +124,25 @@ async def cancel_subscription(stripe_subscription_id):
     except StripeError as error:
         error_handler(error)
 
+async def reactivate_subscription(stripe_subscription_id):
+    try:
+        resp = stripe.Subscription.modify(
+                stripe_subscription_id,
+                cancel_at_period_end = False
+            )
+        return resp
+
+    except StripeError as error:
+        error_handler(error)
+
 async def upgrade_subscription(stripe_subscription_id, stripe_price_id):
     try:
         subscription = await get_subscription(stripe_subscription_id)
         resp = stripe.Subscription.modify(
                 subscription.id,
                 cancel_at_period_end=False,
-                proration_behavior='create_prorations',
+                proration_behavior='always_invoice',
+                payment_behavior='error_if_incomplete',
                 items=[{
                     'id': subscription['items']['data'][0].id,
                     'price': stripe_price_id,
@@ -119,7 +151,11 @@ async def upgrade_subscription(stripe_subscription_id, stripe_price_id):
         return resp
 
     except StripeError as error:
-        error_handler(error)
+        if error.http_status == 402:
+            raise HTTPException(status_code = status.HTTP_402_PAYMENT_REQUIRED,
+                detail = 'Credit card declined. Please update your payment method details.')
+        else:
+            error_handler(error)
 
 async def schedule_downgrade_subscription(stripe_subscription_id, stripe_price_id):
     # Create a Stripe Subscription Schedule to update subs price starting next period

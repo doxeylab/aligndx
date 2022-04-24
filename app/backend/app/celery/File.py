@@ -6,6 +6,13 @@ from app.celery.io.FileIO import FileIO
 
 
 class File:
+    """
+    Class to manage live file uploads.
+
+    Each object is attached to a single upload file and has event methods for
+    new uploads and analysis results.
+    """
+
     def __init__(self, file_id, file_dir, filename, email, panel, process, state=None, chunk_ratio=None, num_upload_chunks=None):
         self.file_id = file_id
         self.file_dir = file_dir
@@ -36,6 +43,16 @@ class File:
 
     @classmethod
     def load(cls, file_dir):
+        """
+        Load a file object from a file directory.
+
+        The file directory is filled into the path specified
+        by the file_dir attribute when a File object is
+        initialized.
+
+        :param file_dir: The path of the file directory
+
+        """
         model = FileModel.load(file_dir)
 
         file = File(model.file_id, file_dir, model.filename,
@@ -44,6 +61,12 @@ class File:
         return file
 
     def process_upload(self, chunk_number):
+        """
+        Use this method when a new upload chunk finishes uploading.
+
+        :param chunk_number: The upload chunk number
+
+        """
         self.state.upload_chunks[chunk_number].set_status('Uploaded')
 
         for indx, chunk in enumerate(self.state.analysis_chunks):
@@ -52,24 +75,49 @@ class File:
                      i in chunk.upload_deps]):
                 prev_chunk = self.state.analysis_chunks[indx -
                                                         1] if indx > 0 else None
-                
+
                 self.io.make_analysis_chunk(chunk, prev_chunk)
 
         self.save()
 
     def set_analysis_state(self, chunk_number, status):
+        """
+        Set the current status of an analysis chunk.
+
+        :param chunk_number: The analysis chunk number.
+        :param status: A string for the status, e.g. 'Analyzing', 'Complete'
+
+        """
         analysis_chunk = self.state.analysis_chunks[chunk_number]
         analysis_chunk.set_status(status)
-        
+
         self.save()
 
     def set_start_chunk_analysis(self, chunk_number):
+        """
+        Use this method when a tool starts processing an analysis chunk.
+
+        :param chunk_number: The analysis chunk number.
+
+        """
         self.set_analysis_state(chunk_number, 'Analyzing')
 
     def set_complete_chunk_analysis(self, chunk_number):
+        """
+        Use this method when a tool produces the results for an analysis chunk.
+
+        :param chunk_number: The analysis chunk number.
+
+        """
         self.set_analysis_state(chunk_number, 'Complete')
 
     def set_analysis_error(self, chunk_number):
+        """
+        Use this method when a tool fails to process an analysis chunk.
+
+        :param chunk_number: The analysis chunk number.
+
+        """
         self.set_analysis_state(chunk_number, 'Analysis_Error')
 
     def save(self):

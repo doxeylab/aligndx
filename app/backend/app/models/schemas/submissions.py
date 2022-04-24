@@ -7,6 +7,7 @@ from app.models.schemas.base_schema import BaseSchema
 class SubmissionBase(BaseSchema):
     name : str
     panel : str
+    file_size: float
     result : dict = None 
     submission_type : str
     user_id : UUID

@@ -27,8 +27,12 @@ class SubscriptionsDal(BaseDal[Subscriptions]):
         query = await self._db_session.execute(stmt)
         return query.scalars().first()
     
-    async def get_subscription_by_customer_id(self, customer_id):
-        stmt =  select(self._table).where(self._table.customer_id == customer_id)
+    async def get_recently_cancelled_subscription(self, customer_id):
+        stmt =  select(self._table)\
+            .where(self._table.customer_id == customer_id,
+                    self._table.is_cancelled == True,
+                    self._table.status != 'incomplete')\
+            .order_by(self._table.creation_time.desc())
         query = await self._db_session.execute(stmt)
         return query.scalars().first()
     
@@ -44,6 +48,12 @@ class InvoicesDal(BaseDal[Invoices]):
     @property
     def _table(self) -> Type[Invoices]:
         return Invoices
+    
+    async def get_by_customer_id(self, customer_id):
+        stmt =  select(self._table)\
+            .where(self._table.customer_id == customer_id)
+        query = await self._db_session.execute(stmt)
+        return query.scalars()
 
 #  -- Plans DAL -- 
 class PlansDal(BaseDal[Invoices]):
@@ -61,5 +71,13 @@ class PlansDal(BaseDal[Invoices]):
     async def get_all_available_plans(self):
         stmt =  select(self._table)\
             .where(self._table.is_archived == False)
+        query = await self._db_session.execute(stmt)
+        return query.scalars()
+    
+    async def get_eligible_plans_tax_rate(self, current_plan_name, tax_rate):
+        stmt =  select(self._table)\
+            .where(self._table.is_archived == False,
+                    self._table.name != current_plan_name,
+                    self._table.tax_rate == tax_rate)
         query = await self._db_session.execute(stmt)
         return query.scalars()

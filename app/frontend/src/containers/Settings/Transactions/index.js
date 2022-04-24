@@ -5,8 +5,7 @@ import { FileEarmarkArrowDown } from 'react-bootstrap-icons';
 
 import './transactionsStyles.css'
 
-const Transactions = () => {
-    const href = 'https://pay.stripe.com/receipts/acct_1FC7mnGOyRovo75V/ch_3KnQhmGOyRovo75V1CBnr5i7/rcpt_LUPXQCYJAdYIAsgKHNvRwGkIgra5Uop'
+const Transactions = (props) => {
     return (
         <div className="custom-card">
             <div className='header'>
@@ -19,28 +18,34 @@ const Transactions = () => {
             <div className='main-content'>
                 <Row>
                     <Col>
-                        <Table striped bordered hover id='transactions-table'>
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Invoice Number</th>
-                                    <th>Amount</th>
-                                    <th>Payment Card</th>
-                                    <th>Receipt</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>11th April, 2022</td>
-                                    <td>2A16685B-0001</td>
-                                    <td>C$ 282.50</td>
-                                    <td>Visa •••• 4242</td>
-                                    <td>
-                                        <a href={href} target='_blank' rel="noreferrer noopener"><FileEarmarkArrowDown color="royalblue" size={30} /></a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </Table>
+                        {props.invoices ?
+                            <Table striped bordered hover id='transactions-table'>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Invoice Number</th>
+                                        <th>Amount</th>
+                                        <th>Payment Card</th>
+                                        <th>Receipt</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {props.invoices.map((invoice) => (
+                                        <tr key={invoice.id}>
+                                            <td>{invoice.invoice_date}</td>
+                                            <td>{invoice.stripe_invoice_number}</td>
+                                            <td>C$ {parseFloat(invoice.amount_paid/100).toFixed(2)}</td>
+                                            <td>{invoice.payment_card_type.toUpperCase()} •••• {invoice.payment_card_last4}</td>
+                                            <td>
+                                                <a href={invoice.stripe_payment_receipt_url} target='_blank' rel="noreferrer noopener"><FileEarmarkArrowDown color="royalblue" size={30} /></a>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        :
+                            <h3>No transactions found.</h3>
+                        }
                     </Col>
                 </Row>
             </div>
