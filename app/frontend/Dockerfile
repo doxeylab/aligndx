@@ -13,6 +13,6 @@ USER node
 # ENV PATH /app/node_modules/.bin:$PATH
 
 # Run after mounting volumes
-CMD [ "sh", "-c", "npm install && npm cache clean --force && npm start" ]
+CMD [ "sh", "-c", "rm -rf /node_modules/* && npm install && npm cache clean --force && npm start" ]
 
 COPY . . 
