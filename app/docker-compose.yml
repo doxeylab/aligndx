@@ -28,19 +28,21 @@ services:
       NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
 
   frontend:
-    build:
-      context: frontend
-      dockerfile: Dockerfile
-    stdin_open: true
-    ports:
-      - "80:3000"
-    volumes:
-      - ./frontend:/app/
-      - /app/node_modules
-    environment:
-      NODE_ENV: development
-      BASE_URL: ${BASE_URL}
-      REACT_APP_BACKEND_ACCESS_URL: ${REACT_APP_BACKEND_ACCESS_URL}
+     build:
+       context: frontend
+       dockerfile: Dockerfile
+     tty: true
+     command: bash -c "rm -rf /app/node_modules/* && npm start"
+     ports:
+       - "80:3000"
+     volumes:
+       - ./frontend:/app/
+       # to easily add packages during development
+      #  - ./frontend/package.json:/package.json
+      #  - ./frontend/package-lock.json:/package-lock.json
+      #  - ./frontend/node_modules:/node_modules
+       # the volume prevents our host system's node_modules to be mounted
+      #  - exclude:/app/node_modules/
 
   postgres:
     image: postgres:12
