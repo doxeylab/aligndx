@@ -10,7 +10,7 @@ import {
     ProfileMenuList,
     ProfileName
 } from './StyledProfile';
-import {useGlobalContext} from "../../../context-provider";
+// import {useGlobalContext} from "../../../context-provider";
 
 const Profile = () => {
     const context = useGlobalContext();

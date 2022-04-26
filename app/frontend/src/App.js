@@ -9,8 +9,8 @@ import { Background } from './components/Common/PageElement';
 import Footer from './components/FooterComponent';
 import Navbar from './components/NavBar';
 
-import GlobalContextProvider from "./context-provider";
-import { LoadContext } from './LoadContext';
+import { LoadContext } from "./context/LoadContext"
+import { AuthProvider } from './context/AuthProvider';
 
 import Home from "./pages/Home";
 import About from './pages/About';
@@ -99,7 +99,7 @@ function App() {
                 <Paper>
                 <Router>
                     <QueryClientProvider client={queryClient}>
-                        <GlobalContextProvider>
+                        <AuthProvider>
                             {load ?
                                 <Loading />
                                 :
@@ -130,7 +130,7 @@ function App() {
                                     </Background>
                                 </LoadContext.Provider>
                             }
-                        </GlobalContextProvider>
+                        </AuthProvider>
                         {/* <ReactQueryDevtools initialIsOpen={false} /> */}
                     </QueryClientProvider>
                 </Router>

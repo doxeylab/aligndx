@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {useQuery} from 'react-query'
 
 import {useHistory} from "react-router-dom";
-import { useUsers } from './api/Users';
+import { useUsers } from '../api/Users';
 
 const GlobalContext = React.createContext({
     authenticated: false,
@@ -12,7 +12,7 @@ const GlobalContext = React.createContext({
     loadCurrentUser: () => {}
 });
 
-const GlobalContextProvider = (props) => {
+export const GlobalProvider = (props) => {
 
     // Hack to initialize user before render
     let initialAuth = false
@@ -121,6 +121,6 @@ const GlobalContextProvider = (props) => {
     );
 };
 
-export default GlobalContextProvider;
+export default GlobalContext;
 
 export const useGlobalContext = () => useContext(GlobalContext)

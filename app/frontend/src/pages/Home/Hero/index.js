@@ -15,8 +15,8 @@ import HomePageArt from '../../../assets/HomePageArt.svg';
 import './CustomModal.css';
 import { HeroBody, HeroBtns, HeroBtns2, HeroCol, HeroImage, HeroText, HeroTitle } from './StyledHero';
 
-import { LoadContext } from '../../../LoadContext';
-import {useGlobalContext} from "../../../context-provider";
+// import { LoadContext } from '../../../LoadContext';
+// import {useGlobalContext} from "../../../context-provider";
 
 import { UPLOAD_URL, PANELS_URL} from '../../../services/Config';
 import { STANDARD_RESULTS, CHUNKED_RESULTS, INCOMPLETE_URL } from '../../../services/Config';

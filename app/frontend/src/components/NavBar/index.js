@@ -8,7 +8,7 @@ import { FaBars } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 // Assets
 import AlignDx from '../../assets/Common/AlignDx.svg';
-import { useGlobalContext } from "../../context-provider";
+// import { useGlobalContext } from "../../context-provider";
 import Button from '../Button';
 import { NavbarItems } from './NavbarItems';
 import Profile from './Profile';
