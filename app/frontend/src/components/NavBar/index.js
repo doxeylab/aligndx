@@ -1,4 +1,3 @@
-// React
 import Divider from '@mui/material/Divider';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Menu from '@mui/material/Menu';
@@ -6,13 +5,12 @@ import MenuItem from '@mui/material/MenuItem';
 import React, { useState } from 'react';
 import { FaBars } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-// Assets
+
 import AlignDx from '../../assets/Common/AlignDx.svg';
-// import { useGlobalContext } from "../../context-provider";
 import Button from '../Button';
 import { NavbarItems } from './NavbarItems';
 import Profile from './Profile';
-// Components
+
 import {
     MobileIcon,
     Nav,
@@ -24,8 +22,11 @@ import {
     NavMenu
 } from './StyledNavbar';
 
+import { useAuthContext } from '../../context/AuthProvider';
+
+
 const NavBar = () => {
-    const context = useGlobalContext()
+    const context = useAuthContext()
 
     const [mobileMenu, setMobileMenu] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);

@@ -15,17 +15,15 @@ import HomePageArt from '../../../assets/HomePageArt.svg';
 import './CustomModal.css';
 import { HeroBody, HeroBtns, HeroBtns2, HeroCol, HeroImage, HeroText, HeroTitle } from './StyledHero';
 
-// import { LoadContext } from '../../../LoadContext';
-// import {useGlobalContext} from "../../../context-provider";
-
-import { UPLOAD_URL, PANELS_URL} from '../../../services/Config';
-import { STANDARD_RESULTS, CHUNKED_RESULTS, INCOMPLETE_URL } from '../../../services/Config';
+import { PANELS_URL} from '../../../services/Config';
+import { INCOMPLETE_URL } from '../../../services/Config';
 import { Typography } from '@mui/material';
-
+import { useAuthContext } from '../../../context/AuthProvider';
+import {LoadContext} from '../../../context/LoadContext'
 const Hero = (props) => {
 
     const history = useHistory()
-    const context = useGlobalContext();
+    const context = useAuthContext()
 
     const [showStandardUploadModal, setShowStandardUploadModal] = useState(false); 
     const [showLiveUploadModal, setShowLiveUploadModal] = useState(false); 

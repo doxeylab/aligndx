@@ -5,10 +5,10 @@ import { Form, FormTextField } from "../../components/Form";
 import { Switch, FormControlLabel, FormGroup, Grid, Link, Alert } from '@mui/material';
 
 import { useHistory } from "react-router-dom";
-import { useGlobalContext } from "../../context-provider";
 import { useUsers } from "../../api/Users"
 
 import * as yup from "yup";
+import { useAuthContext } from "../../context/AuthProvider";
 
 
 const LogInForm = (props) => {
@@ -16,7 +16,7 @@ const LogInForm = (props) => {
      * A SignIn/LogIn Form with validation
      */
     const history = useHistory();
-    const context = useGlobalContext();
+    const context = useAuthContext();
     const users = useUsers()
     const [invalid, setInvalid] = useState(false);
     const [checked, setChecked] = useState(true);

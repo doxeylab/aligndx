@@ -10,10 +10,10 @@ import {
     ProfileMenuList,
     ProfileName
 } from './StyledProfile';
-// import {useGlobalContext} from "../../../context-provider";
+import { useAuthContext } from '../../../context/AuthProvider';
 
 const Profile = () => {
-    const context = useGlobalContext();
+    const context = useAuthContext();
 
     const CustomToggle = React.forwardRef(({children, onClick}, ref) => (
         <a

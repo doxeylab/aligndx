@@ -1,8 +1,6 @@
-// React
 import React, { useEffect, useState, useContext } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
-// external libraries
 import axios from 'axios';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -12,31 +10,23 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import { Col, Container, Row } from 'react-bootstrap';
 
-// Components
 import Barchart from '../../components/BarChart';
 import { Section, Title } from '../../components/Common/PageElement';
 import LogInModal from '../../containers/Authentication';
 import { Redirect } from 'react-router-dom';
 
-// Styling
 import { ResultAccordianTitle, ResultAccordionImg, ResultTitle } from './StyledResult';
 
-// Assets
 import Green_Check from '../../assets/Green_Check.png';
 import Red_X from '../../assets/Red_X.png';
 
-// Context
-import { useGlobalContext } from "../../context-provider"
-import { LoadContext } from '../../LoadContext';
-
-// testing
 import example_dataset from '../../assets/test_datasets/example_dataset.json';
 
-// config
 import { LINKED_RESULTS } from '../../services/Config';
+import { useAuthContext } from '../../context/AuthProvider';
 
 const Result = () => {
-    const context = useGlobalContext();
+    const context = useAuthContext();
     const history = useHistory();
     const location = useLocation();
 
@@ -49,8 +39,6 @@ const Result = () => {
     const [data, setData] = useState(null);
     const [sample, setSample] = useState(null);
     const [pathogens, setPathogens] = useState(null);
-
-    const { setLoad } = useContext(LoadContext);
 
     const resource = LINKED_RESULTS
     const token = localStorage.getItem("accessToken")

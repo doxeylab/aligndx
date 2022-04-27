@@ -6,11 +6,11 @@ import { SendCheck, CheckCircleFill } from "react-bootstrap-icons";
 import { Section } from "../components/Common/PageElement";
 import { useHistory } from 'react-router-dom';
 import { withRouter } from "react-router-dom";
-import { useGlobalContext } from "../context-provider";
+import { useAuthContext } from "../context/AuthProvider";
 
 const Pricing = () => {
   const history = useHistory();
-  const context = useGlobalContext();
+  const context = useAuthContext();
   const [basicPlan] = useState('Basic Plan');
   const [premiumPlan] = useState('Premium Plan');
 
