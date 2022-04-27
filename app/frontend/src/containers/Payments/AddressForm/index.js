@@ -20,12 +20,11 @@ const AddressForm = ({address, setAddress, validated, setTaxRate, submit}) => {
         const {name, value} = event.target
         if (name === 'country') {
             setSelectedCountry(value)
+            if (value !== 'CA') setTaxRate(0)
         }
         if (name === 'state' && selectedCountry === 'CA' && value !== '') {
             const provData = provinces.find(p => p.name === value)
             setTaxRate(provData.taxRate)
-        } else {
-            setTaxRate(0)
         }
         setAddress(prevFormData => {
             return {...prevFormData, [name]: value}
