@@ -24,6 +24,8 @@ const AddressForm = ({address, setAddress, validated, setTaxRate, submit}) => {
         if (name === 'state' && selectedCountry === 'CA' && value !== '') {
             const provData = provinces.find(p => p.name === value)
             setTaxRate(provData.taxRate)
+        } else {
+            setTaxRate(0)
         }
         setAddress(prevFormData => {
             return {...prevFormData, [name]: value}
