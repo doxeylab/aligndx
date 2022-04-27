@@ -39,16 +39,6 @@ const AddressForm = ({address, setAddress, validated, setTaxRate, submit}) => {
             </h1>
             <hr className="mb-5"/>
             <Form.Group className="mb-3">
-                <Form.Label>Company</Form.Label>
-                <Form.Control
-                    type="text" 
-                    placeholder="Company"
-                    onChange={handleChange}
-                    name="company"
-                    value={address.company}
-                />
-            </Form.Group>
-            <Form.Group className="mb-3">
                 <Form.Label>Address Line *</Form.Label>
                 <Form.Control 
                     required

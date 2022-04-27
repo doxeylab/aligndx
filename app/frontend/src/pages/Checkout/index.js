@@ -29,7 +29,6 @@ const Checkout = () => {
     const [validated, setValidated] = useState(false);
     const [taxRate, setTaxRate] = useState(0);
     const [address, setAddress] = useState({
-        company: '',
         line1: '',
         line2: '',
         city: '',
