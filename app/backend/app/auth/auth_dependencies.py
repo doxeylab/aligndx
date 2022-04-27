@@ -96,10 +96,7 @@ def create_refresh_token(email: str, is_admin: bool):
 
 
 # Verify refresh token is valid
-async def verify_refresh_token(request: RefreshRequest):
-    if request.grant_type != 'refresh_token':
-        raise credentials_exception
-
+async def verify_refresh_token(request: RefreshRequest, db):
     try:
         payload = jwt.decode(request.refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
         if datetime.utcfromtimestamp(payload.get('exp')) > datetime.utcnow():
@@ -110,7 +107,7 @@ async def verify_refresh_token(request: RefreshRequest):
     except JWTError:
         raise credentials_exception
 
-    if not valid_email_from_db(token_data.email):
+    if not await valid_email_from_db(token_data.email, db):
         raise credentials_exception
     return token_data.email
 

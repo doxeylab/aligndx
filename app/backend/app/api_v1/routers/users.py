@@ -48,8 +48,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(),  db: AsyncSess
 
 
 @router.post("/refresh")
-async def refresh(request: RefreshRequest):
-    result = await auth.verify_refresh_token(request)
+async def refresh(request: RefreshRequest,  db: AsyncSession = Depends(get_db)):
+    result = await auth.verify_refresh_token(request, db)
     if not result:
         raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

@@ -17,7 +17,7 @@ class AppSettings(BaseSettings):
     SECRET_KEY: str = os.getenv("SECRET_KEY")
     ALGORITHM = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
-    REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30
+    REFRESH_TOKEN_EXPIRE_MINUTES = 48 * 30
 
     #  -- User Data -- 
 
