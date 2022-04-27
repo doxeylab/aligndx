@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import BaseModal from "./BaseModal";
-
+import { useQuery } from 'react-query'
+import { usePayments } from '../../api/Payments'
 
 // Components 
 import { DropdownMenu} from '../DropdownMenu';
@@ -12,8 +13,39 @@ import DataProgressBar from '../DataProgressBar';
 import { Col, Container, Row } from 'react-bootstrap'; 
  
 
-const UploadModal = (props) => { 
-    const dataPercentUsage = 70;
+const UploadModal = (props) => {
+    const payments = usePayments();
+    const [subscription, setSubscription] = useState(null);
+    const [dataPercentUsage, setDataPercentage] = useState(0.1);
+
+    const onSuccess = (data) => {
+        if (data) {
+            setSubscription(data.data)
+            if (data.data?.data_limit_mb) {
+                const percentage = ((data.data.data_limit_mb - data.data.data_used) / data.data.data_limit_mb) * 100;
+                percentage === 0 ? setDataPercentage(0.1) : setDataPercentage(percentage);
+            }
+        }
+    }
+
+    const onError = (error) => {
+        if (error.response.data.detail) {
+            console.error('Error Message: ', error.response.data.detail)
+            return;
+        }
+        console.error(error)
+    }
+
+    // API returns an 'active' subscription or null if none found
+    const {refetch, isLoading} = useQuery('get_active_subscription', () => payments.get_active_subscription(), {
+        enabled: true,
+        refetchOnWindowFocus: false,
+        retry: false,
+        retryOnMount: false,
+        onSuccess: onSuccess,
+        onError: onError
+    })
+
     return ( 
             <BaseModal
             show={props.show}
@@ -23,7 +55,7 @@ const UploadModal = (props) => {
                 <Container>
                         <Row style={{ marginBottom: '1.5rem' }}>
                             <Col>
-                                Date remaining in Subscription Plan
+                                Data remaining in Subscription Plan
                             </Col>
                             <Col>
                                 <DataProgressBar percentage = {dataPercentUsage}/>

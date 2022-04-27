@@ -6,6 +6,8 @@ export const usePayments = () => {
     const {get, post, put, delete: destroy } = useAxios();
 
     return {
+    get_active_subscription: (params) => 
+        get(`${payments_endpoint}/subscriptions`, params),
     create_subscription: (params) => 
         post(`${payments_endpoint}/subscriptions`, params),
     get_all_plans: (params) => 

@@ -45,9 +45,9 @@ const CurrentPlan = (props) => {
                             <Col sm={5}><span style={{fontSize: '1.5rem'}}>Monthly Price:</span></Col>
                             <Col sm={7}><h4>C$ {parseFloat(props.plan.base_price/100).toFixed(2)} + HST</h4></Col>
                             <Col sm={5}><span style={{fontSize: '1.5rem'}}>Data Allowance:</span></Col>
-                            <Col sm={7}><h4>{(props.plan.data_limit_mb/1000)} gb</h4></Col>
+                            <Col sm={7}><h4>{parseFloat(props.sub.data_limit_mb/1024).toFixed(2)} gb</h4></Col>
                             <Col sm={5}><span style={{fontSize: '1.5rem'}}>Data Remaining:</span></Col>
-                            <Col sm={7}><h4>75 gb - TODO</h4></Col>
+                            <Col sm={7}><h4>{parseFloat((props.sub.data_limit_mb - props.sub.data_used)/1024).toFixed(2)} gb</h4></Col>
                         </>}
                         </>
                     :
