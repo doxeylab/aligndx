@@ -101,7 +101,7 @@ const StripeCardElement = (props) => {
                 open={showConfirmModal}
                 title={'Awesome'}
                 body={'Payment processed successfuly!'}
-                path={'/profile'}
+                path={'/'}
             />
             <Modal animation={false} show={props.showModal} onHide={handleHideModal} centered>
                 <Form id="card-form" onSubmit={handlePayment}>
