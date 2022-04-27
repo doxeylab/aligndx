@@ -54,7 +54,7 @@ const Pricing = () => {
           <div className="py-5">
             <Row>
               <Col className="text-center mb-5">
-                <h2>Analyze your data for free up to 1GB</h2>
+                <h2>Please select a plan below to continue.</h2>
               </Col>
             </Row>
             <Row>
@@ -110,7 +110,7 @@ const Pricing = () => {
                   </Card.Header>
                   <Card.Body className="text-center">
                     <div>
-                    <span style={styles.planPrice}>$150</span>
+                    <span style={styles.planPrice}>$250</span>
                       <span className="h3">
                         / month
                       </span>
