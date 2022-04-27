@@ -10,6 +10,7 @@ class TokenData(BaseModel):
     email: Optional[str] = None
 
 class RefreshRequest(BaseModel):
+    grant_type: str
     refresh_token: str
 
 # Base model user information the frontend needs
