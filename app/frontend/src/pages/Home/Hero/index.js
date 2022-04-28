@@ -1,59 +1,47 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import axios from 'axios';
 import Fade from 'react-reveal/Fade';
 
 import { Section } from '../../../components/Common/PageElement';
 import Button from '../../../components/Button';
 import UploadModal from '../../../components/Modals/UploadModal';
-import {RestartModal} from '../../../containers/Restart';
-import StartFile from '../../../containers/ChunkController/chunkStarter'
+import { RestartModal } from '../../../containers/Restart';
 
-import { Col, Container, Row } from 'react-bootstrap';
+import { Container, Row } from 'react-bootstrap';
 import HomePageArt from '../../../assets/HomePageArt.svg';
 import './CustomModal.css';
 import { HeroBody, HeroBtns, HeroBtns2, HeroCol, HeroImage, HeroText, HeroTitle } from './StyledHero';
- 
+
 import { Typography } from '@mui/material';
-import { useAuthContext } from '../../../context/AuthProvider';
-import {LoadContext} from '../../../context/LoadContext'
+import { useMeta } from '../../../api/Meta';
 
-import {useMeta} from '../../../api/Meta';
-import {useUsers} from '../../../api/Users';
-
-
+import {useChunkStarter} from '../../../hooks/ChunkController';
 const Hero = (props) => {
-
     const history = useHistory()
-    const context = useAuthContext()
     const meta = useMeta()
-    const users = useUsers()
+    const { startfile } = useChunkStarter()
 
-    const [showStandardUploadModal, setShowStandardUploadModal] = useState(false); 
-    const [showLiveUploadModal, setShowLiveUploadModal] = useState(false); 
-    const [showRestartModal, setShowRestartModal] = useState(false); 
-    const [authenticated, setAuthenticated] = useState(context.authenticated);
+    const [showStandardUploadModal, setShowStandardUploadModal] = useState(false);
+    const [showLiveUploadModal, setShowLiveUploadModal] = useState(false);
+    const [showRestartModal, setShowRestartModal] = useState(false);
 
     const [dataFiles, setDataFiles] = useState([]);
-    const { setLoad } = useContext(LoadContext);
     const [selectedDetections, setSelectedDetections] = useState([]);
     const [process, setProcess] = useState("");
+    const [selectedRestartData, setSelectedRestartData] = useState(false);
 
-
-    const [options,setOptions] = useState([]);  
-    const [restart,setRestart] = useState({
+    const [options, setOptions] = useState([]);
+    const [restart, setRestart] = useState({
         restartflag: false,
         data: null
     });
-
-    const [selectedRestartData, setSelectedRestartData] = useState(false);
 
     // const check_unprocessed = () => {
     //     // users.index_incomplete_submissions()
     //         .then((res) => {
     //             const data = res.data 
-                
+
     //             if (!showLiveUploadModal || !showStandardUploadModal) {
     //                 if (data.length !== 0) {
     //                     setRestart({ ...restart, data: data})
@@ -65,7 +53,7 @@ const Hero = (props) => {
     //             }
     //         })
     // }
-    
+
     const selectmenuoptions = () => {
         meta.get_panels()
             .then((res) => {
@@ -84,113 +72,62 @@ const Hero = (props) => {
     }
 
     const detectionCallback = (detections) => {
-        setSelectedDetections(detections) 
-    }  
+        setSelectedDetections(detections)
+    }
 
     const upload = () => {
-        // setLoad(true) 
+        const formData = new FormData();
 
-        if (authenticated) {
-            const formData = new FormData();
-  
-            dataFiles.forEach(file => {
-                formData.append('files', file)
+        dataFiles.forEach(file => {
+            formData.append('files', file)
+        })
+        selectedDetections.forEach(x => {
+            formData.append("panel", x)
+        })
+
+        if (restart.restartflag) {
+            const fileId = selectedRestartData.id
+            const panels = selectedRestartData.meta[0]
+            history.push({
+                pathname: "/live/#/?id=" + fileId,
+                state: {
+                    file: dataFiles[0],
+                    panels: panels,
+                    fileId: fileId,
+                    restartflag: restart.restartflag
+                }
             })
-            selectedDetections.forEach(x => {
-                formData.append("panel", x)
-            })
 
-            const token = localStorage.getItem("accessToken")  
-
-            if (restart.restartflag) {
-                const fileId = selectedRestartData.id
-                const panels = selectedRestartData.meta[0]
-                history.push({
-                    pathname: "/live/#/?id=" + fileId,
-                    state: {
-                        file: dataFiles[0],
-                        panels: panels,
-                        fileId: fileId,
-                        restartflag: restart.restartflag 
-                }})
-
-            }
-            else {
-                StartFile(token, dataFiles[0], selectedDetections, process)
-                .then(
-                    (res) => {
-                        setLoad(false)
-                        const fileId = res.data.File_ID;
-                        history.push({
-                            pathname: "/live/#/?id=" + fileId,
-                            state: {
-                                file: dataFiles[0],
-                                panels: selectedDetections,
-                                fileId: fileId,
-                            }
-                        }
-                        )
-                    }
-                )
-            }
-            
-                
-            
+        }
+        else {
+            startfile.mutate({
+                    file: dataFiles[0], 
+                    panels: selectedDetections, 
+                    process: process})
         }
 
-        else {  
-            alert("Please sign in to use this service")
-            setLoad(false) 
-        }  
-         
     }
 
     const handleShow = (modalstate, process) => {
-        if (authenticated){
-            modalstate(true);
-            setProcess(process)
-        }
-        else {
-            alert("Please sign in to use this service")
-            setProcess('')
-        }
+        modalstate(true);
+        setProcess(process)
     }
-        
+
     const handleClose = (modalstate) => {
         modalstate(false);
         setProcess('')
-    }
+    } 
 
     useEffect(() => {
-        setAuthenticated(context.authenticated)
-    }, [context.authenticated])
- 
-    // useEffect(() => {
-    //     // useeffect runs on mount, so we need to simply re-run useeffect when context forces a re-render, and account for the scenario before that (useeffect runs twice) 
-    //     if (authenticated){
-    //         check_unprocessed()
-    //         console.log("checking unprocessed")
-    //     }
-    //     else {
-    //         console.log(authenticated)
-    //         console.log("not authenticated, so could not check unprocessed")
-    //     }
-    // }, [authenticated])
+        selectmenuoptions();
+    }, [])
 
     useEffect(() => {
-        selectmenuoptions();    
-    },[])
-
-    useEffect(() => {
-        console.log(process)
-    }, [process])
-
-    useEffect(() => {
-        if (selectedRestartData){
-            setRestart({...restart, restartflag: true})
+        if (selectedRestartData) {
+            setRestart({ ...restart, restartflag: true })
         }
     }, [selectedRestartData])
-    
+
     return (
         <>
             <Section id="hero" center>
@@ -255,18 +192,18 @@ const Hero = (props) => {
                 selectedFiles={dataFiles}
                 dataFileCallback={dataFileCallback}
                 dataRemoveFileCallback={dataRemoveFileCallback}
-                
+
                 options={options}
                 detectionCallback={detectionCallback}
                 selectedDetections={selectedDetections}
-                
+
                 upload={upload}
-                
+
                 title={
                     <Typography variant='h4'>
                     </Typography>
                 }
-            ></UploadModal> 
+            ></UploadModal>
             <RestartModal
                 show={showRestartModal}
                 onHide={() => {
@@ -278,7 +215,7 @@ const Hero = (props) => {
 
                 selectedFiles={dataFiles}
                 dataFileCallback={dataFileCallback}
-                dataRemoveFileCallback={dataRemoveFileCallback} 
+                dataRemoveFileCallback={dataRemoveFileCallback}
 
                 setSelectedRestartData={setSelectedRestartData}
             ></RestartModal>

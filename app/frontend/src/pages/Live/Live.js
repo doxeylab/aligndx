@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 
-import ChunkProcessor from '../../containers/ChunkController/chunkProcessor'
+// import ChunkProcessor from '../../containers/ChunkController/chunkProcessor'
 import {ResultCard} from '../../containers/Results';
 
 import { Grid } from '@mui/material';
@@ -69,7 +69,7 @@ const Live = () => {
             fileId = lstate.fileId
             file = lstate.file
             panels = lstate.panels
-            ChunkProcessor(token, file, panels, fileId, true)
+            // ChunkProcessor(token, file, panels, fileId, true)
         }
 
         else {
@@ -77,7 +77,7 @@ const Live = () => {
             restartflag = lstate.restartflag
             file = lstate.file
             panels = lstate.panels
-            ChunkProcessor(token, file, panels, fileId, restartflag)
+            // ChunkProcessor(token, file, panels, fileId, restartflag)
         }
     }, [])
 
