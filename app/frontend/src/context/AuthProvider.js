@@ -5,6 +5,7 @@ import useLocalStorage from '../hooks/useLocalStorage';
 
 const AuthContext = React.createContext({
     auth: {},
+    setAuth: () => {},
     authenticated: false,
     currentUser: null,
     logout: () => { },
@@ -58,6 +59,7 @@ export const AuthProvider = ({ children }) => {
             value={{
                 authenticated: !isEmpty(auth),
                 auth: auth,
+                setAuth: setAuth,
                 currentUser: auth?.user,
                 logout: logout,
                 setupUser: setupUser,

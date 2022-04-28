@@ -16,8 +16,8 @@ class AppSettings(BaseSettings):
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     SECRET_KEY: str = os.getenv("SECRET_KEY")
     ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 30
-    REFRESH_TOKEN_EXPIRE_MINUTES = 24 * 30
+    ACCESS_TOKEN_EXPIRE_MINUTES = 0.5
+    REFRESH_TOKEN_EXPIRE_MINUTES = 1
 
     #  -- User Data -- 
 

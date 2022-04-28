@@ -10,6 +10,8 @@ export const useUsers = () => {
         post(`${users_endpoint}/token`, params),
     signup: (params) => 
         post(`${users_endpoint}/create_user`, params),
+    refresh: (params) =>
+        post(`${users_endpoint}/refresh`, params),
     me: () => 
         get(`${users_endpoint}/me`),
     index_submissions: () => 
