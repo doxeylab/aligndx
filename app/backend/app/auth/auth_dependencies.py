@@ -1,3 +1,4 @@
+from base64 import encode
 from app.models.schemas.users import UserPassword, UserSchema, UserDTO, UserTemp, UserInDB, RefreshRequest, TokenData, User
 from app.db.dals.users import UsersDal  
 from app.services.db import get_db 
@@ -79,21 +80,13 @@ async def authenticate_user(email: str, password: str, db):
 
     return User(email=user.email, name=user.name, is_admin=user.is_admin)
 
-
-# Returns the generated access token after user has been authenticated
-def create_access_token(data: dict, expires_delta: timedelta):
+# Returns a token, with expiry depending on token type
+def create_token(data: dict, expires_delta: timedelta):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(claims=to_encode, key=SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
-
-
-# Create refresh token given email
-def create_refresh_token(email: str, is_admin: bool):
-    refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
-    return create_access_token(data={'sub': email, 'is_admin': is_admin}, expires_delta=refresh_token_expires)
-
 
 # Verify refresh token is valid
 async def verify_refresh_token(request: RefreshRequest, db):
@@ -112,7 +105,7 @@ async def verify_refresh_token(request: RefreshRequest, db):
 
     if not await valid_email_from_db(token_data.email, db):
         raise credentials_exception
-    return token_data.email
+    return payload
 
 
 # Returns the current logged in user if any, raises unauthorized error otherwise

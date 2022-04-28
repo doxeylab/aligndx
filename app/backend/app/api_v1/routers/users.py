@@ -15,8 +15,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.settings import settings
 
-ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
-
 router = APIRouter()
 
 # Sign up endpoint
@@ -36,11 +34,15 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(),  db: AsyncSess
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = auth.create_access_token(
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = auth.create_token(
         data={"sub": user.email, "is_admin": user.is_admin}, expires_delta=access_token_expires
     )
-    refresh_token = auth.create_refresh_token(user.email, user.is_admin)
+
+    refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+    refresh_token = auth.create_token(
+        data={"sub": user.email, "is_admin": user.is_admin}, expires_delta=refresh_token_expires
+    )
 
     return {"access_token": access_token, 
             "refresh_token": refresh_token, 
@@ -57,9 +59,9 @@ async def refresh(request: RefreshRequest,  db: AsyncSession = Depends(get_db)):
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    new_access_token = auth.create_access_token(
-        data={"sub": result}, expires_delta=access_token_expires
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    new_access_token = auth.create_token(
+        data=result, expires_delta=access_token_expires
     )
     return {"access_token": new_access_token}
 
