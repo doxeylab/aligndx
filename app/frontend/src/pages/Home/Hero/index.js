@@ -14,16 +14,21 @@ import { Col, Container, Row } from 'react-bootstrap';
 import HomePageArt from '../../../assets/HomePageArt.svg';
 import './CustomModal.css';
 import { HeroBody, HeroBtns, HeroBtns2, HeroCol, HeroImage, HeroText, HeroTitle } from './StyledHero';
-
-import { PANELS_URL} from '../../../services/Config';
-import { INCOMPLETE_URL } from '../../../services/Config';
+ 
 import { Typography } from '@mui/material';
 import { useAuthContext } from '../../../context/AuthProvider';
 import {LoadContext} from '../../../context/LoadContext'
+
+import {useMeta} from '../../../api/Meta';
+import {useUsers} from '../../../api/Users';
+
+
 const Hero = (props) => {
 
     const history = useHistory()
     const context = useAuthContext()
+    const meta = useMeta()
+    const users = useUsers()
 
     const [showStandardUploadModal, setShowStandardUploadModal] = useState(false); 
     const [showLiveUploadModal, setShowLiveUploadModal] = useState(false); 
@@ -44,32 +49,25 @@ const Hero = (props) => {
 
     const [selectedRestartData, setSelectedRestartData] = useState(false);
 
-    const check_unprocessed = () => {
-        const token = localStorage.getItem("accessToken")
-        const config = { 
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        }
-
-        axios.get(INCOMPLETE_URL, config)
-            .then((res) => {
-                const data = res.data 
+    // const check_unprocessed = () => {
+    //     // users.index_incomplete_submissions()
+    //         .then((res) => {
+    //             const data = res.data 
                 
-                if (!showLiveUploadModal || !showStandardUploadModal) {
-                    if (data.length !== 0) {
-                        setRestart({ ...restart, data: data})
-                        setShowRestartModal(true)
-                    }
-                    else {
-                        setRestart({ ...restart, restartflag: false})
-                    }
-                }
-            })
-    }
+    //             if (!showLiveUploadModal || !showStandardUploadModal) {
+    //                 if (data.length !== 0) {
+    //                     setRestart({ ...restart, data: data})
+    //                     setShowRestartModal(true)
+    //                 }
+    //                 else {
+    //                     setRestart({ ...restart, restartflag: false})
+    //                 }
+    //             }
+    //         })
+    // }
     
     const selectmenuoptions = () => {
-        axios.get(PANELS_URL)
+        meta.get_panels()
             .then((res) => {
                 setOptions(res.data)
             })
@@ -167,17 +165,17 @@ const Hero = (props) => {
         setAuthenticated(context.authenticated)
     }, [context.authenticated])
  
-    useEffect(() => {
-        // useeffect runs on mount, so we need to simply re-run useeffect when context forces a re-render, and account for the scenario before that (useeffect runs twice) 
-        if (authenticated){
-            check_unprocessed()
-            console.log("checking unprocessed")
-        }
-        else {
-            console.log(authenticated)
-            console.log("not authenticated, so could not check unprocessed")
-        }
-    }, [authenticated])
+    // useEffect(() => {
+    //     // useeffect runs on mount, so we need to simply re-run useeffect when context forces a re-render, and account for the scenario before that (useeffect runs twice) 
+    //     if (authenticated){
+    //         check_unprocessed()
+    //         console.log("checking unprocessed")
+    //     }
+    //     else {
+    //         console.log(authenticated)
+    //         console.log("not authenticated, so could not check unprocessed")
+    //     }
+    // }, [authenticated])
 
     useEffect(() => {
         selectmenuoptions();    

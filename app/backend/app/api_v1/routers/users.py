@@ -34,14 +34,20 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(),  db: AsyncSess
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    if user.is_admin:
+        role = 'customer'
+    else:
+        role = 'user'
+    
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth.create_token(
-        data={"sub": user.email, "is_admin": user.is_admin}, expires_delta=access_token_expires
+        data={"sub": user.email, "rol": role, "usr": user.name}, expires_delta=access_token_expires
     )
 
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
     refresh_token = auth.create_token(
-        data={"sub": user.email, "is_admin": user.is_admin}, expires_delta=refresh_token_expires
+        data={"sub": user.email, "rol": role, "usr": user.name}, expires_delta=refresh_token_expires
     )
 
     return {"access_token": access_token, 

@@ -1,11 +1,15 @@
 import { useEffect } from "react"
 import { apiClient } from "./Config"
+import { useAuthContext } from "../context/AuthProvider"
 
 const useAxios = () => {
+
+  const context = useAuthContext()
+
   useEffect(() => {
     const requestIntercept = apiClient.interceptors.request.use((config) => {
-      if (localStorage.getItem("accessToken")) {
-        let headers = { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
+      if (context.authenticated) {
+        let headers = { "Authorization": `Bearer ${context.auth.accessToken}` }
         return ({
           ...config,
           headers: headers
@@ -31,7 +35,7 @@ const useAxios = () => {
       apiClient.interceptors.request.eject(requestIntercept)
       apiClient.interceptors.response.eject(responseIntercept)
     }
-  }, [])
+  }, [context.authenticated])
 
   return apiClient;
 }

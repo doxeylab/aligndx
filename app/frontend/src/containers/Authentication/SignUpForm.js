@@ -68,7 +68,6 @@ const SignUpForm = () => {
         onSuccess: (data) => {
             setInvalid(false)
             context.setupUser(data.data)
-            context.loadCurrentUser()
             history.push('/')
         },
         onError: (error) => {

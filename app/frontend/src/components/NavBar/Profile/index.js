@@ -53,7 +53,7 @@ const Profile = () => {
                         <FaUserAlt />
                     </ProfileIcon>
                     {/* <ProfileName>{user ? user.name : ""}</ProfileName> */}
-                    <ProfileName>{context.currentUser ? context.currentUser.name : ""}</ProfileName>
+                    <ProfileName>{context.currentUser ? context.currentUser : ""}</ProfileName>
                     <Chevron>
                         <FaCaretDown />
                     </Chevron>

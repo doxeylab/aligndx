@@ -54,7 +54,6 @@ const LogInForm = (props) => {
         onSuccess: (data) => {
             setInvalid(false)
             context.setupUser(data.data)
-            context.loadCurrentUser()
             history.push(props.link)
         },
         onError: (error) => {

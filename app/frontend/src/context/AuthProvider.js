@@ -1,39 +1,22 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {useQuery} from 'react-query'
+import React, { useContext, useEffect, useState } from 'react';
 
-import {useHistory} from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useUsers } from '../api/Users';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 const AuthContext = React.createContext({
+    auth: {},
     authenticated: false,
     currentUser: null,
-    logout: () => {},
-    setupUser: () => {},
-    loadCurrentUser: () => {}
+    logout: () => { },
+    setupUser: () => { }
 });
 
 export const AuthProvider = ({ children }) => {
 
-    // Hack to initialize user before render
-    let initialAuth = false
-    let initialUser = null
-
-    try {
-        const token = localStorage.getItem("accessToken")
-        const usermeta = JSON.parse(localStorage.getItem("userMeta"))
-        if (token) {
-            initialAuth = true  
-            initialUser = usermeta
-        }
-    }
-    catch (error) {
-        // do nothing
-    }
-    
     const history = useHistory();
     const users = useUsers();
-    const [authenticated, setAuthenticated] = useState(initialAuth);
-    const [currentUser, setCurrentUser] = useState(initialUser);
+    const [auth, setAuth] = useLocalStorage('auth', {})
 
     const _decodeToken = (token) => {
         try {
@@ -45,64 +28,41 @@ export const AuthProvider = ({ children }) => {
     }
     const decodeToken = (token) => {
         return token
-        .split(".")
-        .map(token => _decodeToken(token))
-        .reduce((acc, curr) => {
-            if (!!curr) acc = { ...acc, ...curr};
-            return acc;
-        }, Object.create(null));
+            .split(".")
+            .map(token => _decodeToken(token))
+            .reduce((acc, curr) => {
+                if (!!curr) acc = { ...acc, ...curr };
+                return acc;
+            }, Object.create(null));
     }
 
     const logout = () => {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("userMeta");
-        setAuthenticated(false);
-        setCurrentUser(null);
+        setAuth({})
         history.push('/login');
-    } 
-
-    const setupUser = (response) => {
-        localStorage.setItem("accessToken", response.access_token);
-        localStorage.setItem("refreshToken", response.refresh_token);
     }
 
-    const {status, data, error, refetch} = useQuery('user_data',users.me, {
-          enabled: false,
-          retry: false
-      })
+    const setupUser = (response) => {
+        let payload = decodeToken(response.access_token)
+        setAuth({
+            accessToken: response.access_token,
+            refreshToken: response.refresh_token,
+            user: payload.usr,
+            role: payload.rol,
+        })
+    }
 
-    const loadCurrentUser = () => {
-        refetch()
-    };
-
-    useEffect(() => {
-        if (status === "success") {
-            setAuthenticated(true)
-            localStorage.setItem("userMeta", JSON.stringify(data.data))
-            setCurrentUser(data.data)
-        }
-        if (status === "error") {
-            setAuthenticated(false)
-            setCurrentUser(null)
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
-            localStorage.removeItem("userMeta");
-        }
-    }, [status, data]) 
-
-    useEffect(() => {
-        loadCurrentUser()
-    }, [])
+    const isEmpty = (obj) => {
+        return Object.keys(obj).length === 0;
+    }
 
     return (
         <AuthContext.Provider
             value={{
-                authenticated: authenticated,
-                currentUser: currentUser,
+                authenticated: !isEmpty(auth),
+                auth: auth,
+                currentUser: auth?.user,
                 logout: logout,
                 setupUser: setupUser,
-                loadCurrentUser: loadCurrentUser
             }}
         >
             {children}

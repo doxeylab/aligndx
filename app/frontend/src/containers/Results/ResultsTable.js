@@ -11,7 +11,7 @@ const ResultsTable = () => {
 
     const users = useUsers()
 
-    const incomplete = useQuery('incomplete', () => users.index_submissions(), {
+    const submissions = useQuery('submissions', () => users.index_submissions(), {
         retry: false,
         enabled: false,
         onSuccess: (data, variables, context) => {
@@ -73,7 +73,7 @@ const ResultsTable = () => {
     }
 
     useEffect(() => {
-        incomplete.refetch()
+        submissions.refetch()
     }, [])
 
     return ( 

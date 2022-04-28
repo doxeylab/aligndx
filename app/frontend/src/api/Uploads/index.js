@@ -2,7 +2,7 @@ import useAxios from '../useAxios'
 
 const uploads_endpoint = "uploads"
 
-export const Uploads = () => {
+export const useUploads = () => {
     const { get, post, put, destroy } = useAxios();
 
     return {
