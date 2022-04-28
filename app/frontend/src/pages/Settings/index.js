@@ -39,7 +39,6 @@ const Settings = () => {
 
     const onSuccess = (data) => {
         if (data) {
-            console.log(data.data)
             setSettingsData(data.data)
         }
     }

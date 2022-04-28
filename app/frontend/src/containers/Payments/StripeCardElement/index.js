@@ -86,7 +86,6 @@ const StripeCardElement = (props) => {
         }
 
         if (paymentIntent && paymentIntent.status === 'succeeded') {
-            console.log(paymentIntent);
             setIsLoading(false);
             setShowConfirmModal(true)
         }
@@ -151,7 +150,7 @@ const StripeCardElement = (props) => {
                         <img 
                             src='https://cdn.brandfolder.io/KGT2DTA4/at/rvgw5pc69nhv9wkh7rw8ckv/Powered_by_Stripe_-_blurple.svg'
                             alt='stripe-logo'
-                            height={50}
+                            height={35}
                         />
                         <Button
                             className='d-flex align-items-center'
