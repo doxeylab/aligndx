@@ -45,9 +45,10 @@ const StripeCardElement = (props) => {
     const stripe = useStripe();
     const elements = useElements();
     const options = useOptions();
-    const [errorMessage, setErrorMessage] = useState(null)
-    const [isLoading, setIsLoading] = useState(false)
-    const [showConfirmModal, setShowConfirmModal] = useState(false)
+    const [name, setName] = useState('');
+    const [errorMessage, setErrorMessage] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     const handlePayment = async (e) => {
         e.preventDefault();
@@ -66,7 +67,7 @@ const StripeCardElement = (props) => {
             payment_method: {
                 card: cardNumberElement,
                 billing_details: {
-                    name: props.name,
+                    name: name,
                     address: {
                         line1: props.address.line1,
                         line2: props.address.line2,
@@ -114,6 +115,20 @@ const StripeCardElement = (props) => {
                         </div>
                         <div className='card-element'>
                             <label>
+                                Name on Card:
+                            </label>
+                            <Form.Control 
+                                required
+                                id='card-name'
+                                type="text" 
+                                onChange={(e) => setName(e.target.value)}
+                                name="name"
+                                value={name}
+                                className='StripeElement'
+                            />
+                        </div>
+                        <div className='card-element'>
+                            <label>
                                 Card Number:
                             </label>
                             <CardNumberElement options={options}/>
@@ -135,7 +150,7 @@ const StripeCardElement = (props) => {
                         <img 
                             src='https://cdn.brandfolder.io/KGT2DTA4/at/rvgw5pc69nhv9wkh7rw8ckv/Powered_by_Stripe_-_blurple.svg'
                             alt='stripe-logo'
-                            height={50}
+                            height={35}
                         />
                         <Button
                             className='d-flex align-items-center'

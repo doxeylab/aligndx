@@ -20,6 +20,7 @@ const AddressForm = ({address, setAddress, validated, setTaxRate, submit}) => {
         const {name, value} = event.target
         if (name === 'country') {
             setSelectedCountry(value)
+            if (value !== 'CA') setTaxRate(0)
         }
         if (name === 'state' && selectedCountry === 'CA' && value !== '') {
             const provData = provinces.find(p => p.name === value)
@@ -36,16 +37,6 @@ const AddressForm = ({address, setAddress, validated, setTaxRate, submit}) => {
                 Billing Address
             </h1>
             <hr className="mb-5"/>
-            <Form.Group className="mb-3">
-                <Form.Label>Company</Form.Label>
-                <Form.Control
-                    type="text" 
-                    placeholder="Company"
-                    onChange={handleChange}
-                    name="company"
-                    value={address.company}
-                />
-            </Form.Group>
             <Form.Group className="mb-3">
                 <Form.Label>Address Line *</Form.Label>
                 <Form.Control 

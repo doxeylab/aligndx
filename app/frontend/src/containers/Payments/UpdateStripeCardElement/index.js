@@ -5,9 +5,7 @@ import Modal from 'react-bootstrap/Modal'
 import Spinner from "react-bootstrap/Spinner"
 import ConfirmationModal from '../../../components/Modals/ConfirmationModal'
 import { 
-    CardCvcElement, 
-    CardExpiryElement, 
-    CardNumberElement, 
+    CardElement,
     useStripe, 
     useElements
 } from "@stripe/react-stripe-js";
@@ -55,7 +53,7 @@ const UpdateStripeCardElement = (props) => {
         setIsLoading(true);
 
         // Reference to mounted Card Element
-        const cardNumberElement = elements.getElement(CardNumberElement);
+        const cardNumberElement = elements.getElement(CardElement);
         
         // Use card Element to tokenize payment details
         let { error, setupIntent } = await stripe.confirmCardSetup(props.clientSecret, {
@@ -102,28 +100,16 @@ const UpdateStripeCardElement = (props) => {
                         </div>
                         <div className='card-element'>
                             <label>
-                                Card Number:
+                                Card Details:
                             </label>
-                            <CardNumberElement options={options}/>
-                        </div>
-                        <div className='card-element'>
-                            <label>
-                                Card Expiry:
-                            </label>
-                            <CardExpiryElement options={options} />
-                        </div>
-                        <div className='card-element'>
-                            <label>
-                                CVC:
-                            </label>
-                            <CardCvcElement options={options} />
+                            <CardElement options={options}/>
                         </div>
                     </Modal.Body>
                     <Modal.Footer style={{ display: 'flex', justifyContent: 'space-between', mx: 2}}>
                         <img 
                             src='https://cdn.brandfolder.io/KGT2DTA4/at/rvgw5pc69nhv9wkh7rw8ckv/Powered_by_Stripe_-_blurple.svg'
                             alt='stripe-logo'
-                            height={50}
+                            height={35}
                         />
                         <Button
                             className='d-flex align-items-center'

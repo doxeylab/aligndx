@@ -10,11 +10,15 @@
 }
 
 .card-element > label {
-    color: #6b7c93;
-    font-weight: 300;
+    color: #0c0f15;
+    font-weight: 400;
     font-size: 18px;
     letter-spacing: 0.025em;
     margin-bottom: 0;
+}
+
+#card-name {
+    font-size: 18px;
 }
 
 .StripeElement {
@@ -32,7 +36,6 @@
     font-size: 16px;
     line-height: 20px;
     padding: 12px 0 12px 0;
-    /* text-align: center; */
 }
   
   /* Buttons and links */
