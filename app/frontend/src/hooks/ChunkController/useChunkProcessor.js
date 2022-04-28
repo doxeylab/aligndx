@@ -1,70 +1,64 @@
-import axios from "axios";
-import {CHUNK_SIZE, END_FILE_URL, UPLOAD_CHUNK_URL} from "../../services/Config";
+import { CHUNK_SIZE } from "../../config/Settings";
+import { useUploads } from "../../api/Uploads";
+
+const useChunkProcessor = () => {
+  const uploads = useUploads();
+
+  const readChunk = (chunkNumber, file) => {
+    let chunkFile = file.slice(
+      chunkNumber * CHUNK_SIZE,
+      (chunkNumber + 1) * CHUNK_SIZE
+    );
+
+    return chunkFile;
+  };
+
+  // end-file
+  const endRequest = (fileId) => {
+    return uploads.end_file({file_id : fileId})
+
+  } 
+
+  // upload-chunk
+  const uploadChunkRequest =  async (chunkNumber, fileId, chunkFile, panels) => {
+    console.log(chunkNumber, fileId, chunkFile, panels)
+    let formData = new FormData();
+    formData.append("chunk_number", chunkNumber);
+    formData.append("file_id", fileId);
+    formData.append("chunk_file", chunkFile);
+    formData.append("panels", panels);
+
+    return await uploads.upload_chunk(formData)
+  }; 
+
+  const startChunk = async (chunkNumber, fileId, file, panels) => {
+    let chunkFile = readChunk(chunkNumber, file);
+    return await uploadChunkRequest(chunkNumber, fileId, chunkFile, panels);
+  };
 
 
-const readChunk = (chunkNumber, file) => {
-  let chunkFile = file.slice(
-    chunkNumber * CHUNK_SIZE,
-    (chunkNumber + 1) * CHUNK_SIZE
-  );
+  const chunkProcessor = async (file, panels, fileId) => {
+    const numberOfChunks = Math.ceil(file.size / CHUNK_SIZE);
+    let lastChunkUploaded = 0;
 
-  return chunkFile;
-};
+    if (localStorage.getItem(fileId + '_lastChunk')) {
+      lastChunkUploaded = Number(localStorage.getItem(fileId + '_lastChunk')) + 1
+    }
+    console.log(lastChunkUploaded)
 
-// end-file
-const postEndFile = (resource, token, fileId) => {
-  return axios.post(resource, {
-    file_id: fileId,
-  }, {
-      headers: {
-        'Authorization': `Bearer ${token}`
+    for (let i = lastChunkUploaded; i < numberOfChunks; i++) {
+      const res = await startChunk(i, fileId, file, panels);
+      localStorage.setItem(fileId + '_lastChunk', i)
+      if (res.data.Result != "OK") {
+        break;
       }
-    });
+    }
+    await endRequest(fileId)
+  };
+
+  return {chunkProcessor}; 
+
 }
 
-// upload-chunk
-const postChunk = (resource, token, chunkNumber, fileId, chunkFile, panels) => {
-  let formData = new FormData();
-  formData.append("chunk_number", chunkNumber);
-  formData.append("file_id", fileId);
-  formData.append("chunk_file", chunkFile);
-  formData.append("panels", panels);
 
-  return axios.post(resource, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-      "Content-Encoding": "gzip",
-      "Authorization":`Bearer ${token}`
-    },
-  });
-};
-
-
-const startChunk = async (resource, token, chunkNumber, fileId, file, panels) => {
-  let chunkFile = readChunk(chunkNumber, file);
-  return await postChunk(resource, token, chunkNumber, fileId, chunkFile, panels);
-};
- 
-
-const ChunkProcessor = async (token, file, panels, fileId, restartflag) => {
-  var upload_resource = UPLOAD_CHUNK_URL
-
-  const numberOfChunks = Math.ceil(file.size / CHUNK_SIZE);
-  let lastChunkUploaded = 0;
-  
-  if (localStorage.getItem(fileId + '_lastChunk')) {
-    lastChunkUploaded = Number(localStorage.getItem(fileId + '_lastChunk')) + 1
-  } 
-  console.log(lastChunkUploaded)
-  
-  for (let i = lastChunkUploaded; i < numberOfChunks; i++) {
-    const res = await startChunk(upload_resource, token, i, fileId, file, panels);
-    localStorage.setItem(fileId + '_lastChunk', i)
-    if (res.data.Result != "OK") {
-      break;
-    }
-  }
-  await postEndFile(END_FILE_URL, token, fileId)
-};
-
-export default ChunkProcessor;
+export default useChunkProcessor;

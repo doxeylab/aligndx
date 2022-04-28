@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 
 import { useHistory } from "react-router-dom";
-import { useUsers } from '../api/Users';
 import useLocalStorage from '../hooks/useLocalStorage';
 
 const AuthContext = React.createContext({
@@ -15,7 +14,6 @@ const AuthContext = React.createContext({
 export const AuthProvider = ({ children }) => {
 
     const history = useHistory();
-    const users = useUsers();
     const [auth, setAuth] = useLocalStorage('auth', {})
 
     const _decodeToken = (token) => {

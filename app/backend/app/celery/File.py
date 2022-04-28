@@ -118,7 +118,7 @@ class File:
         :param chunk_number: The analysis chunk number.
 
         """
-        self.set_analysis_state(chunk_number, 'Analysis_Error')
+        self.set_analysis_state(chunk_number, 'Error')
 
     def save(self):
         model = FileModel(self.state, self.file_dir,
