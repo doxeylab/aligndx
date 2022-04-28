@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import shutil
 import pandas as pd
@@ -11,7 +12,7 @@ from app.celery import tasks
 
 from app.db.dals.submissions import SubmissionsDal
 from app.db.dals.users import UsersDal
-from app.models.schemas.submissions import UpdateSubmissionResult
+from app.models.schemas.submissions import UpdateSubmissionResult, UpdateSubmissionDataUsageDate, UpdateSubmissionEmailDate
 
 from app.scripts.email_feature import send_email
 from app.scripts.process.controller import Controller
@@ -38,13 +39,23 @@ async def save_result(file):
     user = await user_dal.get_by_id(sub.user_id)
     customer_id = user.customer_id
 
-    result = await sub_dal.update(file.file_id, UpdateSubmissionResult(result=data))
-    await update_data_usage(db, customer_id, data_amount_mb=(sub.file_size / (1024**2)))
+    if sub.result is None:
+        result = await sub_dal.update(file.file_id, UpdateSubmissionResult(result=data))
 
-    result_link = f'/result?submission={file.file_id}'
-    send_email(receiver_email=file.email,
-               sample=file.filename, link=result_link)
-    print(f"sent email to {file.email}")
+    if sub.data_usage_updated_date is None:
+        now = datetime.now()
+
+        await update_data_usage(db, customer_id, data_amount_mb=(sub.file_size / (1024**2)))
+        await sub_dal.update(file.file_id, UpdateSubmissionDataUsageDate(data_usage_updated_date=now))
+
+    if sub.email_date is None:
+        now = datetime.now()
+
+        result_link = f'/result?submission={file.file_id}'
+        send_email(receiver_email=file.email,
+                sample=file.filename, link=result_link)
+        print(f"sent email to {file.email}")
+        await sub_dal.update(file.file_id, UpdateSubmissionEmailDate(email_date=now))
 
     return {"Result": "OK"}
 

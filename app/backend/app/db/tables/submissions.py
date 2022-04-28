@@ -15,5 +15,7 @@ class Submissions(Base):
     created_date = Column(DateTime, nullable=False)
     finished_date = Column(DateTime, nullable=True)
     result = Column(JSON, nullable=True)
+    data_usage_updated_date = Column(DateTime, nullable=True)
+    email_date = Column(DateTime, nullable=True)
 
     user = relationship("Users", back_populates="submissions")
