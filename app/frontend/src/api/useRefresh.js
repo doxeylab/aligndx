@@ -6,12 +6,9 @@ import axios from "axios"
 const useRefresh = () => {
     const { setAuth, logout } = useAuthContext();
 
-    const refresh = async (token) => {
+    const refresh = async () => {
         try {
-            const response = await axios.post(`${URL}users/refresh`, {
-                grant_type: "refresh_token",
-                refresh_token: token
-            })
+            const response = await axios.get(`${URL}users/refresh`,{withCredentials: true})
             setAuth(prev => {
                 return { ...prev, accessToken: response.data.access_token }
             })

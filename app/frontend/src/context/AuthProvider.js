@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import { useHistory } from "react-router-dom";
 import useLocalStorage from '../hooks/useLocalStorage';
+import { useUsers } from '../api/Users';
 
 const AuthContext = React.createContext({
     auth: {},
@@ -16,6 +17,7 @@ export const AuthProvider = ({ children }) => {
 
     const history = useHistory();
     const [auth, setAuth] = useLocalStorage('auth', {})
+    const users = useUsers();
 
     const _decodeToken = (token) => {
         try {
@@ -36,6 +38,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     const logout = () => {
+        users.logout()
         setAuth({})
         history.push('/login');
     }
@@ -44,7 +47,6 @@ export const AuthProvider = ({ children }) => {
         let payload = decodeToken(response.access_token)
         setAuth({
             accessToken: response.access_token,
-            refreshToken: response.refresh_token,
             user: payload.usr,
             role: payload.rol,
         })

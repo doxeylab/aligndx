@@ -26,7 +26,7 @@ const useAxios = () => {
           const prevRequest = error?.config;
           if (error?.response?.status === 401 && !prevRequest?.sent) {
             prevRequest.sent = true;
-            const newAccessToken = await refresh(context.auth.refreshToken);
+            const newAccessToken = await refresh();
             if (typeof(newAccessToken) === 'string') {
               prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
               return apiClient(prevRequest);

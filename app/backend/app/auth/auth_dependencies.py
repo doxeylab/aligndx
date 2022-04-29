@@ -89,12 +89,9 @@ def create_token(data: dict, expires_delta: timedelta):
     return encoded_jwt
 
 # Verify refresh token is valid
-async def verify_refresh_token(request: RefreshRequest, db):
-    if request.grant_type != 'refresh_token':
-        raise credentials_exception
-
+async def verify_refresh_token(refresh_token, db): 
     try:
-        payload = jwt.decode(request.refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception

@@ -1,6 +1,7 @@
 from datetime import timedelta
+from pickle import TRUE
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, Cookie, Request
 from fastapi import HTTPException, status 
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -25,7 +26,7 @@ async def signup(user: UserTemp, db: AsyncSession = Depends(get_db)):
 
 # Log in endpoint
 @router.post("/token", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(),  db: AsyncSession = Depends(get_db)):
+async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     # OAuth2PasswordRequestForm has username and password, username = email in our project
     user = await auth.authenticate_user(form_data.username, form_data.password, db)
     if not user:
@@ -50,26 +51,38 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(),  db: AsyncSess
         data={"sub": user.email, "rol": role, "usr": user.name}, expires_delta=refresh_token_expires
     )
 
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True)
     return {"access_token": access_token, 
-            "refresh_token": refresh_token, 
             "token_type": "bearer"}
 
+@router.get("/logout", status_code=201)
+async def logout(response : Response):
+    # used to destroy refresh cookie
+    response.delete_cookie(key ='refresh_token')
+    return {'msg':'logout was successful'}
 
-@router.post("/refresh")
-async def refresh(request: RefreshRequest,  db: AsyncSession = Depends(get_db)):
-    result = await auth.verify_refresh_token(request, db)
-    if not result:
+@router.get("/refresh")
+async def refresh(refresh_token: str = Cookie(None),  db: AsyncSession = Depends(get_db)):
+    if refresh_token:
+        result = await auth.verify_refresh_token(refresh_token, db)
+        if not result:
+            raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        new_access_token = auth.create_token(
+            data=result, expires_delta=access_token_expires
+        )
+        return {"access_token": new_access_token}
+    else:
         raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    new_access_token = auth.create_token(
-        data=result, expires_delta=access_token_expires
-    )
-    return {"access_token": new_access_token}
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No cookie set",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 # Check active user
