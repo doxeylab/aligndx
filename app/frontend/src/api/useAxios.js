@@ -2,40 +2,38 @@ import { useEffect } from "react"
 import { apiClient } from "./Config"
 import { useAuthContext } from "../context/AuthProvider"
 import useRefresh from "./useRefresh"
+import { useHistory } from "react-router-dom"
 
 const useAxios = () => {
 
-  const context = useAuthContext()
+  const context = useAuthContext();
+  const history = useHistory();
   const { refresh } = useRefresh();
 
   useEffect(() => {
     const requestIntercept = apiClient.interceptors.request.use((config) => {
       if (context.authenticated) {
-        let headers = { "Authorization": `Bearer ${context.auth.accessToken}` }
-        return ({
-          ...config,
-          headers: headers
-        })
+        if (!config.headers['Authorization']) {
+          config.headers['Authorization'] = `Bearer ${context.auth?.accessToken}`
+        }
       }
-      else {
-        return ({
-          ...config,
-        })
-      }
-    },
-      error => Promise.reject(error),
+      return config;
+    }, error => Promise.reject(error),
     );
 
     const responseIntercept = apiClient.interceptors.response.use(
       response => response,
       async (error) => {
-        const prevRequest = error?.config;
-        console.log(prevRequest)
-        if (error?.response?.status === 401 && !prevRequest?.sent && prevRequest.headers['Authorization']) {
-          prevRequest.sent = true;
-          const newAccessToken = refresh.mutate(context.auth.refreshToken);
-          prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-          return apiClient(prevRequest);
+        if (context.authenticated) {
+          const prevRequest = error?.config;
+          if (error?.response?.status === 401 && !prevRequest?.sent) {
+            prevRequest.sent = true;
+            const newAccessToken = await refresh(context.auth.refreshToken);
+            if (typeof(newAccessToken) === 'string') {
+              prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+              return apiClient(prevRequest);
+            }
+          }
         }
         return Promise.reject(error);
       }
@@ -45,7 +43,7 @@ const useAxios = () => {
       apiClient.interceptors.request.eject(requestIntercept)
       apiClient.interceptors.response.eject(responseIntercept)
     }
-  }, [context.authenticated])
+  }, [context.auth, refresh])
 
   return apiClient;
 }

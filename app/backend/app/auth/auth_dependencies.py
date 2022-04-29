@@ -95,16 +95,18 @@ async def verify_refresh_token(request: RefreshRequest, db):
 
     try:
         payload = jwt.decode(request.refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
-        if datetime.utcfromtimestamp(payload.get('exp')) > datetime.utcnow():
-            email: str = payload.get("sub")
-            if email is None:
-                raise credentials_exception
-            token_data = TokenData(email=email)
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+
+        if not await valid_email_from_db(email, db):
+            raise credentials_exception
+
+    except ExpiredSignatureError:
+        raise credentials_expiry_exception
     except JWTError:
         raise credentials_exception
 
-    if not await valid_email_from_db(token_data.email, db):
-        raise credentials_exception
     return payload
 
 
