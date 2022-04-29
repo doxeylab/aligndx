@@ -2,12 +2,10 @@ import { useEffect } from "react"
 import { apiClient } from "./Config"
 import { useAuthContext } from "../context/AuthProvider"
 import useRefresh from "./useRefresh"
-import { useHistory } from "react-router-dom"
 
 const useAxios = () => {
 
   const context = useAuthContext();
-  const history = useHistory();
   const { refresh } = useRefresh();
 
   useEffect(() => {

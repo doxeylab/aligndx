@@ -2,11 +2,9 @@ import { useAuthContext } from "../context/AuthProvider"
 
 import { URL } from "../config/Settings"
 import axios from "axios"
-import { useHistory } from "react-router-dom"
 
 const useRefresh = () => {
     const { setAuth, logout } = useAuthContext();
-    const history = useHistory();
 
     const refresh = async (token) => {
         try {
