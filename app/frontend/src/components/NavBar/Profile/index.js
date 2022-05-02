@@ -11,10 +11,13 @@ import {
     ProfileName
 } from './StyledProfile';
 import { useAuthContext } from '../../../context/AuthProvider';
+import useLogout from '../../../hooks/useLogout';
 import { Link } from 'react-router-dom';
 
 const Profile = () => {
     const context = useAuthContext();
+    const {logout} = useLogout()
+
 
     const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
         <a
@@ -71,7 +74,7 @@ const Profile = () => {
                         <FaCogs /> Settings
                     </Link>
                 </ProfileMenuItem>
-                <ProfileMenuItem onClick={context.logout}><FaSignOutAlt /> Sign Out</ProfileMenuItem>
+                <ProfileMenuItem onClick={logout}><FaSignOutAlt /> Sign Out</ProfileMenuItem>
             </Dropdown.Menu>
         </Dropdown>
     )

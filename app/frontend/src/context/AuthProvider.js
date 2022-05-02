@@ -1,26 +1,18 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 
-import { useNavigate } from "react-router-dom";
 import useLocalStorage from '../hooks/useLocalStorage';
-import { useUsers } from '../api/Users';
-import { useLocation } from 'react-router-dom';
 
 const AuthContext = React.createContext({
     auth: {},
     setAuth: () => {},
     authenticated: false,
     currentUser: null,
-    logout: () => { },
     setupUser: () => { }
 });
 
 export const AuthProvider = ({ children }) => {
 
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    const [auth, setAuth] = useLocalStorage('auth', {})
-    const users = useUsers();
+    const [auth, setAuth] = useLocalStorage('auth', {}) 
 
     const _decodeToken = (token) => {
         try {
@@ -38,12 +30,6 @@ export const AuthProvider = ({ children }) => {
                 if (!!curr) acc = { ...acc, ...curr };
                 return acc;
             }, Object.create(null));
-    }
-
-    const logout = () => {
-        users.logout()
-        setAuth({})
-        navigate('/login', {state: {from: location}, replace: true});
     }
 
     const setupUser = (response) => {
@@ -65,8 +51,7 @@ export const AuthProvider = ({ children }) => {
                 authenticated: !isEmpty(auth),
                 auth: auth,
                 setAuth: setAuth,
-                currentUser: auth?.user,
-                logout: logout,
+                currentUser: auth?.user, 
                 setupUser: setupUser,
             }}
         >

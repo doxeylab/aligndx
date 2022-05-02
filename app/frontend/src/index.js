@@ -8,6 +8,8 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import fetchStripeKey from './services/StripeStartupService';
 
+import { AuthProvider } from './context/AuthProvider';
+
 (async () => {
   const key = await fetchStripeKey()
   const stripePromise = loadStripe(key);
@@ -15,12 +17,14 @@ import fetchStripeKey from './services/StripeStartupService';
   ReactDOM.render(
     <React.StrictMode>
       <Elements stripe={stripePromise}>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </Elements>
     </React.StrictMode>,
     document.getElementById('root')
   );
-}) ()
+})()
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals

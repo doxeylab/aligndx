@@ -10,9 +10,10 @@ import Footer from './components/FooterComponent';
 import Navbar from './components/NavBar';
 
 import { LoadContext } from "./context/LoadContext"
-import { AuthProvider} from './context/AuthProvider';
+import { AuthProvider, useAuthContext} from './context/AuthProvider';
 
 import Home from "./pages/Home";
+import Splash from './pages/Splash';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Team from './pages/Team';
@@ -86,6 +87,7 @@ function App() {
     const [load, setLoad] = useState(false)
     const [mode, setMode] = useState('light')
     const theme = createTheme(getDesignTokens(mode));
+    const {authenticated} = useAuthContext();
 
     return (
         <Fragment>
@@ -100,7 +102,6 @@ function App() {
                 <Paper>
                     <Router>
                         <QueryClientProvider client={queryClient}>
-                            <AuthProvider>
                                 {load ?
                                     <Loading />
                                     :
@@ -108,6 +109,9 @@ function App() {
                                         <Background>
                                             <Navbar />
                                             <Routes>
+                                                {/* conditional public or protected */}
+                                                <Route path='/' element={authenticated? <Home /> : <Splash />} />
+
                                                 {/* public */}
                                                 <Route path='/about' element={<About />} />
                                                 <Route path='/contact' element={<Contact />} />
@@ -118,7 +122,6 @@ function App() {
 
                                                 {/* private */}
                                                 <Route element={<Protected />} >
-                                                    <Route path='/' element={<Home />} />
                                                     <Route path='/home' element={<Home />} />
                                                     <Route path='/myresults' element={<MyResults />} />
                                                     <Route path='/live' element={<Live />} />
@@ -137,7 +140,6 @@ function App() {
                                         </Background>
                                     </LoadContext.Provider>
                                 }
-                            </AuthProvider>
                             {/* <ReactQueryDevtools initialIsOpen={false} /> */}
                         </QueryClientProvider>
                     </Router>

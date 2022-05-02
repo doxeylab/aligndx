@@ -12,6 +12,7 @@ import AlignDx from '../../assets/Common/AlignDx.svg';
 import Button from '../Button';
 import { NavbarItems } from './NavbarItems';
 import Profile from './Profile';
+import useLogout from '../../hooks/useLogout';
 
 import {
     MobileIcon,
@@ -29,6 +30,7 @@ import { useAuthContext } from '../../context/AuthProvider';
 
 const NavBar = () => {
     const context = useAuthContext()
+    const {logout} = useLogout()
 
     const [mobileMenu, setMobileMenu] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -114,14 +116,14 @@ const NavBar = () => {
                                     <p>Settings</p>
                                 </MenuItem>
                             </Link>
-                            <div onClick={context.logout} >
+                            <div onClick={logout} >
                                 <MenuItem>
                                     <ListItemIcon>
                                         <ExitToAppIcon />
                                     </ListItemIcon>
                                     <p>Sign Out</p>
                                 </MenuItem>
-                            </div> 
+                            </div>
                         </div>
                     )
                         : (
