@@ -2,7 +2,7 @@ import useAxios from '../useAxios'
 
 const results_endpoint = "results"
 
-export const Result = () => {
+export const useResults = () => {
     const {get, post, put, destroy } = useAxios();
 
     return {

@@ -1,48 +1,47 @@
+import { useEffect, useState } from "react"
 import { URL } from "../../config/Settings"
+import { useAuthContext } from "../../context/AuthProvider"
 
 const base_ws_url = "ws"
 const socket_url = URL + "livegraphs"
 const WEBSOCKET_URL = socket_url.replace(/http/, base_ws_url)
 
-export const connectWebsocket = (file_id, token, callback) => {
-    try {
-        console.log("trying websocket connection")
-        const ws = new WebSocket(WEBSOCKET_URL + '/' + file_id) 
-        
-        ws.onerror = function (event) {
-            console.log(event)
-        }
+const useWebSocket = (file_id, callback) => {
+    const context = useAuthContext()
 
-        ws.onopen = function (event) {
-            console.log("socket opened")
-            ws.send(token) 
-        }
-        
-        ws.onclose = function (event) {
-            console.log("socket closed")
-            console.log(event)
-        }
+    const connectWebsocket = async () => {
+        try {
+            console.log("trying websocket connection")
+            const ws = new WebSocket(WEBSOCKET_URL + '/' + file_id)
 
-        ws.onmessage = function (event) {
-            const obj = JSON.parse(event.data)
-            if (obj.status == "complete"){
-                console.log(`Transaction status is ${obj.status}`)
-                callback(event.data, event.data.sample, event.data.pathogens)
-                ws.close();
-            }
-            if (obj.status == "pending"){
-                console.log(`Transaction status is ${obj.status}`)  
+            ws.onerror = function (event) {
+                console.log("an error occured")
+                console.log(event)
             }
 
-            if (obj.status == "ready"){
-                console.log(`Transaction status is ${obj.status}`)  
-                // console.log(event.data)
-                callback(event.data, event.data.sample, event.data.pathogens)
-            } 
-        }
-    }
+            ws.onopen = function (event) {
+                ws.send(context.auth.accessToken)
+            }
 
-    catch (err) {
-        console.error(err);
-    }
-};
+            ws.onclose = function (event) {
+                console.log("socket closed")
+                console.log(event)
+            }
+
+            ws.onmessage = function (event) {
+                const obj = JSON.parse(event.data)
+                callback(obj)
+            }
+        }
+
+        catch (err) {
+            // Handle Error Here
+            console.log("error")
+            console.error(err);
+        }
+    };
+
+    return { connectWebsocket }
+}
+
+export default useWebSocket;

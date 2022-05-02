@@ -4,13 +4,14 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { SendCheck, CheckCircleFill } from "react-bootstrap-icons";
 import { Section } from "../components/Common/PageElement";
-import { useHistory } from 'react-router-dom';
-import { withRouter } from "react-router-dom";
-import { useGlobalContext } from "../context-provider";
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuthContext } from "../context/AuthProvider";
 
 const Pricing = () => {
-  const history = useHistory();
-  const context = useGlobalContext();
+  const navigate = useNavigate();
+  const location = useLocation(); 
+
+  const context = useAuthContext();
   const [basicPlan] = useState('Basic Plan');
   const [premiumPlan] = useState('Premium Plan');
 
@@ -42,9 +43,9 @@ const Pricing = () => {
 
   const linkToCheckout = (plan_name) => {
     if (!context.authenticated) {
-      history.push('/signup')
+      navigate("/signup", {state: {from: location}, replace: true})
     } else {
-      history.push(`/checkout?plan_name=${plan_name}`)
+      navigate(`/checkout?plan_name=${plan_name}`)
     }
   }
   return (
@@ -180,4 +181,4 @@ const Pricing = () => {
     </>
   );
 };
-export default withRouter(Pricing);
+export default Pricing;

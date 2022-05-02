@@ -2,7 +2,7 @@ import useAxios from '../useAxios'
 
 const meta_endpoint = "metadata"
 
-export const Result = () => {
+export const useMeta = () => {
     const { get, post, put, destroy } = useAxios();
 
     return {

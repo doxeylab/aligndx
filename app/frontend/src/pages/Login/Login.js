@@ -18,7 +18,7 @@ const Login = () => {
     const location = useLocation()
 
     useEffect(() => {
-        if (location.state) {
+        if (location?.state?.link) {
             setLink(location.state.link)
             setShowAlert(true)
         }

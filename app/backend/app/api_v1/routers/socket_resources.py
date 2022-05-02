@@ -57,6 +57,13 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
                     analysis_progress = len([chunk for chunk in file.state.analysis_chunks if chunk.status == 'Complete']) / len(file.state.analysis_chunks)
                     upload_progress = len([chunk for chunk in file.state.upload_chunks if chunk.status == 'Uploaded']) / len(file.state.upload_chunks)
                     progress_data = {'analysis': analysis_progress, 'upload': upload_progress}
+                    
+                    if any([chunk.status == 'Error' for chunk in file.state.analysis_chunks]):
+                        # all chunks completed, so disconnect websocket
+                        resp = {'status': 'error','sample_name':submission.name,'progress': progress_data}
+                        await manager.send_data(resp, websocket)
+                        manager.disconnect(websocket)
+                        return
 
                     if all([chunk.status == 'Complete' for chunk in file.state.analysis_chunks]):
                         # all chunks completed, so disconnect websocket

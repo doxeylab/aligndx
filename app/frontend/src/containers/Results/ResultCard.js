@@ -11,26 +11,39 @@ const ResultCard = ({ result }) => {
 
     return (
         <Grid>
-            <AccordionComponent 
+            <AccordionComponent
                 summary={
-                <Grid container alignItems={"center"}>
-                    <Grid item xs={10}>
-                        <h2 >
-                            {result.sample_name}
-                        </h2>
+                    <Grid container alignItems={"center"}>
+                        <Grid item xs={10}>
+                            <h2 >
+                                {result.sample_name}
+                            </h2>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <DataProgressBar caption="Uploading..." endcaption="Uploaded" percentage={100 * result.progress.upload} />
+                        </Grid>
+                        <Grid item xs={1}>
+                            {
+                                result?.status === 'error' ?
+                            <DataProgressBar caption="Analyzing..." endcaption="Analyzed" percentage={100} />
+                            :
+                            <DataProgressBar caption="Analyzing..." endcaption="Analyzed" percentage={100 * result.progress.analysis} />
+                            }
+                        </Grid>
                     </Grid>
-                    <Grid item xs={1}>
-                        <DataProgressBar caption="Uploading..." endcaption="Uploaded" percentage={100 * result.progress.upload} />
-                    </Grid>
-                    <Grid item xs={1}>
-                        <DataProgressBar caption="Analyzing..." endcaption="Analyzed" percentage={100 * result.progress.analysis} />
-                    </Grid>
-                </Grid>
-            }> 
+                }>
                 {result?.status === 'pending' ?
                     <LoadingSpinner />
                     :
-                    <Result result={result} />
+                    result?.status === 'error'
+                        ?
+                        <Grid container alignItems={"center"} justifyContent={'center'}>
+                            <Grid item >
+                                We couldn't detect anything for this file!
+                            </Grid>
+                        </Grid>
+                        :
+                        <Result result={result} />
                 }
 
             </AccordionComponent>

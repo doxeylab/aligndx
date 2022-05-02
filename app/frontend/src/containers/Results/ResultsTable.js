@@ -11,9 +11,9 @@ const ResultsTable = () => {
 
     const users = useUsers()
 
-    const incomplete = useQuery('incomplete', () => users.index_submissions(), {
+    const submissions = useQuery('submissions', () => users.index_submissions(), {
         retry: false,
-        enabled: false,
+        enabled: true,
         onSuccess: (data, variables, context) => {
             data.data.forEach((data) => {
                 rows.push(
@@ -71,10 +71,6 @@ const ResultsTable = () => {
     const deletefn = (seldata) => {
         console.log(seldata)
     }
-
-    useEffect(() => {
-        incomplete.refetch()
-    }, [])
 
     return ( 
         <EnhancedTable

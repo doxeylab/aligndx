@@ -1,0 +1,26 @@
+import { useAuthContext } from "../context/AuthProvider"
+
+import { URL } from "../config/Settings"
+import axios from "axios"
+
+const useRefresh = () => {
+    const { setAuth, logout } = useAuthContext();
+
+    const refresh = async () => {
+        try {
+            const response = await axios.get(`${URL}users/refresh`,{withCredentials: true})
+            setAuth(prev => {
+                return { ...prev, accessToken: response.data.access_token }
+            })
+            return response.data.access_token
+        }
+        catch (err) {
+            logout()
+            return err
+        }
+    }
+
+    return { refresh }
+}
+
+export default useRefresh;

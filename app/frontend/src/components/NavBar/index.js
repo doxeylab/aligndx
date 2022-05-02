@@ -1,18 +1,19 @@
-// React
 import Divider from '@mui/material/Divider';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import SettingsIcon from '@mui/icons-material/Settings';
+import PersonIcon from '@mui/icons-material/Person';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { Menu, MenuItem } from '@mui/material';
 import React, { useState } from 'react';
 import { FaBars } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-// Assets
+
 import AlignDx from '../../assets/Common/AlignDx.svg';
-import { useGlobalContext } from "../../context-provider";
 import Button from '../Button';
 import { NavbarItems } from './NavbarItems';
 import Profile from './Profile';
-// Components
+import useLogout from '../../hooks/useLogout';
+
 import {
     MobileIcon,
     Nav,
@@ -24,8 +25,12 @@ import {
     NavMenu
 } from './StyledNavbar';
 
+import { useAuthContext } from '../../context/AuthProvider';
+
+
 const NavBar = () => {
-    const context = useGlobalContext()
+    const context = useAuthContext()
+    const {logout} = useLogout()
 
     const [mobileMenu, setMobileMenu] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -95,46 +100,52 @@ const NavBar = () => {
                 >
                     {context.authenticated ? (
                         <div>
-                            <Link to="/myresults">
+                            <Link to="/myresults" >
                                 <MenuItem>
                                     <ListItemIcon>
-                                        <i className="fas fa-user"></i>
+                                        <PersonIcon />
                                     </ListItemIcon>
                                     <p>My Results</p>
                                 </MenuItem>
                             </Link>
-
-                            <Link onClick={context.logout}>
+                            <Link to="/settings" >
                                 <MenuItem>
                                     <ListItemIcon>
-                                        <i className="fas fa-sign-out-alt"></i>
+                                        <SettingsIcon />
+                                    </ListItemIcon>
+                                    <p>Settings</p>
+                                </MenuItem>
+                            </Link>
+                            <div onClick={logout} >
+                                <MenuItem>
+                                    <ListItemIcon>
+                                        <ExitToAppIcon />
                                     </ListItemIcon>
                                     <p>Sign Out</p>
                                 </MenuItem>
-                            </Link>
-
+                            </div>
                         </div>
                     )
                         : (
                             <div>
                                 <Link to="/signup">
-                                <MenuItem>
-                                    <ListItemIcon>
-                                        <i className="fas fa-user-plus"></i>
-                                    </ListItemIcon>                  
-                                    <p>Sign Up</p>
-                                </MenuItem>
-                                </Link>    
-                                
-                                <Link to="/login">
-                                <MenuItem>
-                                    <ListItemIcon>
-                                        <i className="fas fa-sign-in-alt"></i>
-                                    </ListItemIcon>
-                                    <p>Log In</p>                                    
-                                </MenuItem>
+                                    <MenuItem>
+                                        <ListItemIcon>
+                                            <i className="fas fa-user-plus"></i>
+                                        </ListItemIcon>
+                                        <p>Sign Up</p>
+                                    </MenuItem>
                                 </Link>
-            
+
+                                <Link to="/login">
+                                    <MenuItem>
+                                        <ListItemIcon>
+                                            <i className="fas fa-sign-in-alt"></i>
+                                        </ListItemIcon>
+                                        <p>Log In</p>
+                                    </MenuItem>
+                                </Link>
+
                             </div>
                         )}
                     <Divider />
