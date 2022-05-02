@@ -49,7 +49,7 @@ export const ProfileMenuList = styled.ul`
   margin: 0;
 `
 
-export const ProfileMenuItem = styled.a`
+export const ProfileMenuItem = styled.div`
   text-decoration: none;
   display: block;
   width: 100%;

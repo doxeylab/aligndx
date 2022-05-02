@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Modal from "@mui/material/Modal";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 const ConfirmationModal = (props) => {
@@ -18,10 +18,11 @@ const ConfirmationModal = (props) => {
     boxShadow: 24,
     p: 4,
   };
-  const history = useHistory();  
+  const navigate = useNavigate();
+
   const handleClose = (param) => {
     if (props.path) {
-      history.push(props.path)
+      navigate(props.path)
     } else {
       props.onClose(false)
     }

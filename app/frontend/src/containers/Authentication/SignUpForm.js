@@ -4,7 +4,7 @@ import { useMutation } from 'react-query'
 import { Form, FormTextField } from "../../components/Form";
 import { FormControlLabel, FormGroup, Grid, Link, Alert } from '@mui/material';
 
-import { useHistory } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUsers } from "../../api/Users"
 
 import * as yup from "yup";
@@ -15,11 +15,13 @@ const SignUpForm = () => {
     /**
      * A SignUp/Register Form with validation
      */
-    const history = useHistory();
+    const location = useLocation();
+    const navigate = useNavigate();
+
     const context = useAuthContext
     const users = useUsers()
-    const [invalid, setInvalid] = useState(false); 
-    
+    const [invalid, setInvalid] = useState(false);
+
     // validation object for form validation
     const schema = yup.object({
         name: yup
@@ -68,7 +70,8 @@ const SignUpForm = () => {
         onSuccess: (data) => {
             setInvalid(false)
             context.setupUser(data.data)
-            history.push('/')
+            navigate('/')
+
         },
         onError: (error) => {
             if (error?.response?.status === 401) {

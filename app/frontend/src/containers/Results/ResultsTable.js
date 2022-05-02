@@ -13,7 +13,7 @@ const ResultsTable = () => {
 
     const submissions = useQuery('submissions', () => users.index_submissions(), {
         retry: false,
-        enabled: false,
+        enabled: true,
         onSuccess: (data, variables, context) => {
             data.data.forEach((data) => {
                 rows.push(
@@ -71,10 +71,6 @@ const ResultsTable = () => {
     const deletefn = (seldata) => {
         console.log(seldata)
     }
-
-    useEffect(() => {
-        submissions.refetch()
-    }, [])
 
     return ( 
         <EnhancedTable

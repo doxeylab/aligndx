@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useLocalStorage from '../hooks/useLocalStorage';
 import { useUsers } from '../api/Users';
+import { useLocation } from 'react-router-dom';
 
 const AuthContext = React.createContext({
     auth: {},
@@ -15,7 +16,9 @@ const AuthContext = React.createContext({
 
 export const AuthProvider = ({ children }) => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
+    const location = useLocation();
+
     const [auth, setAuth] = useLocalStorage('auth', {})
     const users = useUsers();
 
@@ -40,7 +43,7 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         users.logout()
         setAuth({})
-        history.push('/login');
+        navigate('/login', {state: {from: location}, replace: true});
     }
 
     const setupUser = (response) => {

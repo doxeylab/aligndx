@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Fade from 'react-reveal/Fade';
 
@@ -18,7 +18,9 @@ import { useMeta } from '../../../api/Meta';
 
 import {useChunkStarter} from '../../../hooks/ChunkController';
 const Hero = (props) => {
-    const history = useHistory()
+    const navigate = useNavigate();
+    const location = useLocation(); 
+    
     const meta = useMeta()
     const { startfile } = useChunkStarter()
 
@@ -88,8 +90,7 @@ const Hero = (props) => {
         if (restart.restartflag) {
             const fileId = selectedRestartData.id
             const panels = selectedRestartData.meta[0]
-            history.push({
-                pathname: "/live/#/?id=" + fileId,
+            navigate("/live/#/?id=" + fileId, {
                 state: {
                     file: dataFiles[0],
                     panels: panels,
@@ -97,7 +98,6 @@ const Hero = (props) => {
                     restartflag: restart.restartflag
                 }
             })
-
         }
         else {
             startfile.mutate({

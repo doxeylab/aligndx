@@ -1,11 +1,11 @@
 import { CHUNK_SIZE } from "../../config/Settings";
 import { useMutation } from 'react-query'
 import { useUploads } from "../../api/Uploads";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const useChunkStarter = () => {
   const uploads = useUploads();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const initFile = ({
     file,
@@ -26,7 +26,7 @@ const useChunkStarter = () => {
   const startfile = useMutation(initFile, {
     onSuccess: (data, variables) => {
       let fileId = data.data.File_ID
-      history.push({
+      navigate({
         pathname: "/live/#/?id=" + fileId,
         state: {
           file: variables.file,

@@ -52,7 +52,7 @@ const Settings = () => {
         console.error(error)
     }
 
-    const {refetch, isLoading} = useQuery('settings_page_data', () => payments.get_settings_page_data(), {
+    const {refetch, isFetching} = useQuery('settings_page_data', () => payments.get_settings_page_data(), {
         enabled: true,
         refetchOnWindowFocus: false,
         retry: false,
@@ -64,7 +64,7 @@ const Settings = () => {
     return (
         <Section id='settings-page'>
             <Container>
-                { isLoading ? <p>loading...</p> : 
+                { isFetching ? <p>loading...</p> : 
                     <Row>
                         <Col md={4} lg={{span: 3, offset:1}}>
                             <div className='side-menu'>

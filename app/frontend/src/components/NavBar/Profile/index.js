@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
-import {FaCaretDown, FaCogs, FaSignOutAlt, FaUserAlt} from 'react-icons/fa';
-import {Dropdown} from 'react-bootstrap';
+import React, { useState } from 'react';
+import { FaCaretDown, FaCogs, FaSignOutAlt, FaUserAlt } from 'react-icons/fa';
+import { Dropdown } from 'react-bootstrap';
 import {
     Chevron,
     ProfileBtn,
@@ -11,11 +11,12 @@ import {
     ProfileName
 } from './StyledProfile';
 import { useAuthContext } from '../../../context/AuthProvider';
+import { Link } from 'react-router-dom';
 
 const Profile = () => {
     const context = useAuthContext();
 
-    const CustomToggle = React.forwardRef(({children, onClick}, ref) => (
+    const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
         <a
             href=""
             ref={ref}
@@ -29,7 +30,7 @@ const Profile = () => {
     ));
 
     const CustomMenu = React.forwardRef(
-        ({children, style}, ref) => {
+        ({ children, style }, ref) => {
             const [value, setValue] = useState('');
 
             return (
@@ -52,7 +53,6 @@ const Profile = () => {
                     <ProfileIcon>
                         <FaUserAlt />
                     </ProfileIcon>
-                    {/* <ProfileName>{user ? user.name : ""}</ProfileName> */}
                     <ProfileName>{context.currentUser ? context.currentUser : ""}</ProfileName>
                     <Chevron>
                         <FaCaretDown />
@@ -61,9 +61,16 @@ const Profile = () => {
             </Dropdown.Toggle>
 
             <Dropdown.Menu as={CustomMenu}>
-                <ProfileMenuItem
-                    href="/myresults/"><FaUserAlt /> My Results</ProfileMenuItem>
-                <ProfileMenuItem href="/settings"><FaCogs /> Settings</ProfileMenuItem>
+                <ProfileMenuItem>
+                    <Link to="/myresults">
+                        <FaUserAlt /> My Results
+                    </Link>
+                </ProfileMenuItem>
+                <ProfileMenuItem>
+                    <Link to="/settings">
+                        <FaCogs /> Settings
+                    </Link>
+                </ProfileMenuItem>
                 <ProfileMenuItem onClick={context.logout}><FaSignOutAlt /> Sign Out</ProfileMenuItem>
             </Dropdown.Menu>
         </Dropdown>

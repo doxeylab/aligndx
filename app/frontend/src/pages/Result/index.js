@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 
 import axios from 'axios';
 
@@ -13,7 +13,6 @@ import { Col, Container, Row } from 'react-bootstrap';
 import Barchart from '../../components/BarChart';
 import { Section, Title } from '../../components/Common/PageElement';
 import LogInModal from '../../containers/Authentication';
-import { Redirect } from 'react-router-dom';
 
 import { ResultAccordianTitle, ResultAccordionImg, ResultTitle } from './StyledResult';
 
@@ -27,7 +26,7 @@ import { useAuthContext } from '../../context/AuthProvider';
 
 const Result = () => {
     const context = useAuthContext();
-    const history = useHistory();
+    const navigate = useNavigate();
     const location = useLocation();
 
     const [link, setLink] = useState("/");
@@ -60,7 +59,7 @@ const Result = () => {
                 setShowLogin(true)
             }
             else {
-                history.push("/404")
+                navigate("/404")
             }
         }
 
@@ -72,7 +71,7 @@ const Result = () => {
                     setSample(res.data.sample)
                 })
                 .catch(() => {
-                    history.push("/404")
+                    navigate("/404")
                 })
         }
     }, [])
@@ -83,7 +82,7 @@ const Result = () => {
 
     return (
         <>
-            {showLogin ? <Redirect to={{
+            {showLogin ? <Navigate to={{
                 pathname: "/login",
                 state: {
                     link: link

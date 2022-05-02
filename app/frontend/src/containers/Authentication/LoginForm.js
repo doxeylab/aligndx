@@ -4,7 +4,7 @@ import { useMutation } from 'react-query'
 import { Form, FormTextField } from "../../components/Form";
 import { Switch, FormControlLabel, FormGroup, Grid, Link, Alert } from '@mui/material';
 
-import { useHistory } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUsers } from "../../api/Users"
 
 import * as yup from "yup";
@@ -15,7 +15,9 @@ const LogInForm = (props) => {
     /**
      * A SignIn/LogIn Form with validation
      */
-    const history = useHistory();
+    const location = useLocation();
+    const navigate = useNavigate();
+
     const context = useAuthContext();
     const users = useUsers()
     const [invalid, setInvalid] = useState(false);
@@ -54,7 +56,7 @@ const LogInForm = (props) => {
         onSuccess: (data) => {
             setInvalid(false)
             context.setupUser(data.data)
-            history.push(props.link)
+            navigate(props.link, {state: {from: location}, replace: true})
         },
         onError: (error) => {
             if (error?.response?.status === 401) {

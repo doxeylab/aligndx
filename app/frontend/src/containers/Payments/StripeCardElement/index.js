@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { withRouter } from "react-router-dom";
 
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
@@ -152,4 +151,4 @@ const StripeCardElement = (props) => {
     )
 }
 
-export default withRouter(StripeCardElement)
+export default StripeCardElement;
