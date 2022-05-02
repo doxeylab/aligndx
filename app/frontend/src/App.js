@@ -109,7 +109,6 @@ function App() {
                                             <Navbar />
                                             <Routes>
                                                 {/* public */}
-                                                <Route path='/' element={<Home />} />
                                                 <Route path='/about' element={<About />} />
                                                 <Route path='/contact' element={<Contact />} />
                                                 <Route path='/team' element={<Team />} />
@@ -119,6 +118,7 @@ function App() {
 
                                                 {/* private */}
                                                 <Route element={<Protected />} >
+                                                    <Route path='/' element={<Home />} />
                                                     <Route path='/home' element={<Home />} />
                                                     <Route path='/myresults' element={<MyResults />} />
                                                     <Route path='/live' element={<Live />} />
