@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { Section } from '../../components/Common/PageElement';
 
@@ -10,7 +10,6 @@ import { Container } from '@mui/material';
 
 const LinkedResults = () => {
     const navigate = useNavigate();
-    const location = useLocation();
     const users = useUsers();
 
     var dummyData = example_dataset
