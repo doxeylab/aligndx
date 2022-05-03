@@ -19,17 +19,24 @@ const ResultCard = ({ result }) => {
                                 {result.sample_name}
                             </h2>
                         </Grid>
-                        <Grid item xs={1}>
-                            <DataProgressBar caption="Uploading..." endcaption="Uploaded" percentage={100 * result.progress.upload} />
-                        </Grid>
-                        <Grid item xs={1}>
-                            {
-                                result?.status === 'error' ?
-                            <DataProgressBar caption="Analyzing..." endcaption="Analyzed" percentage={100} />
+                        {result?.progress
+                            ?
+                            <>
+                                <Grid item xs={1}>
+                                    <DataProgressBar caption="Uploading..." endcaption="Uploaded" percentage={100 * result.progress.upload} />
+                                </Grid>
+                                <Grid item xs={1}>
+                                    {
+                                        result?.status === 'error' ?
+                                            <DataProgressBar caption="Analyzing..." endcaption="Analyzed" percentage={100} />
+                                            :
+                                            <DataProgressBar caption="Analyzing..." endcaption="Analyzed" percentage={100 * result.progress.analysis} />
+                                    }
+                                </Grid>
+                            </>
                             :
-                            <DataProgressBar caption="Analyzing..." endcaption="Analyzed" percentage={100 * result.progress.analysis} />
-                            }
-                        </Grid>
+                            null
+                        }
                     </Grid>
                 }>
                 {result?.status === 'pending' ?

@@ -24,8 +24,8 @@ export const useUsers = () => {
             get(`${users_endpoint}/submissions`),
         index_incomplete_submissions: () =>
             get(`${users_endpoint}/incomplete`),
-        linked_results: () =>
-            get(`${users_endpoint}/linked_results`)
+        linked_results: (params) =>
+            get(`${users_endpoint}/linked_results/${params}`)
     }
 
 }

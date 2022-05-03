@@ -4,7 +4,7 @@ import { useLocation} from 'react-router-dom';
 import {ResultCard} from '../../containers/Results';
 
 import { Container } from '@mui/material';
-import { Section, Title } from '../../components/Common/PageElement';
+import { Section } from '../../components/Common/PageElement';
 
 import exampledataset from './../../assets/test_datasets/example_dataset.json'
 import useWebSocket from '../../api/Socket';

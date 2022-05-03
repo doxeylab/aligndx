@@ -10,7 +10,7 @@ import Footer from './components/FooterComponent';
 import Navbar from './components/NavBar';
 
 import { LoadContext } from "./context/LoadContext"
-import { AuthProvider, useAuthContext} from './context/AuthProvider';
+import { useAuthContext } from './context/AuthProvider';
 
 import Home from "./pages/Home";
 import Splash from './pages/Splash';
@@ -24,7 +24,7 @@ import MyResults from './pages/MyResults';
 import Pricing from './pages/Pricing';
 
 import Live from './pages/Live/';
-import Result from './pages/Result';
+import LinkedResults from './pages/LinkedResults';
 
 import Checkout from './pages/Checkout';
 import Settings from './pages/Settings';
@@ -41,7 +41,6 @@ import {
 } from 'react-query'
 
 import { ReactQueryDevtools } from 'react-query/devtools'
-import context from 'react-bootstrap/esm/AccordionContext';
 
 const getDesignTokens = (mode) => ({
     typography: {
@@ -125,7 +124,7 @@ function App() {
                                                     <Route path='/home' element={<Home />} />
                                                     <Route path='/myresults' element={<MyResults />} />
                                                     <Route path='/live' element={<Live />} />
-                                                    <Route path='/result' element={<Result />} />
+                                                    <Route path='/result' element={<LinkedResults />} />
                                                     <Route path='/checkout' element={<Checkout />} />
                                                     <Route path='/settings' element={<Settings />} />
                                                 </Route>

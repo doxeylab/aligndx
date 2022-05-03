@@ -11,12 +11,14 @@ import * as yup from "yup";
 import { useAuthContext } from "../../context/AuthProvider";
 
 
-const LogInForm = (props) => {
+const LogInForm = () => {
     /**
      * A SignIn/LogIn Form with validation
      */
     const location = useLocation();
     const navigate = useNavigate();
+
+    const from = location.state?.from?.pathname + location.state?.from?.search || "/"
 
     const context = useAuthContext();
     const users = useUsers()
@@ -56,7 +58,7 @@ const LogInForm = (props) => {
         onSuccess: (data) => {
             setInvalid(false)
             context.setupUser(data.data)
-            navigate(props.link, {state: {from: location}, replace: true})
+            navigate(from, {replace:true})
         },
         onError: (error) => {
             if (error?.response?.status === 401) {

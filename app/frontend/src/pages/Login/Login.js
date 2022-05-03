@@ -14,21 +14,13 @@ import CloseIcon from '@mui/icons-material/Close';
 const Login = () => {
 
     const [link, setLink] = useState("/");
-    const [showAlert, setShowAlert] = useState(false);
     const location = useLocation()
-
-    useEffect(() => {
-        if (location?.state?.link) {
-            setLink(location.state.link)
-            setShowAlert(true)
-        }
-    }, [link])
 
     return (
         <>
             <Section center id="login">
                 <Container>
-                    {showAlert ?
+                    {/* {showAlert ?
                         <Grid container alignItems="center" justifyContent="center">
                             <Grid item xs={4}>
                                 <Collapse in={showAlert}>
@@ -52,11 +44,11 @@ const Login = () => {
                             </Grid>
                         </Grid>
                         :
-                        null}
+                        null} */}
                     <Grid container alignItems="center" justifyContent="center">
                         <Grid item xs={10} sm={4}>
                             <Fade left duration={1000} delay={600} distance="30px">
-                                <LogInForm link={link} />
+                                <LogInForm />
                             </Fade>
                         </Grid>
                         <Grid item xs={12} sm={6}>
