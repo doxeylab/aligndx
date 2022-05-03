@@ -4,7 +4,7 @@ import { useLocation} from 'react-router-dom';
 import {ResultCard} from '../../containers/Results';
 
 import { Container } from '@mui/material';
-import { Section, Title } from '../../components/Common/PageElement';
+import { Section } from '../../components/Common/PageElement';
 
 import exampledataset from './../../assets/test_datasets/example_dataset.json'
 import useWebSocket from '../../api/Socket';
@@ -14,10 +14,10 @@ const Live = () => {
 
     const location = useLocation();
 
-    let lstate = location.state
-    let fileId = lstate.fileId || null
-    let file = lstate.file || null
-    let panels = lstate.panels || null
+    let lstate = location?.state
+    let fileId = lstate?.fileId || null
+    let file = lstate?.file || null
+    let panels = lstate?.panels || null
 
     const [data, setData] = useState(null)
 
@@ -44,8 +44,8 @@ const Live = () => {
 
     useEffect(() => {
         console.log(data)
-    },[data])
-
+    },[data]) 
+    
     return (
         <Section id="result">
                <Container>
