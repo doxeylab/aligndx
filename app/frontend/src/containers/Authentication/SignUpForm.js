@@ -18,7 +18,7 @@ const SignUpForm = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const context = useAuthContext
+    const context = useAuthContext();
     const users = useUsers()
     const [invalid, setInvalid] = useState(false);
 

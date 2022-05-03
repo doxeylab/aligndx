@@ -55,7 +55,7 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
     return {"access_token": access_token, 
             "token_type": "bearer"}
 
-@router.get("/logout", status_code=201)
+@router.get("/logout", status_code=200)
 async def logout(response : Response):
     # used to destroy refresh cookie
     response.delete_cookie(key ='refresh_token')
