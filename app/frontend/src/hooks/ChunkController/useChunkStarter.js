@@ -26,14 +26,14 @@ const useChunkStarter = () => {
   const startfile = useMutation(initFile, {
     onSuccess: (data, variables) => {
       let fileId = data.data.File_ID
-      navigate({
-        pathname: "/live/#/?id=" + fileId,
-        state: {
-          file: variables.file,
-          panels: variables.panels,
-          fileId: fileId,
-        }
-      })
+      navigate("/live/#/?id=" + fileId,
+        {
+          state: {
+            file: variables.file,
+            panels: variables.panels,
+            fileId: fileId,
+          }
+        })
     },
     onError: (error) => {
       return error

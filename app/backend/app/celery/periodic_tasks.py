@@ -4,6 +4,7 @@ import shutil
 import pandas as pd
 
 from app.db.session import async_session
+from app.services.db import get_db
 
 from app.celery.File import File
 from app.config.settings import settings
@@ -24,9 +25,7 @@ index_dir = settings.INDEX_FOLDER
 results_dir = settings.RESULTS_FOLDER
 
 
-async def save_result(file):
-    db = async_session()
-
+async def save_result(db, file):
     out_dir = os.path.join(results_dir, file.file_id)
 
     controller = Controller(file.process, file.panel, out_dir=out_dir)
@@ -42,11 +41,11 @@ async def save_result(file):
     if sub.result is None:
         result = await sub_dal.update(file.file_id, UpdateSubmissionResult(result=data))
 
-    if sub.data_usage_updated_date is None:
-        now = datetime.now()
+    # if sub.data_usage_updated_date is None:
+    #     now = datetime.now()
 
-        await update_data_usage(db, customer_id, data_amount_mb=(sub.file_size / (1024**2)))
-        await sub_dal.update(file.file_id, UpdateSubmissionDataUsageDate(data_usage_updated_date=now))
+    #     await update_data_usage(db, customer_id, data_amount_mb=(sub.file_size / (1024**2)))
+    #     await sub_dal.update(file.file_id, UpdateSubmissionDataUsageDate(data_usage_updated_date=now))
 
     if sub.email_date is None:
         now = datetime.now()
@@ -73,6 +72,7 @@ async def perform_file_analyses(file, file_dir):
 
 
 async def periodic_task_calls():
+    db = async_session()
     for file_id in os.listdir(uploads_dir):
         file_dir = os.path.join(uploads_dir, file_id)
         file = File.load(file_dir)
@@ -80,5 +80,5 @@ async def periodic_task_calls():
         await perform_file_analyses(file, file_dir)
 
         if all([chunk.status == 'Complete' for chunk in file.state.analysis_chunks]):
-            await save_result(file)
+            await save_result(db, file)
             shutil.rmtree(file_dir)

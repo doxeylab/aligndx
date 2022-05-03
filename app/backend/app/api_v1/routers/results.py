@@ -1,6 +1,4 @@
 import os 
-import pandas as pd 
-from pydantic import BaseModel
 
 from fastapi import APIRouter, Depends, HTTPException 
 
