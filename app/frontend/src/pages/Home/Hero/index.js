@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import Fade from 'react-reveal/Fade';
 
@@ -15,13 +15,14 @@ import { HeroBody, HeroBtns, HeroBtns2, HeroCol, HeroImage, HeroText, HeroTitle 
 
 import { Typography } from '@mui/material';
 import { useMeta } from '../../../api/Meta';
+import { useUsers } from '../../../api/Users';
 
 import {useChunkStarter} from '../../../hooks/ChunkController';
 const Hero = (props) => {
     const navigate = useNavigate();
-    const location = useLocation(); 
     
-    const meta = useMeta()
+    const meta = useMeta();
+    const users = useUsers();
     const { startfile } = useChunkStarter()
 
     const [showStandardUploadModal, setShowStandardUploadModal] = useState(false);
@@ -39,22 +40,22 @@ const Hero = (props) => {
         data: null
     });
 
-    // const check_unprocessed = () => {
-    //     // users.index_incomplete_submissions()
-    //         .then((res) => {
-    //             const data = res.data 
+    const check_unprocessed = () => {
+        users.index_incomplete_submissions()
+            .then((res) => {
+                const data = res.data 
 
-    //             if (!showLiveUploadModal || !showStandardUploadModal) {
-    //                 if (data.length !== 0) {
-    //                     setRestart({ ...restart, data: data})
-    //                     setShowRestartModal(true)
-    //                 }
-    //                 else {
-    //                     setRestart({ ...restart, restartflag: false})
-    //                 }
-    //             }
-    //         })
-    // }
+                if (!showLiveUploadModal || !showStandardUploadModal) {
+                    if (data.length !== 0) {
+                        setRestart({ ...restart, data: data})
+                        setShowRestartModal(true)
+                    }
+                    else {
+                        setRestart({ ...restart, restartflag: false})
+                    }
+                }
+            })
+    }
 
     const selectmenuoptions = () => {
         meta.get_panels()
@@ -120,6 +121,7 @@ const Hero = (props) => {
 
     useEffect(() => {
         selectmenuoptions();
+        check_unprocessed();
     }, [])
 
     useEffect(() => {
