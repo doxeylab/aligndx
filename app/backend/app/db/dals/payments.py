@@ -11,6 +11,9 @@ class CustomersDal(BaseDal[Customers]):
         return Customers
     
     async def get_customer_by_stripe_id(self, stripe_customer_id):
+        '''
+        Returns a customer which matches the stripe customer id.
+        '''
         stmt =  select(self._table).where(self._table.stripe_customer_id == stripe_customer_id)
         query = await self._db_session.execute(stmt)
         return query.scalars().first()
@@ -23,11 +26,17 @@ class SubscriptionsDal(BaseDal[Subscriptions]):
         return Subscriptions
     
     async def get_subscription_by_stripe_id(self, stripe_id):
+        '''
+        Returns a subscription which matches the stripe_subscription_id.
+        '''
         stmt =  select(self._table).where(self._table.stripe_subscription_id == stripe_id)
         query = await self._db_session.execute(stmt)
         return query.scalars().first()
     
     async def get_recently_cancelled_subscription(self, customer_id):
+        '''
+        Returns the most recently cancelled subscription, if any.
+        '''
         stmt =  select(self._table)\
             .where(self._table.customer_id == customer_id,
                     self._table.is_cancelled == True,
@@ -37,6 +46,9 @@ class SubscriptionsDal(BaseDal[Subscriptions]):
         return query.scalars().first()
     
     async def get_active_subscription_by_customer_id(self, customer_id):
+        '''
+        Returns an active subscription matching the customer requested, if any.
+        '''
         stmt =  select(self._table)\
             .where(self._table.customer_id == customer_id,
                    self._table.is_active == True)
@@ -50,6 +62,9 @@ class InvoicesDal(BaseDal[Invoices]):
         return Invoices
     
     async def get_by_customer_id(self, customer_id):
+        '''
+        Returns all invoices for a given customer id.
+        '''
         stmt =  select(self._table)\
             .where(self._table.customer_id == customer_id)
         query = await self._db_session.execute(stmt)
@@ -62,6 +77,9 @@ class PlansDal(BaseDal[Invoices]):
         return Plans
     
     async def get_available_plan_by_id(self, plan_id):
+        '''
+        Returns one plan which is not archived.
+        '''
         stmt =  select(self._table)\
             .where(self._table.id == plan_id,
                 self._table.is_archived == False)
@@ -69,12 +87,18 @@ class PlansDal(BaseDal[Invoices]):
         return query.scalars().first()
 
     async def get_all_available_plans(self):
+        '''
+        Returns all available plans (not archived).
+        '''
         stmt =  select(self._table)\
             .where(self._table.is_archived == False)
         query = await self._db_session.execute(stmt)
         return query.scalars()
     
     async def get_eligible_plans_tax_rate(self, current_plan_name, tax_rate):
+        '''
+        Returns plans for a specific tax rate except the curent plan name
+        '''
         stmt =  select(self._table)\
             .where(self._table.is_archived == False,
                     self._table.name != current_plan_name,

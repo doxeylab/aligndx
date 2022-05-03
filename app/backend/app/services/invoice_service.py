@@ -6,6 +6,15 @@ from app.db.dals.payments import InvoicesDal
 from datetime import datetime
 
 async def create_invoice(db, stripe_invoice, sub_id, customer_id):
+    """
+    Creates a new invoice in invoices table.
+
+    :param stripe_invoice: Stripe's invoice object
+    :param sub_id: id of the subscription the invoice belongs to
+    :param customer_id: id of the customer the invoice belongs to
+
+    Stripe Docs: https://stripe.com/docs/api/invoices/object
+    """
     new_invoice = CreateNewInvoice(
         status = "paid",
         amount_due = stripe_invoice["amount_due"],
@@ -33,6 +42,11 @@ async def create_invoice(db, stripe_invoice, sub_id, customer_id):
     return invoice_id
 
 async def get_all_invoices(db, customer_id):
+    """
+    Returns all the invoices for a particular customer.
+
+    :param customer_id: id of the customer the invoices belongs to
+    """
     invoice_dal = InvoicesDal(db)
     invoices = await invoice_dal.get_by_customer_id(customer_id)
 
