@@ -13,6 +13,18 @@ from app.services import stripe_service, customer_service, plans_service
 from datetime import datetime
 
 async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequest, db):
+    """
+    Create a new subscription with status = 'incomplete'.
+
+    It creates a new subscription object in our db and with Stripe as well.
+    returns: client secret used by front-end to render the Stripe's payment element.
+    Upon successful payment: Stripe sends a webhook with event 'invoice.paid" which
+    is handled in the Stripe Webhooks endpoint and subscription is set to 'active'
+
+    :param request: contains the plan id for subscription
+
+    Stripe Docs: https://stripe.com/docs/api/subscriptions/object
+    """
     # Check if plan is valid and available (not archived)
     plans_dal = PlansDal(db)
     plan = await plans_dal.get_available_plan_by_id(req.plan_id)
@@ -34,13 +46,12 @@ async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequ
         customer_id = await customer_service.create_customer(db, current_user)
     else:
         if current_user.is_admin == False:
-            raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,
-                        detail = "Only an Admin can create new subscriptions")
+            raise HTTPException(status_code = status.HTTP_403_FORBIDDEN, detail = "Admin access required.")
         customer_id = current_user.customer_id
 
     customer = await customer_service.get_by_id(db, customer_id)
 
-    # Create 'inactive' subscription in db
+    # Create 'incomplete' subscription in db
     new_subscription = CreateNewSubscription(
         customer_id = customer.id,
         plan_id = plan.id,
@@ -70,14 +81,28 @@ async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequ
     return client_secret
 
 async def get_subscription_by_stripe_id(db, stripe_id):
+    """
+    Retrieves a subscription by Stripe subscription id, if exists.
+    returns: subscription if found, else null
+    :param stripe_id: Stripe subscription id of an existing subscription
+    """
     subs_dal = SubscriptionsDal(db)
     return await subs_dal.get_subscription_by_stripe_id(stripe_id)
 
 async def get_active_subscription(db, current_user: UserDTO):
+    """
+    Retrieves an active subscription
+    returns: subscription if found, else null
+    """
     subs_dal = SubscriptionsDal(db)
     return await subs_dal.get_active_subscription_by_customer_id(current_user.customer_id)
 
 async def update_after_payment_success(db, subs_id, sub_stripe):
+    """
+    Updates the database upon a successful payment for either first subscription or renewal
+    :param subs_id: id of the subscrioption to be updated
+    :param sub_stripe: the Stripe subscription object returned from Stripe
+    """
     update_items = UpdateItemsAfterPaymentSuccess(
         is_active = True,
         status = "paid",
@@ -93,6 +118,14 @@ async def update_after_payment_success(db, subs_id, sub_stripe):
     return await subs_dal.update(subs_id, update_items)
 
 async def request_cancellation(db, current_user: UserDTO):
+    """
+    Front-end user requests to cancel subscription
+
+    It sets auto renewal to false and makes a request to Stripe to 
+    cancel the subscription at the end of current period.
+    Returns: the last day of subscription which is current period end date.
+    """
+
     subs_dal = SubscriptionsDal(db)
     subs = await subs_dal.get_active_subscription_by_customer_id(current_user.customer_id)
 
@@ -102,7 +135,7 @@ async def request_cancellation(db, current_user: UserDTO):
     if subs.auto_renew == False:
         raise HTTPException(status_code = 400, detail = "Subscription cancel request already submitted.")
     
-    # If subs already scheduled to downgrade: cancel the downgrade req first
+    # If there is an existing plan downgrade request: need to cancel the downgrade req first
     if subs.stripe_schedule_id:
         await cancel_downgrade(db, current_user)
 
@@ -115,6 +148,14 @@ async def request_cancellation(db, current_user: UserDTO):
     return SubCancelResponse(current_period_end=subs.current_period_end)
 
 async def cancel_subscription(db, subs_stripe_id, cancel_reason):
+    """
+    Update DB to reflect subscription cancellation.
+
+    This function is only invoked by Stripe Webhook. It updates the db
+    table to reflect cancellation and removes the customer's payment method details.
+    :param subs_stripe_id: subscription's Stripe Id as passed from Stripe
+    :param cancel_reason: the reason for the cancellation of subscription
+    """
     subs_dal = SubscriptionsDal(db)
     subs = await subs_dal.get_subscription_by_stripe_id(subs_stripe_id)
 
@@ -141,11 +182,18 @@ async def cancel_subscription(db, subs_stripe_id, cancel_reason):
     return True
 
 async def reactivate_subscription(db, current_user: UserDTO):
+    """
+    Undo a subscription cancellation request if the subscription is active and not yet cancelled.
+
+    This function is invoked by front-end when a user was to undo their existing request
+    to cancel their subscription at the end of current period. It updates the db
+    table to set auto renewal to true and reactivates the subscription with Stripe too.
+    """
     subs_dal = SubscriptionsDal(db)
     subs = await subs_dal.get_active_subscription_by_customer_id(current_user.customer_id)
 
     if subs == None:
-        raise HTTPException(status_code = 404, detail = "Subscription does not exist!")
+        raise HTTPException(status_code = 404, detail = "An active subscription not found.")
 
     if subs.auto_renew == True:
         raise HTTPException(status_code = 400, detail = "Existing cancel request not found. Subscription already set to auto-renew.")
@@ -159,8 +207,23 @@ async def reactivate_subscription(db, current_user: UserDTO):
     return 'Subscription reactivated and is set to auto-renew.'
 
 async def change_plan(db, current_user: UserDTO, request):
+    """
+    Process current user request to change plan
+
+    A change request is considered either an upgrade or downgrade which
+    depends on the price difference between the current plan vs the new
+    requested plan.
+    Plan upgrades are processed immediately while dowgrades are processed
+    at the end of current period.
+
+    :param request: id of the new plan that the curent user wants to replace with.
+    """
     subs_dal = SubscriptionsDal(db)
     subs = await subs_dal.get_active_subscription_by_customer_id(current_user.customer_id)
+
+    if subs == None:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
+                        detail = "An active subscription does not exist!")
 
     # get plan entities from db for current and new requested plan
     plans_dal = PlansDal(db)
@@ -182,7 +245,7 @@ async def change_plan(db, current_user: UserDTO, request):
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                             detail = f"Request to change to plan name: '{scheduled_plan.name}' already submitted.")
     
-    # Check of Subscription is set to cancel at end of period: if yes, reactivate subs first
+    # Check if Subscription is already set to cancel: if yes, reactivate subs first
     if subs.auto_renew == False:
         await reactivate_subscription(db, current_user)
 
@@ -211,6 +274,9 @@ async def change_plan(db, current_user: UserDTO, request):
     return response
 
 async def cancel_downgrade(db, current_user: UserDTO):
+    """
+    Undo an existing request to downgrade plan and keep the current plan.
+    """
     subs_dal = SubscriptionsDal(db)
     subs = await subs_dal.get_active_subscription_by_customer_id(current_user.customer_id)
 
@@ -232,7 +298,18 @@ async def cancel_downgrade(db, current_user: UserDTO):
     return "Request to downgrade plan cancelled."
 
 async def process_plan_downgrade(db, sub):
-    # End of month: Downgrade Plan
+    """
+    Process plan downgrade at the end of current period
+
+    This function is only triggered via Stripe Webhook. When the end of
+    current period reaches, Stripe will change the plan on their side and
+    trigger a 'invoice.paid' event upon successful payment. While processing
+    the payment for new period, we check if there was an request for plan
+    downgrade and this function is called.
+
+    :param sub: the active subscription
+    """
+    await stripe_service.cancel_subscription_schedule(sub.stripe_schedule_id)
     # Scheduled plan id becomes the new plan id
     new_plan = await plans_service.get_plan_by_id(db, sub.scheduled_plan_id)
 
@@ -250,6 +327,11 @@ async def process_plan_downgrade(db, sub):
 async def get_recent(db, customer_id):
     '''
     returns either an active subscription or a most recently cancelled one.
+
+    The returned subscription object is used in the front-end settings page
+    to show the current active subscription or the most recently cancelled
+    subscription.
+    :param customer_id: the customer id to lookup the subscription for.
     '''
     subs_dal = SubscriptionsDal(db)
     active_sub = await subs_dal.get_active_subscription_by_customer_id(customer_id)
@@ -260,12 +342,19 @@ async def get_recent(db, customer_id):
     return active_sub
 
 async def update_data_usage(db, customer_id, data_amount_mb):
+    '''
+    This method is called to update the data used by the customer
+
+    :param customer_id: the customer id to lookup the subscription for.
+    :param data_amount_mb: the amount of data to be added to data used field.
+    '''
     subs_dal = SubscriptionsDal(db)
     subs = await subs_dal.get_active_subscription_by_customer_id(customer_id)
     
     if subs == None:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,
                         detail = "An active subscription does not exist!")
+
     new_data_used = subs.data_used + data_amount_mb
     update_items = UpdateData(data_used = new_data_used)
     
@@ -273,7 +362,10 @@ async def update_data_usage(db, customer_id, data_amount_mb):
 
 async def delete_incomplete_subscription(db, subs_stripe_id):
     """
-    Delete subscription where status = 'incomplete'
+    Delete subscription where status = 'incomplete'.
+    This method is invoked through Stripe Webhooks.
+
+    :param subs_stripe_id: subscription's Stripe Id as passed from Stripe
     """
     subs_dal = SubscriptionsDal(db)
     subs = await subs_dal.get_subscription_by_stripe_id(subs_stripe_id)

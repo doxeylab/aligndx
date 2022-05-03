@@ -27,6 +27,14 @@ async def stripe_events(
         Stripe_Signature: Optional[str] = Header(None),
         db: AsyncSession = Depends(get_db)
     ):
+    """
+    Stripe Webhooks: All these API calls are invoked by Stripe
+
+    Stripe sends out events that we registered with them to send us.
+    For example: Upon a successful payment Stripe will send out an
+    'invoice.paid' event with the Invoice object as the payload.
+    """
+
     payload = await req.body()
     try:
         # verify request originated from Stripe

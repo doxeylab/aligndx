@@ -2,6 +2,9 @@
 from app.db.dals.payments import PlansDal
 
 async def get_all_plans(db):
+    '''
+    Returns all available plans current offered.
+    '''
     plans_dal = PlansDal(db)
     plans = await plans_dal.get_all_available_plans()
 
@@ -19,7 +22,10 @@ async def get_eligible_plans(db, current_plan_name, tax_rate):
     '''
     returns eligible plans that a customer can upgrade/downgrade to.
     If customer is currently on "Basic Plan" with 13% Tax, they can upgrade to
-        "Premium Plan" with 13% Tax only or any other 13% Tax rate Plan (if offered)
+        "Premium Plan" with 13% Tax only or any other 13% Tax rate Plan (if offered).
+    
+    :param current_plan_name: plan name i.e. 'Basic Plan' or 'Premium Plan'
+    :param tax_rate: customer's current plan's tax rate
     '''
     plans_dal = PlansDal(db)
     plans = await plans_dal.get_eligible_plans_tax_rate(current_plan_name, tax_rate)
