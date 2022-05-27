@@ -4,30 +4,37 @@ from fastapi import APIRouter
 
 from app.config.settings import settings
 
+import pandas as pd 
+
 router = APIRouter()
 
-METADATA_FOLDER = settings.METADATA_FOLDER  
+METADATA_FOLDER = settings.METADATA_FOLDER
+meta = os.path.join(METADATA_FOLDER, "panels.csv")
+panel_metadata = pd.read_csv(meta)
 
 @router.get("/panels")
 async def retrieve_panels():
-    panels_list = os.listdir(METADATA_FOLDER)
-    
-    for i, _ in enumerate(panels_list):
-      panels_list[i] = panels_list[i].replace("_metadata.csv", "")
-    
-    panel_opts = {'id': "panel",
-        "category": "Panel",
-        "opts":[]
+    panels = panel_metadata.loc[:, 'CDC' : 'CNS'].columns.to_list()
+    return panels
+
+@router.get("/panels_description")
+async def panel_descr():
+    panels = panel_metadata.loc[:, 'CDC' : 'CNS'].columns.to_list()
+
+    panel_descr = {}
+    for panel in panels: 
+        panel_descr[panel] = {
+            'organisms' : panel_metadata[panel_metadata[panel] == 'Y']['Name'].to_list()
         }
+
+    return panel_descr
+
+@router.post("/panel_orgs")
+async def get_panel_orgs(panel : str):
+    panels = panel_metadata.loc[:, 'CDC' : 'CNS'].columns.to_list()
+
+    if panel in panels:
+        return panel_metadata[panel_metadata[panel] == 'Y']['Name'].to_list()
     
-    selectmenuopts = []
-    for panel in panels_list:
-        panel_opts["opts"].append(
-              {"value": panel, "label": panel.capitalize()}
-            )
-        selectmenuopts.append(
-            panel_opts
-        )
-    print(selectmenuopts)
-    
-    return selectmenuopts
+    else:
+        return 'Panel Does not exist'
