@@ -27,12 +27,9 @@ const DropdownMenu = ({ category, formlabel, label, opt, options, placeholder, v
     }
 
     const renderSelectGroup = product => {
-        const items = product['opts'].map((item, index) => {
-            return (
-                <MenuItem style={{ marginLeft: "10px" }} key={index} value={item[val]}>{item[label]}</MenuItem>
-            );
-        });
-        return [<ListSubheader value="header" style={{ fontSize: "1.2rem" }}>{product[category]}</ListSubheader>, items];
+        return (
+            <MenuItem style={{ marginLeft: "10px" }} key={product} value={product}>{product}</MenuItem>
+        );
     };
 
     return (
