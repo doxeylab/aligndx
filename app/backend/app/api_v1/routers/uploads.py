@@ -82,6 +82,7 @@ async def file_upload(
     return {"Result": "OK",
             "File_ID": file_id}
 
+# Chunking startpoint
 @router.post("/start-file")
 async def start_file(
     current_user: UserDTO = Depends(get_current_user),
@@ -124,7 +125,7 @@ async def start_file(
         return {"Result": "OK",
                 "File_ID": file_id}
 
-
+# Main chunked upload route
 @router.post("/upload-chunk")
 async def upload_chunk(  
     current_user: UserDTO = Depends(get_current_user),
@@ -155,7 +156,7 @@ async def upload_chunk(
     
     return {"Result": "OK"}
 
-
+# Chunking pipeline cleanup and sideeffects
 @router.post("/end-file")
 async def end_file(
     current_user: UserDTO = Depends(get_current_user),
