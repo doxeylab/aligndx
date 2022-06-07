@@ -25,7 +25,7 @@ class Setup(Base):
         returns a command list for salmon using the generated parameters
         '''
       
-        classification_lvl = "S1"
+        classification_lvl = "S"
         threshold_lvl= 0
 
         commands = self._generate_commands(settings.KRAKEN_DB, self.report_name, self.kraken_out, self.braken_out, classification_lvl, threshold_lvl, self.in_dir)
@@ -71,7 +71,7 @@ class Setup(Base):
     def transform(self):
         '''
         Parses tool output, performs some mutations and returns a dataframe
-        '''
+        ''' 
          # Read in quant.sf file into pandas, grab chosen headers and drop na values
         df = pd.read_csv(self.braken_out, sep="\t")
         pathogens = self.load_pathogens(self.panel)
