@@ -75,7 +75,7 @@ class Setup(Base):
          # Read in quant.sf file into pandas, grab chosen headers and drop na values
         df = pd.read_csv(self.braken_out, sep="\t")
         pathogens = self.load_pathogens(self.panel)
-        subset_df = df[df['name'].str.lower().isin([x.lstrip() for x in pathogens])]
+        subset_df = df[df['name'].str.lower().isin([x.lstrip().lower() for x in pathogens])]
         return subset_df
 
     

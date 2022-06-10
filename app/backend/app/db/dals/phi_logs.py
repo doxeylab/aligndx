@@ -21,7 +21,7 @@ class UploadLogsDal(BaseDal[UploadLogs]):
                            self._table.c.start_kilobytes < start_kilobyte + kilobyte_size
                     ))
         query = await self._db_session.execute(statement)
-        await self._db_session.commit()
+        # await self._db_session.commit()
         return query
 
 #  -- DeletionLogs DAL -- 

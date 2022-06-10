@@ -72,15 +72,13 @@ async def perform_file_analyses(file, file_dir):
 
 
 async def periodic_task_calls():
-    async with async_session as session:
-        db = yield session
-        for file_id in os.listdir(uploads_dir):
-            file_dir = os.path.join(uploads_dir, file_id)
-            file = File.load(file_dir)
+    db = async_session()
+    for file_id in os.listdir(uploads_dir):
+        file_dir = os.path.join(uploads_dir, file_id)
+        file = File.load(file_dir)
 
-            await perform_file_analyses(file, file_dir)
+        await perform_file_analyses(file, file_dir)
 
-            if all([chunk.status == 'Complete' for chunk in file.state.analysis_chunks]):
-                await save_result(db, file)
-                await session.commit()
-                shutil.rmtree(file_dir)
+        if all([chunk.status == 'Complete' for chunk in file.state.analysis_chunks]):
+            await save_result(db, file)
+            shutil.rmtree(file_dir)
