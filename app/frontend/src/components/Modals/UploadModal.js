@@ -4,14 +4,12 @@ import { useQuery } from 'react-query'
 import { usePayments } from '../../api/Payments'
 
 // Components 
-import { DropdownMenu} from '../DropdownMenu';
+import { DropdownMenu } from '../DropdownMenu';
 import UploadComponent from '../UploadComponent';
 import Button from '../Button'
 import DataProgressBar from '../DataProgressBar';
+import { Stack, Grid, Container } from '@mui/material';
 
-// Styling
-import { Col, Container, Row } from 'react-bootstrap'; 
- 
 
 const UploadModal = (props) => {
     const payments = usePayments();
@@ -37,7 +35,7 @@ const UploadModal = (props) => {
     }
 
     // API returns an 'active' subscription or null if none found
-    const {refetch, isLoading} = useQuery('get_active_subscription', () => payments.get_active_subscription(), {
+    const { refetch, isLoading } = useQuery('get_active_subscription', () => payments.get_active_subscription(), {
         enabled: true,
         refetchOnWindowFocus: false,
         retry: false,
@@ -46,48 +44,44 @@ const UploadModal = (props) => {
         onError: onError
     })
 
-    return ( 
-            <BaseModal
+    return (
+        <BaseModal
             show={props.show}
             onHide={props.onHide}
             title={props.title}
             body={
                 <Container>
-                        <Row style={{ marginBottom: '1.5rem' }}>
-                            <Col>
-                                Data remaining in Subscription Plan
-                            </Col>
-                            <Col>
-                                <DataProgressBar percentage = {dataPercentUsage}/>
-                            </Col>
-                        </Row>
-                        <Row style={{ marginBottom: '1.5rem' }}>
-                            <Col>
-                                <UploadComponent
-                                    fileCallback={props.dataFileCallback}
-                                    selectedFiles={props.selectedFiles}
-                                    removeCallback={props.dataRemoveFileCallback}
-                                />
-                            </Col>
-                        </Row>
-                        <Row style={{ marginBottom: '1.5rem' }}>
-                                <DropdownMenu
-                                    options={props.options}
-                                    val="value"
-                                    label="label"
-                                    category="category"
-                                    valueCallback={props.detectionCallback}
-                                    placeholder="Select your pathogen(s)"
-                                />
-                        </Row>
-                        <Row>
-                            <Col>
-                                <Button fill disabled={(props.selectedFiles).length === 0 || (props.selectedDetections).length === 0 ? true : false} onClick={props.upload}>Analyze</Button>
-                            </Col>
-                        </Row>
-                    </Container>
+                    <Grid container direction={'column'}>
+                        <Grid item xs style={{textAlign: "center"}}>
+                            Data remaining in Subscription Plan
+                        </Grid>
+                        <Grid item xs style={{textAlign: "center"}}>
+                            <DataProgressBar percentage={dataPercentUsage} />
+                        </Grid>
+                        <Grid item xs>
+                            <UploadComponent
+                                fileCallback={props.dataFileCallback}
+                                selectedFiles={props.selectedFiles}
+                                removeCallback={props.dataRemoveFileCallback}
+                            />
+                        </Grid>
+                        <Grid item xs style={{textAlign: "center"}}>
+                            <DropdownMenu
+                                options={props.options}
+                                val="value"
+                                formlabel="Panel"
+                                category="category"
+                                valueCallback={props.detectionCallback}
+                                placeholder="Select your pathogen(s)"
+                            />
+                        </Grid>
+                        <Grid item xs style={{textAlign: "center"}}>
+                            <Button fill disabled={(props.selectedFiles).length === 0 || (props.selectedDetections).length === 0 ? true : false} onClick={props.upload}>Analyze</Button>
+                        </Grid>
+                    </Grid>
+                </Container>
             }
-            ></BaseModal>
+        ></BaseModal>
     );
 }
 

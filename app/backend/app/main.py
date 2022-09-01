@@ -126,3 +126,8 @@ async def root():
 async def root():
     settings = get_settings()
     return {"key": settings.stripe_publishable_key}
+
+from app.db.session import engine
+@app.on_event("shutdown")
+async def close_database_connection_pools() -> None:
+    await engine.dispose()

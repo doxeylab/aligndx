@@ -8,6 +8,7 @@ import os
 class Setup(Base):
     _index_dir = settings.INDEX_FOLDER
     _kraken_db = settings.KRAKEN_DB
+    _panel_meta = settings.PANELS
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -44,7 +45,7 @@ class Setup(Base):
                 "--output",
                 kraken_out,
                 in_name,
-                ";",
+                "&&",
                 "bracken",
                 "-d",
                 krakendb,
@@ -59,14 +60,23 @@ class Setup(Base):
             ] 
 
         return command_lst 
+
+    def load_pathogens(self, panel):
+        # grab meta on selected pathogen panel
+        panel_metadata = pd.read_csv(self._panel_meta)
+        pathogens = panel_metadata[panel_metadata[panel] == 'Y']['Name'].to_list() 
+        return pathogens
+        
     
     def transform(self):
         '''
         Parses tool output, performs some mutations and returns a dataframe
-        '''
+        ''' 
          # Read in quant.sf file into pandas, grab chosen headers and drop na values
         df = pd.read_csv(self.braken_out, sep="\t")
-        return df
+        pathogens = self.load_pathogens(self.panel)
+        subset_df = df[df['name'].str.lower().isin([x.lstrip().lower() for x in pathogens])]
+        return subset_df
 
     
     def data_loader(self, df):

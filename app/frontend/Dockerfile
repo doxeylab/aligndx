@@ -2,9 +2,9 @@ FROM node:14.16.0
 
 WORKDIR /app 
 
-RUN chown -Rh node:node /app
+# RUN chown -Rh node:node /app
 
-USER node
+# USER node
 
 # COPY package.json package-lock.json ./
 
