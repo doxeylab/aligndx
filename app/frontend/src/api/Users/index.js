@@ -3,7 +3,7 @@ import useAxios from '../useAxios'
 const users_endpoint = "users"
 
 export const useUsers = () => {
-    const { get, post, put, destroy } = useAxios();
+    const { get, post, put, delete: destroy } = useAxios();
 
     return {
         login: (params) =>
@@ -25,7 +25,11 @@ export const useUsers = () => {
         index_incomplete_submissions: () =>
             get(`${users_endpoint}/incomplete`),
         linked_results: (params) =>
-            get(`${users_endpoint}/linked_results/${params}`)
+            get(`${users_endpoint}/linked_results/${params}`),
+        del_record: (params) =>
+            post(`${users_endpoint}/delete_record`, params, {
+                withCredentials: true
+            }),
     }
 
 }

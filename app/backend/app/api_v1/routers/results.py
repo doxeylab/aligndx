@@ -1,6 +1,7 @@
-import os 
+import os
+from typing import List 
 
-from fastapi import APIRouter, Depends, HTTPException 
+from fastapi import APIRouter, Depends, HTTPException, Body
 
 from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user
@@ -29,7 +30,7 @@ async def get_result(file_id: str, current_user: UserDTO = Depends(get_current_u
     if (not query):
         return HTTPException(status_code=404, detail="Item not found")
 
-    # destructure submission data with [ydamtoc]
+    # destructure submission data with [pydantic]
     submission = SubmissionSchema.from_orm(query)
     sample_dir = os.path.join(RESULTS_FOLDER, str(submission.id), submission.name)
 

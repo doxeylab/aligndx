@@ -1,7 +1,9 @@
 from datetime import timedelta
 from pickle import TRUE
+from typing import List 
+import uuid
 
-from fastapi import APIRouter, Depends, Response, Cookie, Request
+from fastapi import APIRouter, Depends, Response, Cookie, Request, Body
 from fastapi import HTTPException, status 
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -121,5 +123,21 @@ async def get_result(file_id: str, current_user: UserDTO = Depends(get_current_u
         return HTTPException(status_code=404, detail="Item not found")
     
     data = query.result
-
+    
     return data
+
+@router.post('/delete_record')
+async def del_result(ids: List[str], current_user: UserDTO = Depends(get_current_user),  db: AsyncSession = Depends(get_db)):
+
+    users_dal = UsersDal(db)
+
+    for id in ids:
+        uid = uuid.UUID(id)
+        query = await users_dal.delete_by_id(uid)
+
+        if (not query):
+            print("didn't work")
+            return HTTPException(status_code=404, detail="Item not found")
+        
+        else :
+            print(query)

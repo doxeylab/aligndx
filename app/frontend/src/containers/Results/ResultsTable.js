@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useMutate, useQuery } from 'react-query'
+import { useMutation, useQuery } from 'react-query'
 import { useUsers } from '../../api/Users'
 import { EnhancedTable } from "../../components/TableComponents";
 import Result from "./Result";
@@ -29,6 +29,14 @@ const ResultsTable = () => {
                 )
             })
         }
+    })
+
+    const del_records = (seldata) => {
+        return users.del_record(seldata)
+    }
+
+    const sub_del = useMutation('sub_del', del_records, {
+        retry: false,
     })
 
     const createData = (id, data, name, created_date, panel) => {
@@ -69,7 +77,7 @@ const ResultsTable = () => {
     }
 
     const deletefn = (seldata) => {
-        console.log(seldata)
+        sub_del.mutate(seldata)
     }
 
     return ( 
