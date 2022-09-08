@@ -1,10 +1,10 @@
  # current dockerfile contents
 FROM python:3.8
- 
-COPY bin/wait-for/ ./bin/wait-for/
-RUN chmod u+x ./bin/wait-for/wait-for.sh
 
 WORKDIR /app
+
+COPY bin/wait-for/ ./bin/wait-for/
+RUN chmod u+x ./bin/wait-for/wait-for.sh
 
 RUN apt update 
 
@@ -25,5 +25,4 @@ COPY /app/celery ./celery
 COPY /app/scripts ./scripts
 COPY /app/config ./config
 
-WORKDIR /
- 
+WORKDIR /app

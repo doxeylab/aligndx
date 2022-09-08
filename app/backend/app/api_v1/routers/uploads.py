@@ -50,7 +50,6 @@ async def file_upload(
             process = "rna-seq"
             # get file name
             sample_name = file.filename.split('.')[0]
-            chosen_panel = str(option.lower()) + "_index"
 
             sub_dal = SubmissionsDal(db)
             query = await sub_dal.create(SubmissionBase(
@@ -132,16 +131,19 @@ async def upload_chunk(
     chunk_number: int = Form(...),
     file_id: str = Form(...),
     chunk_file: UploadFile = File(...),
-    panels: str = Form(...),
+    file_extension: str = Form(...),
     db: AsyncSession = Depends(get_db)
 ):
-
     file_dir = "{}/{}".format(UPLOAD_FOLDER, file_id)
-    upload_data = "{}/{}/{}.fastq".format(file_dir, "upload_data", chunk_number) 
+    upload_data = "{}/{}/{}.{}".format(file_dir, "upload_data", chunk_number, file_extension) 
     
     async with aiofiles.open(upload_data, 'wb') as f:
         while content := await chunk_file.read(read_batch_size):
             await f.write(content)
+
+    # with open(upload_data, 'wb') as f:
+    #     content = await chunk_file.read(read_batch_size)
+    #     f.write(content)
 
     tasks.process_new_upload.s(file_dir, chunk_number).apply_async() 
     

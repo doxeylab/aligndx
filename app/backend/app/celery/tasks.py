@@ -96,7 +96,7 @@ def perform_chunk_analysis(process, chunk_number, file_dir, panel, out_dir):
     :param chunk_number: The chunk number of the ready analysis chunk.
     :param file_dir: File directory path (from make_file_metadata)
     :param panel: Pathogen panel (from make_file_metadata)
-    :param out_dir: Output directory for results.
+    :param out_dir: Output directory for results. v 
 
     """
     analysis_dir = os.path.join(file_dir, 'tool_data')

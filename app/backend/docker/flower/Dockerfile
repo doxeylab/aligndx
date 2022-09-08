@@ -1,10 +1,10 @@
  # current dockerfile contents
 FROM python:3.8
  
+WORKDIR /app
+
 COPY bin/wait-for/ ./bin/wait-for/
 RUN chmod u+x ./bin/wait-for/wait-for.sh
-
-WORKDIR /app
 
 RUN apt update 
 

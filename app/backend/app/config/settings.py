@@ -31,8 +31,12 @@ class AppSettings(BaseSettings):
     
     INDEX_FOLDER = DATA_FOLDER + '/indexes' 
     KRAKEN_DB = DATA_FOLDER + '/indexes/kraken_db'
+
     METADATA_FOLDER = DATA_FOLDER + "/metadata" 
     PANELS = METADATA_FOLDER + "/panels.csv"
+
+    #  -- API Created Directories -- 
+    DIRS = [UPLOAD_FOLDER, RESULTS_FOLDER]
 
     # Chunk settings
 

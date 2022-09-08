@@ -8,9 +8,8 @@ import pandas as pd
 
 router = APIRouter()
 
-METADATA_FOLDER = settings.METADATA_FOLDER
-meta = os.path.join(METADATA_FOLDER, "panels.csv")
-panel_metadata = pd.read_csv(meta)
+PANELS = settings.PANELS
+panel_metadata = pd.read_csv(PANELS)
 
 @router.get("/panels")
 async def retrieve_panels():

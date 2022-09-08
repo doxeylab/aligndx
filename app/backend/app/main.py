@@ -43,7 +43,10 @@ async def setup_configs():
     '''
     Initializes settings for app
     '''
-    get_settings()
+    settings = get_settings()
+    for dir in settings.DIRS:
+        if not os.path.isdir(dir):
+            os.mkdir(dir)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):

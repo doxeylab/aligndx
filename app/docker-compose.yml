@@ -11,12 +11,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      # these are all bind mounts, not volumes
       - ./backend/app:/app/app
-      - ./backend/results:/app/results
-      - ./backend/uploads:/app/uploads
-      - ./backend/indexes:/app/indexes:ro
-      - ./backend/metadata:/app/metadata:ro
+      - app-data:/app/data
     environment:
       DATABASE_URL: ${DATABASE_URL}
       BASE_URL: ${BASE_URL}
@@ -43,11 +39,6 @@ services:
       NODE_ENV: development
       BASE_URL: ${BASE_URL}
       REACT_APP_BACKEND_ACCESS_URL: ${REACT_APP_BACKEND_ACCESS_URL} 
-       # to easily add packages during development
-      #  - ./frontend/package.json:/package.json
-      #  - ./frontend/package-lock.json:/package-lock.json
-      # the volume prevents our host system's node_modules to be mounted
-      #  - exclude:/app/node_modules/
 
   postgres:
     image: postgres:12
@@ -77,21 +68,6 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
-
-  # salmon:
-  #   build:
-  #     context: tool
-  #     dockerfile: docker/salmon/Dockerfile
-  #   command: uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port 80
-  #   tty: true
-  #   ports:
-  #     - "8002:80"
-  #   volumes:
-  #     - ./tool/app/:/app/app/:ro
-  #     - ./backend/results:/app/results
-  #     - ./backend/uploads:/app/uploads
-  #     - ./backend/indexes:/app/indexes:ro
-  #     - ./backend/metadata:/app/metadata:ro
   
   kraken2:
     build:
@@ -103,9 +79,8 @@ services:
       - "8003:80"
     volumes:
       - ./tool/app/:/app/app/:ro
-      - ./backend/results:/app/results
-      - ./backend/uploads:/app/uploads
-      - ./backend/indexes:/app/indexes:ro
+      - app-data:/app/data
+      - /mnt/tmp/:/app/data/indexes:ro
 
   rabbitmq:
     image: rabbitmq:3.9
@@ -122,13 +97,8 @@ services:
     command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery -A app.celery.tasks worker -l info -Q uploads,salmon,downstream"
     tty: true
     volumes:
-      - ./backend/app/celery:/app/celery:ro
-      - ./backend/app/scripts:/app/scripts:ro
-      - ./backend/app/config:/app/config:ro
-      - ./backend/results:/results
-      - ./backend/uploads:/uploads
-      - ./backend/indexes:/indexes:ro
-      - ./backend/metadata:/metadata:ro
+      - ./backend/app:/app/app
+      - app-data:/app/data
     environment:
       BASE_URL: ${BASE_URL}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
@@ -147,11 +117,10 @@ services:
       - celery_worker
     command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery flower --port=5555 --broker=$${CELERY_BROKER_URL} -Q uploads,salmon,downstream"
     tty: true
-    ports:
-      - 5556:5555
     volumes:
-      - ./backend/app/celery:/app/celery:ro
-      - ./backend/app/scripts:/app/scripts:ro
+      - ./backend/app:/app/app
+    ports:
+      - 5556:5555 
     environment:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
@@ -159,4 +128,8 @@ services:
 volumes:
   db-data:
   pgadmin-data: 
-  # exclude:
+  app-data:
+    driver_opts:
+      type: none 
+      device: ${PWD}/backend/data
+      o: bind
