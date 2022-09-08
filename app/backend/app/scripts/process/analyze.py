@@ -14,7 +14,7 @@ class Analyze():
         writes datataframe to json
         '''
         with open(data_fname, 'w') as f:
-            data.to_json(f, orient="table")
+            data.to_json(f, orient="table", indent=4)
 
     def _retrieve(self, data_fname):
         '''
