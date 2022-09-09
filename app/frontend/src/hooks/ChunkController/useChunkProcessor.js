@@ -33,7 +33,7 @@ const useChunkProcessor = () => {
   }; 
 
   const startChunk = async (chunkNumber, fileId, file) => {
-    const file_extension = file.name.split(".").pop();
+    const file_extension = file.name.substring(file.name.indexOf('.') + 1)
     let chunkFile = readChunk(chunkNumber, file);
     return await uploadChunkRequest(chunkNumber, fileId, chunkFile, file_extension);
   };
