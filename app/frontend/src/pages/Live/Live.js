@@ -39,7 +39,7 @@ const Live = () => {
 
     useEffect(() => {
         connectWebsocket()
-        chunkProcessor(file, panels, fileId)
+        chunkProcessor(file, fileId)
     }, []) 
 
     useEffect(() => {

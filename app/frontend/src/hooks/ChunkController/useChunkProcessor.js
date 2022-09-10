@@ -20,24 +20,26 @@ const useChunkProcessor = () => {
   } 
 
   // upload-chunk
-  const uploadChunkRequest =  async (chunkNumber, fileId, chunkFile, panels) => {
-    console.log(chunkNumber, fileId, chunkFile, panels)
+  const uploadChunkRequest =  async (chunkNumber, fileId, chunkFile, file_extension) => {
+    console.log(chunkNumber, fileId, chunkFile, file_extension)
+    
     let formData = new FormData();
     formData.append("chunk_number", chunkNumber);
     formData.append("file_id", fileId);
     formData.append("chunk_file", chunkFile);
-    formData.append("panels", panels);
+    formData.append("file_extension", file_extension);
 
     return await uploads.upload_chunk(formData)
   }; 
 
-  const startChunk = async (chunkNumber, fileId, file, panels) => {
+  const startChunk = async (chunkNumber, fileId, file) => {
+    const file_extension = file.name.substring(file.name.indexOf('.') + 1)
     let chunkFile = readChunk(chunkNumber, file);
-    return await uploadChunkRequest(chunkNumber, fileId, chunkFile, panels);
+    return await uploadChunkRequest(chunkNumber, fileId, chunkFile, file_extension);
   };
 
 
-  const chunkProcessor = async (file, panels, fileId) => {
+  const chunkProcessor = async (file, fileId) => {
     const numberOfChunks = Math.ceil(file.size / CHUNK_SIZE);
     let lastChunkUploaded = 0;
 
@@ -47,7 +49,7 @@ const useChunkProcessor = () => {
     console.log(lastChunkUploaded)
 
     for (let i = lastChunkUploaded; i < numberOfChunks; i++) {
-      const res = await startChunk(i, fileId, file, panels);
+      const res = await startChunk(i, fileId, file);
       localStorage.setItem(fileId + '_lastChunk', i)
       if (res.data.Result != "OK") {
         break;

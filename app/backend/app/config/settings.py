@@ -19,17 +19,24 @@ class AppSettings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
     REFRESH_TOKEN_EXPIRE_MINUTES = 30 * 24 * 14
 
+    #  -- App Date -- 
+    DATA_FOLDER = './data'
+
     #  -- User Data -- 
 
-    UPLOAD_FOLDER = './uploads' 
-    RESULTS_FOLDER = './results' 
+    UPLOAD_FOLDER = DATA_FOLDER + '/uploads' 
+    RESULTS_FOLDER = DATA_FOLDER + '/results' 
 
     #  -- External Files or MetaData --
     
-    INDEX_FOLDER = './indexes' 
-    KRAKEN_DB = './indexes/kraken_db'
-    METADATA_FOLDER = "./metadata"
+    INDEX_FOLDER = DATA_FOLDER + '/indexes' 
+    KRAKEN_DB = DATA_FOLDER + '/indexes/kraken_db'
+
+    METADATA_FOLDER = DATA_FOLDER + "/metadata" 
     PANELS = METADATA_FOLDER + "/panels.csv"
+
+    #  -- API Created Directories -- 
+    DIRS = [UPLOAD_FOLDER, RESULTS_FOLDER]
 
     # Chunk settings
 
