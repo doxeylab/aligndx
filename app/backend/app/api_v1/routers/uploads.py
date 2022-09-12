@@ -1,3 +1,4 @@
+from email.contentmanager import raw_data_manager
 from http.client import HTTPException
 import os, shutil, math
 
@@ -20,6 +21,8 @@ from app.models.schemas.submissions import SubmissionBase, UpdateSubmissionDate,
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.utils.utilities import dir_generator
+
 from app.config.settings import settings
 
 from app.celery import tasks
@@ -34,52 +37,52 @@ chunk_ratio = settings.chunk_ratio
 UPLOAD_FOLDER = settings.UPLOAD_FOLDER
 RESULTS_FOLDER = settings.RESULTS_FOLDER
 
+# not currently in use
+# @router.post("/")
+# async def file_upload(
+#     files: List[UploadFile] = File(...),
+#     panel: List[str] = Form(...),
+#     current_user: UserDTO = Depends(get_current_user),
+#     db: AsyncSession = Depends(get_db)
+# ):
 
-@router.post("/")
-async def file_upload(
-    files: List[UploadFile] = File(...),
-    panel: List[str] = Form(...),
-    current_user: UserDTO = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
-):
+#     commands_lst = []
+#     for file in files:
 
-    commands_lst = []
-    for file in files:
+#         for option in panel:
+#             process = "rna-seq"
+#             # get file name
+#             sample_name = file.filename.split('.')[0]
 
-        for option in panel:
-            process = "rna-seq"
-            # get file name
-            sample_name = file.filename.split('.')[0]
+#             sub_dal = SubmissionsDal(db)
+#             query = await sub_dal.create(SubmissionBase(
+#                 name=sample_name,
+#                 panel=option.lower(), 
+#                 submission_type="standard",
+#                 user_id=current_user.id,
+#                 created_date= datetime.now(),
+#                 ))
+#             file_id = str(query)
 
-            sub_dal = SubmissionsDal(db)
-            query = await sub_dal.create(SubmissionBase(
-                name=sample_name,
-                panel=option.lower(), 
-                submission_type="standard",
-                user_id=current_user.id,
-                created_date= datetime.now(),
-                ))
-            file_id = str(query)
+#             # for deleting
+#             sample_dir = os.path.join(UPLOAD_FOLDER, file_id)
 
-            # for deleting
-            sample_dir = os.path.join(UPLOAD_FOLDER, file_id)
+#             # create directory for uploaded sample, only if it hasn't been uploaded before
+#             if not os.path.isdir(sample_dir):
+#                 os.makedirs(sample_dir)
 
-            # create directory for uploaded sample, only if it hasn't been uploaded before
-            if not os.path.isdir(sample_dir):
-                os.makedirs(sample_dir)
+#             # declare upload location
+#             file_location = os.path.join(sample_dir, file.filename)
+#             results_dir = os.path.join(RESULTS_FOLDER, file_id)
 
-            # declare upload location
-            file_location = os.path.join(sample_dir, file.filename)
-            results_dir = os.path.join(RESULTS_FOLDER, file_id)
-
-            # open file using write, binary permissions
-            with open(file_location, "wb+") as f:
-                shutil.copyfileobj(file.file, f)
+#             # open file using write, binary permissions
+#             with open(file_location, "wb+") as f:
+#                 shutil.copyfileobj(file.file, f)
     
-            tasks.perform_chunk_analysis.s(process=process, chunk_number=None, file_dir=file_location, panel=option.lower(), results_dir=results_dir) 
+#             tasks.perform_chunk_analysis.s(process=process, chunk_number=None, file_dir=file_location, panel=option.lower(), results_dir=results_dir) 
  
-    return {"Result": "OK",
-            "File_ID": file_id}
+#     return {"Result": "OK",
+#             "File_ID": file_id}
 
 # Chunking startpoint
 @router.post("/start-file")
@@ -109,15 +112,15 @@ async def start_file(
         query = await sub_dal.create(response)
         file_id = str(query)
 
-
-        file_dir = "{}/{}".format(UPLOAD_FOLDER, file_id)
-        os.mkdir(file_dir)
-        os.mkdir("{}/{}".format(file_dir, "upload_data"))
-        os.mkdir("{}/{}".format(file_dir, "tool_data"))
+        upload_dir = "{}/{}".format(UPLOAD_FOLDER, file_id)
         results_dir = "{}/{}".format(RESULTS_FOLDER, file_id)
-        os.mkdir(results_dir)
+        upload_data = "{}/{}".format(upload_dir, "upload_data")
+        tool_data = "{}/{}".format(upload_dir, "tool_data")
 
-        tasks.make_file_metadata.s(file_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks,
+        dirs = [upload_dir, results_dir, upload_data, tool_data]
+        dir_generator(dirs)
+
+        tasks.make_file_metadata.s(upload_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks,
                                    email=current_user.email, fileId=file_id, panel=option, process=process).apply_async()
         tasks.make_file_data.delay(results_dir)
 

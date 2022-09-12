@@ -17,6 +17,9 @@ from app.auth.auth_dependencies import get_current_user
 from app.api_v1.routers import uploads, results, users, socket_resources, metadata 
 from app.api_v1.routers.payments import payments, stripe_webhooks
 
+# utils
+from app.utils.utilities import dir_generator
+
 # settings
 from app.config.settings import get_settings
 
@@ -44,9 +47,7 @@ async def setup_configs():
     Initializes settings for app
     '''
     settings = get_settings()
-    for dir in settings.DIRS:
-        if not os.path.isdir(dir):
-            os.mkdir(dir)
+    dir_generator(settings.DIRS)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
