@@ -25,6 +25,7 @@ services:
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      REDIS_URL: ${REDIS_URL}
 
   frontend:
      build:
@@ -127,14 +128,15 @@ services:
   
   redis:
     image: redis:7
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: sh -c "redis-server --requirepass ${REDIS_PASSWORD}"
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:${REDIS_PORT}"
     volumes:
       - redis-data:/var/lib/redis/data 
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_PORT: ${REDIS_PORT}
 
 volumes:
   db-data:

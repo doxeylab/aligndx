@@ -27,6 +27,7 @@ from app.config.settings import get_settings
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from app.celery.periodic_tasks import periodic_task_calls
 
+from app.redis.base import r 
 
 app = FastAPI(
     title="AlignDX",

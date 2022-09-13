@@ -60,6 +60,9 @@ class AppSettings(BaseSettings):
     stripe_publishable_key: str = os.getenv("STRIPE_PUBLISHABLE_KEY")
     stripe_webhook_secret: str = os.getenv("STRIPE_WEBHOOK_SECRET")
 
+    # Redis settings
+    REDIS_URL: str = os.getenv("REDIS_URL")
+
     #  -- Db settings --
     
     DATABASE_URL: str = os.getenv("DATABASE_URL")
