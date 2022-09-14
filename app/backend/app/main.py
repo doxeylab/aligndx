@@ -35,12 +35,12 @@ app = FastAPI(
     version="1.0", 
 )
 
-@app.on_event('startup')
-async def start_scheduler():
-    scheduler = AsyncIOScheduler()
-    scheduler.start()
+# @app.on_event('startup')
+# async def start_scheduler():
+#     scheduler = AsyncIOScheduler()
+#     scheduler.start()
 
-    scheduler.add_job(periodic_task_calls, 'interval', seconds=30)
+#     scheduler.add_job(periodic_task_calls, 'interval', seconds=30)
 
 @app.on_event('startup')
 async def setup_configs():
