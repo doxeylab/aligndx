@@ -88,43 +88,43 @@ services:
     ports:
       - "5672"
 
-  celery_worker:
-    build:
-      context: backend
-      dockerfile: docker/celery_worker/Dockerfile
-    depends_on:
-      - backend
-      - rabbitmq
-    command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery -A app.celery.tasks worker -l info -Q uploads,salmon,downstream"
-    tty: true
-    volumes:
-      - ./backend/app:/app/app
-      - app-data:/app/data
-    environment:
-      BASE_URL: ${BASE_URL}
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
-      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
-      NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
+  # celery_worker:
+  #   build:
+  #     context: backend
+  #     dockerfile: docker/celery_worker/Dockerfile
+  #   depends_on:
+  #     - backend
+  #     - rabbitmq
+  #   command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery -A app.celery.tasks worker -l info -Q uploads,salmon,downstream"
+  #   tty: true
+  #   volumes:
+  #     - ./backend/app:/app/app
+  #     - app-data:/app/data
+  #   environment:
+  #     BASE_URL: ${BASE_URL}
+  #     CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+  #     CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+  #     NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
+  #     NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
 
-  flower:
-    build:
-      context: backend
-      dockerfile: docker/flower/Dockerfile
-    profiles: [ "monitoring" ]
-    depends_on:
-      - backend
-      - rabbitmq
-      - celery_worker
-    command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery flower --port=5555 --broker=$${CELERY_BROKER_URL} -Q uploads,salmon,downstream"
-    tty: true
-    volumes:
-      - ./backend/app:/app/app
-    ports:
-      - 5556:5555 
-    environment:
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
-      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+  # flower:
+  #   build:
+  #     context: backend
+  #     dockerfile: docker/flower/Dockerfile
+  #   profiles: [ "monitoring" ]
+  #   depends_on:
+  #     - backend
+  #     - rabbitmq
+  #     - celery_worker
+  #   command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery flower --port=5555 --broker=$${CELERY_BROKER_URL} -Q uploads,salmon,downstream"
+  #   tty: true
+  #   volumes:
+  #     - ./backend/app:/app/app
+  #   ports:
+  #     - 5556:5555 
+  #   environment:
+  #     CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+  #     CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
   
   redis:
     image: redis:7
