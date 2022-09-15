@@ -1,3 +1,4 @@
+from curses import meta
 from email.contentmanager import raw_data_manager
 from http.client import HTTPException
 import os, shutil, math
@@ -7,7 +8,7 @@ from datetime import datetime
 from typing import List 
 
 from app.models.schemas.phi_logs import UploadLogBase
-
+from app.models.schemas.redis import MetaModel
 from fastapi import APIRouter, HTTPException, File, UploadFile, Form, Body
 from fastapi import Depends
 
@@ -120,15 +121,19 @@ async def start_file(
 
         dirs = [upload_dir, results_dir, upload_data, tool_data]
         dir_generator(dirs)
-
-        update_metadata(file_id, {
+        
+        metadata = {
             "updir": upload_data,
             "rdir": results_dir,
             "tooldir": tool_data,
             "fname": filename,
             "total": number_of_chunks,
-            "processed" : -1
-        })
+            "processed" : 0,
+            "status": "setup",
+            "data": ""
+        }
+
+        update_metadata.fn(file_id, MetaModel(**metadata))
 
         return {"Result": "OK",
                 "File_ID": file_id}
@@ -167,24 +172,24 @@ async def upload_chunk(
     
     return {"Result": "OK"}
 
-# # Chunking pipeline cleanup and sideeffects
-# @router.post("/end-file")
-# async def end_file(
-#     current_user: UserDTO = Depends(get_current_user),
-#     file_id: str = Body(..., embed=True),
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     users_dal = UsersDal(db)
-#     query = await users_dal.get_submission(current_user.id, file_id)
-#     submission = SubmissionSchema.from_orm(query)
+# Chunking pipeline cleanup and sideeffects
+@router.post("/end-file")
+async def end_file(
+    current_user: UserDTO = Depends(get_current_user),
+    file_id: str = Body(..., embed=True),
+    db: AsyncSession = Depends(get_db)
+):
+    users_dal = UsersDal(db)
+    query = await users_dal.get_submission(current_user.id, file_id)
+    submission = SubmissionSchema.from_orm(query)
 
-#     if submission is None:
-#         raise HTTPException(status_code=404, detail="File not found")
+    if submission is None:
+        raise HTTPException(status_code=404, detail="File not found")
 
-#     if submission.finished_date is None:
-#         sub_dal = SubmissionsDal(db)
-#         await sub_dal.update(file_id, UpdateSubmissionDate(finished_date=datetime.now()))
-#         return {"Result": "OK"}
+    if submission.finished_date is None:
+        sub_dal = SubmissionsDal(db)
+        await sub_dal.update(file_id, UpdateSubmissionDate(finished_date=datetime.now()))
+        return {"Result": "OK"}
 
-#     else:
-#         return {"Result": "Already exists"}
+    else:
+        return {"Result": "Already exists"}
