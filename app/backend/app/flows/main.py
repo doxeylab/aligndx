@@ -14,7 +14,7 @@ class MetaModel(BaseModel):
     processed: int 
 
 @task(name="Update metadata")
-def update_metadata(fileId : str, metadata : MetaModel.dict()):
+def update_metadata(fileId : str, metadata : MetaModel):
     Handler.create(fileId, metadata)
 
 @task(name="Retrive metadata")
@@ -29,8 +29,8 @@ def assemble_chunks(updir,tooldir, total, filename):
 def cleanup(fdir):
     shutil.rmtree(fdir)
 
-@flow(name="Chunking Pipeline",
-    descripton="Chunking pipeline for file assembly")
+@flow(name="Pipeline",
+    description="Chunking and Analysis pipeline")
 def pipeline(fileId : str):
     metadata = retrieve(fileId)
     

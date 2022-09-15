@@ -138,6 +138,33 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_PORT: ${REDIS_PORT}
 
+  prefect-server:
+    image: prefecthq/prefect:2.4.0-python3.8
+    command: prefect orion start
+    ports:
+      - "4200:4200"
+    volumes:
+      - ${PWD}/flows:/flows
+    environment:
+      PREFECT_ORION_API_HOST: 0.0.0.0
+      PREFECT_API_URL: http://prefect-server:4200/api
+    networks:
+      - prefect
+
+  prefect-agent:
+    image: prefecthq/prefect:2.4.0-python3.8
+    command: prefect agent start -q queue1
+    depends_on:
+      - prefect-server
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    networks:
+      - prefect
+
+networks:
+  prefect:
+    name: prefect
+
 volumes:
   db-data:
   pgadmin-data: 

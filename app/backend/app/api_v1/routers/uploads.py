@@ -25,6 +25,7 @@ from app.utils.utilities import dir_generator
 
 from app.config.settings import settings
 
+from app.flows.main import update_metadata, pipeline
 from app.celery import tasks
 
 router = APIRouter()
@@ -120,9 +121,14 @@ async def start_file(
         dirs = [upload_dir, results_dir, upload_data, tool_data]
         dir_generator(dirs)
 
-        tasks.make_file_metadata.s(upload_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks,
-                                   email=current_user.email, fileId=file_id, panel=option, process=process).apply_async()
-        tasks.make_file_data.delay(results_dir)
+        update_metadata(file_id, {
+            "updir": upload_data,
+            "rdir": results_dir,
+            "tooldir": tool_data,
+            "fname": filename,
+            "total": number_of_chunks,
+            "processed" : -1
+        })
 
         return {"Result": "OK",
                 "File_ID": file_id}
@@ -140,15 +146,15 @@ async def upload_chunk(
     file_dir = "{}/{}".format(UPLOAD_FOLDER, file_id)
     upload_data = "{}/{}/{}.{}".format(file_dir, "upload_data", chunk_number, file_extension) 
     
-    async with aiofiles.open(upload_data, 'wb') as f:
-        while content := await chunk_file.read(read_batch_size):
-            await f.write(content)
+    # async with aiofiles.open(upload_data, 'wb') as f:
+    #     while content := await chunk_file.read(read_batch_size):
+    #         await f.write(content)
 
-    # with open(upload_data, 'wb') as f:
-    #     content = await chunk_file.read(read_batch_size)
-    #     f.write(content)
+    with open(upload_data, 'wb') as f:
+        content = await chunk_file.read(read_batch_size)
+        f.write(content)
 
-    tasks.process_new_upload.s(file_dir, chunk_number).apply_async() 
+    pipeline(file_id)
     
     uplog_dal = UploadLogsDal(db)
     log = UploadLogBase(
@@ -161,24 +167,24 @@ async def upload_chunk(
     
     return {"Result": "OK"}
 
-# Chunking pipeline cleanup and sideeffects
-@router.post("/end-file")
-async def end_file(
-    current_user: UserDTO = Depends(get_current_user),
-    file_id: str = Body(..., embed=True),
-    db: AsyncSession = Depends(get_db)
-):
-    users_dal = UsersDal(db)
-    query = await users_dal.get_submission(current_user.id, file_id)
-    submission = SubmissionSchema.from_orm(query)
+# # Chunking pipeline cleanup and sideeffects
+# @router.post("/end-file")
+# async def end_file(
+#     current_user: UserDTO = Depends(get_current_user),
+#     file_id: str = Body(..., embed=True),
+#     db: AsyncSession = Depends(get_db)
+# ):
+#     users_dal = UsersDal(db)
+#     query = await users_dal.get_submission(current_user.id, file_id)
+#     submission = SubmissionSchema.from_orm(query)
 
-    if submission is None:
-        raise HTTPException(status_code=404, detail="File not found")
+#     if submission is None:
+#         raise HTTPException(status_code=404, detail="File not found")
 
-    if submission.finished_date is None:
-        sub_dal = SubmissionsDal(db)
-        await sub_dal.update(file_id, UpdateSubmissionDate(finished_date=datetime.now()))
-        return {"Result": "OK"}
+#     if submission.finished_date is None:
+#         sub_dal = SubmissionsDal(db)
+#         await sub_dal.update(file_id, UpdateSubmissionDate(finished_date=datetime.now()))
+#         return {"Result": "OK"}
 
-    else:
-        return {"Result": "Already exists"}
+#     else:
+#         return {"Result": "Already exists"}
