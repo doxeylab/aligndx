@@ -83,10 +83,10 @@ services:
       - app-data:/app/data
       - /mnt/tmp/:/app/data/indexes:ro
 
-  rabbitmq:
-    image: rabbitmq:3.9
-    ports:
-      - "5672"
+  # rabbitmq:
+  #   image: rabbitmq:3.9
+  #   ports:
+  #     - "5672"
 
   # celery_worker:
   #   build:
