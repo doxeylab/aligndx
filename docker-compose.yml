@@ -110,43 +110,44 @@ services:
       REDIS_PORT: ${REDIS_PORT}
 
   # Monitoring Services
- 
-#  pgadmin:
-#     tty: true
-#     image: dpage/pgadmin4
-#     profiles: [ "monitoring" ]
-#     restart: unless-stopped
-#     depends_on:
-#       - postgres
-#     ports:
-#       - "8001:80"
-#     volumes:
-#       - pgadmin-data:/var/lib/pgadmin
-#     environment:
-#       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-#       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-#       PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
   
-  # flower:
-  #   build:
-  #     context: backend
-  #     dockerfile: docker/flower/Dockerfile
-  #   profiles: [ "monitoring" ]
-  #   depends_on:
-  #     - backend
-  #     - rabbitmq
-  #     - celery_worker
-  #   command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery flower --port=5555 --broker=$${CELERY_BROKER_URL} -Q uploads,salmon,downstream"
-  #   tty: true
-  #   volumes:
-  #     - ./backend/app:/app/app
-  #   ports:
-  #     - 5556:5555 
-  #   environment:
-  #     CELERY_BROKER_URL: ${CELERY_BROKER_URL}
-  #     CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+  # Postgres admin
+  pgadmin:
+    tty: true
+    image: dpage/pgadmin4
+    profiles: [ "monitoring" ]
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "8001:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
   
-
+  # Celery Monitoring tool
+  flower:
+    build:
+      context: backend
+      dockerfile: docker/flower/Dockerfile
+    profiles: [ "monitoring" ]
+    depends_on:
+      - backend
+      - rabbitmq
+      - celery_worker
+    command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery flower --port=5555 --broker=$${CELERY_BROKER_URL} -Q uploads,salmon,downstream"
+    tty: true
+    volumes:
+      - ./backend/app:/app/app
+    ports:
+      - 5556:5555 
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+  
 volumes:
   db-data:
   pgadmin-data: 
