@@ -1,5 +1,6 @@
 version: "3.7"
 services:
+
   backend:
     build:
       context: backend
@@ -26,8 +27,6 @@ services:
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       REDIS_URL: ${REDIS_URL}
-    networks:
-      - prefect
 
   frontend:
      build:
@@ -85,29 +84,24 @@ services:
       - app-data:/app/data
       - /mnt/tmp/:/app/data/indexes:ro
 
-  # rabbitmq:
-  #   image: rabbitmq:3.9
-  #   ports:
-  #     - "5672"
-
-  # celery_worker:
-  #   build:
-  #     context: backend
-  #     dockerfile: docker/celery_worker/Dockerfile
-  #   depends_on:
-  #     - backend
-  #     - rabbitmq
-  #   command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery -A app.celery.tasks worker -l info -Q uploads,salmon,downstream"
-  #   tty: true
-  #   volumes:
-  #     - ./backend/app:/app/app
-  #     - app-data:/app/data
-  #   environment:
-  #     BASE_URL: ${BASE_URL}
-  #     CELERY_BROKER_URL: ${CELERY_BROKER_URL}
-  #     CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-  #     NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
-  #     NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
+  celery_worker:
+    build:
+      context: backend
+      dockerfile: docker/celery_worker/Dockerfile
+    depends_on:
+      - backend
+      - rabbitmq
+    command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery -A app.celery.tasks worker -l info -Q uploads,salmon,downstream"
+    tty: true
+    volumes:
+      - ./backend/app:/app/app
+      - app-data:/app/data
+    environment:
+      BASE_URL: ${BASE_URL}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
+      NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
 
   # flower:
   #   build:
@@ -128,44 +122,22 @@ services:
   #     CELERY_BROKER_URL: ${CELERY_BROKER_URL}
   #     CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
   
+  # rabbitmq:
+  #   image: rabbitmq:3.9
+  #   ports:
+  #     - "5672"
+  
   redis:
     image: redis:7
     command: sh -c "redis-server --requirepass ${REDIS_PASSWORD}"
     restart: unless-stopped
-    ports:
-      - "${REDIS_PORT}:${REDIS_PORT}"
+    expose:
+      - ${REDIS_PORT}
     volumes:
       - redis-data:/var/lib/redis/data 
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_PORT: ${REDIS_PORT}
-
-  prefect-server:
-    image: prefecthq/prefect:2.4.0-python3.8
-    command: prefect orion start
-    ports:
-      - "4200:4200"
-    volumes:
-      - ${PWD}/flows:/flows
-    environment:
-      PREFECT_ORION_API_HOST: 0.0.0.0
-      PREFECT_API_URL: http://prefect-server:4200/api
-    networks:
-      - prefect
-
-  prefect-agent:
-    image: prefecthq/prefect:2.4.0-python3.8
-    command: prefect agent start -q queue1
-    depends_on:
-      - prefect-server
-    environment:
-      PREFECT_API_URL: http://prefect-server:4200/api
-    networks:
-      - prefect
-
-networks:
-  prefect:
-    name: prefect
 
 volumes:
   db-data:

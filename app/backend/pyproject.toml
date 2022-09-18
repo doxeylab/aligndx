@@ -25,7 +25,6 @@ aiofiles = "0.8.0"
 redis = "^4.3.4"
 flower = "^1.2.0"
 python-jose = "^3.3.0"
-APScheduler = "^3.9.1"
 prefect = "^2.4.0"
 psycopg2 = "^2.9.3"
 
