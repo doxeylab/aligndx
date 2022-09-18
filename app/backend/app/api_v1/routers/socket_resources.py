@@ -6,6 +6,7 @@ from fastapi import WebSocket
 from starlette.websockets import WebSocketDisconnect 
 
 from app.auth.auth_dependencies import get_current_user_ws
+from app.flows.main import retrieve
 from app.models.schemas.submissions import SubmissionSchema
 
 from app.db.dals.users import UsersDal 
@@ -14,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.scripts.web_socket.manager import ConnectionManager
 from app.scripts.process.controller import Controller
+from app.flows.main import retrieve
 
 from app.celery.File import File
 
@@ -41,54 +43,47 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
     query = await users_dal.get_submission(current_user.id, file_id)
 
     submission = SubmissionSchema.from_orm(query)
-    upload_dir = os.path.join(UPLOAD_FOLDER, file_id)
-    results_dir = os.path.join(RESULTS_FOLDER, file_id)
-    controller = Controller(process=submission.submission_type,panel=submission.panel,out_dir=results_dir)
-
-
+    
     if current_user:
         print(f"User {current_user.id} connected!")
         try:
             while True:
-                if os.path.isdir(upload_dir):
-                    file = File.load(upload_dir) 
 
-                    stored_data = controller.load_data() 
-                    analysis_progress = len([chunk for chunk in file.state.analysis_chunks if chunk.status == 'Complete']) / len(file.state.analysis_chunks)
-                    upload_progress = len([chunk for chunk in file.state.upload_chunks if chunk.status == 'Uploaded']) / len(file.state.upload_chunks)
-                    progress_data = {'analysis': analysis_progress, 'upload': upload_progress}
-                    
-                    if any([chunk.status == 'Error' for chunk in file.state.analysis_chunks]):
-                        # all chunks completed, so disconnect websocket
-                        resp = {'status': 'error','sample_name':submission.name,'progress': progress_data}
-                        await manager.send_data(resp, websocket)
-                        manager.disconnect(websocket)
-                        return
+                metadata = retrieve.fn(file_id)
+                upload_progress = metadata.processed/(metadata.total + 1)
+                analysis_progress = 0
+                progress_data = {'analysis': analysis_progress, 'upload': upload_progress}
 
-                    if all([chunk.status == 'Complete' for chunk in file.state.analysis_chunks]):
-                        # all chunks completed, so disconnect websocket
-                        stored_data = controller.load_data()
-                        stored_data['status'] = "complete"
-                        stored_data['sample_name'] = submission.name
-                        stored_data['progress'] = progress_data
-                      
-                        await manager.send_data(stored_data, websocket) 
-                        manager.disconnect(websocket)
-                        return
 
-                    if stored_data:
-                        stored_data['status'] = "ready"
-                        stored_data['sample_name'] = submission.name
-                        stored_data['progress'] = progress_data
-    
+                if metadata.status == 'completed':
+                    stored_data = metadata.data
+                    stored_data['status'] = "complete"
+                    stored_data['sample_name'] = submission.name
+                    stored_data['progress'] = progress_data
 
-                        await manager.send_data(stored_data, websocket)  
-                        await asyncio.sleep(3) 
+                    await manager.send_data(stored_data, websocket) 
+                    manager.disconnect(websocket)
+                    return
 
-                    else:
-                        resp = {'status': 'pending','sample_name':submission.name,'progress': progress_data}
-                        await manager.send_data(resp, websocket)
-                        await asyncio.sleep(5) 
+                if metadata.status == 'analyzing':
+                    stored_data['status'] = "ready"
+                    stored_data['sample_name'] = submission.name
+                    stored_data['progress'] = progress_data
+
+                    await manager.send_data(stored_data, websocket)  
+                    await asyncio.sleep(3) 
+                
+                if metadata.status == 'uploading' or metadata.status == 'setup':
+                    resp = {'status': 'pending','sample_name':submission.name,'progress': progress_data}
+                    await manager.send_data(resp, websocket)
+                    await asyncio.sleep(5) 
+
+                if metadata.status == 'error':
+                    resp = {'status': 'error','sample_name':submission.name,'progress': progress_data}
+                    await manager.send_data(resp, websocket)
+                    manager.disconnect(websocket)
+                    return
+ 
                 else:
                     # file doesn't exist, so close websocket
                     manager.disconnect(websocket)

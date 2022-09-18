@@ -1,3 +1,4 @@
+from curses import meta
 from email.contentmanager import raw_data_manager
 from http.client import HTTPException
 import os, shutil, math
@@ -7,7 +8,7 @@ from datetime import datetime
 from typing import List 
 
 from app.models.schemas.phi_logs import UploadLogBase
-
+from app.models.schemas.redis import MetaModel
 from fastapi import APIRouter, HTTPException, File, UploadFile, Form, Body
 from fastapi import Depends
 
@@ -25,6 +26,7 @@ from app.utils.utilities import dir_generator
 
 from app.config.settings import settings
 
+from app.flows.main import update_metadata, pipeline
 from app.celery import tasks
 
 router = APIRouter()
@@ -119,10 +121,19 @@ async def start_file(
 
         dirs = [upload_dir, results_dir, upload_data, tool_data]
         dir_generator(dirs)
+        
+        metadata = {
+            "updir": upload_data,
+            "rdir": results_dir,
+            "tooldir": tool_data,
+            "fname": filename,
+            "total": number_of_chunks,
+            "processed" : 0,
+            "status": "setup",
+            "data": ""
+        }
 
-        tasks.make_file_metadata.s(upload_dir, filename, upload_chunk_size, salmon_chunk_size, number_of_chunks,
-                                   email=current_user.email, fileId=file_id, panel=option, process=process).apply_async()
-        tasks.make_file_data.delay(results_dir)
+        update_metadata.fn(file_id, MetaModel(**metadata))
 
         return {"Result": "OK",
                 "File_ID": file_id}
@@ -140,15 +151,15 @@ async def upload_chunk(
     file_dir = "{}/{}".format(UPLOAD_FOLDER, file_id)
     upload_data = "{}/{}/{}.{}".format(file_dir, "upload_data", chunk_number, file_extension) 
     
-    async with aiofiles.open(upload_data, 'wb') as f:
-        while content := await chunk_file.read(read_batch_size):
-            await f.write(content)
+    # async with aiofiles.open(upload_data, 'wb') as f:
+    #     while content := await chunk_file.read(read_batch_size):
+    #         await f.write(content)
 
-    # with open(upload_data, 'wb') as f:
-    #     content = await chunk_file.read(read_batch_size)
-    #     f.write(content)
+    with open(upload_data, 'wb') as f:
+        content = await chunk_file.read(read_batch_size)
+        f.write(content)
 
-    tasks.process_new_upload.s(file_dir, chunk_number).apply_async() 
+    pipeline(file_id)
     
     uplog_dal = UploadLogsDal(db)
     log = UploadLogBase(

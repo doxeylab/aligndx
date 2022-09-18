@@ -1,10 +1,17 @@
 from app.redis.base import r  
+import json
 
 class Handler:
-        # task 1 -> create metadata
-        def create(id: str, metadata: dict):
-                r.set(id, metadata)
+        # create key,data entry
+        def create(id: str, data: dict):
+                data_json = json.dumps(data)
+                r.set(id, data_json)
         
-        # task 2 -> get metadata
+        # get data
         def retrieve(id: str):
-                r.get(id)
+                data = r.get(id)
+                return json.loads(data)
+
+        # delete key
+        def delete(id: str):
+                r.delete(id)
