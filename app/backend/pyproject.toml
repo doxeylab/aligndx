@@ -8,8 +8,8 @@ authors = ["Manjot <manjothunjan@gmail.com>"]
 python = "^3.8"
 alembic = "1.7.7"
 asyncpg = "0.25.0"
-celery = "5.2.3"
-fastapi = "0.75.0"
+celery = {extras = ["redis"], version = "^5.2.7"}
+fastapi = "0.85.0"
 numpy = "1.22.3"
 pandas = "1.4.1"
 passlib = "1.7.4"

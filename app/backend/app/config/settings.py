@@ -61,6 +61,8 @@ class AppSettings(BaseSettings):
     stripe_webhook_secret: str = os.getenv("STRIPE_WEBHOOK_SECRET")
 
     # Redis settings
+    BROKER_URL: str = os.getenv("CELERY_BROKER_URL")
+    BACKEND_RESULTS_URL: str = os.getenv("CELERY_RESULT_BACKEND")
     REDIS_URL: str = os.getenv("REDIS_URL")
 
     #  -- Db settings --

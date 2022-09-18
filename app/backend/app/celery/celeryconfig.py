@@ -1,10 +1,11 @@
 import os 
+from app.config.settings import settings
 
 # broker url
-broker_url = os.getenv("CELERY_BROKER_URL")
+broker_url = settings.BROKER_URL
 
 # backend url
-backend_url = os.getenv("CELERY_RESULT_BACKEND")
+backend_url = settings.BACKEND_RESULTS_URL
 
 task_routes = {
     'app.celery.tasks.make_file_metadata': {'queue': 'uploads'},

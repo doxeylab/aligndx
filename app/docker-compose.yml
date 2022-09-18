@@ -1,6 +1,9 @@
 version: "3.7"
 services:
 
+  # Core services
+
+  # API Server
   backend:
     build:
       context: backend
@@ -9,8 +12,8 @@ services:
     tty: true
     depends_on:
       - postgres
-    ports:
-      - "8080:8080"
+    expose:
+      - 8080
     volumes:
       - ./backend/app:/app/app
       - app-data:/app/data
@@ -28,6 +31,7 @@ services:
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       REDIS_URL: ${REDIS_URL}
 
+  # Client
   frontend:
      build:
        context: frontend
@@ -42,35 +46,7 @@ services:
       BASE_URL: ${BASE_URL}
       REACT_APP_BACKEND_ACCESS_URL: ${REACT_APP_BACKEND_ACCESS_URL} 
 
-  postgres:
-    image: postgres:12
-    restart: unless-stopped
-    ports:
-      - "5432:5432"
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      PGDATA: ${PGDATA}
-
-  pgadmin:
-    tty: true
-    image: dpage/pgadmin4
-    profiles: [ "monitoring" ]
-    restart: unless-stopped
-    depends_on:
-      - postgres
-    ports:
-      - "8001:80"
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-      PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
-  
+  # Tool 
   kraken2:
     build:
       context: tool
@@ -84,14 +60,15 @@ services:
       - app-data:/app/data
       - /mnt/tmp/:/app/data/indexes:ro
 
+  # Task Managment Executor
   celery_worker:
     build:
       context: backend
       dockerfile: docker/celery_worker/Dockerfile
     depends_on:
       - backend
-      - rabbitmq
-    command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery -A app.celery.tasks worker -l info -Q uploads,salmon,downstream"
+      - redis
+    command: sh -c "celery -A app.celery.tasks worker -l info -Q uploads,salmon,downstream"
     tty: true
     volumes:
       - ./backend/app:/app/app
@@ -101,8 +78,55 @@ services:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
       NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
-      NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
+      NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD} 
 
+  # Databases
+
+  # Primary Database
+  postgres:
+    image: postgres:12
+    restart: unless-stopped
+    expose:
+      - 5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: ${PGDATA}
+
+  # In-Memory Story for transient data
+  redis:
+    image: redis:7
+    command: sh -c "redis-server --requirepass ${REDIS_PASSWORD}"
+    restart: unless-stopped
+    expose:
+      - ${REDIS_PORT}
+    volumes:
+      - redis-data:/sdata 
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_PORT: ${REDIS_PORT}
+
+  # Monitoring Services
+ 
+#  pgadmin:
+#     tty: true
+#     image: dpage/pgadmin4
+#     profiles: [ "monitoring" ]
+#     restart: unless-stopped
+#     depends_on:
+#       - postgres
+#     ports:
+#       - "8001:80"
+#     volumes:
+#       - pgadmin-data:/var/lib/pgadmin
+#     environment:
+#       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+#       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+#       PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
+  
   # flower:
   #   build:
   #     context: backend
@@ -122,22 +146,6 @@ services:
   #     CELERY_BROKER_URL: ${CELERY_BROKER_URL}
   #     CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
   
-  # rabbitmq:
-  #   image: rabbitmq:3.9
-  #   ports:
-  #     - "5672"
-  
-  redis:
-    image: redis:7
-    command: sh -c "redis-server --requirepass ${REDIS_PASSWORD}"
-    restart: unless-stopped
-    expose:
-      - ${REDIS_PORT}
-    volumes:
-      - redis-data:/var/lib/redis/data 
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      REDIS_PORT: ${REDIS_PORT}
 
 volumes:
   db-data:
