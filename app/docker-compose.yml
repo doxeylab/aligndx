@@ -4,7 +4,7 @@ services:
     build:
       context: backend
       dockerfile: docker/api/Dockerfile
-    command: sh -c " sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && uvicorn app.main:app --reload --host 0.0.0.0 --port 8080"
+    command: sh -c "uvicorn app.main:app --reload --host 0.0.0.0 --port 8080"
     tty: true
     depends_on:
       - postgres
@@ -26,6 +26,8 @@ services:
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       REDIS_URL: ${REDIS_URL}
+    networks:
+      - prefect
 
   frontend:
      build:
