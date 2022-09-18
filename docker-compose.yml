@@ -68,7 +68,7 @@ services:
     depends_on:
       - backend
       - redis
-    command: sh -c "celery -A app.celery.tasks worker -l info -Q uploads,salmon,downstream"
+    command: sh -c "celery -A app.celery.tasks worker -l info"
     tty: true
     volumes:
       - ./backend/app:/app/app
@@ -138,7 +138,7 @@ services:
       - backend
       - rabbitmq
       - celery_worker
-    command: sh -c "sh ./bin/wait-for/wait-for.sh rabbitmq:5672 --timeout=20 && celery flower --port=5555 --broker=$${CELERY_BROKER_URL} -Q uploads,salmon,downstream"
+    command: sh -c "celery flower --port=5555 --broker=$${CELERY_BROKER_URL}"
     tty: true
     volumes:
       - ./backend/app:/app/app
