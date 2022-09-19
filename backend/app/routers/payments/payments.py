@@ -1,4 +1,5 @@
 # FastAPI
+from typing import Union
 from fastapi import APIRouter, Depends, status, HTTPException
 
 # auth components
@@ -31,7 +32,7 @@ async def create_subscription(
     return {"client_secret": res}
 
 # Get active subscription: GET /payments/subscriptions
-@router.get("/subscriptions", response_model=SubscriptionDTO)
+@router.get("/subscriptions", response_model=Union[SubscriptionDTO, None])
 async def get_active_subscription(
         current_user: UserDTO = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
@@ -40,7 +41,6 @@ async def get_active_subscription(
     Endpoint to retrieve an active subscription for the current user.
     """
     return await subscription_service.get_active_subscription(db, current_user)
-
 # Get a client secret to render Payment Element
 @router.get("/update-card/secret")
 async def payment_card_secret(
