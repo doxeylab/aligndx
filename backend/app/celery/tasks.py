@@ -10,7 +10,7 @@ from celery import Celery, group, chain
 app = Celery('tasks')
 app.config_from_object('app.celery.celeryconfig')
 
-@app.task
+@app.task(name="Update metadata")
 def update_metadata(fileId : str, metadata : MetaModel):
     """
     Create metadata entry in redis for a new file upload. Called using setup workflow
@@ -22,7 +22,7 @@ def update_metadata(fileId : str, metadata : MetaModel):
     Handler.create(fileId, metadata.dict())
     return {'Success': True}
 
-@app.task
+@app.task(name="Make file data")
 def make_file_data(results_dir):
     """
     Create result data for a new file upload. Call (along with make_file_metadata) on the creation of a live upload.
@@ -36,21 +36,6 @@ def make_file_data(results_dir):
 
     with open(data_fname, 'w') as f:
         json.dump(data, f)
-
-    return {'Success': True}
-
-
-@app.task(bind=True)
-def process_new_upload(self, file_dir, new_chunk_number):
-    """
-    Handle the completion of a chunk upload. Call this whenever an upload from the frontend completes.
-
-    :param file_dir: File directory path (from make_file_metadata)
-    :param new_chunk_number: The chunk number of the new upload chunk.
-
-    """
-    file = File.load(file_dir)
-    file.process_upload(new_chunk_number)
 
     return {'Success': True}
 
@@ -84,10 +69,13 @@ def analysis_flow(fileId : str):
     metadata = retrieve.s(fileId)
     
     if metadata.processed == metadata.total + 1:
+        print(
+            'its working'
+        )
         chain(
         assemble_chunks(metadata.updir, metadata.tooldir, metadata.total, metadata.fname),
         cleanup(metadata, 'chunks', fileId),
-        analysis_pipeline(metadata.tooldir, metadata.rdir)
+        # analysis_pipeline(metadata.tooldir, metadata.rdir)
         )
     else:
         metadata.processed = metadata.processed + 1

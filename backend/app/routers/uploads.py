@@ -24,8 +24,7 @@ from app.utils.utilities import dir_generator
 
 from app.config.settings import settings
 
-from app.flows.main import update_metadata, pipeline
-from app.celery import tasks
+from app.celery.tasks import setup_flow, analysis_flow
 
 router = APIRouter()
 
@@ -131,7 +130,7 @@ async def start_file(
             "data": ""
         }
 
-        update_metadata.fn(file_id, MetaModel(**metadata))
+        setup_flow(file_id, MetaModel(**metadata), results_dir)
 
         return {"Result": "OK",
                 "File_ID": file_id}
@@ -157,7 +156,7 @@ async def upload_chunk(
         content = await chunk_file.read(read_batch_size)
         f.write(content)
 
-    pipeline(file_id)
+    analysis_flow(file_id)
     
     uplog_dal = UploadLogsDal(db)
     log = UploadLogBase(
