@@ -1,7 +1,5 @@
-from curses import meta
-from email.contentmanager import raw_data_manager
 from http.client import HTTPException
-import os, shutil, math
+import math
 
 import aiofiles 
 from datetime import datetime

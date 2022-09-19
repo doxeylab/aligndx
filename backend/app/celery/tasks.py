@@ -1,53 +1,26 @@
-import os
-import json
+from typing import Literal
+import os, shutil, json, requests
+from app.models.schemas.redis import MetaModel
 
-import requests
-import pandas as pd
+from app.redis.functions import Handler
+from app.flows.analysis import analysis_pipeline
 
-from celery import Celery
-from celery.utils.log import get_task_logger
-
-from app.scripts.process.controller import Controller
-
-from app.celery.File import File
-
-logger = get_task_logger(__name__)
+from celery import Celery, group, chain
 
 app = Celery('tasks')
 app.config_from_object('app.celery.celeryconfig')
 
-
-# @after_setup_logger.connect
-# def setup_loggers(logger, *args, **kwargs):
-#     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-#     # FileHandler
-#     fh = logging.FileHandler('./logs.log')
-#     fh.setFormatter(formatter)
-#     logger.addHandler(fh)
-
 @app.task
-def make_file_metadata(file_dir, filename, upload_chunk_size, analysis_chunk_size, num_upload_chunks, email, fileId, panel, process):
+def update_metadata(fileId : str, metadata : MetaModel):
     """
-    Create metadata for a new file upload. Call on the creation of a live upload.
+    Create metadata entry in redis for a new file upload. Called using setup workflow
 
-    :param file_dir: Complete path for the directory to store file data in.
-    :param filename: The filename of the uploaded file.
-    :param upload_chunk_size: Size (in kilobytes) of each chunk uploaded from the frontend.
-    :param analysis_chunk_size: Size (in kilobytes) of each reassembled chunk to be analyzed by the tool.
-    :param num_upload_chunks: Total number of upload chunks the file is divided into.
-    :param email: Email of the user to notify on file completion.
-    :param fileId: ID of the submission. Must be unique identifier.
-    :param panel: Pathogen panel.
-    :param process: Process for the analysis tool.
+    :param fileId: UUID translated to string UUID
+    :param metadata: unique Metadata Model class
 
     """
-    file = File(fileId, file_dir, filename, email, chunk_ratio=analysis_chunk_size /
-                upload_chunk_size, num_upload_chunks=num_upload_chunks, panel=panel, process=process)
-    file.save()
-
+    Handler.create(fileId, metadata.dict())
     return {'Success': True}
-
 
 @app.task
 def make_file_data(results_dir):
@@ -81,35 +54,44 @@ def process_new_upload(self, file_dir, new_chunk_number):
 
     return {'Success': True}
 
+@app.task(name="Retrive metadata")
+def retrieve(fileId : str):
+    meta_dict = Handler.retrieve(fileId)
+    return MetaModel(**meta_dict)
 
-@app.task
-def perform_chunk_analysis(process, chunk_number, file_dir, panel, out_dir):
-    """
+@app.task(name="Assemble chunks")
+def assemble_chunks(updir,tooldir, total, filename):
+    os.system(f"cat {updir}/{{0..}}{total}* > {tooldir}/{filename}") 
 
-    :param process: Process for the analysis tool.
-    :param chunk_number: The chunk number of the ready analysis chunk.
-    :param file_dir: File directory path (from make_file_metadata)
-    :param panel: Pathogen panel (from make_file_metadata)
-    :param out_dir: Output directory for results. v 
-
-    """
-    analysis_dir = os.path.join(file_dir, 'tool_data')
-    chunk = os.path.join(analysis_dir, f'{chunk_number}.fastq')
-
-    process = Controller(process=process, panel=panel, chunk_number=chunk_number, in_dir=chunk, out_dir=out_dir)
-    print(process.commands)
-    resp = requests.post(process.access_point, json=process.commands)
-
-    file = File.load(file_dir)
-
-    if resp.status_code == 400:
-        file.set_analysis_error(chunk_number)
-        return {'Success': False}
-
+@app.task(name="Cleanup")
+def cleanup(fileId: str, metadata : MetaModel, type : Literal['chunks', 'all']):
+    if type == 'chunks':
+        shutil.rmtree(metadata.updir)
     else:
-        process.post_process()
-        file.set_complete_chunk_analysis(chunk_number=chunk_number)
-        return {'Success': True}
+        shutil.rmtree(metadata.tooldir)
+        shutil.rmtree(metadata.rdir)
+        Handler.delete(fileId)
+
+# Workflows using Celery Canvas
+# Setup Flow
+def setup_flow(fileId : str, metadata: MetaModel, results_dir : str):
+    group(
+        update_metadata(fileId, metadata),
+        make_file_data)
+
+# Analysis Flow
+def analysis_flow(fileId : str):
+    metadata = retrieve.s(fileId)
+    
+    if metadata.processed == metadata.total + 1:
+        chain(
+        assemble_chunks(metadata.updir, metadata.tooldir, metadata.total, metadata.fname),
+        cleanup(metadata, 'chunks', fileId),
+        analysis_pipeline(metadata.tooldir, metadata.rdir)
+        )
+    else:
+        metadata.processed = metadata.processed + 1
+        update_metadata.s(fileId, metadata)
 
 if __name__ == '__main__':
     app.worker_main()
