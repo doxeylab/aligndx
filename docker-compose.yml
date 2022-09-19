@@ -12,8 +12,8 @@ services:
     tty: true
     depends_on:
       - postgres
-    expose:
-      - 8080
+    ports:
+      - "8080:8080"
     volumes:
       - ./backend/app:/app/app
       - app-data:/app/data
@@ -136,7 +136,7 @@ services:
     profiles: [ "monitoring" ]
     depends_on:
       - backend
-      - rabbitmq
+      - redis
       - celery_worker
     command: sh -c "celery flower --port=5555 --broker=$${CELERY_BROKER_URL}"
     tty: true

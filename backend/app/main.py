@@ -1,31 +1,25 @@
 # python
-from operator import ge
-import os, asyncio 
+import os 
 import logging 
 
 # fastapi
 from fastapi import FastAPI, Depends, status
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.utils import get_openapi
 from fastapi.exceptions import RequestValidationError
 
 # auth
 from app.auth.auth_dependencies import get_current_user 
 
 # routers
-from app.api_v1.routers import uploads, results, users, socket_resources, metadata 
-from app.api_v1.routers.payments import payments, stripe_webhooks
+from app.routers import uploads, results, users, socket_resources, metadata 
+from app.routers.payments import payments, stripe_webhooks
 
 # utils
 from app.utils.utilities import dir_generator
 
 # settings
 from app.config.settings import get_settings
-
-# periodic tasks
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from app.celery.periodic_tasks import periodic_task_calls
 
 from app.redis.base import r 
 
@@ -34,13 +28,6 @@ app = FastAPI(
     description="This is the restful API for the AlignDX application. Here you will find the auto docs genereated for the API endpoints",
     version="1.0", 
 )
-
-# @app.on_event('startup')
-# async def start_scheduler():
-#     scheduler = AsyncIOScheduler()
-#     scheduler.start()
-
-#     scheduler.add_job(periodic_task_calls, 'interval', seconds=30)
 
 @app.on_event('startup')
 async def setup_configs():
