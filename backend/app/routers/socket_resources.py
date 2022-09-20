@@ -1,12 +1,11 @@
 import os, asyncio
 from pydantic import BaseModel
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends 
 from fastapi import WebSocket
 from starlette.websockets import WebSocketDisconnect 
 
 from app.auth.auth_dependencies import get_current_user_ws
-from app.flows.main import retrieve
 from app.models.schemas.submissions import SubmissionSchema
 
 from app.db.dals.users import UsersDal 
@@ -14,10 +13,7 @@ from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.scripts.web_socket.manager import ConnectionManager
-from app.scripts.process.controller import Controller
-from app.flows.main import retrieve
-
-from app.celery.File import File
+from app.celery.tasks import retrieve
 
 from app.config.settings import settings
 
@@ -48,12 +44,10 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
         print(f"User {current_user.id} connected!")
         try:
             while True:
-
-                metadata = retrieve.fn(file_id)
-                upload_progress = metadata.processed/(metadata.total + 1)
+                metadata = retrieve.s(file_id)()
+                upload_progress = metadata.processed/(metadata.total)
                 analysis_progress = 0
                 progress_data = {'analysis': analysis_progress, 'upload': upload_progress}
-
 
                 if metadata.status == 'completed':
                     stored_data = metadata.data
@@ -83,19 +77,14 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
                     await manager.send_data(resp, websocket)
                     manager.disconnect(websocket)
                     return
- 
-                else:
-                    # file doesn't exist, so close websocket
-                    manager.disconnect(websocket)
-                    return 
 
         except WebSocketDisconnect:
             manager.disconnect(websocket)
             print(f"User {current_user.id} disconnected!")
 
         except Exception as e: 
-            raise e 
             print(f"Exception occured so client {current_user.id}  disconnected")
+            # raise e 
     else:
         manager.disconnect(websocket)  
         print(f"User could not be authenticated")

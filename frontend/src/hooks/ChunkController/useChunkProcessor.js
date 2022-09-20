@@ -14,10 +14,10 @@ const useChunkProcessor = () => {
   };
 
   // end-file
-  const endRequest = (fileId) => {
-    return uploads.end_file({file_id : fileId})
+  // const endRequest = (fileId) => {
+  //   return uploads.end_file({file_id : fileId})
 
-  } 
+  // } 
 
   // upload-chunk
   const uploadChunkRequest =  async (chunkNumber, fileId, chunkFile, file_extension) => {
@@ -55,7 +55,7 @@ const useChunkProcessor = () => {
         break;
       }
     }
-    await endRequest(fileId)
+    // await endRequest(fileId)
   };
 
   return {chunkProcessor}; 

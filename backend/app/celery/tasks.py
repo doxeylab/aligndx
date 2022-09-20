@@ -1,5 +1,5 @@
 from typing import Literal
-import os, shutil, json, requests
+import shutil, json, subprocess
 from app.models.schemas.redis import MetaModel
 
 from app.redis.functions import Handler
@@ -13,7 +13,7 @@ app.config_from_object('app.celery.celeryconfig')
 @app.task(name="Update metadata")
 def update_metadata(fileId : str, metadata : MetaModel):
     """
-    Create metadata entry in redis for a new file upload. Called using setup workflow
+    Create/Update metadata entry in redis for a new file upload. Called using setup workflow
 
     :param fileId: UUID translated to string UUID
     :param metadata: unique Metadata Model class
@@ -46,8 +46,9 @@ def retrieve(fileId : str):
 
 @app.task(name="Assemble chunks")
 def assemble_chunks(updir,tooldir, total, filename):
-    os.system(f"cat {updir}/{{0..}}{total}* > {tooldir}/{filename}") 
-
+    command = f"cat {updir}/{{0..{total - 1}}}* >{tooldir}/{filename}"
+    p = subprocess.Popen(['/bin/bash', '-c', command]) 
+    
 @app.task(name="Cleanup")
 def cleanup(fileId: str, metadata : MetaModel, type : Literal['chunks', 'all']):
     if type == 'chunks':
@@ -60,26 +61,30 @@ def cleanup(fileId: str, metadata : MetaModel, type : Literal['chunks', 'all']):
 # Workflows using Celery Canvas
 # Setup Flow
 def setup_flow(fileId : str, metadata: MetaModel, results_dir : str):
-    group(
-        update_metadata(fileId, metadata),
-        make_file_data)
+    res = group(
+        update_metadata.s(fileId, metadata),
+        make_file_data.s(results_dir))()
 
 # Analysis Flow
 def analysis_flow(fileId : str):
-    metadata = retrieve.s(fileId)
+    metadata = retrieve.s(fileId)()
     
-    if metadata.processed == metadata.total + 1:
-        print(
-            'its working'
-        )
-        chain(
-        assemble_chunks(metadata.updir, metadata.tooldir, metadata.total, metadata.fname),
-        cleanup(metadata, 'chunks', fileId),
-        # analysis_pipeline(metadata.tooldir, metadata.rdir)
-        )
+    if metadata.processed == metadata.total - 1:
+        # last chunk to process
+        # chain using immutable signatures so we don't add previous results as arguments
+
+        metadata.processed = metadata.processed + 1
+
+        res = chain(
+        assemble_chunks.si(metadata.updir, metadata.tooldir, metadata.total, metadata.fname),
+        # cleanup.si(fileId, metadata, 'chunks'),
+        # analysis_pipeline.si(metadata.tooldir, metadata.rdir)
+        update_metadata.si(fileId, metadata)
+        )()
+        return res.get()
     else:
         metadata.processed = metadata.processed + 1
-        update_metadata.s(fileId, metadata)
+        update_metadata.s(fileId, metadata)()
 
 if __name__ == '__main__':
     app.worker_main()

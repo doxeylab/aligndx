@@ -129,7 +129,6 @@ async def start_file(
             "status": "setup",
             "data": ""
         }
-
         setup_flow(file_id, MetaModel(**metadata), results_dir)
 
         return {"Result": "OK",
@@ -148,13 +147,13 @@ async def upload_chunk(
     file_dir = "{}/{}".format(UPLOAD_FOLDER, file_id)
     upload_data = "{}/{}/{}.{}".format(file_dir, "upload_data", chunk_number, file_extension) 
     
-    # async with aiofiles.open(upload_data, 'wb') as f:
-    #     while content := await chunk_file.read(read_batch_size):
-    #         await f.write(content)
+    async with aiofiles.open(upload_data, 'wb') as f:
+        while content := await chunk_file.read(read_batch_size):
+            await f.write(content)
 
-    with open(upload_data, 'wb') as f:
-        content = await chunk_file.read(read_batch_size)
-        f.write(content)
+    # with open(upload_data, 'wb') as f:
+    #     content = await chunk_file.read(read_batch_size)
+    #     f.write(content)
 
     analysis_flow(file_id)
     

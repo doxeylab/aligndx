@@ -15,3 +15,8 @@ task_routes = {
     'app.celery.tasks.cleanup': {'queue': 'medium'},
     'app.celery.tasks.analyze': {'queue': 'long'}
 }
+task_serializer = "pickle"
+result_serializer = "pickle"
+event_serializer = "json"
+accept_content = ["application/json", "application/x-python-serialize"]
+result_accept_content = ["application/json", "application/x-python-serialize"]
