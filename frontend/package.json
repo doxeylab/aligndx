@@ -26,6 +26,6 @@
     "lint-staged": "^13.0.3"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx}" :["eslint . --fix", "prettier --write ."]
+    "src/**/*.{js,jsx,ts,tsx}" :["eslint", "prettier --write"]
   }
 }
