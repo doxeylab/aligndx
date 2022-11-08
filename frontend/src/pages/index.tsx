@@ -1,4 +1,4 @@
-export default function Root() {
+export default function DefaultRoute() {
     return (
         <> testing</>
 

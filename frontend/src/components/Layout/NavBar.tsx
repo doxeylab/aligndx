@@ -1,12 +1,7 @@
-const navBarStyle = {
-    backgroundColor: "red",
-    color: "white",
-    width: "100%",
-    height: "60px"
-};
+import styles from './NavBar.module.css'
 
 const NavBar = () => (
-    <div className="NavBar" style={navBarStyle}>
+    <div className={styles.navbar}>
         NAVBAR
     </div>
 );
