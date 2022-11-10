@@ -40,13 +40,13 @@ function ResponsiveNavBar(props: NavBarProps) {
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
 
-                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'flex' } }}>
                         <Button
                             onClick={() => { router.push('/') }}
-                            sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }}
+                            sx={{ display: { xs: 'flex', md: 'flex' }, mr: 1 }}
                         >
                             <img src='assets/icon.png' alt='logo-icon' width="50px" height="auto" />
-                            <img src='assets/logo.svg' alt='logo-icon' width="200px" height="auto" />
+                            <img src='assets/logo.svg' alt='logo-icon' width="200px" height="auto" style={{ color:'red'}}/>
                         </Button>
                     </Box>
 
