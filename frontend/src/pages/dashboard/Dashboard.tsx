@@ -8,13 +8,8 @@ import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import ScienceIcon from '@mui/icons-material/Science';
-import HistoryIcon from '@mui/icons-material/History';
-import Tooltip from '@mui/material/Tooltip';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import { mainListItems, secondaryListItems } from './listItems';
 
 const drawerWidth: number = 240;
 
@@ -55,45 +50,46 @@ function DashboardContent() {
     <Box sx={{ display: 'flex' }} >
       <CssBaseline />
       <Drawer variant="permanent" open={open}>
-        <Toolbar
-          sx={{
+        {open ?
+          <Toolbar
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                px: [1],
+              }}
+            >
+              <IconButton
+                edge="end"
+                color="inherit"
+                aria-label="close drawer"
+                onClick={toggleDrawer}
+              >
+                <ChevronLeftIcon />
+              </IconButton>
+          </Toolbar>
+          :
+          <Toolbar sx={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
             px: [1],
-          }}
-        >
-          <IconButton onClick={toggleDrawer}>
-            <MenuIcon />
-          </IconButton>
-        </Toolbar>
+          }}>
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="open drawer"
+                onClick={toggleDrawer}
+              >
+                <MenuIcon />
+              </IconButton>
+          </Toolbar>
+        }
         <Divider />
         <List component="nav">
-          <Tooltip title='Analyze' placement='right' arrow enterTouchDelay={0} leaveTouchDelay={400}>
-            <ListItemButton>
-              <ListItemIcon>
-                <ScienceIcon />
-              </ListItemIcon>
-              <ListItemText primary="Analyze" />
-            </ListItemButton>
-          </Tooltip>
-          <Tooltip title='Results' placement='right' arrow enterTouchDelay={0} leaveTouchDelay={400}>
-            <ListItemButton>
-              <ListItemIcon>
-                <BarChartIcon />
-              </ListItemIcon>
-              <ListItemText primary="Results" />
-            </ListItemButton>
-          </Tooltip>
-          <Tooltip title='Submissions' placement='right' arrow enterTouchDelay={0} leaveTouchDelay={400}>
-            <ListItemButton>
-              <ListItemIcon>
-                <HistoryIcon />
-              </ListItemIcon>
-              <ListItemText primary="Submissions" />
-            </ListItemButton>
-          </Tooltip>
+          {mainListItems}
           <Divider sx={{ my: 1 }} />
+          {secondaryListItems}
         </List>
       </Drawer>
       <Box
