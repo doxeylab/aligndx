@@ -75,8 +75,8 @@ const SignInForm = () => {
         <Form
             schema={schema}
             onSubmit={loginFormHandler}
-            name={"Login"}
-            btnlabel={"Sign In"}
+            name={"Sign In"}
+            btnlabel={"Log In"}
             loading={login.isLoading}
         >
             <FormTextField name={"email"} label={"email"} type={"email"} autoComplete={"email"} />
