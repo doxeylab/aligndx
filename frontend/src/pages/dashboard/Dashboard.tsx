@@ -47,11 +47,12 @@ function DashboardContent() {
   };
 
   return (
-    <Box sx={{ display: 'flex' }} >
-      <CssBaseline />
-      <Drawer variant="permanent" open={open}>
-        {open ?
-          <Toolbar
+    <> 
+      <Box sx={{ display: 'flex' }} >
+        <CssBaseline />
+        <Drawer variant="permanent" open={open}>
+          {open ?
+            <Toolbar
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -67,14 +68,14 @@ function DashboardContent() {
               >
                 <ChevronLeftIcon />
               </IconButton>
-          </Toolbar>
-          :
-          <Toolbar sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            px: [1],
-          }}>
+            </Toolbar>
+            :
+            <Toolbar sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              px: [1],
+            }}>
               <IconButton
                 edge="start"
                 color="inherit"
@@ -83,25 +84,26 @@ function DashboardContent() {
               >
                 <MenuIcon />
               </IconButton>
-          </Toolbar>
-        }
-        <Divider />
-        <List component="nav">
-          {mainListItems}
-          <Divider sx={{ my: 1 }} />
-          {secondaryListItems}
-        </List>
-      </Drawer>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          height: '100vh',
-          overflow: 'auto',
-        }}
-      >
+            </Toolbar>
+          }
+          <Divider />
+          <List component="nav">
+            {mainListItems}
+            <Divider sx={{ my: 1 }} />
+            {secondaryListItems}
+          </List>
+        </Drawer>
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            height: '100vh',
+            overflow: 'auto',
+          }}
+        >
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 }
 

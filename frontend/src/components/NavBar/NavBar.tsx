@@ -1,20 +1,13 @@
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
 import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
 import { useRouter } from 'next/router'
-import { MouseEvent, ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 
 interface NavBarProps {
     pages?: string[];
-    settings?: string[];
     children?: ReactNode;
 }
 
@@ -22,7 +15,9 @@ function ResponsiveNavBar(props: NavBarProps) {
     const router = useRouter();
 
     return (
-        <AppBar position="static">
+        <AppBar position="static"
+        sx={{ marginBottom: '5vh'}}
+        >
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
 

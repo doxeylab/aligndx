@@ -1,0 +1,31 @@
+import { useForm, FormProvider } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import { FormContainer, StyledButton } from "./StyledForm";
+import { CircularProgress, Typography } from "@mui/material";
+
+const Form = ({ schema, onSubmit, name, btnlabel,loading, children }) => {
+    const methods = useForm({
+        resolver: yupResolver(schema),
+        mode:"all"
+    });
+
+    return (
+        <FormProvider {...methods}>
+            <form onSubmit={methods.handleSubmit(onSubmit)}>
+                <FormContainer>
+                    <Typography variant="h4">{name}</Typography>
+                    {children}
+                    <StyledButton
+                        size='large'
+                        variant="contained"
+                        type="submit"
+                    >
+                         {loading ? <CircularProgress size={25} /> : btnlabel}
+                    </StyledButton>
+                </FormContainer>
+            </form>
+        </FormProvider>
+    );
+}
+
+export default Form;

@@ -16,7 +16,7 @@ export default function FeatureContainer() {
       <Box sx={{ minHeight: 350 }}>
         <Grid container spacing={3}>
           <Grid item container direction='row' justifyContent={'center'} alignItems="center" spacing={2}>
-            <Grid item container direction={'column'} justifyContent="left" alignItems="left" spacing={2} sm={11} md={6}>
+            <Grid item container direction={'column'} justifyContent="center" alignItems="center" spacing={2} sm={11} md={6}>
               <Grid item xs>
                 <Typography variant="h2"> Rapid Bioinformatic Clinical Analyses</Typography>
               </Grid>
@@ -24,7 +24,7 @@ export default function FeatureContainer() {
                 <Typography> Analyze your data with rapid, simple bioinformatic pipelines! </Typography>
               </Grid>
               <Grid item xs >
-                <Button variant="outlined" onClick={handleClick}> Get Started</Button>
+                <Button variant="outlined" onClick={handleClick}> Register Now</Button>
               </Grid>
             </Grid>
             <Grid item xs={5} md={6}>
