@@ -10,7 +10,7 @@ const AuthContext = React.createContext({
 
 export const AuthProvider = ({ children }) => {
 
-    const [auth, setAuth] = useState(null);
+    const [auth, setAuth] = useLocalStorage('auth', {}) 
 
     const _decodeToken = (token) => {
         try {

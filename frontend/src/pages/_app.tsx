@@ -31,11 +31,9 @@ export default function MyApp(props: MyAppProps) {
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>
             <Layout>
               <Component {...pageProps} />
             </Layout>
-          </AuthProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </CacheProvider>

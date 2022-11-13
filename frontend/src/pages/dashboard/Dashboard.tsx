@@ -107,19 +107,6 @@ function DashboardContent() {
   );
 }
 
-export async function getStaticProps(context: any) {
-  if (!context.auth) {
-    return {
-      notFound: true,
-    }
-  }
-  return {
-    props: {
-      protected: true,
-    },
-  }
-}
-
 export default function Dashboard() {
   return <DashboardContent />;
 }
