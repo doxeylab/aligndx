@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 
 import useLocalStorage from '../hooks/useLocalStorage';
 
@@ -10,7 +10,7 @@ const AuthContext = React.createContext({
 
 export const AuthProvider = ({ children }) => {
 
-    const [auth, setAuth] = useLocalStorage('auth', {}) 
+    const [auth, setAuth] = useState(null);
 
     const _decodeToken = (token) => {
         try {

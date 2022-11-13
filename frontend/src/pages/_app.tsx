@@ -11,18 +11,16 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
-
+import { useAuthContext, AuthProvider } from '../context/AuthProvider';
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
 interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache;
 }
-
 const queryClient = new QueryClient();
 
 export default function MyApp(props: MyAppProps) {
-
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   return (
     <CacheProvider value={emotionCache}>
@@ -33,9 +31,11 @@ export default function MyApp(props: MyAppProps) {
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
         <QueryClientProvider client={queryClient}>
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
+          <AuthProvider>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </AuthProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </CacheProvider>

@@ -1,1 +1,1 @@
-export { default } from './Dashboard'; 
+export { default, getStaticProps } from './Dashboard'; 

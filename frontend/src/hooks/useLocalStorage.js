@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 
 const getLocalValue = (key, initValue) => {
-    const localValue = JSON.parse(localStorage.getItem(key));
-    if (localValue) {
-        return localValue
-    }
-    else {
-        return initValue
+    if (typeof window !== "undefined") {
+        const localValue = JSON.parse(localStorage.getItem(key));
+        if (localValue) {
+            return localValue
+        }
+        else {
+            return initValue
+        }
     }
 
 }
