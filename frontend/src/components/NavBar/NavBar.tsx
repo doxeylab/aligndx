@@ -16,7 +16,6 @@ function ResponsiveNavBar(props: NavBarProps) {
 
     return (
         <AppBar position="static"
-        sx={{ marginBottom: '5vh'}}
         >
             <Container maxWidth="xl">
                 <Toolbar disableGutters>

@@ -48,7 +48,7 @@ function DashboardContent() {
 
   return (
     <> 
-      <Box sx={{ display: 'flex' }} >
+      <Box sx={{ display: 'flex'}} >
         <CssBaseline />
         <Drawer variant="permanent" open={open}>
           {open ?
