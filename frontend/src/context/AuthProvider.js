@@ -1,16 +1,17 @@
-import React, { useContext, useState } from 'react';
+import { Router, useRouter } from 'next/router';
+import React, { use, useContext, useLayoutEffect, useState } from 'react';
 
 import useLocalStorage from '../hooks/useLocalStorage';
 
 const AuthContext = React.createContext({
-    auth: true,
+    auth: null,
     setAuth: null,
     setupUser: null
 });
 
 export const AuthProvider = ({ children }) => {
 
-    const [auth, setAuth] = useLocalStorage('auth', {}) 
+    const [auth, setAuth] = useState(null)
 
     const _decodeToken = (token) => {
         try {
