@@ -11,10 +11,10 @@ const basetheme = createTheme({
             main: '#2ec5d3',
         },
         background: {
-            default: '#192231',
-            paper: '#24344d',
+            default: '#13223a',
+            paper: '#1c3963',
         },
-    }
+    },
 })
 
 const theme = responsiveFontSizes(basetheme)

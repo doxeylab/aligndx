@@ -140,7 +140,7 @@ export default function Navigation(props: NavigationProps) {
                     :
                     null
             }
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+            <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
                 <DrawerHeader />
                 {props.children}
             </Box>

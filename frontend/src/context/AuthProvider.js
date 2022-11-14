@@ -1,6 +1,4 @@
-import { Router, useRouter } from 'next/router';
-import React, { use, useContext, useLayoutEffect, useState } from 'react';
-
+import React, { useContext, useState } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
 
 const AuthContext = React.createContext({

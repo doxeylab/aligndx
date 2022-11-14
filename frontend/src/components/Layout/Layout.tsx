@@ -65,7 +65,12 @@ const Layout = (props: any) => {
 
     return (
         <>
-            {dynamicNav()}
+            <div className='wrap-layer'>
+                <img className='bg-image' src='assets/bg_top.svg' />
+                <div className='content-layer'>
+                    {dynamicNav()}
+                </div>
+            </div>
         </>
     )
 };

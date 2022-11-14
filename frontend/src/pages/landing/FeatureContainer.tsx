@@ -14,14 +14,14 @@ export default function FeatureContainer() {
   return (
     <Fragment>
       <Box sx={{ minHeight: 350 }}>
-        <Grid container spacing={3}>
+        <Grid container spacing={3} pt={5} pl={2} pr={2}>
           <Grid item container direction='row' justifyContent={'center'} alignItems="center" spacing={2}>
             <Grid item container direction={'column'} justifyContent="center" alignItems="center" spacing={2} sm={11} md={6}>
               <Grid item xs>
-                <Typography variant="h2"> Rapid Bioinformatic Clinical Analyses</Typography>
+                <Typography variant="h2" align='center'> Rapid Bioinformatic Clinical Analyses</Typography>
               </Grid>
               <Grid item xs >
-                <Typography> Analyze your data with rapid, simple bioinformatic pipelines! </Typography>
+                <Typography align='center'> Analyze your data with rapid, simple bioinformatic pipelines! </Typography>
               </Grid>
               <Grid item xs >
                 <Button variant="outlined" onClick={handleClick}> Register Now</Button>

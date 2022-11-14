@@ -14,3 +14,22 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.wrap-layer {
+  position: relative;
+}
+
+.content-layer {
+  position: absolute;
+  width: 100%;
+  height: auto;
+  top: 0;
+  left: 0;
+}
+
+.bg-image {
+  opacity: 0.25;
+  width: 100vw;
+  height: auto;
+}
+ 
