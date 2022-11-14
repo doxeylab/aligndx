@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { Fragment } from 'react';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
@@ -7,11 +7,20 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import ScienceIcon from '@mui/icons-material/Science';
 import HistoryIcon from '@mui/icons-material/History';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 import { Tooltip } from '@mui/material';
 
-export const mainListItems = (
-    <React.Fragment>
+export const sidebarItems = (
+    <Fragment>
+        <Tooltip title='Dashboard' placement='right' arrow enterTouchDelay={0} leaveTouchDelay={400}>
+            <ListItemButton>
+                <ListItemIcon>
+                    <DashboardIcon />
+                </ListItemIcon>
+                <ListItemText primary="Dashboard" />
+            </ListItemButton>
+        </Tooltip> 
         <Tooltip title='Analyze' placement='right' arrow enterTouchDelay={0} leaveTouchDelay={400}>
             <ListItemButton>
                 <ListItemIcon>
@@ -36,11 +45,11 @@ export const mainListItems = (
                 <ListItemText primary="Submissions" />
             </ListItemButton>
         </Tooltip>
-    </React.Fragment>
+    </Fragment>
 );
 
 export const secondaryListItems = (
-    <React.Fragment>
+    <Fragment>
         <ListSubheader component="div" inset>
             Saved reports
         </ListSubheader>
@@ -62,5 +71,5 @@ export const secondaryListItems = (
             </ListItemIcon>
             <ListItemText primary="Sample3" />
         </ListItemButton>
-    </React.Fragment>
+    </Fragment>
 );
