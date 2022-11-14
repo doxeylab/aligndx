@@ -11,6 +11,10 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router';
+import ProgressBar from '../components/ProgressBar';
+
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
@@ -21,6 +25,37 @@ const queryClient = new QueryClient();
 
 export default function MyApp(props: MyAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+  const [loading, setLoading] = useState({
+    isRouteChanging: false,
+  })
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleRouteChangeStart = () => {
+      setLoading((prevState) => ({
+        ...prevState,
+        isRouteChanging: true,
+      }))
+    }
+
+    const handleRouteChangeEnd = () => {
+      setLoading((prevState) => ({
+        ...prevState,
+        isRouteChanging: false,
+      }))
+    }
+
+    router.events.on('routeChangeStart', handleRouteChangeStart)
+    router.events.on('routeChangeComplete', handleRouteChangeEnd)
+    router.events.on('routeChangeError', handleRouteChangeEnd)
+
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChangeStart)
+      router.events.off('routeChangeComplete', handleRouteChangeEnd)
+      router.events.off('routeChangeError', handleRouteChangeEnd)
+    }
+  }, [router.events])
+
   return (
     <CacheProvider value={emotionCache}>
       <Head>
@@ -30,8 +65,9 @@ export default function MyApp(props: MyAppProps) {
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
         <QueryClientProvider client={queryClient}>
+          <ProgressBar isRouteChanging={loading.isRouteChanging} />
           <Layout>
-              <Component {...pageProps} />
+            <Component {...pageProps} />
           </Layout>
         </QueryClientProvider>
       </ThemeProvider>

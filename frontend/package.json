@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^2.9.10",
     "@mui/icons-material": "^5.10.9",
     "@mui/material": "^5.10.13",
+    "@tanem/react-nprogress": "^5.0.17",
     "@tanstack/react-query": "^4.15.0",
     "@types/node": "18.11.9",
     "@types/react": "18.0.24",
