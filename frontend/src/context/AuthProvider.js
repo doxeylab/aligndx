@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
 
 const AuthContext = React.createContext({
-    auth: null,
+    auth: true,
     setAuth: null,
     setupUser: null
 });

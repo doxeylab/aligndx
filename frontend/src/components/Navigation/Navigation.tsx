@@ -13,6 +13,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import LogoButton from '../LogoButton';
+import SideBarItems from './SideBarItems';
 const drawerWidth = 240;
 
 const openedMixin = (theme: Theme): CSSObject => ({
@@ -87,7 +88,6 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 interface NavigationProps {
     topbarItems?: ReactNode;
     sidebar?: boolean;
-    sidebarItems?: ReactNode;
     children?: ReactNode;
 }
 
@@ -134,7 +134,7 @@ export default function Navigation(props: NavigationProps) {
                         </DrawerHeader>
                         <Divider />
                         <List>
-                            {props.sidebarItems}
+                            <SideBarItems />
                         </List>
                     </Drawer>
                     :

@@ -19,10 +19,9 @@ const Dashboard = () => {
                                 p: 2,
                                 display: 'flex',
                                 flexDirection: 'column',
-                                height: 240,
                             }}
                         >
-                            <Uploader height={'100%'} width={'100%'}/>
+                            <Uploader height={'100%'} width={'100%'} />
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={4} lg={3}>
@@ -31,15 +30,23 @@ const Dashboard = () => {
                                 p: 2,
                                 display: 'flex',
                                 flexDirection: 'column',
-                                height: 240,
+                                height: "100%",
+                                width: "100%"
                             }}
                         >
-                            {/* <Deposits /> */}
+                            test
                         </Paper>
                     </Grid>
                     <Grid item xs={12}>
-                        <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                            {/* <Orders /> */}
+                        <Paper
+                            sx={{
+                                p: 2,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: "100%",
+                                width: "100%"
+                            }}>
+                            test
                         </Paper>
                     </Grid>
                 </Grid>

@@ -5,7 +5,6 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Navigation from '../Navigation';
 import ProfileButton from '../ProfileButton';
-import { sidebarItems } from './sidebaritems';
 import LogoButton from '../LogoButton';
 
 const Layout = (props: any) => {
@@ -41,7 +40,6 @@ const Layout = (props: any) => {
                 <>
                     <Navigation
                         sidebar
-                        sidebarItems={sidebarItems}
                         topbarItems={userView}
                     >
                         {props.children}
