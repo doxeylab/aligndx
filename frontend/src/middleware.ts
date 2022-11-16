@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
+import useLocalStorage from "./hooks/useLocalStorage";
 
 export default function middleware(req: any) {
-  let verify = req.cookies.get("loggedin");
+  // let verify = req.cookies.get("loggedin");
+  // let verify = useLocalStorage('auth')
+  let verify = true
   let url = req.url
   const protectedRoutes = ['/dashboard', '/analyze', '/results', '/submissions', '/settings']
 
