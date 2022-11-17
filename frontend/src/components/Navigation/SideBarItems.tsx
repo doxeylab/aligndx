@@ -22,14 +22,14 @@ export default function SideBarItems() {
         'Dashboard': <DashboardIcon />,
         'Analyze': <ScienceIcon />,
         'Results': <BarChartIcon />,
-        'Submissions': <HistoryIcon />
+        // 'Submissions': <HistoryIcon />
     }
     return (
         <>
             <Fragment>
                 {Object.entries(icons).map(([key, value]) => {
                     return (
-                        <Tooltip title={key} placement='right' arrow enterTouchDelay={0} leaveTouchDelay={400}>
+                        <Tooltip key={key} title={key} placement='right' arrow enterTouchDelay={0} leaveTouchDelay={400}>
                             <ListItemButton onClick={() => { navigate(key) }}>
                                 <ListItemIcon sx={{ "&:hover": { color: "primary.main" } }}>
                                     {value}
