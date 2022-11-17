@@ -30,6 +30,6 @@ a {
 .bg-image {
   opacity: 0.25;
   width: 100vw;
-  height: auto;
+  height: 100vh;
 }
  

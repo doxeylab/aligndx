@@ -1,11 +1,5 @@
 import { Paper, Grid } from '@mui/material';
 import Container from '@mui/material/Container'
-import dynamic from 'next/dynamic'
-
-const Uploader = dynamic(
-    () => import('../../components/Uploader'),
-    { ssr: false }
-)
 
 const Dashboard = () => {
 
@@ -21,7 +15,7 @@ const Dashboard = () => {
                                 flexDirection: 'column',
                             }}
                         >
-                            <Uploader height={'100%'} width={'100%'} />
+                            test
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={4} lg={3}>
