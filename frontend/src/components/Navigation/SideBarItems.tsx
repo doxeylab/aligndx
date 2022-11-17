@@ -41,7 +41,7 @@ export default function SideBarItems() {
                     )
                 })}
                 <Divider sx={{ my: 1 }} />
-                <ListSubheader component="div" inset>
+                <ListSubheader component="div" inset sx={{bgcolor:'inherit'}}>
                     Saved reports
                 </ListSubheader>
                 <ListItemButton>

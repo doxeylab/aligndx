@@ -9,13 +9,13 @@ import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
+import SideBarItems from './SideBarItems'
 import LogoButton from '../LogoButton';
 const drawerWidth = 240;
 
 interface NavigationProps {
   topbarItems?: ReactNode;
   sidebar?: boolean;
-  sidebarItems?: ReactNode;
   children?: ReactNode;
 }
 
@@ -28,10 +28,11 @@ export default function Navigation(props: NavigationProps) {
 
   const drawer = (
     <div>
-      <Toolbar />
+      <Toolbar >
+      </Toolbar>
       <Divider />
       <List>
-        {props.sidebarItems}
+        <SideBarItems />
       </List>
     </div>
   );

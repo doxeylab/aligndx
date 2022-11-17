@@ -11,8 +11,6 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import LogoButton from '../LogoButton';
 import SideBarItems from './SideBarItems';
 const drawerWidth = 240;
 
@@ -129,7 +127,7 @@ export default function Navigation(props: NavigationProps) {
                     <Drawer variant="permanent" open={open}>
                         <DrawerHeader>
                             <IconButton onClick={handleDrawerClose}>
-                                {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                                <ChevronLeftIcon />
                             </IconButton>
                         </DrawerHeader>
                         <Divider />
