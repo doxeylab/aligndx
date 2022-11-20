@@ -1,5 +1,13 @@
 import Box from '@mui/material/Box'
-const Container = ({animationDuration, isFinished, children}) => (
+import { ReactNode } from "react"
+
+interface ContainerProps {
+  animationDuration: number;
+  isFinished : boolean;
+  children?: ReactNode;
+}
+
+const Container = ({animationDuration, isFinished, children} : ContainerProps) => (
   <Box 
     sx={{
      pointerEvents: "none",

@@ -1,17 +1,22 @@
-import React, { useContext, useState } from 'react';
+import { createContext, useContext, FC, ReactNode } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
 
-const AuthContext = React.createContext({
-    auth: true,
-    setAuth: null,
-    setupUser: null
-});
+interface AuthInterface {
+    auth: boolean | null;
+    setAuth: () => void | null;
+    setupUser: (response: any) => boolean | null ;
+}
 
-export const AuthProvider = ({ children }) => {
+interface AuthProps {
+    children: ReactNode;
+}
 
-    const [auth, setAuth] = useLocalStorage('auth', {}) 
+export const AuthContext = createContext<AuthInterface | null>(null);
 
-    const _decodeToken = (token) => {
+export const AuthProvider: FC<AuthProps> = ({ children }) => {
+    const [auth, setAuth] = useLocalStorage('auth', {})
+
+    const _decodeToken = (token : string) => {
         try {
             return JSON.parse(atob(token));
         }
@@ -19,7 +24,7 @@ export const AuthProvider = ({ children }) => {
             return;
         }
     }
-    const decodeToken = (token) => {
+    const decodeToken = (token : string) => {
         return token
             .split(".")
             .map(token => _decodeToken(token))
@@ -29,17 +34,18 @@ export const AuthProvider = ({ children }) => {
             }, Object.create(null));
     }
 
-    const setupUser = (response) => {
-        let payload = decodeToken(response.access_token)
+    const setupUser = (response : any) => {
+        const payload = decodeToken(response.access_token)
         setAuth({
             accessToken: response.access_token,
             refreshToken: response.refresh_token,
             user: payload.usr,
             role: payload.rol,
         })
+        return true;
     }
 
-    const isEmpty = (obj) => {
+    const isEmpty = (obj : object) => {
         return Object.keys(obj).length === 0;
     }
 

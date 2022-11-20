@@ -16,7 +16,10 @@ import { useEffect, useState } from "react";
 
 
 interface UploaderProps {
+    id: string;
+    meta?: Record<string, unknown>;
     plugins?: string[];
+    fileTypes?: string[];
     [dashProps: string]: any;
 }
 
@@ -24,14 +27,22 @@ const COMPANION_URL = "http://companion.uppy.io";
 const TUS_ENDPOINT = "https://tusd.tusdemo.net/files/";
 
 export default function Uploader(props: UploaderProps) {
-    const { plugins, ...dashProps } = props
-    const [uppy, setUppy] = useState(null) // note that `uppy` will be `null` on the server-side in this case
-
+    const { id, meta, plugins,  fileTypes, ...dashProps } = props
+    const [uppy, setUppy] = useState(() => new Uppy())  
+    
     useEffect(() => {
         const uppy = new Uppy({
-            id: "uppy",
+            id: id,
             autoProceed: false,
-            debug: true
+            allowMultipleUploadBatches: false,
+            debug: true,
+            restrictions: {
+                maxFileSize: null,
+                maxTotalFileSize: null,
+                maxNumberOfFiles: null,
+                allowedFileTypes: (fileTypes ? fileTypes : null),
+            },
+            meta : (meta? meta : undefined), 
         })
             .use(Tus, { endpoint: TUS_ENDPOINT })
             .use(WebCam, {

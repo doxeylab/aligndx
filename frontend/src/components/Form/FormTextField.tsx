@@ -1,7 +1,15 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { StyledTextField } from "./StyledForm";
 
-const FormTextField = ({name, label, type, autoComplete, hint }) => {
+interface FormTextFieldProps {
+    name: string;
+    label: string;
+    type: string;
+    autoComplete?: string;
+    hint?: any;
+}
+
+const FormTextField = ({name, label, type, autoComplete, hint } : FormTextFieldProps) => {
     const methods = useFormContext();
     return (
         <Controller
@@ -12,7 +20,7 @@ const FormTextField = ({name, label, type, autoComplete, hint }) => {
                 <>
                     <StyledTextField
                         {...field} 
-                        autoComplete={autoComplete}
+                        autoComplete={autoComplete? autoComplete : undefined}
                         id="filled-basic"
                         type={type}
                         label={label.replace(/(?<=\b)[a-z](?=\w*)/g, c => c.toUpperCase())}

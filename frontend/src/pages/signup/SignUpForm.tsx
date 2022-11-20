@@ -54,24 +54,24 @@ const SignUpForm = () => {
 
     // mutation functions used to update auth serverstate
     // for signup
-    const sendSignUp = (signup) => {
+    const sendSignUp = (signup: any) => {
         return users.signup(signup)
     }
 
     // for auth
-    const sendLogin = (login) => {
-        let payload = new URLSearchParams(login)
+    const sendLogin = (login : any) => {
+        const payload = new URLSearchParams(login)
         return users.login(payload)
     }
 
     const login = useMutation(sendLogin, {
         onSuccess: (data) => {
             setInvalid(false)
-            context.setupUser(data.data)
+            context?.setupUser(data.data)
             router.push('/')
 
         },
-        onError: (error) => {
+        onError: (error: any) => {
             if (error?.response?.status === 401) {
                 setInvalid(true)
             }
@@ -81,7 +81,7 @@ const SignUpForm = () => {
     const signUp = useMutation(sendSignUp, {
         onSuccess: (data, variables, context) => {
             setInvalid(false)
-            let loginpayload = {
+            const loginpayload = {
                 "username": variables.email,
                 "password": variables.password
             }
@@ -93,7 +93,7 @@ const SignUpForm = () => {
     })
 
     // Form handling for calling mutation function
-    const signupFormHandler = (data) => {
+    const signupFormHandler = (data : any) => {
         signUp.mutate(data)
     }
 
@@ -107,7 +107,7 @@ const SignUpForm = () => {
         >
             <Grid container direction={"row"} justifyContent={"center"} columnSpacing={2}>
                 <Grid item xs={6} container justifyContent={"flex-start"} alignItems={"center"}>
-                    <FormTextField name={"name"} label={"name"} type={"name"} />
+                    <FormTextField name={"name"} label={"name"} type={"name"} hint={""} />
 
                 </Grid>
                 <Grid item xs={6} container justifyContent={"flex-end"} alignItems={"center"}>
@@ -123,7 +123,7 @@ const SignUpForm = () => {
                 null}
             <Grid container direction={"row"} justifyContent={"center"} padding={2}>
                 <FormGroup>
-                    <FormControlLabel control={<Link href="/login"> Already have an account? Login</Link>} />
+                    <FormControlLabel label={'login-pusher'} control={<Link href="/login"> Already have an account? Login</Link>} />
                 </FormGroup>
             </Grid>
         </Form>

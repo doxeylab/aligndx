@@ -4,7 +4,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import ScienceIcon from '@mui/icons-material/Science';
-import HistoryIcon from '@mui/icons-material/History';
 import ListSubheader from '@mui/material/ListSubheader';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -18,11 +17,10 @@ export default function SideBarItems() {
         router.push(`/${route.toLocaleLowerCase()}`)
     })
 
-    let icons = {
+    const icons = {
         'Dashboard': <DashboardIcon />,
         'Analyze': <ScienceIcon />,
         'Results': <BarChartIcon />,
-        // 'Submissions': <HistoryIcon />
     }
     return (
         <>

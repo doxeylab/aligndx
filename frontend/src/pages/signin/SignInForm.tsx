@@ -42,18 +42,18 @@ const SignInForm = () => {
     })
 
     // mutation function used to update auth serverstate
-    const sendLogin = (login) => {
-        let payload = new URLSearchParams(login)
+    const sendLogin = (login : any) => {
+        const payload = new URLSearchParams(login)
         return users.login(payload)
     }
 
     const login = useMutation(sendLogin, {
         onSuccess: (data) => {
             setInvalid(false)
-            context.setupUser(data.data)
+            context?.setupUser(data.data)
             router.push('/')
         },
-        onError: (error) => {
+        onError: (error : any) => {
             if (error?.response?.status === 401) {
                 setInvalid(true)
             }
@@ -61,13 +61,13 @@ const SignInForm = () => {
     })
 
     // Form handling for calling mutation function
-    const loginFormHandler = (data) => {
+    const loginFormHandler = (data : any) => {
         data['username'] = data['email']
         delete data['email']
         login.mutate(data)
     }
 
-    const switchHandler = (event) => {
+    const switchHandler = (event : any) => {
         setChecked(event.target.checked)
     }
 

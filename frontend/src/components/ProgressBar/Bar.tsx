@@ -1,6 +1,11 @@
 import Box from '@mui/material/Box'
 
-const Bar = ({ animationDuration, progress }) => (
+interface BarProps {
+  animationDuration: number;
+  progress: number;
+}
+
+const Bar = ({ animationDuration, progress } : BarProps)  => (
   <Box
     sx={{
       bgcolor: "primary.main",

@@ -73,7 +73,7 @@ export default function Results() {
         createData('14', 'Oreo', 437, 18.0, 63, 4.0),
     ];
 
-    const contentgenerator = (row) => {
+    const contentgenerator = (row : any) => {
         return (
             <div>
                 {row.key}
@@ -83,7 +83,7 @@ export default function Results() {
         )
     }
 
-    const deletefn = (seldata) => {
+    const deletefn = (seldata : any) => {
         console.log(seldata)
         // sub_del.mutate(seldata)
     }
@@ -100,11 +100,10 @@ export default function Results() {
                             headCells={headCells}
                             contentgenerator={contentgenerator}
                             deletefn={deletefn}
-                        >
-                        </EnhancedTable>
+                        />
                     </Grid>
                 </Grid>
             </Container>
         </>
     )
-};
+}

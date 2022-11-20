@@ -73,6 +73,7 @@ export default function Navigation(props: NavigationProps) {
             <SwipeableDrawer
               variant="temporary"
               open={mobileOpen}
+              onOpen={()=>console.log('open')}
               onClose={handleDrawerToggle}
               ModalProps={{
                 keepMounted: true, // Better open performance on mobile.

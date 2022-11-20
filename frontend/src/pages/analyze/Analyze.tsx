@@ -16,17 +16,21 @@ export default function Analyze() {
                                 flexDirection: 'column',
                             }}
                         >
-                            <Uploader height={'100%'} width={'100%'} />
+                            <Uploader
+                                id={'test'}
+                                fileTypes={['.fastq','.fastq.gz']}
+                                meta={
+                                    {
+                                        username: 'test'
+                                    }
+                                }
+                                height={'100%'}
+                                width={'100%'}
+                            />
                         </Paper>
-                    </Grid>
-                    <Grid item xs={12}>
-                        test
-                    </Grid>
-                    <Grid item xs={12}>
-                        test
                     </Grid>
                 </Grid>
             </Container>
         </>
     )
-};
+}

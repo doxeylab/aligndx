@@ -171,7 +171,7 @@ export default function EnhancedTable({ orderby, tableName, data, headCells, con
                                     :
                                     <TableRow>
                                         <TableCell align='left' colSpan={headCells.length + 2}>
-                                            There's nothing here yet ...
+                                            There is nothing here yet ...
                                         </TableCell>
                                     </TableRow>}
                                 {stableSort(rows, getComparator(order, orderBy))
