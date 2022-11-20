@@ -9,12 +9,13 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
-
-import { Container } from '@mui/material'
+import Container from '@mui/material/Container'
+import { Snackbar, Alert } from '@mui/material';
 
 import EnhancedTableHead from './EnhancedTableHead'
 import EnhancedTableToolbar from './EnhancedTableToolbar'
 import CollapsibleRow from './CollapsibleRow';
+import ConfirmDialog from '../ConfirmDialog';
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -53,6 +54,9 @@ export default function EnhancedTable({ orderby, tableName, data, headCells, con
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [rows, setRows] = React.useState(data);
+    const [delDialog, setDelDialog] = React.useState(false);
+    const [snackBar, setSnackBar] = React.useState(false);
+
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -109,12 +113,43 @@ export default function EnhancedTable({ orderby, tableName, data, headCells, con
             prevRows.filter((row) => !items.includes(row.key))
         );
         deletefn(items)
+        setSelected([])
     }
+
+    const handleOpenDelDialog = () => {
+        setDelDialog(true);
+    }
+
+    const handleCloseDelDialog = () => {
+        setDelDialog(false);
+        setSnackBar(true);
+    }
+
+    const handleCloseSnackBar = () => {
+        setSnackBar(false);
+    }
+
     return (
         <Container>
             <Box sx={{ width: '100%' }}>
                 <Paper sx={{ width: '100%', mb: 2 }}>
-                    <EnhancedTableToolbar numSelected={selected.length} tableName={tableName} deletefn={() => filter(selected)} />
+                    <Snackbar open={snackBar} autoHideDuration={4000} onClose={handleCloseSnackBar} >
+                        <Alert onClose={handleCloseSnackBar} severity="success" sx={{ width: '100%' }}>
+                            Record successfully deleted!
+                        </Alert>
+                    </Snackbar>
+                    <ConfirmDialog
+                        title={'Confirm Deletion'}
+                        message={'Are you sure you want to delete these records?'}
+                        open={delDialog}
+                        close={handleCloseDelDialog}
+                        onConfirm={() => filter(selected)}
+                    />
+                    <EnhancedTableToolbar
+                        numSelected={selected.length}
+                        tableName={tableName}
+                        deletefn={handleOpenDelDialog}
+                    />
                     <TableContainer >
                         <Table
                             sx={{ minWidth: 750 }}
