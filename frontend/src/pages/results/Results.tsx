@@ -73,10 +73,10 @@ export default function Results() {
         createData('14', 'Oreo', 437, 18.0, 63, 4.0),
     ];
 
-    const contentgenerator = (data) => {
+    const contentgenerator = (row) => {
         return (
             <div>
-                some content
+                {row.key}
             </div>
 
             // <Result result={data} />

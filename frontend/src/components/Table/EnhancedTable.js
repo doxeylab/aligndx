@@ -52,7 +52,7 @@ export default function EnhancedTable({ orderby, tableName, data, headCells, con
     const [orderBy, setOrderBy] = React.useState(orderby.id);
     const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [rows, setRows] = React.useState(data);
     const [delDialog, setDelDialog] = React.useState(false);
     const [snackBar, setSnackBar] = React.useState(false);
@@ -193,7 +193,7 @@ export default function EnhancedTable({ orderby, tableName, data, headCells, con
                                                 length={headCells.length + 2}
                                                 content={
                                                     <>
-                                                        {contentgenerator ? contentgenerator(row.data) : null}
+                                                        {contentgenerator ? contentgenerator(row) : null}
 
                                                     </>
                                                 }
