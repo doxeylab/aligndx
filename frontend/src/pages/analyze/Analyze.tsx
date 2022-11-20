@@ -1,11 +1,7 @@
 import { Paper, Grid } from '@mui/material';
 import Container from '@mui/material/Container'
-import dynamic from 'next/dynamic'
+import Uploader from '../../components/Uploader'
 
-const Uploader = dynamic(
-    () => import('../../components/Uploader'),
-    { ssr: false }
-)
 export default function Analyze() {
 
     return (
