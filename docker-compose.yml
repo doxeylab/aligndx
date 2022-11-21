@@ -16,7 +16,7 @@ services:
       - "8080:8080"
     volumes:
       - ./backend/app:/app/app
-      - app-data:/app/data
+      - ./backend/data:/app/data
     environment:
       DATABASE_URL: ${DATABASE_URL}
       BASE_URL: ${BASE_URL}
@@ -57,7 +57,7 @@ services:
       - "8003:80"
     volumes:
       - ./tool/app/:/app/app/:ro
-      - app-data:/app/data
+      - ./backend/data:/app/data
       - /mnt/tmp/:/app/data/indexes:ro
 
   # Task Managment Executor
@@ -72,7 +72,7 @@ services:
     tty: true
     volumes:
       - ./backend/app:/app/app
-      - app-data:/app/data
+      - ./backend/data:/app/data
     environment:
       BASE_URL: ${BASE_URL}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
@@ -154,8 +154,8 @@ volumes:
   db-data:
   pgadmin-data: 
   redis-data:
-  app-data:
-    driver_opts:
-      type: none 
-      device: ${PWD}/backend/data
-      o: bind
+  # app-data:
+  #   driver_opts:
+  #     type: none 
+  #     device: ${PWD}/backend/data
+  #     o: bind

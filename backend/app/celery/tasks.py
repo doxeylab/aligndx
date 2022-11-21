@@ -3,7 +3,6 @@ import shutil, json, subprocess
 from app.models.schemas.redis import MetaModel
 
 from app.redis.functions import Handler
-from app.flows.analysis import analysis_pipeline
 
 from celery import Celery, group, chain
 
