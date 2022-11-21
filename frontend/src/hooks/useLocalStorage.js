@@ -1,14 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const getLocalValue = (key, initValue) => {
-    if (typeof window !== "undefined") {
-        const localValue = JSON.parse(localStorage.getItem(key));
-        if (localValue) {
-            return localValue
-        }
-        else {
-            return initValue
-        }
+    const localValue = JSON.parse(localStorage.getItem(key));
+    if (localValue) {
+        return localValue
+    }
+    else {
+        return initValue
     }
 
 }
@@ -18,9 +16,7 @@ const useLocalStorage = (key, initValue) => {
         return getLocalValue(key, initValue);
     });
 
-    useEffect(() => {
-        localStorage.setItem(key, JSON.stringify(value));
-    }, [key, value])
+    localStorage.setItem(key, JSON.stringify(value));
 
     return [value, setValue];
 }

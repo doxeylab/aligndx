@@ -9,7 +9,7 @@ const useLogout = () => {
 
     const logout = () => {
         users.logout()
-        setAuth(null)
+        setAuth({})
         router.push('/login')
     }
 

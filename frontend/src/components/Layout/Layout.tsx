@@ -35,7 +35,7 @@ const Layout = (props: any) => {
         </>
     )
     const dynamicNav = () => {
-        if (context?.auth) {
+        if (context?.authenticated) {
             return (
                 <>
                     <Navigation

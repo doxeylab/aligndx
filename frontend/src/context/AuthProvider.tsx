@@ -1,10 +1,10 @@
-import { createContext, useContext, FC, ReactNode } from 'react';
-import useLocalStorage from '../hooks/useLocalStorage';
+import { createContext, useContext, FC, ReactNode, useState} from 'react';
 
 interface AuthInterface {
-    auth: boolean | null;
-    setAuth: () => void | null;
-    setupUser: (response: any) => boolean | null ;
+    auth: object;
+    setAuth: any;
+    authenticated: boolean;
+    setupUser: (response: any) => boolean | null;
 }
 
 interface AuthProps {
@@ -14,9 +14,9 @@ interface AuthProps {
 export const AuthContext = createContext<AuthInterface | null>(null);
 
 export const AuthProvider: FC<AuthProps> = ({ children }) => {
-    const [auth, setAuth] = useLocalStorage('auth', {})
+    const [auth, setAuth] = useState({});
 
-    const _decodeToken = (token : string) => {
+    const _decodeToken = (token: string) => {
         try {
             return JSON.parse(atob(token));
         }
@@ -24,7 +24,7 @@ export const AuthProvider: FC<AuthProps> = ({ children }) => {
             return;
         }
     }
-    const decodeToken = (token : string) => {
+    const decodeToken = (token: string) => {
         return token
             .split(".")
             .map(token => _decodeToken(token))
@@ -34,18 +34,17 @@ export const AuthProvider: FC<AuthProps> = ({ children }) => {
             }, Object.create(null));
     }
 
-    const setupUser = (response : any) => {
+    const setupUser = (response: any) => {
         const payload = decodeToken(response.access_token)
         setAuth({
             accessToken: response.access_token,
-            refreshToken: response.refresh_token,
             user: payload.usr,
             role: payload.rol,
         })
         return true;
     }
 
-    const isEmpty = (obj : object) => {
+    const isEmpty = (obj: object) => {
         return Object.keys(obj).length === 0;
     }
 
@@ -53,6 +52,7 @@ export const AuthProvider: FC<AuthProps> = ({ children }) => {
         <AuthContext.Provider
             value={{
                 auth: auth,
+                authenticated: !isEmpty(auth),
                 setAuth: setAuth,
                 setupUser: setupUser,
             }}

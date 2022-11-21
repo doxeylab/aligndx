@@ -14,6 +14,7 @@ import {
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router';
 import ProgressBar from '../components/ProgressBar';
+import { AuthProvider } from '../context/AuthProvider';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -66,9 +67,11 @@ export default function MyApp(props: MyAppProps) {
         <CssBaseline />
         <QueryClientProvider client={queryClient}>
           <ProgressBar isRouteChanging={loading.isRouteChanging} />
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
+          <AuthProvider>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </AuthProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </CacheProvider>

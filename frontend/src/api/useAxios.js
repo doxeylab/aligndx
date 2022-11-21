@@ -10,7 +10,7 @@ const useAxios = () => {
 
   useEffect(() => {
     const requestIntercept = apiClient.interceptors.request.use((config) => {
-      if (context.authenticated) {
+      if (context?.authenticated) {
         if (!config.headers['Authorization']) {
           config.headers['Authorization'] = `Bearer ${context.auth?.accessToken}`
         }
@@ -22,7 +22,7 @@ const useAxios = () => {
     const responseIntercept = apiClient.interceptors.response.use(
       response => response,
       async (error) => {
-        if (context.authenticated) {
+        if (context?.authenticated) {
           const prevRequest = error?.config;
           if (error?.response?.status === 401 && !prevRequest?.sent) {
             prevRequest.sent = true;
@@ -41,7 +41,7 @@ const useAxios = () => {
       apiClient.interceptors.request.eject(requestIntercept)
       apiClient.interceptors.response.eject(responseIntercept)
     }
-  }, [context.auth, refresh])
+  }, [context?.auth, refresh])
 
   return apiClient;
 }
