@@ -1,5 +1,6 @@
-export const URL = process.env.REACT_APP_BACKEND_ACCESS_URL
-
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_ACCESS_URL
+const BASE_URL_RAW = process.env.NEXT_PUBLIC_BASE_URL
+export const BASE_URL = BASE_URL_RAW + ":3000/"
 // allowed filetypes
 export const ALLOWED_FILETYPES = ".fastq, .fastq.gz"
 

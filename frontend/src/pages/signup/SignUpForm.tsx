@@ -123,7 +123,7 @@ const SignUpForm = () => {
                 null}
             <Grid container direction={"row"} justifyContent={"center"} padding={2}>
                 <FormGroup>
-                    <FormControlLabel label={'login-pusher'} control={<Link href="/login"> Already have an account? Login</Link>} />
+                    <FormControlLabel label={''} control={<Link href="/login"> Already have an account? Login</Link>} />
                 </FormGroup>
             </Grid>
         </Form>

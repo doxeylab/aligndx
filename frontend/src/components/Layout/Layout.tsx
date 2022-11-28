@@ -9,7 +9,6 @@ import LogoButton from '../LogoButton';
 
 const Layout = (props: any) => {
     const router = useRouter();
-    const settings = ['Settings', 'Logout'];
     const context = useAuthContext();
 
     const sharedView = (
@@ -21,7 +20,7 @@ const Layout = (props: any) => {
         <>
             {sharedView}
             <Box sx={{ flexGrow: 0 }}>
-                <ProfileButton settings={settings} />
+                <ProfileButton />
             </Box>
         </>
     )

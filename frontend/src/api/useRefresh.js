@@ -1,7 +1,7 @@
 import { useAuthContext } from "../context/AuthProvider"
 import useLogout from "./useLogoutCustom"
 
-import { URL } from "../config/Settings"
+import { BACKEND_URL } from "../config/Settings"
 import axios from "axios"
 
 const useRefresh = () => {
@@ -9,7 +9,7 @@ const useRefresh = () => {
     const {logout} = useLogout();
     const refresh = async () => {
         try {
-            const response = await axios.get(`${URL}users/refresh`,{withCredentials: true})
+            const response = await axios.get(`${BACKEND_URL}users/refresh`,{withCredentials: true})
             setAuth(prev => {
                 return { ...prev, accessToken: response.data.access_token }
             })

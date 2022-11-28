@@ -2,7 +2,7 @@ import { useAuthContext } from "../context/AuthProvider";
 import { useRouter } from "next/router";
 
 import axios from "axios";
-import { URL } from "../config/Settings"
+import { BACKEND_URL } from "../config/Settings"
 
 const useLogout = () => {
     const { setAuth } = useAuthContext();
@@ -11,9 +11,9 @@ const useLogout = () => {
     const logout = async() => {
         try {
             // destroy refresh token
-            const response = await axios.get(`${URL}users/logout`, { withCredentials: true })
+            const response = await axios.get(`${BACKEND_URL}users/logout`, { withCredentials: true })
             setAuth({})
-            router.push('/login');
+            router.push('/signin');
             return
         }
         catch (err) {

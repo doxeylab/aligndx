@@ -1,8 +1,34 @@
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
 import EnhancedTable from '../../components/Table'
+import { useUsers } from '../../api/Users'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { useState } from 'react';
 
 export default function Results() {
+    const [rows, setRows] = useState<any[]>([])
+    const users = useUsers()
+
+    const submissions = useQuery({
+        retry: false,
+        queryKey: ['submissions'],
+        queryFn: () => users.index_submissions(),
+    })
+
+    if (submissions.isSuccess) {
+        submissions.data?.data.forEach((data: any) => {
+            const row = createData(data.id, data.result, data.name, data.created_date, data.panel)
+            rows.push(row)
+        })
+    } 
+    
+    const del_records = (seldata: any) => {
+        return users.del_record(seldata)
+    }
+
+    const sub_del = useMutation(['sub_del'], del_records, {
+        retry: false,
+    })
 
     interface HeadCell {
         id: string;
@@ -11,81 +37,50 @@ export default function Results() {
     }
 
     // order matters
-    const headCells: HeadCell[] = [
+    const headCells = [
         {
             id: 'name',
-            label: 'Dessert (100g serving)',
             numeric: false,
+            label: 'File/Sample Name',
         },
         {
-            id: 'calories',
-            label: 'Calories',
+            id: 'created_date',
             numeric: true,
+            label: 'Created Date',
         },
         {
-            id: 'fat',
-            label: 'Fat (g)',
+            id: 'panel',
             numeric: true,
-        },
-        {
-            id: 'carbs',
-            label: 'Carbs (g)',
-            numeric: true,
-        },
-        {
-            id: 'protein',
-            label: 'Protein (g)',
-            numeric: true,
+            label: 'Panel',
         },
     ];
 
     function createData(
         key: string,
+        data: any,
         name: string,
-        calories: number,
-        fat: number,
-        carbs: number,
-        protein: number,
+        created_date: string,
+        panel: string
     ) {
         return {
             key,
+            data,
             name,
-            calories,
-            fat,
-            carbs,
-            protein,
+            created_date,
+            panel
         };
     }
 
-    const rows = [
-        createData('1', 'Cupcake', 305, 3.7, 67, 4.3),
-        createData('3', 'Donut', 452, 25.0, 51, 4.9),
-        createData('4', 'Eclair', 262, 16.0, 24, 6.0),
-        createData('5', 'Frozen yoghurt', 159, 6.0, 24, 4.0),
-        createData('6', 'Gingerbread', 356, 16.0, 49, 3.9),
-        createData('7', 'Honeycomb', 408, 3.2, 87, 6.5),
-        createData('8', 'Ice cream sandwich', 237, 9.0, 37, 4.3),
-        createData('9', 'Jelly Bean', 375, 0.0, 94, 0.0),
-        createData('10', 'KitKat', 518, 26.0, 65, 7.0),
-        createData('11', 'Lollipop', 392, 0.2, 98, 0.0),
-        createData('12', 'Marshmallow', 318, 0, 81, 2.0),
-        createData('13', 'Nougat', 360, 19.0, 9, 37.0),
-        createData('14', 'Oreo', 437, 18.0, 63, 4.0),
-    ];
-
-    const contentgenerator = (row : any) => {
+    const contentgenerator = (row: any) => {
         return (
             <div>
                 {row.key}
             </div>
-
-            // <Result result={data} />
         )
     }
 
-    const deletefn = (seldata : any) => {
-        console.log(seldata)
-        // sub_del.mutate(seldata)
+    const deletefn = (seldata: any) => {
+        sub_del.mutate(seldata)
     }
 
     return (
@@ -94,7 +89,7 @@ export default function Results() {
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
                         <EnhancedTable
-                            orderby={{'order':'desc','id':'name', 'key':'key'}}
+                            orderby={{ 'order': 'desc', 'id': 'created_data', 'key': 'key' }}
                             tableName="Results"
                             data={rows}
                             headCells={headCells}

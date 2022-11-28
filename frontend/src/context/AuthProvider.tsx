@@ -1,4 +1,6 @@
-import { createContext, useContext, FC, ReactNode, useState} from 'react';
+import { createContext, useContext, FC, ReactNode, useState, useEffect } from 'react';
+import useLocalStorage from '../hooks/useLocalStorage'
+import { NextResponse } from 'next/server'
 
 interface AuthInterface {
     auth: object;
@@ -14,7 +16,7 @@ interface AuthProps {
 export const AuthContext = createContext<AuthInterface | null>(null);
 
 export const AuthProvider: FC<AuthProps> = ({ children }) => {
-    const [auth, setAuth] = useState({});
+    const [auth, setAuth] = useLocalStorage('auth', {});
 
     const _decodeToken = (token: string) => {
         try {

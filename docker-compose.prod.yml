@@ -35,17 +35,15 @@ services:
   frontend:
      build:
        context: frontend
-       target: base
+       target: production
+       args:
+        NEXT_PUBLIC_BASE_URL: ${BASE_URL}
+        NEXT_PUBLIC_BACKEND_ACCESS_URL: ${NEXT_PUBLIC_BACKEND_ACCESS_URL}
      tty: true
-     command: sh -c "npm run dev"
      ports:
        - "80:3000"
-     volumes:
-       - ./frontend/:/app
      environment:
-      NODE_ENV: development
-      NEXT_PUBLIC_BASE_URL: ${BASE_URL}
-      NEXT_PUBLIC_BACKEND_ACCESS_URL: ${NEXT_PUBLIC_BACKEND_ACCESS_URL} 
+      NODE_ENV: production
 
   # Tool 
   kraken2:

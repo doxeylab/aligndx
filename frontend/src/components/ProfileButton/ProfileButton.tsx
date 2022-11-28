@@ -7,11 +7,16 @@ import MenuItem from '@mui/material/MenuItem';
 import { useRouter } from 'next/router'
 import { Fragment, MouseEvent, useState } from 'react';
 
-interface ProfileButtonProps {
-    settings?: string[];
+interface MenuObject {
+    item: string;
+    onClick(): string;
 }
 
-export default function ProfileButton(props: ProfileButtonProps) {
+interface ProfileButtonProps {
+    menu: MenuObject[];
+}
+
+export default function ProfileButton() {
     const router = useRouter();
 
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
@@ -46,15 +51,19 @@ export default function ProfileButton(props: ProfileButtonProps) {
                     open={Boolean(anchorElUser)}
                     onClose={handleCloseUserMenu}
                 >
-                    {props?.settings?.map((setting) => (
-                        <MenuItem key={setting}
-                            onClick={() => {
-                                handleCloseUserMenu()
-                                router.push(setting.toLowerCase())
-                            }}>
-                            <Typography textAlign="center">{setting}</Typography>
-                        </MenuItem>
-                    ))}
+                    {/* <MenuItem key={'settings'}
+                        onClick={() => {
+                            handleCloseUserMenu()
+                            router.push('/settings')
+                        }}>
+                        <Typography textAlign="center">Settings</Typography>
+                    </MenuItem> */}
+                    <MenuItem key={'logout'}
+                        onClick={() => {
+                            handleCloseUserMenu()
+                        }}>
+                        <Typography textAlign="center">Logout</Typography>
+                    </MenuItem>
                 </Menu>
             </Fragment>
         </>

@@ -1,11 +1,24 @@
-FROM node:19
-WORKDIR /usr/src/app
+FROM node:19 as deps
+WORKDIR /opt/app
+COPY package.json package-lock.json ./
+RUN npm i && npx next telemetry disable
 
-COPY . ./
+FROM deps as base
+COPY . .
+COPY --from=deps /opt/app/node_modules ./node_modules
 
-# building the app
-RUN npm i
-# RUN npm run build
+FROM base as builder
+ARG NEXT_PUBLIC_BASE_URL
+ARG NEXT_PUBLIC_BACKEND_ACCESS_URL 
+ENV NODE_ENV=production
+RUN npm run build
 
-# Running the app
-CMD [ "npm", "run", "dev" ]
+FROM node:19 as production
+WORKDIR /app
+
+COPY --from=builder /opt/app/next.config.js ./
+COPY --from=builder /opt/app/public ./public
+COPY --from=builder /opt/app/.next ./.next
+COPY --from=builder /opt/app/node_modules ./node_modules
+COPY --from=builder /opt/app/package-lock.json /opt/app/package.json ./
+CMD ["npm", "run", "start"]

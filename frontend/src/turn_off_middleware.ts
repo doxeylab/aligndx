@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-
+import { BASE_URL } from "./config/Settings";
 export default function middleware(req: any) {
     const verify = req.headers.get("Authorization");
 
@@ -17,8 +17,11 @@ export default function middleware(req: any) {
         return NextResponse.rewrite(new URL('/dashboard', url))
     }
 
-    if (verify && url === "http://localhost:3000/") {
+    if (verify && url === BASE_URL) {
         return NextResponse.rewrite(new URL('/dashboard', url))
     }
 
 }
+
+export const config = { matcher: ['/dashboard', '/analyze','/results','/submissions','/settings'] }
+

@@ -8,14 +8,15 @@ import { CacheProvider, EmotionCache } from '@emotion/react';
 import theme from '../config/theme';
 import createEmotionCache from '../config/createEmotionCache';
 import {
+  Hydrate,
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router';
 import ProgressBar from '../components/ProgressBar';
-import { AuthProvider } from '../context/AuthProvider';
-
+import { AuthProvider, useAuthContext } from '../context/AuthProvider';
+import NoSSR from './noSSR';
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
@@ -30,6 +31,7 @@ export default function MyApp(props: MyAppProps) {
     isRouteChanging: false,
   })
   const router = useRouter();
+  const context = useAuthContext();
 
   useEffect(() => {
     const handleRouteChangeStart = () => {
@@ -65,14 +67,14 @@ export default function MyApp(props: MyAppProps) {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        <QueryClientProvider client={queryClient}>
-          <ProgressBar isRouteChanging={loading.isRouteChanging} />
-          <AuthProvider>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
-          </AuthProvider>
-        </QueryClientProvider>
+          <QueryClientProvider client={queryClient}>
+            <ProgressBar isRouteChanging={loading.isRouteChanging} />
+            <AuthProvider>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </AuthProvider>
+          </QueryClientProvider>
       </ThemeProvider>
     </CacheProvider>
   );
