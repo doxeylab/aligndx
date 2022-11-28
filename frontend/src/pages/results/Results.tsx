@@ -2,8 +2,22 @@ import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
 import EnhancedTable from '../../components/Table'
 import { useUsers } from '../../api/Users'
-import { useMutation, useQuery } from '@tanstack/react-query'
 import { useState } from 'react';
+import { dehydrate, QueryClient, useQuery, useMutation } from '@tanstack/react-query';
+
+export async function getStaticProps() {
+    const queryClient = new QueryClient()
+    const users = useUsers()
+  
+    await queryClient.prefetchQuery(['submissions'],() => users.index_submissions())
+  
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+      },
+    }
+  }
+  
 
 export default function Results() {
     const [rows, setRows] = useState<any[]>([])

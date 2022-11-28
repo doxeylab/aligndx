@@ -8,6 +8,7 @@ import { CacheProvider, EmotionCache } from '@emotion/react';
 import theme from '../config/theme';
 import createEmotionCache from '../config/createEmotionCache';
 import {
+  Hydrate,
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
@@ -31,6 +32,8 @@ export default function MyApp(props: MyAppProps) {
     isRouteChanging: false,
   })
   const router = useRouter();
+  const [queryClient] = useState(() => new QueryClient())
+
   const privatePages = ['/dashboard', '/analyze', '/results', '/submissions', '/settings']
 
   useEffect(() => {
@@ -69,14 +72,16 @@ export default function MyApp(props: MyAppProps) {
           {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
           <CssBaseline />
           <QueryClientProvider client={queryClient}>
-            <ProgressBar isRouteChanging={loading.isRouteChanging} />
-            <AuthProvider>
-              <Layout>
-                <Protected pages={privatePages}>
-                  <Component {...pageProps} />
-                </Protected>
-              </Layout>
-            </AuthProvider>
+            <Hydrate state={pageProps.dehydratedState}>
+              <ProgressBar isRouteChanging={loading.isRouteChanging} />
+              <AuthProvider>
+                <Layout>
+                  <Protected pages={privatePages}>
+                    <Component {...pageProps} />
+                  </Protected>
+                </Layout>
+              </AuthProvider>
+            </Hydrate>
           </QueryClientProvider>
         </ThemeProvider>
       </CacheProvider>
