@@ -8,15 +8,14 @@ import { CacheProvider, EmotionCache } from '@emotion/react';
 import theme from '../config/theme';
 import createEmotionCache from '../config/createEmotionCache';
 import {
-  Hydrate,
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router';
 import ProgressBar from '../components/ProgressBar';
-import { AuthProvider, useAuthContext } from '../context/AuthProvider';
-import NoSSR from './noSSR';
+import { AuthProvider } from '../context/AuthProvider';
+
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
@@ -31,7 +30,6 @@ export default function MyApp(props: MyAppProps) {
     isRouteChanging: false,
   })
   const router = useRouter();
-  const context = useAuthContext();
 
   useEffect(() => {
     const handleRouteChangeStart = () => {
@@ -60,13 +58,14 @@ export default function MyApp(props: MyAppProps) {
   }, [router.events])
 
   return (
-    <CacheProvider value={emotionCache}>
-      <Head>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
-      </Head>
-      <ThemeProvider theme={theme}>
-        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-        <CssBaseline />
+    <>
+      <CacheProvider value={emotionCache}>
+        <Head>
+          <meta name="viewport" content="initial-scale=1, width=device-width" />
+        </Head>
+        <ThemeProvider theme={theme}>
+          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+          <CssBaseline />
           <QueryClientProvider client={queryClient}>
             <ProgressBar isRouteChanging={loading.isRouteChanging} />
             <AuthProvider>
@@ -75,7 +74,8 @@ export default function MyApp(props: MyAppProps) {
               </Layout>
             </AuthProvider>
           </QueryClientProvider>
-      </ThemeProvider>
-    </CacheProvider>
+        </ThemeProvider>
+      </CacheProvider>
+    </>
   );
 }

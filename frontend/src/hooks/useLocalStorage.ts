@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
 
-const useLocalStorage = <S>(key: string, initialState?: S | (() => S)
-): [S, React.Dispatch<React.SetStateAction<S>>] => {
+const useLocalStorage = <S>(key: string, initialState?: S | (() => S)): [S, React.Dispatch<React.SetStateAction<S>>] => {
   const [value, setValue] = useState<S>(initialState as S)
 
   useEffect(() => {
