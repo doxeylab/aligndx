@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router';
 import ProgressBar from '../components/ProgressBar';
 import { AuthProvider } from '../context/AuthProvider';
+import Protected from '../components/Protected';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -30,6 +31,7 @@ export default function MyApp(props: MyAppProps) {
     isRouteChanging: false,
   })
   const router = useRouter();
+  const privatePages = ['/dashboard', '/analyze', '/results', '/submissions', '/settings']
 
   useEffect(() => {
     const handleRouteChangeStart = () => {
@@ -70,7 +72,9 @@ export default function MyApp(props: MyAppProps) {
             <ProgressBar isRouteChanging={loading.isRouteChanging} />
             <AuthProvider>
               <Layout>
-                <Component {...pageProps} />
+                <Protected pages={privatePages}>
+                  <Component {...pageProps} />
+                </Protected>
               </Layout>
             </AuthProvider>
           </QueryClientProvider>
