@@ -39,10 +39,11 @@ const Layout = (props: any) => {
             </Stack>
         </>
     )
-
-    if (!hasMounted) {
-        return null;
-    }
+    
+    // causes flickering
+    // if (!hasMounted) {
+    //     return null;
+    // }
 
     const dynamicNav = () => {
         if (context?.authenticated) {
