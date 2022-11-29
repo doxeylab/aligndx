@@ -1,9 +1,11 @@
-import { Paper, Grid } from '@mui/material';
+import Paper from '@mui/material/Paper'
+import Grid from '@mui/material/Grid'
+
 import Container from '@mui/material/Container'
 import Uploader from '../../components/Uploader'
 
 export default function Analyze() {
-
+    
     return (
         <>
             <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>
