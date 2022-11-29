@@ -24,7 +24,6 @@ const clientSideEmotionCache = createEmotionCache();
 interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache;
 }
-const queryClient = new QueryClient();
 
 export default function MyApp(props: MyAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;

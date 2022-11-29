@@ -6,10 +6,16 @@ import Stack from '@mui/material/Stack';
 import Navigation from '../Navigation';
 import ProfileButton from '../ProfileButton';
 import LogoButton from '../LogoButton';
+import { useEffect, useState } from 'react';
 
 const Layout = (props: any) => {
     const router = useRouter();
     const context = useAuthContext();
+    const [hasMounted, setHasMounted] = useState(false);
+
+    useEffect(() => {
+        setHasMounted(true)
+    },[])
 
     const sharedView = (
         <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'flex' } }}>
@@ -33,6 +39,11 @@ const Layout = (props: any) => {
             </Stack>
         </>
     )
+
+    if (!hasMounted) {
+        return null;
+    }
+
     const dynamicNav = () => {
         if (context?.authenticated) {
             return (

@@ -5,18 +5,18 @@ import { useUsers } from '../../api/Users'
 import { useState } from 'react';
 import { dehydrate, QueryClient, useQuery, useMutation } from '@tanstack/react-query';
 
-export async function getStaticProps() {
-    const queryClient = new QueryClient()
-    const users = useUsers()
+// export async function getServerSideProps() {
+//     const queryClient = new QueryClient()
+//     const users = useUsers()
   
-    await queryClient.prefetchQuery(['submissions'],() => users.index_submissions())
+//     await queryClient.prefetchQuery(['submissions'],() => users.index_submissions())
   
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-      },
-    }
-  }
+//     return {
+//       props: {
+//         dehydratedState: dehydrate(queryClient),
+//       },
+//     }
+//   }
   
 
 export default function Results() {
