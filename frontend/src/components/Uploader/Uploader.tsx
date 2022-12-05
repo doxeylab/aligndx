@@ -8,6 +8,7 @@ import Url from "@uppy/url";
 import WebCam from "@uppy/webcam";
 import ImageEditor from "@uppy/image-editor";
 import Dashboard from "@uppy/react/lib/Dashboard";
+import GoldenRetriever from '@uppy/golden-retriever'
 
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
@@ -57,9 +58,22 @@ export default function Uploader(props: UploaderProps) {
             .use(GoogleDrive, { companionUrl: COMPANION_URL })
             .use(DropBox, { companionUrl: COMPANION_URL })
             .use(OneDrive, { companionUrl: COMPANION_URL })
-            .use(Url, { companionUrl: COMPANION_URL });
+            .use(Url, { companionUrl: COMPANION_URL })
+            .use(GoldenRetriever, { serviceWorker: true });
         setUppy(uppy)
-    }, [])
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker
+              .register('/sw.js') // path to your bundled service worker with GoldenRetriever service worker
+              .then((registration) => {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope)
+              })
+              .catch((error) => {
+                console.log(`Registration failed with ${error}`)
+              })
+          }
+          
+    }, [fileTypes, plugins])
 
     return (
         <>
@@ -72,6 +86,7 @@ export default function Uploader(props: UploaderProps) {
                             :
                             ["GoogleDrive", "MyWebCam", "OneDrive", "Dropbox", "Url", "MyImageEditor"]
                     }
+                    theme={'dark'}
                     {...dashProps}
                     proudlyDisplayPoweredByUppy={false}
                     metaFields={[{ id: "name", name: "Name", placeholder: "File name" }]}
