@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
 import { useEffect, useState } from 'react';
-import { Button, Stack, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { useAuthContext } from '../../context/AuthProvider';
 import useLocalStorage from '../../hooks/useLocalStorage';
 
@@ -16,35 +16,46 @@ export default function Analyze() {
 
     // make some request to the backend to get list of available pipelines
     // list available pipelines
-    const pipelines = [
+
+    interface pipelineParams extends Record<string, any> {
+        label: string;
+        fileTypes: string[];
+        pluginType: string;
+        description: string;
+    }
+
+    const pipelines: pipelineParams[] = [
         {
             label: 'RNA',
             fileTypes: ['.fastq.gz', '.fastq'],
-            plugins: ['Regular']
+            pluginType: 'Regular',
+            description: 'This is the description of this pipeline'
         },
         {
             label: 'Lateral Flow',
             fileTypes: ['.jpg, .png'],
-            plugins: ['Camera']
+            pluginType: 'Camera',
+            description: 'This is the description of this pipeline'
         }
     ]
+    const pipelineOptions = pipelines.map(o => o.label)
 
-    const featuredPipelines = pipelines.slice(0, 2)
-
-    const [value, setValue] = useLocalStorage('sel_value', null);
-    const [inputValue, setInputValue] = useLocalStorage('sel_input', '');
-
-    // const [value, setValue] = useState<string | null>('');
-    // const [inputValue, setInputValue] = useState('');
-    const [plugins, setPlugins] = useState([])
+    const [value, setValue] = useLocalStorage('sel_value', "");
+    const [inputValue, setInputValue] = useLocalStorage('sel_input', "");
+    const [upload, setUpload] = useLocalStorage('uploadparams', {} as any);
 
     useEffect(() => {
-        if (value?.plugins == 'Camera')
-            setPlugins(["MyWebCam", "MyImageEditor"])
-        else {
-            setPlugins(["GoogleDrive", "OneDrive", "Dropbox", "Url"])
+        let sel = pipelines.find(o => o.label === value)
+        if (sel != undefined) {
+            if (sel?.pluginType == 'Camera')
+                sel['plugins'] = ["MyWebCam", "MyImageEditor"]
+            else {
+                sel['plugins'] = ["GoogleDrive", "OneDrive", "Dropbox", "Url"]
+            }
+            setUpload(sel)
         }
     }, [value])
+
 
     return (
         <>
@@ -60,62 +71,54 @@ export default function Analyze() {
                             }}
                         >
                             <Autocomplete
-                                inputValue={inputValue}
-                                onChange={(event: any, newValue: object | null) => {
+                                autoComplete
+                                onChange={(event: any, newValue: any | null) => {
                                     setValue(newValue);
                                 }}
-                                getOptionLabel={(option) => option.label}
-                                // isOptionEqualToValue={(option, value) => option.value === null}
                                 onInputChange={(event, newInputValue) => {
                                     setInputValue(newInputValue);
                                 }}
+                                isOptionEqualToValue={(option, value) => option === value}
                                 disablePortal
                                 id="pipelines"
-                                options={pipelines}
+                                options={pipelineOptions}
                                 renderInput={(params) => <TextField {...params} label="Select a pipeline" />}
                             />
                         </Paper>
 
                     </Grid>
+                    {value ?
+                        <>
+                            <Grid item xs={8}>
+                                <Paper
+                                    sx={{
+                                        p: 4,
+                                        height: 120
 
-                    <Grid item xs={8}>
-                        <Paper
-                            sx={{
-                                p: 4,
-                                height: 120
-
-                            }}
-                        >
-                            <Stack alignItems={'center'}>
-                                <Typography variant='h5'>
-                                    Featured Pipelines:
-                                </Typography>
-                                <Stack direction={'row'} spacing={2}>
-                                    {featuredPipelines.map(({ label, fileTypes, plugins }) => {
-                                        return <Button key={`featured_${label}`} variant='contained'>{label} </Button>
-                                    })}
-                                </Stack>
-                            </Stack>
-                        </Paper>
-                    </Grid>
-                    {
-                        value ?
+                                    }}
+                                >
+                                    <Typography>{upload?.label}</Typography>
+                                    {upload?.description}
+                                </Paper>
+                            </Grid>
                             <Grid item xs={12}>
                                 <Uploader
-                                    id={`uppy_${value?.label}`}
-                                    fileTypes={value?.fileTypes}
+                                    id={`uppy_${upload?.label}`}
+                                    fileTypes={upload?.fileTypes}
                                     meta={
                                         {
                                             username: context?.auth?.user
                                         }
                                     }
-                                    plugins={plugins}
+                                    plugins={upload?.plugins}
                                     height={'100%'}
                                     width={'100%'}
                                 />
                             </Grid>
-                            :
-                            null
+                        </>
+
+                        :
+                        null
                     }
 
                 </Grid>

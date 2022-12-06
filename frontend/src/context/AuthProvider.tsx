@@ -1,9 +1,15 @@
-import { createContext, useContext, FC, ReactNode, useState, useEffect } from 'react';
+import { createContext, useContext, FC, ReactNode } from 'react';
+import { string } from 'yup';
 import useLocalStorage from '../hooks/useLocalStorage'
-import { NextResponse } from 'next/server'
+
+interface AuthObject {
+    accessToken: string;
+    user: string;
+    role: string;
+}
 
 interface AuthInterface {
-    auth: object;
+    auth: AuthObject;
     setAuth: any;
     authenticated: boolean;
     setupUser: (response: any) => boolean | null;
@@ -16,7 +22,7 @@ interface AuthProps {
 export const AuthContext = createContext<AuthInterface | null>(null);
 
 export const AuthProvider: FC<AuthProps> = ({ children }) => {
-    const [auth, setAuth] = useLocalStorage('auth', {});
+    const [auth, setAuth] = useLocalStorage('auth', {} as AuthObject);
 
     const _decodeToken = (token: string) => {
         try {
