@@ -40,8 +40,8 @@ export default function Analyze() {
     ]
     const pipelineOptions = pipelines.map(o => o.label)
 
-    const [value, setValue] = useLocalStorage('sel_value', "");
-    const [inputValue, setInputValue] = useLocalStorage('sel_input', "");
+    const [value, setValue] = useLocalStorage('sel_value', null);
+    const [inputValue, setInputValue] = useLocalStorage('sel_input', '');
     const [upload, setUpload] = useLocalStorage('uploadparams', {} as any);
 
     useEffect(() => {
@@ -72,6 +72,8 @@ export default function Analyze() {
                         >
                             <Autocomplete
                                 autoComplete
+                                value={value}
+                                inputValue={inputValue}
                                 onChange={(event: any, newValue: any | null) => {
                                     setValue(newValue);
                                 }}
@@ -79,6 +81,7 @@ export default function Analyze() {
                                     setInputValue(newInputValue);
                                 }}
                                 isOptionEqualToValue={(option, value) => option === value}
+
                                 disablePortal
                                 id="pipelines"
                                 options={pipelineOptions}
