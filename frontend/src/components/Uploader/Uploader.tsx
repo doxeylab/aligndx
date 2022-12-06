@@ -61,17 +61,6 @@ export default function Uploader(props: UploaderProps) {
             .use(Url, { companionUrl: COMPANION_URL })
             .use(GoldenRetriever, { serviceWorker: true });
         setUppy(uppy)
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker
-              .register('/sw.js') // path to your bundled service worker with GoldenRetriever service worker
-              .then((registration) => {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope)
-              })
-              .catch((error) => {
-                console.log(`Registration failed with ${error}`)
-              })
-          }
           
     }, [fileTypes, plugins])
 

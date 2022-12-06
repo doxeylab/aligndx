@@ -1,1 +1,1 @@
-import('@uppy/golden-retriever/lib/ServiceWorker')
+import '@uppy/golden-retriever/lib/ServiceWorker'
