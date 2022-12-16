@@ -33,7 +33,7 @@ export default function Analyze() {
         },
         {
             label: 'Lateral Flow',
-            fileTypes: ['.jpg, .png'],
+            fileTypes: ['image/*', '.jpg', '.jpeg', '.png'],
             pluginType: 'Camera',
             description: 'This is the description of this pipeline'
         }
@@ -59,15 +59,14 @@ export default function Analyze() {
 
     return (
         <>
-            <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>
+            <Container maxWidth={false} sx={{ mt: 4, mb: 4, }}>
                 <Grid container spacing={3}>
-                    <Grid item xs={4}>
+                    <Grid item xs={10} sm={6} md={4}>
                         <Paper
                             sx={{
                                 p: 4,
                                 display: 'flex',
                                 flexDirection: 'column',
-                                height: 120
                             }}
                         >
                             <Autocomplete
@@ -92,12 +91,10 @@ export default function Analyze() {
                     </Grid>
                     {value ?
                         <>
-                            <Grid item xs={8}>
+                            <Grid item xs={12} md={8}>
                                 <Paper
                                     sx={{
                                         p: 4,
-                                        height: 120
-
                                     }}
                                 >
                                     <Typography>{upload?.label}</Typography>
@@ -114,7 +111,7 @@ export default function Analyze() {
                                         }
                                     }
                                     plugins={upload?.plugins}
-                                    height={'100%'}
+                                    height={'30vh'}
                                     width={'100%'}
                                 />
                             </Grid>
