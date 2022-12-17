@@ -1,19 +1,16 @@
 import { useUsers } from "../api/Users";
 import { useAuthContext } from "../context/AuthProvider";
-import { useNavigate, useLocation } from "react-router-dom";
-
+import { useRouter } from "next/router";
 
 const useLogout = () => {
     const users = useUsers();
     const { setAuth } = useAuthContext();
-
-    const navigate = useNavigate();
-    const location = useLocation();
+    const router = useRouter();
 
     const logout = () => {
         users.logout()
         setAuth({})
-        navigate('/login', { state: { from: location }, replace: true });
+        router.push('/')
     }
 
     return { logout }

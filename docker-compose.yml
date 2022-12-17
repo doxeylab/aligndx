@@ -16,7 +16,7 @@ services:
       - "8080:8080"
     volumes:
       - ./backend/app:/app/app
-      - app-data:/app/data
+      - ./backend/data:/app/data
     environment:
       DATABASE_URL: ${DATABASE_URL}
       BASE_URL: ${BASE_URL}
@@ -35,16 +35,18 @@ services:
   frontend:
      build:
        context: frontend
-       dockerfile: Dockerfile
+       target: base
      tty: true
+     command: sh -c "npm run dev"
      ports:
        - "80:3000"
      volumes:
-       - ./frontend/:/app
+       - ./frontend/:/opt/app
+       - /opt/app/node_modules
      environment:
       NODE_ENV: development
-      BASE_URL: ${BASE_URL}
-      REACT_APP_BACKEND_ACCESS_URL: ${REACT_APP_BACKEND_ACCESS_URL} 
+      NEXT_PUBLIC_BASE_URL: ${BASE_URL}
+      NEXT_PUBLIC_BACKEND_ACCESS_URL: ${NEXT_PUBLIC_BACKEND_ACCESS_URL} 
 
   # Tool 
   kraken2:
@@ -57,7 +59,7 @@ services:
       - "8003:80"
     volumes:
       - ./tool/app/:/app/app/:ro
-      - app-data:/app/data
+      - ./backend/data:/app/data
       - /mnt/tmp/:/app/data/indexes:ro
 
   # Task Managment Executor
@@ -72,7 +74,7 @@ services:
     tty: true
     volumes:
       - ./backend/app:/app/app
-      - app-data:/app/data
+      - ./backend/data:/app/data
     environment:
       BASE_URL: ${BASE_URL}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
@@ -154,8 +156,8 @@ volumes:
   db-data:
   pgadmin-data: 
   redis-data:
-  app-data:
-    driver_opts:
-      type: none 
-      device: ${PWD}/backend/data
-      o: bind
+  # app-data:
+  #   driver_opts:
+  #     type: none 
+  #     device: ${PWD}/backend/data
+  #     o: bind

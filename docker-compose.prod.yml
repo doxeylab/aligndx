@@ -1,0 +1,160 @@
+version: "3.7"
+services:
+
+  # Core services
+
+  # API Server
+  backend:
+    build:
+      context: backend
+      dockerfile: docker/api/Dockerfile
+    command: sh -c "uvicorn app.main:app --reload --host 0.0.0.0 --port 8080"
+    tty: true
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/data:/app/data
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      BASE_URL: ${BASE_URL}
+      ORIGINS: ${ORIGINS}
+      SECRET_KEY: ${SECRET_KEY}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
+      NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      REDIS_URL: ${REDIS_URL}
+
+  # Client
+  frontend:
+     build:
+       context: frontend
+       target: production
+       args:
+        NEXT_PUBLIC_BASE_URL: ${BASE_URL}
+        NEXT_PUBLIC_BACKEND_ACCESS_URL: ${NEXT_PUBLIC_BACKEND_ACCESS_URL}
+     tty: true
+     ports:
+       - "80:3000"
+     environment:
+      NODE_ENV: production
+
+  # Tool 
+  kraken2:
+    build:
+      context: tool
+      dockerfile: docker/kraken2/Dockerfile
+    command: uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port 80
+    tty: true
+    ports:
+      - "8003:80"
+    volumes:
+      - ./tool/app/:/app/app/:ro
+      - ./backend/data:/app/data
+      - /mnt/tmp/:/app/data/indexes:ro
+
+  # Task Managment Executor
+  celery_worker:
+    build:
+      context: backend
+      dockerfile: docker/celery_worker/Dockerfile
+    depends_on:
+      - backend
+      - redis
+    # command: sh -c "celery -A app.celery.tasks worker -l info"
+    tty: true
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/data:/app/data
+    environment:
+      BASE_URL: ${BASE_URL}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
+      NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
+
+
+  # Databases
+
+  # Primary Database
+  postgres:
+    image: postgres:12
+    restart: unless-stopped
+    expose:
+      - 5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: ${PGDATA}
+
+  # In-Memory Story for transient data
+  redis:
+    image: redis:7
+    command: sh -c "redis-server --requirepass ${REDIS_PASSWORD}"
+    restart: unless-stopped
+    expose:
+      - ${REDIS_PORT}
+    volumes:
+      - redis-data:/sdata 
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_PORT: ${REDIS_PORT}
+
+  # Monitoring Services
+  
+  # Postgres admin
+  pgadmin:
+    tty: true
+    image: dpage/pgadmin4
+    profiles: [ "monitoring" ]
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "8001:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
+  
+  # Celery Monitoring tool
+  flower:
+    build:
+      context: backend
+      dockerfile: docker/flower/Dockerfile
+    profiles: [ "monitoring" ]
+    depends_on:
+      - backend
+      - redis
+      - celery_worker
+    command: sh -c "celery flower --port=5555 --broker=$${CELERY_BROKER_URL}"
+    tty: true
+    volumes:
+      - ./backend/app:/app/app
+    ports:
+      - 5556:5555 
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+  
+volumes:
+  db-data:
+  pgadmin-data: 
+  redis-data:
+  # app-data:
+  #   driver_opts:
+  #     type: none 
+  #     device: ${PWD}/backend/data
+  #     o: bind

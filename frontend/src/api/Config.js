@@ -1,6 +1,6 @@
 import axios from "axios"
-import { URL } from "../config/Settings"
+import { BACKEND_URL } from "../config/Settings"
 
 export const apiClient = axios.create({
-    baseURL: URL,
+    baseURL: BACKEND_URL,
 }) 

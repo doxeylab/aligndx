@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "prettier": "2.7.1"
+  },
+  "dependencies": {
+    "next-pwa": "^5.6.0"
+  }
+}

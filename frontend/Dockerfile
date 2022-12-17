@@ -1,18 +1,24 @@
-FROM node:14.16.0
+FROM node:19 as deps
+WORKDIR /opt/app
+COPY package.json package-lock.json ./
+RUN npm i && npx next telemetry disable
 
-WORKDIR /app 
+FROM deps as base
+COPY . .
+COPY --from=deps /opt/app/node_modules ./node_modules
 
-# RUN chown -Rh node:node /app
+FROM base as builder
+ARG NEXT_PUBLIC_BASE_URL
+ARG NEXT_PUBLIC_BACKEND_ACCESS_URL 
+ENV NODE_ENV=production
+RUN npm run build
 
-# USER node
+FROM node:19 as production
+WORKDIR /app
 
-# COPY package.json package-lock.json ./
-
-# RUN npm install && npm cache clean --force
-
-# ENV PATH /app/node_modules/.bin:$PATH
-
-# Run after mounting volumes
-CMD [ "sh", "-c", "rm -rf /node_modules/* && npm install && npm cache clean --force && npm start" ]
-
-COPY . . 
+COPY --from=builder /opt/app/next.config.js ./
+COPY --from=builder /opt/app/public ./public
+COPY --from=builder /opt/app/.next ./.next
+COPY --from=builder /opt/app/node_modules ./node_modules
+COPY --from=builder /opt/app/package-lock.json /opt/app/package.json ./
+CMD ["npm", "run", "start"]

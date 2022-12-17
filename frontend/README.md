@@ -1,91 +1,34 @@
-# Design Philosophy
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-The React Frontend app follows this tree structure:
+## Getting Started
 
-```
-├── App.js
-├── LoadContext.js
-├── StyledGlobal.js
-├── context-provider.js
-├── http-common.js
-├── index.js
-├── api 
-│   └── ExampleAPIController
-├── assets 
-│   └── Examplemedia.svg
-├── config
-│   └── Config.js
-├── components 
-│   └── ExampleComponent 
-├── containers
-│   └── ExampleContainer
-├── pages 
-│   └── Page.js
-├── services
-│   └── Service.js
-└── styles
-    └── ExampleStyles
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
 ```
 
-Please place your code in the appropriate directory, as is described below:
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-1. API: Defines API calling functions use Base
-2. Assets: Any media assets, such as svgs, json, images, etc
-3. Config: App level settings, ex. env variables, re-used variables, etc.
-4. Components: Stateless, re-usable components, such as UI components; how things look
-5. Containers: Stateful components, that are concerned with how things work
-6. Pages: Whenever you want to add a web-page, where most other directory code is being instantiated
-7. Services: Miscellaneous
-8. Styles: css, and other styling stuff
+You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
-You can think of components as dumb pieces of code, that only serve to describe how to generate some piece of UI (example, a button). When you want to create a form, or a table that needs that button, create a higherorder component. Now you want to add some state to your UI! Ideally, you do this in the containers folder. Finally, we put it all together in the pages folder, where you add whatever components together, to generate some web-page. 
+[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
 
-# KEEP IN MIND
-Always aim to keep code modular if it is necessary. If you expect your code to be re-used many times within the app, seperate the logic so that it can be used in that manner. If it is a one-off/specific use-case, just keep the code within the scope of that file. 
+The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-Also: you won't always know where a component belongs, because sometimes, we don't know how the code will evolve! Start with the components folder, and move on from there
+## Learn More
 
-# Imports
+To learn more about Next.js, take a look at the following resources:
 
-To keep imports simple, follow this pattern:
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-``` 
-└── SomeDirectory
-    └── MyModule
-        └── index.js
-```
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-This way, we can simply import using ```import {MyModule} from "./path/to/MyModule"``` where index.js would look something like:
+## Deploy on Vercel
 
-```
-const MyModule = () => {
-    // some stuff
-    return {
-        //some stuff
-    }
-}
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-export const MyModule;
-```
-
-We can further extend this for multiple exports in one file by using ```import {MyModule1, MyModule2} from "./path/to/MyModule"```, where index.js would look like this:
-
-
-```
-const MyModule1 = () => {
-    // some stuff
-    return {
-        //some stuff
-    }
-}
-
-const MyModule2 = () => {
-    // some stuff
-    return {
-        //some stuff
-    }
-}
-
-export const MyModule1;
-export const MyModule2;
-```
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.

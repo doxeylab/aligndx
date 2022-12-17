@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="3840" height="2160" version="1.1" viewBox="0 0 3840 2160" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <filter id="filter4084" x="-.017356" y="-.036474" width="1.0347" height="1.0729" color-interpolation-filters="sRGB">
+   <feGaussianBlur stdDeviation="1.3370835"/>
+  </filter>
+  <filter id="filter4088" x="-.01948" y="-.042482" width="1.039" height="1.085" color-interpolation-filters="sRGB">
+   <feGaussianBlur stdDeviation="1.3370835"/>
+  </filter>
+  <filter id="filter4092" x="-.025748" y="-.046462" width="1.0515" height="1.0929" color-interpolation-filters="sRGB">
+   <feGaussianBlur stdDeviation="1.3370835"/>
+  </filter>
+  <filter id="filter4096" x="-.036829" y="-.065029" width="1.0737" height="1.1301" color-interpolation-filters="sRGB">
+   <feGaussianBlur stdDeviation="1.3370835"/>
+  </filter>
+  <clipPath id="clipPath6345">
+   <rect x="13.182" y="24.678" width="185.16" height="108.67" fill="#5fbcd3" opacity=".73009" stroke-width=".26446"/>
+  </clipPath>
+ </defs>
+ <g transform="translate(-.01086 .83609)">
+  <g transform="matrix(20.739 0 0 19.876 -273.37 -491.33)" clip-path="url(#clipPath6345)" stroke-width=".26458">
+   <path d="m13.303 24.87h184.89c-103.16 29.613-27.174 111.17-184.89 81.64z" fill="#00112b" filter="url(#filter4084)"/>
+   <path d="m13.303 24.87h184.89c-104.8 28.946-30.603 109.6-184.89 81.64z" fill="#003380"/>
+   <path d="m13.303 24.87h164.73c-92.714 18.985-31.989 81.088-164.73 75.137z" fill="#1c2224" filter="url(#filter4088)"/>
+   <path d="m13.303 24.87h164.73c-93.828 17.924-35.268 78.27-164.73 75.137z" fill="#04a"/>
+   <path d="m13.303 24.87h124.63c-93.73 18.081 4.9275 56.873-124.63 69.068z" fill="#1c2224" filter="url(#filter4092)"/>
+   <path d="m13.303 24.87h124.63c-93.828 17.924 2.4495 52.908-124.63 69.068z" fill="#0055d4"/>
+   <path d="m13.303 24.87h87.132c-56.216 22.314 4.0679 64.609-87.132 43.706z" fill="#1c2224" filter="url(#filter4096)"/>
+   <path d="m13.303 24.87h87.132c-56.544 21.609 1.7992 61.579-87.132 43.706z" fill="#06f"/>
+  </g>
+ </g>
+</svg>
