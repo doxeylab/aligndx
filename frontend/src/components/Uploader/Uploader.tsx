@@ -14,7 +14,8 @@ import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import '@uppy/image-editor/dist/style.css'
 import { useEffect, useState } from "react";
-
+import {COMPANION_URL} from '../../config/Settings'
+import {TUS_ENDPOINT} from '../../config/Settings'
 
 interface UploaderProps {
     id: string;
@@ -24,8 +25,8 @@ interface UploaderProps {
     [dashProps: string]: any;
 }
 
-const COMPANION_URL = "http://companion.uppy.io";
-const TUS_ENDPOINT = "https://tusd.tusdemo.net/files/";
+// const COMPANION_URL = "http://companion.uppy.io";
+// const TUS_ENDPOINT = "https://tusd.tusdemo.net/files/";
 
 export default function Uploader(props: UploaderProps) {
     const { id, meta, plugins,  fileTypes, ...dashProps } = props
