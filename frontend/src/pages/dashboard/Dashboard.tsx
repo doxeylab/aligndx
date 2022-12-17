@@ -7,30 +7,6 @@ const Dashboard = () => {
         <>
             <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>
                 <Grid container spacing={3}>
-                <Grid item xs={12} md={8} lg={6}>
-                        <Paper
-                            sx={{
-                                p: 2,
-                                display: 'flex',
-                                flexDirection: 'column',
-                            }}
-                        >
-                            Start a new Analyses
-                        </Paper>
-                    </Grid>
-                    <Grid item xs={12} md={4} lg={6}>
-                        <Paper
-                            sx={{
-                                p: 2,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                height: "100%",
-                                width: "100%"
-                            }}
-                        >
-                            Re-use the last pipeline you used
-                        </Paper>
-                    </Grid>
                     <Grid item xs={12} md={8} lg={6}>
                         <Paper
                             sx={{
@@ -39,7 +15,7 @@ const Dashboard = () => {
                                 flexDirection: 'column',
                             }}
                         >
-                            Analyses currently in progress
+                            Analyses in progress
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={4} lg={6}>
@@ -52,7 +28,7 @@ const Dashboard = () => {
                                 width: "100%"
                             }}
                         >
-                            Uploads in Progress
+                            Uploads in progress
                         </Paper>
                     </Grid>
                     <Grid item xs={12}>
@@ -61,12 +37,12 @@ const Dashboard = () => {
                                 p: 2,
                                 display: 'flex',
                                 flexDirection: 'column',
-                                height: "100%",
-                                width: "100%"
-                            }}>
-                            Recent Uploads
+                            }}
+                        >
+                            Re-use the last pipeline you used
                         </Paper>
                     </Grid>
+
                 </Grid>
             </Container>
         </>
