@@ -44,6 +44,9 @@ export default function Uploader(props: UploaderProps) {
                 maxNumberOfFiles: null,
                 allowedFileTypes: (fileTypes ? fileTypes : null),
             },
+            onBeforeUpload: (files) => {
+                console.log(files)
+            },
             meta : (meta? meta : undefined), 
         })
             .use(Tus, { endpoint: TUS_ENDPOINT })
@@ -61,6 +64,7 @@ export default function Uploader(props: UploaderProps) {
             .use(OneDrive, { companionUrl: COMPANION_URL })
             .use(Url, { companionUrl: COMPANION_URL })
             .use(GoldenRetriever, { serviceWorker: true });
+        
         setUppy(uppy)
           
     }, [fileTypes, plugins])

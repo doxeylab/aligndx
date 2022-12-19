@@ -50,6 +50,14 @@ services:
       NEXT_PUBLIC_TUS_ENDPOINT: ${NEXT_PUBLIC_TUS_ENDPOINT}
       NEXT_PUBLIC_COMPANION_URL: ${NEXT_PUBLIC_COMPANION_URL} 
 
+  tusd:
+    image: tusproject/tusd
+    tty: true
+    ports:
+      - "8004:1080"
+    volumes:
+      - ./backend/data/uploads:/srv/tusd-data/data
+
   # Tool 
   kraken2:
     build:
