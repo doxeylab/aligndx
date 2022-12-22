@@ -14,8 +14,8 @@ import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import '@uppy/image-editor/dist/style.css'
 import { useEffect, useState } from "react";
-import {COMPANION_URL} from '../../config/Settings'
-import {TUS_ENDPOINT} from '../../config/Settings'
+import { COMPANION_URL } from '../../config/Settings'
+import { TUS_ENDPOINT } from '../../config/Settings'
 
 interface UploaderProps {
     id: string;
@@ -29,9 +29,9 @@ interface UploaderProps {
 // const TUS_ENDPOINT = "https://tusd.tusdemo.net/files/";
 
 export default function Uploader(props: UploaderProps) {
-    const { id, meta, plugins,  fileTypes, ...dashProps } = props
-    const [uppy, setUppy] = useState(() => new Uppy())  
-    
+    const { id, meta, plugins, fileTypes, ...dashProps } = props
+    const [uppy, setUppy] = useState(() => new Uppy())
+
     useEffect(() => {
         const uppy = new Uppy({
             id: id,
@@ -45,9 +45,12 @@ export default function Uploader(props: UploaderProps) {
                 allowedFileTypes: (fileTypes ? fileTypes : null),
             },
             onBeforeUpload: (files) => {
-                console.log(files)
+                let names = Object.entries(files).map(a => a.name);
+                // for (const [key, value] of Object.entries(files)) {
+                //     console.log(value.name);
+                // }
             },
-            meta : (meta? meta : undefined), 
+            meta: (meta ? meta : undefined),
         })
             .use(Tus, { endpoint: TUS_ENDPOINT })
             .use(WebCam, {
@@ -64,9 +67,9 @@ export default function Uploader(props: UploaderProps) {
             .use(OneDrive, { companionUrl: COMPANION_URL })
             .use(Url, { companionUrl: COMPANION_URL })
             .use(GoldenRetriever, { serviceWorker: true });
-        
+
         setUppy(uppy)
-          
+
     }, [fileTypes, plugins])
 
     return (
