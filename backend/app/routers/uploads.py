@@ -1,10 +1,10 @@
 from http.client import HTTPException
 from datetime import datetime
-from typing import Dict 
+from typing import Dict, List
 
 from app.models.schemas.phi_logs import UploadLogBase
 from app.models.schemas.redis import MetaModel, ItemModel
-from fastapi import APIRouter, HTTPException, Form, Body
+from fastapi import APIRouter, HTTPException, Form, Body, Request
 from fastapi import Depends
 
 from app.auth.models import UserDTO
@@ -36,16 +36,18 @@ RESULTS_FOLDER = settings.RESULTS_FOLDER
 @router.post("/start")
 async def start(
     current_user: UserDTO = Depends(get_current_user),
-    meta: Dict = Body(...),
+    items: List[str] = Body(...),
     pipeline: str = Body(...),
+    # size: float = Body(...),
     db: AsyncSession = Depends(get_db)
 ):
 
     db_entry = SubmissionBase(
+        user_id=current_user.id,
         created_date=datetime.now(),
         pipeline=pipeline,
-        user_id=current_user.id,
-        meta = meta,
+        items=items,
+        # size=size,
     ) 
 
     sub_dal = SubmissionsDal(db)
@@ -58,48 +60,53 @@ async def start(
     dirs = [upload_dir, results_dir]
     dir_generator(dirs)
 
-    fnames = meta.fnames
-    items={}
-    for fname in fnames:
-        item = ItemModel(
+    sub_items={}
+    for item in items:
+        sub_item = ItemModel(
                 uploaded=False,
                 analyzed=False,
             )
 
-        items[fname] = item.dict()
+        sub_items[item] = sub_item.dict()
 
     metadata = MetaModel(
         updir=upload_dir,
         rdir=results_dir,
-        items=items,
+        items=sub_items,
         status='setup', 
         data="",
     )
 
     setup_flow(sub_id, metadata, results_dir)
 
-    return {"Result": "OK",
-            "sub_id": sub_id}
+    return {"sub_id": sub_id}
     
-@router.post("/update")
-async def update(  
+@router.post("/tusd")
+async def tusd(  
+    request: Request,
     current_user: UserDTO = Depends(get_current_user),
-    sub_id: str = Form(...),
-    fname: str = Form(...),
     db: AsyncSession = Depends(get_db)
 ):
-    users_dal = UsersDal(db)
-    query = await users_dal.get_submission(current_user.id, sub_id)
-    submission = SubmissionSchema.from_orm(query)
+    if request.headers['hook-name'] == 'post-finish':
+        users_dal = UsersDal(db)
+        
+        body = await request.json()
+        metadata = body['Upload']['MetaData']
+        sub_id = metadata['sub_id']
+        fname = metadata['filename']
+        print(sub_id,fname)
 
-    if submission is None:
-        raise HTTPException(status_code=404, detail="Submission not found")
+        query = await users_dal.get_submission(current_user.id, sub_id)
+        submission = SubmissionSchema.from_orm(query)
 
-    update_flow(sub_id, fname)
+        if submission is None:
+            raise HTTPException(status_code=404, detail="Submission not found")
 
-    # if submission.finished_date is None:
-    #     sub_dal = SubmissionsDal(db)
-    #     await sub_dal.update(sub_id, UpdateSubmissionDate(finished_date=datetime.now()))
-    #     return {"Result": "OK"}
+        # update_flow(sub_id, fname)
+
+        # if submission.finished_date is None:
+        #     sub_dal = SubmissionsDal(db)
+        #     await sub_dal.update(sub_id, UpdateSubmissionDate(finished_date=datetime.now()))
+        #     return {"Result": "OK"}
      
-    return {"Result": "OK"}
+    return 200

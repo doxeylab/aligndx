@@ -107,7 +107,8 @@ export default function Analyze() {
                                     fileTypes={upload?.fileTypes}
                                     meta={
                                         {
-                                            username: context?.auth?.user
+                                            username: context?.auth?.user,
+                                            pipeline: value
                                         }
                                     }
                                     plugins={upload?.plugins}

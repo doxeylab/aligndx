@@ -8,11 +8,21 @@ const useAxios = () => {
   const context = useAuthContext();
   const { refresh } = useRefresh();
 
+  const parse = (value) => {
+    try {
+      return JSON.parse(value)
+    } catch {
+      return value
+    }
+  }
+
+  const stored = parse(localStorage.getItem('auth'))
+
   useEffect(() => {
     const requestIntercept = apiClient.interceptors.request.use((config) => {
       if (context?.authenticated) {
         if (!config.headers['Authorization']) {
-          config.headers['Authorization'] = `Bearer ${context.auth?.accessToken}`
+          config.headers['Authorization'] = `Bearer ${stored['accessToken']}`
         }
       }
       return config;
@@ -27,7 +37,7 @@ const useAxios = () => {
           if (error?.response?.status === 401 && !prevRequest?.sent) {
             prevRequest.sent = true;
             const newAccessToken = await refresh();
-            if (typeof(newAccessToken) === 'string') {
+            if (typeof (newAccessToken) === 'string') {
               prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
               return apiClient(prevRequest);
             }

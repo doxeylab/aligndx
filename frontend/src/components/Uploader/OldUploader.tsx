@@ -7,14 +7,14 @@ import OneDrive from "@uppy/onedrive";
 import Url from "@uppy/url";
 import Webcam from "@uppy/webcam";
 import ImageEditor from "@uppy/image-editor";
-import { Dashboard } from "@uppy/react";
+import Dashboard from "@uppy/react/lib/Dashboard";
 import GoldenRetriever from '@uppy/golden-retriever'
 import RemoteSources from "@uppy/remote-sources";
 
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import '@uppy/image-editor/dist/style.css'
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { COMPANION_URL } from '../../config/Settings'
 import { TUS_ENDPOINT } from '../../config/Settings'
 import { useMutation } from '@tanstack/react-query'
@@ -22,7 +22,6 @@ import { useMutation } from '@tanstack/react-query'
 import useRefresh from "../../api/useRefresh"
 import { useUploads } from "../../api/Uploads"
 import CreateSubmission from "./CreateSubmission";
-
 
 interface UploaderProps {
     id: string;
@@ -36,7 +35,6 @@ interface UploaderProps {
 export default function Uploader(props: UploaderProps) {
     const { id, meta, plugins, fileTypes, ...dashProps } = props
     const [uppy, setUppy] = useState(() => new Uppy())
-    const dashboardRef = useRef();
     const { refresh } = useRefresh();
     const uploads = useUploads();
 
@@ -72,13 +70,6 @@ export default function Uploader(props: UploaderProps) {
             return true
         }
     }
-
-    useEffect(() => {
-        return () => {
-            // you are in control whether you want to cancel uploads or not.
-            uppy.close({ cancelUploads: false });
-        };
-    }, []);
 
     useEffect(() => {
         const uppy_obj = new Uppy({
@@ -150,22 +141,25 @@ export default function Uploader(props: UploaderProps) {
         setUppy(uppy_obj)
 
     }, [fileTypes, plugins])
-    return <>
-        {uppy ?
-            <Dashboard
-                uppy={uppy}
-                plugins={plugins
-                    // plugins ?
-                    // plugins
-                    // :
-                    // ["GoogleDrive", "MyWebCam", "OneDrive", "Dropbox", "Url", "MyImageEditor"]
-                }
-                theme={'dark'}
-                {...dashProps}
-                proudlyDisplayPoweredByUppy={false}
-            // metaFields={[{ id: "name", name: "Name", placeholder: "File name" }]}
-            />
-            :
-            null}
-    </>
+
+    return (
+        <>
+            {uppy ?
+                <Dashboard
+                    uppy={uppy}
+                    plugins={plugins
+                        // plugins ?
+                        // plugins
+                        // :
+                        // ["GoogleDrive", "MyWebCam", "OneDrive", "Dropbox", "Url", "MyImageEditor"]
+                    }
+                    theme={'dark'}
+                    {...dashProps}
+                    proudlyDisplayPoweredByUppy={false}
+                // metaFields={[{ id: "name", name: "Name", placeholder: "File name" }]}
+                />
+                :
+                null}
+        </>
+    );
 }
