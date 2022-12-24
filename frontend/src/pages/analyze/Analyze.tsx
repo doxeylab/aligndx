@@ -2,7 +2,6 @@ import Paper from '@mui/material/Paper'
 import Grid from '@mui/material/Grid'
 
 import Container from '@mui/material/Container'
-import Uploader from '../../components/Uploader'
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
@@ -11,9 +10,15 @@ import { Typography } from '@mui/material';
 import { useAuthContext } from '../../context/AuthProvider';
 import useLocalStorage from '../../hooks/useLocalStorage';
 
+import dynamic from 'next/dynamic'
+
+const Uploader = dynamic(() => import('../../components/Uploader'), {
+  ssr: false,
+})
+
+
 export default function Analyze() {
     const context = useAuthContext();
-
     // make some request to the backend to get list of available pipelines
     // list available pipelines
 
@@ -55,7 +60,6 @@ export default function Analyze() {
             setUpload(sel)
         }
     }, [value])
-
 
     return (
         <>
@@ -107,8 +111,8 @@ export default function Analyze() {
                                     fileTypes={upload?.fileTypes}
                                     meta={
                                         {
-                                            username: context?.auth?.user,
-                                            pipeline: value
+                                            // username: context?.auth?.user,
+                                            pipeline: value,
                                         }
                                     }
                                     plugins={upload?.plugins}

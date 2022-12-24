@@ -92,15 +92,16 @@ async def tusd(
         
         body = await request.json()
         metadata = body['Upload']['MetaData']
-        sub_id = metadata['sub_id']
-        fname = metadata['filename']
-        print(sub_id,fname)
+        print(metadata)
+        # sub_id = metadata['sub_id']
+        # fname = metadata['filename']
+        # print(sub_id,fname)
 
-        query = await users_dal.get_submission(current_user.id, sub_id)
-        submission = SubmissionSchema.from_orm(query)
+        # query = await users_dal.get_submission(current_user.id, sub_id)
+        # submission = SubmissionSchema.from_orm(query)
 
-        if submission is None:
-            raise HTTPException(status_code=404, detail="Submission not found")
+        # if submission is None:
+        #     raise HTTPException(status_code=404, detail="Submission not found")
 
         # update_flow(sub_id, fname)
 

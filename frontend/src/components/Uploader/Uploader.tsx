@@ -35,8 +35,9 @@ interface UploaderProps {
 
 export default function Uploader(props: UploaderProps) {
     const { id, meta, plugins, fileTypes, ...dashProps } = props
-    const [uppy, setUppy] = useState(() => new Uppy())
-    const dashboardRef = useRef();
+    const [uppy, setUppy] = useState(() => new Uppy());
+
+
     const { refresh } = useRefresh();
     const uploads = useUploads();
 
@@ -45,31 +46,17 @@ export default function Uploader(props: UploaderProps) {
         return uploads.start(data)
     }
 
-    const start = useMutation(sendStart)
+    const start = useMutation({
+        mutationFn: sendStart,
+        retry: 1,
+        retryDelay: 1000,
+    })
 
     const parse = (value: string) => {
         try {
             return JSON.parse(value)
         } catch {
             return value
-        }
-    }
-
-    const onBeforeUploadHandler = (files: any) => {
-        let names = Object.values(files).map(a => a.name);
-        let data = {
-            "items": names,
-            'pipeline': meta.pipeline
-        }
-        start.mutate(data)
-
-        if (start.isSuccess) {
-            console.log('testing success')
-            uppy.setMeta({
-                sub_id: start.data.data.sub_id
-            })
-            setUppy(uppy)
-            return true
         }
     }
 
@@ -92,12 +79,10 @@ export default function Uploader(props: UploaderProps) {
                 maxNumberOfFiles: null,
                 allowedFileTypes: (fileTypes ? fileTypes : null),
             },
-            meta: (meta ? meta : null),
-            onBeforeUpload: (files) => {
-                return onBeforeUploadHandler(files)
-            }
+            meta: (meta ? meta : {}),
         })
             .use(Tus, {
+                limit: 10,
                 endpoint: TUS_ENDPOINT,
                 retryDelays: [1000],
                 async onBeforeRequest(req) {
@@ -109,19 +94,16 @@ export default function Uploader(props: UploaderProps) {
                 onShouldRetry(err, retryAttempt, options, next) {
                     const status = err?.originalResponse?.getStatus()
                     if (status === 401) {
-                        return false
+                        return true
                     }
                     return next(err)
                 },
-                // async onAfterResponse(req, res) {
-                //     if (res.getStatus() === 401) {
-                //         await refresh()
-                //     }
-                // },
+                async onAfterResponse(req, res) {
+                    if (res.getStatus() === 401) {
+                        await refresh()
+                    }
+                },
             })
-            // .use(CreateSubmission, {
-            //     pipeline: meta.pipeline
-            // })
             .use(Webcam, {
                 id: 'MyWebCam',
                 modes: ['picture'],
@@ -135,21 +117,35 @@ export default function Uploader(props: UploaderProps) {
             .use(DropBox, { companionUrl: COMPANION_URL })
             .use(OneDrive, { companionUrl: COMPANION_URL })
             .use(Url, { companionUrl: COMPANION_URL })
-            .use(GoldenRetriever, { serviceWorker: true });
-
-        uppy.on('upload-error', (file, error, response) => {
-            if (response.status === 401) {
-                console.log('there was a problem')
-                uppy.pauseAll();
-                refresh().then(() => {
-                    uppy.retryAll();
-                    uppy.resumeAll();
-                });
-            }
-        });
+            .use(GoldenRetriever, { serviceWorker: true })
         setUppy(uppy_obj)
 
     }, [fileTypes, plugins])
+
+    uppy.setOptions({
+        onBeforeUpload: (files) => {
+            let names = Object.values(files).map(a => a.name);
+            let data = {
+                "items": names,
+                'pipeline': meta.pipeline
+            }
+            start.mutate(data)
+
+            if (start.isSuccess) {
+                console.log('success')
+                let subId = start.data.data.sub_id
+                console.log(subId)
+                uppy.setOptions({
+                    meta: {
+                        ...meta,
+                        'sub_id': subId
+                    }
+                })
+            }
+
+        }
+    })
+
     return <>
         {uppy ?
             <Dashboard
