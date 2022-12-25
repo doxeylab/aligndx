@@ -8,21 +8,11 @@ const useAxios = () => {
   const context = useAuthContext();
   const { refresh } = useRefresh();
 
-  const parse = (value) => {
-    try {
-      return JSON.parse(value)
-    } catch {
-      return value
-    }
-  }
-
-  const stored = parse(localStorage.getItem('auth'))
-
   useEffect(() => {
     const requestIntercept = apiClient.interceptors.request.use((config) => {
       if (context?.authenticated) {
         if (!config.headers['Authorization']) {
-          config.headers['Authorization'] = `Bearer ${stored['accessToken']}`
+          config.headers['Authorization'] = `Bearer ${context.auth.accessToken}`
         }
       }
       return config;
