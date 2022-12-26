@@ -19,7 +19,8 @@ import { TUS_ENDPOINT } from '../../config/Settings'
 
 import useRefresh from "../../api/useRefresh"
 import CreateSubmission from "./CreateSubmission";
-
+import { useUploads } from "../../api/Uploads";
+import { useAuthContext } from "../../context/AuthProvider";
 
 interface UploaderProps {
     id: string;
@@ -29,29 +30,28 @@ interface UploaderProps {
     [dashProps: string]: any;
 }
 
+function useUppy(onCreateOrChange: (uppyInstance: Uppy) => Uppy, deps: any[]) {
+    const [uppy, setUppy] = useState(() => {
+        const uppy = new Uppy()
+        return onCreateOrChange(uppy)
+    });
+
+    useEffect(() => {
+        setUppy(onCreateOrChange(uppy))
+    }, deps);
+
+    return uppy;
+}
+
 export default function Uploader(props: UploaderProps) {
     const { id, meta, plugins, fileTypes, ...dashProps } = props
-    const [uppy, setUppy] = useState(() => new Uppy());
-
+    let availablePlugins = ["GoogleDrive", "MyWebCam", "OneDrive", "Dropbox", "Url", "MyImageEditor"]
+    const createSubmission = useUploads();
+    const context = useAuthContext();
     const { refresh } = useRefresh();
 
-    const parse = (value: string) => {
-        try {
-            return JSON.parse(value)
-        } catch {
-            return value
-        }
-    }
-
-    useEffect(() => {
-        return () => {
-            // you are in control whether you want to cancel uploads or not.
-            uppy.close({ cancelUploads: false });
-        };
-    }, []);
-
-    useEffect(() => {
-        const uppy_obj = new Uppy({
+    const uppy = useUppy(() => {
+        const uppy = new Uppy({
             id: id,
             autoProceed: false,
             allowMultipleUploadBatches: false,
@@ -65,32 +65,29 @@ export default function Uploader(props: UploaderProps) {
             meta: (meta ? meta : {}),
         })
             .use(Tus, {
-                limit: 0,
+                limit: 10,
                 endpoint: TUS_ENDPOINT,
                 retryDelays: [1000],
                 async onBeforeRequest(req) {
-                    const stored = parse(localStorage.getItem('auth'))
-                    const token = stored['accessToken']
-
-                    uppy.setMeta({ 'test': 'test1' })
-
+                    let token = JSON.parse(localStorage.getItem('auth'))['accessToken']
                     req.setHeader('Authorization', `Bearer ${token}`)
                 },
                 async onShouldRetry(err, retryAttempt, options, next) {
                     const status = err?.originalResponse?.getStatus()
                     if (status === 401) {
-                        await refresh()
                         return true
                     }
                     return next(err)
                 },
-                // async onAfterResponse(req, res) {
-                //     if (res.getStatus() === 401) {
-                //     }
-                // },
+                async onAfterResponse(req, res) {
+                    if (res.getStatus() === 401) {
+                        await refresh()
+                    }
+                },
             })
             .use(CreateSubmission, {
                 pipeline: meta.pipeline,
+                createSubmission: createSubmission.start
             })
             .use(Webcam, {
                 id: 'MyWebCam',
@@ -106,25 +103,17 @@ export default function Uploader(props: UploaderProps) {
             .use(OneDrive, { companionUrl: COMPANION_URL })
             .use(Url, { companionUrl: COMPANION_URL })
             .use(GoldenRetriever, { serviceWorker: true })
-        setUppy(uppy_obj)
+            ;
+        return uppy
+    }, [plugins, fileTypes])
 
-    }, [fileTypes, plugins]) 
-
-        return <>
-            {uppy ?
-                <Dashboard
-                    uppy={uppy}
-                    plugins={plugins
-                        // plugins ?
-                        // plugins
-                        // :
-                        // ["GoogleDrive", "MyWebCam", "OneDrive", "Dropbox", "Url", "MyImageEditor"]
-                    }
-                    theme={'dark'}
-                    {...dashProps}
-                    proudlyDisplayPoweredByUppy={false}
-                />
-                :
-                null}
-        </>
-    }
+    return <>
+        <Dashboard
+            uppy={uppy}
+            plugins={plugins}
+            theme={'dark'}
+            {...dashProps}
+            proudlyDisplayPoweredByUppy={false}
+        />
+    </>
+}

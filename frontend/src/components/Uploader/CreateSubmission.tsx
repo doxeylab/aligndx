@@ -49,7 +49,6 @@ export default class CreateSubmission extends BasePlugin {
           return response.data['sub_id']
         })
         .catch((error) => {
-          console.log('there was an error')
           let refreshResult = apiClient.get('users/refresh', { withCredentials: true }).then((response) => {
             return apiClient.post(`uploads/start`, data, {
               headers: {
@@ -58,7 +57,7 @@ export default class CreateSubmission extends BasePlugin {
             }).then((response) => {
               return response.data['sub_id']
             }).catch((error) => {
-              this.uppy.cancelUploads()
+              return error
             })
           })
           return refreshResult
@@ -69,7 +68,8 @@ export default class CreateSubmission extends BasePlugin {
     let subId = await createSubId()
 
     const createAndApplySubId = async (fileID, subId) => {
-      this.uppy.setFileMeta(fileID, { ...this.uppy.meta, subId })
+      this.uppy.log(`[Create Submission] Setting Submission Meta`)
+      this.uppy.setFileMeta(fileID, { subId: subId })
     }
 
     const promises = fileIDs.map(async (fileID) => {
@@ -88,12 +88,6 @@ export default class CreateSubmission extends BasePlugin {
       }
 
       return createAndApplySubId(fileID, subId)
-      // return this.uppy.setFileMeta(fileID, { 'sub_id': sub_id }).then((file) => {
-      //   this.uppy.log(`[Create Submission] Set Meta`)
-      // }).catch((err) => {
-      //   this.uppy.log(`[Create Submission] Failed to set Meta:`, 'warning')
-      //   this.uppy.log(err, 'warning')
-      // })
     })
 
     const emitPreprocessCompleteForAll = () => {
