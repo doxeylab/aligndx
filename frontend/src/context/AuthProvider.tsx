@@ -1,5 +1,4 @@
 import { createContext, useContext, FC, ReactNode } from 'react';
-import { string } from 'yup';
 import useLocalStorage from '../hooks/useLocalStorage'
 
 interface AuthObject {

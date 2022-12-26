@@ -12,7 +12,7 @@ const useAxios = () => {
     const requestIntercept = apiClient.interceptors.request.use((config) => {
       if (context?.authenticated) {
         if (!config.headers['Authorization']) {
-          config.headers['Authorization'] = `Bearer ${context.auth?.accessToken}`
+          config.headers['Authorization'] = `Bearer ${context.auth.accessToken}`
         }
       }
       return config;
@@ -27,7 +27,7 @@ const useAxios = () => {
           if (error?.response?.status === 401 && !prevRequest?.sent) {
             prevRequest.sent = true;
             const newAccessToken = await refresh();
-            if (typeof(newAccessToken) === 'string') {
+            if (typeof (newAccessToken) === 'string') {
               prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
               return apiClient(prevRequest);
             }

@@ -6,6 +6,8 @@ export const useUploads = () => {
     const { get, post, put, destroy } = useAxios();
 
     return {
+        start: (params) =>
+            post(`${uploads_endpoint}/start`, params),
         start_file: (params) =>
             post(`${uploads_endpoint}/start-file`, params),
         upload_chunk: (params) =>

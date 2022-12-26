@@ -1,5 +1,5 @@
 from typing import Literal
-import shutil, json, subprocess
+import shutil, json, subprocess, glob, os
 from app.models.schemas.redis import MetaModel
 
 from app.redis.functions import Handler
@@ -10,16 +10,21 @@ app = Celery('tasks')
 app.config_from_object('app.celery.celeryconfig')
 
 @app.task(name="Update metadata")
-def update_metadata(fileId : str, metadata : MetaModel):
+def update_metadata(subId : str, metadata : MetaModel):
     """
     Create/Update metadata entry in redis for a new file upload. Called using setup workflow
 
-    :param fileId: UUID translated to string UUID
+    :param subId: UUID translated to string UUID
     :param metadata: unique Metadata Model class
 
     """
-    Handler.create(fileId, metadata.dict())
+    Handler.create(subId, metadata.dict())
     return {'Success': True}
+
+@app.task(name="Retrive metadata")
+def retrieve(subId : str):
+    meta_dict = Handler.retrieve(subId)
+    return MetaModel(**meta_dict)
 
 @app.task(name="Make file data")
 def make_file_data(results_dir):
@@ -38,10 +43,16 @@ def make_file_data(results_dir):
 
     return {'Success': True}
 
-@app.task(name="Retrive metadata")
-def retrieve(fileId : str):
-    meta_dict = Handler.retrieve(fileId)
-    return MetaModel(**meta_dict)
+@app.task(name="Signal Upload Finish")
+def signal_upload_finish(name):
+    """
+    Send upload finish signal to pipeline
+
+    """
+    with open(name, 'w') as f:
+        pass
+
+    return {'Success': True}
 
 @app.task(name="Assemble chunks")
 def assemble_chunks(updir,tooldir, total, filename):
@@ -49,24 +60,61 @@ def assemble_chunks(updir,tooldir, total, filename):
     p = subprocess.Popen(['/bin/bash', '-c', command]) 
     
 @app.task(name="Cleanup")
-def cleanup(fileId: str, metadata : MetaModel, type : Literal['chunks', 'all']):
+def cleanup(subId: str, metadata : MetaModel, type : Literal['chunks', 'all']):
     if type == 'chunks':
         shutil.rmtree(metadata.updir)
     else:
         shutil.rmtree(metadata.tooldir)
         shutil.rmtree(metadata.rdir)
-        Handler.delete(fileId)
+        Handler.delete(subId)
 
 # Workflows using Celery Canvas
 # Setup Flow
-def setup_flow(fileId : str, metadata: MetaModel, results_dir : str):
+def setup_flow(subId : str, metadata: MetaModel, results_dir : str):
     res = group(
-        update_metadata.s(fileId, metadata),
+        update_metadata.s(subId, metadata),
         make_file_data.s(results_dir))()
 
+# Updater Analysis Flow
+def update_flow(tusdata: dict, uploads_folder: str):
+    # get upload info
+    fileId = tusdata['ID']
+    subId = tusdata['MetaData']['subId'] 
+    fname = tusdata['MetaData']['name']
+
+    # retrieve metadata
+    metadata = retrieve.s(subId)()
+
+    # move and rename files to submission folder
+    files = glob.glob(uploads_folder + f'/{fileId}*')
+    dst = metadata.updir
+    for file in files:
+        curr_name = os.path.basename(file)
+        segments = curr_name.split('.')
+
+        file_name = fname
+        if len(segments) > 1 : 
+            file_name = fname + '.' + segments[1] 
+        
+        shutil.move(file, dst + f'/{file_name}')
+
+    # update metadata for uploaded files
+    items = metadata.items
+    items[fname].uploaded = True
+    metadata.items = items
+    metadata.status = 'processing'
+    update_metadata.s(subId, metadata)()
+
+    uploaded = []
+    for k,v in items.items():
+        uploaded.append(v.uploaded)
+    
+    if all(uploaded):
+        signal_upload_finish.s(f'{dst}/STOP.txt')()
+
 # Analysis Flow
-def analysis_flow(fileId : str):
-    metadata = retrieve.s(fileId)()
+def analysis_flow(subId : str):
+    metadata = retrieve.s(subId)()
     
     if metadata.processed == metadata.total - 1:
         # last chunk to process
@@ -75,15 +123,15 @@ def analysis_flow(fileId : str):
         metadata.processed = metadata.processed + 1
 
         res = chain(
-        assemble_chunks.si(metadata.updir, metadata.tooldir, metadata.total, metadata.fname),
-        # cleanup.si(fileId, metadata, 'chunks'),
+        # assemble_chunks.si(metadata.updir, metadata.tooldir, metadata.total, metadata.fname),
+        # cleanup.si(subId, metadata, 'chunks'),
         # analysis_pipeline.si(metadata.tooldir, metadata.rdir)
-        update_metadata.si(fileId, metadata)
+        update_metadata.si(subId, metadata)
         )()
         return res.get()
     else:
         metadata.processed = metadata.processed + 1
-        update_metadata.s(fileId, metadata)()
+        update_metadata.s(subId, metadata)()
 
 if __name__ == '__main__':
     app.worker_main()
