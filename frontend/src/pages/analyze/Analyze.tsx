@@ -53,7 +53,7 @@ export default function Analyze() {
         let sel = pipelines.find(o => o.label === value)
         if (sel != undefined) {
             if (sel?.pluginType == 'Camera')
-                sel['plugins'] = ["MyWebCam", "MyImageEditor"]
+                sel['plugins'] = ["MyWebCam", "MyImageEditor", "GoogleDrive"]
             else {
                 sel['plugins'] = ["GoogleDrive", "OneDrive", "Dropbox", "Url"]
             }

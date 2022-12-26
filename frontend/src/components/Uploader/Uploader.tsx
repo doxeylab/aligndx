@@ -97,10 +97,10 @@ export default function Uploader(props: UploaderProps) {
                 id: "MyImageEditor",
                 quality: 0.8,
             })
-            .use(GoogleDrive, { companionUrl: COMPANION_URL })
-            .use(DropBox, { companionUrl: COMPANION_URL })
-            .use(OneDrive, { companionUrl: COMPANION_URL })
-            .use(Url, { companionUrl: COMPANION_URL })
+            .use(GoogleDrive, { companionUrl: `${COMPANION_URL}` })
+            .use(DropBox, { companionUrl: `${COMPANION_URL}` })
+            .use(OneDrive, { companionUrl: `${COMPANION_URL}` })
+            .use(Url, { companionUrl: `${COMPANION_URL}` })
             .use(GoldenRetriever, { serviceWorker: true })
             ;
         return uppy
