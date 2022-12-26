@@ -6,6 +6,7 @@ export default class CreateSubmission extends BasePlugin {
   constructor(uppy, opts) {
     super(uppy, opts)
     this.pipeline = opts.pipeline
+    this.refresh = opts.refresh
     this.id = opts.id || 'CreateSubmission'
     this.type = 'modifier'
     this.defaultLocale = {
@@ -45,21 +46,27 @@ export default class CreateSubmission extends BasePlugin {
 
       let result = axios.post(`http://localhost:8080/uploads/start`, data, config)
         .then((response) => {
-          console.log(response.data['sub_id'])
           return response.data['sub_id']
         })
-        .catch((error) => {
-          let refreshResult = apiClient.get('users/refresh', { withCredentials: true }).then((response) => {
-            return apiClient.post(`uploads/start`, data, {
-              headers: {
-                Authorization: `Bearer ${response.data['access_token']}`
-              }
-            }).then((response) => {
-              return response.data['sub_id']
-            }).catch((error) => {
-              return error
-            })
-          })
+        .catch(async (error) => {
+          let newToken = await this.refresh()
+          let config = {
+            headers: {
+              Authorization : `Bearer ${newToken}`
+            }
+          }
+          let refreshResult = axios.post('http://localhost:8080/uploads/start', data, config)
+          // let refreshResult = apiClient.get('users/refresh', { withCredentials: true }).then((response) => {
+          //   return apiClient.post(`uploads/start`, data, {
+          //     headers: {
+          //       Authorization: `Bearer ${response.data['access_token']}`
+          //     }
+          //   }).then((response) => {
+          //     return response.data['sub_id']
+          //   }).catch((error) => {
+          //     return error
+          //   })
+          // })
           return refreshResult
         })
       return result

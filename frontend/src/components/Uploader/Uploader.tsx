@@ -87,7 +87,8 @@ export default function Uploader(props: UploaderProps) {
             })
             .use(CreateSubmission, {
                 pipeline: meta.pipeline,
-                createSubmission: createSubmission.start
+                createSubmission: createSubmission.start,
+                refresh: refresh
             })
             .use(Webcam, {
                 id: 'MyWebCam',
