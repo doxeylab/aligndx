@@ -13,14 +13,13 @@ import GoldenRetriever from '@uppy/golden-retriever'
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import '@uppy/image-editor/dist/style.css'
-import { useEffect, useState } from "react";
+import { useEffect, useState} from "react";
 import { COMPANION_URL } from '../../config/Settings'
 import { TUS_ENDPOINT } from '../../config/Settings'
 
 import useRefresh from "../../api/useRefresh"
 import CreateSubmission from "./CreateSubmission";
 import { useUploads } from "../../api/Uploads";
-import { useAuthContext } from "../../context/AuthProvider";
 
 interface UploaderProps {
     id: string;
@@ -47,7 +46,6 @@ export default function Uploader(props: UploaderProps) {
     const { id, meta, plugins, fileTypes, ...dashProps } = props
     let availablePlugins = ["GoogleDrive", "MyWebCam", "OneDrive", "Dropbox", "Url", "MyImageEditor"]
     const createSubmission = useUploads();
-    const context = useAuthContext();
     const { refresh } = useRefresh();
 
     const uppy = useUppy(() => {
@@ -65,7 +63,7 @@ export default function Uploader(props: UploaderProps) {
             meta: (meta ? meta : {}),
         })
             .use(Tus, {
-                limit: 10,
+                limit: 0,
                 endpoint: TUS_ENDPOINT,
                 retryDelays: [1000],
                 async onBeforeRequest(req) {

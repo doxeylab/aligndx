@@ -55,18 +55,9 @@ export default class CreateSubmission extends BasePlugin {
               Authorization : `Bearer ${newToken}`
             }
           }
-          let refreshResult = axios.post('http://localhost:8080/uploads/start', data, config)
-          // let refreshResult = apiClient.get('users/refresh', { withCredentials: true }).then((response) => {
-          //   return apiClient.post(`uploads/start`, data, {
-          //     headers: {
-          //       Authorization: `Bearer ${response.data['access_token']}`
-          //     }
-          //   }).then((response) => {
-          //     return response.data['sub_id']
-          //   }).catch((error) => {
-          //     return error
-          //   })
-          // })
+          let refreshResult = axios.post('http://localhost:8080/uploads/start', data, config).then((response) => {
+            return response.data['sub_id']
+          })
           return refreshResult
         })
       return result
