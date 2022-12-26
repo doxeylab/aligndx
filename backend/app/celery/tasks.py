@@ -43,10 +43,10 @@ def make_file_data(results_dir):
 
     return {'Success': True}
 
-@app.task(name="Signal Finish")
-def signal_finish(name):
+@app.task(name="Signal Upload Finish")
+def signal_upload_finish(name):
     """
-    Send finish signal to pipeline
+    Send upload finish signal to pipeline
 
     """
     with open(name, 'w') as f:
@@ -110,7 +110,7 @@ def update_flow(tusdata: dict, uploads_folder: str):
         uploaded.append(v.uploaded)
     
     if all(uploaded):
-        signal_finish.s(f'{dst}/STOP.txt')()
+        signal_upload_finish.s(f'{dst}/STOP.txt')()
 
 # Analysis Flow
 def analysis_flow(subId : str):
