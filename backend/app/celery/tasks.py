@@ -1,5 +1,5 @@
 from typing import Literal
-import shutil, json, subprocess
+import shutil, json, subprocess, glob, os
 from app.models.schemas.redis import MetaModel
 
 from app.redis.functions import Handler
@@ -20,6 +20,11 @@ def update_metadata(subId : str, metadata : MetaModel):
     """
     Handler.create(subId, metadata.dict())
     return {'Success': True}
+
+@app.task(name="Retrive metadata")
+def retrieve(subId : str):
+    meta_dict = Handler.retrieve(subId)
+    return MetaModel(**meta_dict)
 
 @app.task(name="Make file data")
 def make_file_data(results_dir):
@@ -49,11 +54,6 @@ def signal_finish(name):
 
     return {'Success': True}
 
-@app.task(name="Retrive metadata")
-def retrieve(subId : str):
-    meta_dict = Handler.retrieve(subId)
-    return MetaModel(**meta_dict)
-
 @app.task(name="Assemble chunks")
 def assemble_chunks(updir,tooldir, total, filename):
     command = f"cat {updir}/{{0..{total - 1}}}* >{tooldir}/{filename}"
@@ -75,23 +75,42 @@ def setup_flow(subId : str, metadata: MetaModel, results_dir : str):
         update_metadata.s(subId, metadata),
         make_file_data.s(results_dir))()
 
-# Analysis Flow
-def update_flow(subId : str, fname: str):
+# Updater Analysis Flow
+def update_flow(tusdata: dict, uploads_folder: str):
+    # get upload info
+    fileId = tusdata['ID']
+    subId = tusdata['MetaData']['subId'] 
+    fname = tusdata['MetaData']['name']
+
+    # retrieve metadata
     metadata = retrieve.s(subId)()
 
-    items = metadata.items
+    # move and rename files to submission folder
+    files = glob.glob(uploads_folder + f'/{fileId}*')
+    dst = metadata.updir
+    for file in files:
+        curr_name = os.path.basename(file)
+        segments = curr_name.split('.')
 
+        file_name = fname
+        if len(segments) > 1 : 
+            file_name = fname + '.' + segments[1] 
+        
+        shutil.move(file, dst + f'/{file_name}')
+
+    # update metadata for uploaded files
+    items = metadata.items
     items[fname].uploaded = True
+    metadata.items = items
+    metadata.status = 'processing'
+    update_metadata.s(subId, metadata)()
 
     uploaded = []
     for k,v in items.items():
         uploaded.append(v.uploaded)
     
     if all(uploaded):
-        signal_finish.s('STOP.txt')()
-    
-    return metadata
-
+        signal_finish.s(f'{dst}/STOP.txt')()
 
 # Analysis Flow
 def analysis_flow(subId : str):

@@ -67,10 +67,10 @@ export default function Uploader(props: UploaderProps) {
                 endpoint: TUS_ENDPOINT,
                 retryDelays: [1000],
                 async onBeforeRequest(req) {
-                    let token = JSON.parse(localStorage.getItem('auth'))['accessToken']
+                    let token = JSON.parse(localStorage.getItem('auth') || '')['accessToken']
                     req.setHeader('Authorization', `Bearer ${token}`)
                 },
-                async onShouldRetry(err, retryAttempt, options, next) {
+                onShouldRetry(err, retryAttempt, options, next) {
                     const status = err?.originalResponse?.getStatus()
                     if (status === 401) {
                         return true

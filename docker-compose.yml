@@ -68,7 +68,7 @@ services:
     depends_on:
       - backend
       - redis
-    # command: sh -c "celery -A app.celery.tasks worker -l info"
+    command: sh -c "celery -A app.celery.tasks worker -l info"
     tty: true
     volumes:
       - ./backend/app:/app/app

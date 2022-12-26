@@ -67,9 +67,10 @@ async def start(
                 analyzed=False,
             )
 
-        sub_items[item] = sub_item.dict()
+        sub_items[item] = sub_item
 
     metadata = MetaModel(
+        pipeline=pipeline,
         updir=upload_dir,
         rdir=results_dir,
         items=sub_items,
@@ -91,19 +92,17 @@ async def tusd(
         users_dal = UsersDal(db)
         
         body = await request.json()
-        metadata = body['Upload']['MetaData']
-        print(metadata)
-        # sub_id = metadata['sub_id']
-        # fname = metadata['filename']
-        # print(sub_id,fname)
+        tus_data = body['Upload'] 
+        metadata = tus_data['MetaData']
+        sub_id = metadata['subId']
 
-        # query = await users_dal.get_submission(current_user.id, sub_id)
-        # submission = SubmissionSchema.from_orm(query)
+        query = await users_dal.get_submission(current_user.id, sub_id)
+        submission = SubmissionSchema.from_orm(query)
 
-        # if submission is None:
-        #     raise HTTPException(status_code=404, detail="Submission not found")
+        if submission is None:
+            raise HTTPException(status_code=404, detail="Submission not found")
 
-        # update_flow(sub_id, fname)
+        update_flow(tus_data, UPLOAD_FOLDER)
 
         # if submission.finished_date is None:
         #     sub_dal = SubmissionsDal(db)

@@ -1,11 +1,12 @@
 from pydantic import BaseModel
-from typing import Literal, List, Dict
+from typing import Literal, Dict
 
 class ItemModel(BaseModel):
     uploaded: bool
     analyzed: bool
 
 class MetaModel(BaseModel):
+    pipeline: str
     updir: str
     rdir: str
     items: Dict[str, ItemModel]
