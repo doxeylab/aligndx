@@ -1,7 +1,11 @@
- # current dockerfile contents
+# current dockerfile contents
 FROM python:3.8 as python 
 ENV PYTHONUNBUFFERED=true
 WORKDIR /app/
+RUN apt update \
+  && apt install -y \
+  postgresql-client \
+  gcc
 
 FROM python as poetry 
 ENV POETRY_HOME=/opt/poetry
@@ -15,13 +19,10 @@ RUN poetry install --no-interaction --no-ansi -vvv
 FROM python as runtime
 ENV PATH="/app/.venv/bin:$PATH"
 COPY --from=poetry /app /app
-
-RUN apt update \
-    && apt install -y postgresql-client gcc  
+COPY --from=docker:dind /usr/local/bin/docker /usr/local/bin/
 
 # set up the wait script
-RUN apt-get update \
-  && apt-get install -y netcat \
+RUN apt-get install -y netcat \
   && rm -rf /var/lib/apt/lists/*
 
 COPY bin/wait-for/ ./bin/wait-for/
