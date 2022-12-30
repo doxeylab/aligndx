@@ -9,57 +9,50 @@ import { useEffect, useState } from 'react';
 import { Typography } from '@mui/material';
 import { useAuthContext } from '../../context/AuthProvider';
 import useLocalStorage from '../../hooks/useLocalStorage';
-
+import { useMeta } from '../../api/Meta'
 import dynamic from 'next/dynamic'
+import { useQuery } from '@tanstack/react-query'
 
 const Uploader = dynamic(() => import('../../components/Uploader'), {
-  ssr: false,
+    ssr: false,
 })
 
-
 export default function Analyze() {
-    const context = useAuthContext();
-    // make some request to the backend to get list of available pipelines
-    // list available pipelines
-
-    interface pipelineParams extends Record<string, any> {
-        label: string;
-        fileTypes: string[];
-        pluginType: string;
-        description: string;
-    }
-
-    const pipelines: pipelineParams[] = [
-        {
-            label: 'RNA',
-            fileTypes: ['.fastq.gz', '.fastq'],
-            pluginType: 'Regular',
-            description: 'This is the description of this pipeline'
-        },
-        {
-            label: 'Lateral Flow',
-            fileTypes: ['image/*', '.jpg', '.jpeg', '.png'],
-            pluginType: 'Camera',
-            description: 'This is the description of this pipeline'
-        }
-    ]
-    const pipelineOptions = pipelines.map(o => o.label)
+    const [pipelineOptions, setPipelineOptions] = useState([])
+    const [pipelineData, setPipelineData] = useState([])
 
     const [value, setValue] = useLocalStorage('sel_value', null);
     const [inputValue, setInputValue] = useLocalStorage('sel_input', '');
     const [upload, setUpload] = useLocalStorage('uploadparams', {} as any);
 
+    const context = useAuthContext();
+    const meta = useMeta();
+    const pipeMeta = useQuery({
+        queryKey: ['pipelineData'],
+        queryFn: meta.get_pipelines,
+        onSuccess(data) {
+            const raw_data = data?.data
+            const pipeline_meta = Object.keys(raw_data).map(key => raw_data[key]);
+            setPipelineData(pipeline_meta)
+            setPipelineOptions(pipeline_meta.map((o: any) => o.id))
+        },
+    })
+
     useEffect(() => {
-        let sel = pipelines.find(o => o.label === value)
+        console.log(pipelineOptions)
+    },[pipelineOptions])
+
+    useEffect(() => {
+        let sel = pipelineData.find((o: any) => o.id === value)
         if (sel != undefined) {
-            if (sel?.pluginType == 'Camera')
+            if (sel?.pluginType == 'visual')
                 sel['plugins'] = ["MyWebCam", "MyImageEditor", "GoogleDrive"]
             else {
                 sel['plugins'] = ["GoogleDrive", "OneDrive", "Dropbox", "Url"]
             }
             setUpload(sel)
         }
-    }, [value])
+    }, [value, pipelineOptions])
 
     return (
         <>
@@ -101,7 +94,7 @@ export default function Analyze() {
                                         p: 4,
                                     }}
                                 >
-                                    <Typography>{upload?.label}</Typography>
+                                    <Typography>{upload?.name}</Typography>
                                     {upload?.description}
                                 </Paper>
                             </Grid>

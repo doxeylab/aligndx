@@ -33,7 +33,7 @@ class AppSettings(BaseSettings):
     KRAKEN_DB = DATA_FOLDER + '/indexes/kraken_db'
 
     METADATA_FOLDER = DATA_FOLDER + "/metadata" 
-    PANELS = METADATA_FOLDER + "/panels.csv"
+    PIPELINES = METADATA_FOLDER + "/pipelines.json"
 
     #  -- API Created Directories -- 
     DIRS = [UPLOAD_FOLDER, RESULTS_FOLDER]

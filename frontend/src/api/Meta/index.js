@@ -6,8 +6,8 @@ export const useMeta = () => {
     const { get, post, put, destroy } = useAxios();
 
     return {
-        get_panels: () =>
-            get(`${meta_endpoint}/panels`),
+        get_pipelines: () =>
+            get(`${meta_endpoint}/pipelines`),
     }
 
 }
