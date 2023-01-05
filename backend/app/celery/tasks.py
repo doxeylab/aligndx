@@ -54,6 +54,10 @@ def signal_upload_finish(name):
 
     return {'Success': True}
 
+@app.task(name="Run Pipeline")
+def run_pipeline(command):
+    p = subprocess.Popen(['/bin/bash', '-c', command]) 
+
 @app.task(name="Assemble chunks")
 def assemble_chunks(updir,tooldir, total, filename):
     command = f"cat {updir}/{{0..{total - 1}}}* >{tooldir}/{filename}"
@@ -111,9 +115,11 @@ def update_flow(tusdata: dict, uploads_folder: str):
     
     if all(uploaded):
         signal_upload_finish.s(f'{dst}/STOP.txt')()
+        run_pipeline.s(metadata.command)()
 
-# Analysis Flow
-def analysis_flow(subId : str):
+
+# Chunk Flow
+def chunk_flow(subId : str):
     metadata = retrieve.s(subId)()
     
     if metadata.processed == metadata.total - 1:

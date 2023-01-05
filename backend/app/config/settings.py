@@ -19,7 +19,7 @@ class AppSettings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
     REFRESH_TOKEN_EXPIRE_MINUTES = 30 * 24 * 14
 
-    #  -- App Date -- 
+    #  -- App Data -- 
     DATA_FOLDER = './data'
 
     #  -- User Data -- 
@@ -27,13 +27,9 @@ class AppSettings(BaseSettings):
     UPLOAD_FOLDER = DATA_FOLDER + '/uploads' 
     RESULTS_FOLDER = DATA_FOLDER + '/results' 
 
-    #  -- External Files or MetaData --
-    
-    INDEX_FOLDER = DATA_FOLDER + '/indexes' 
-    KRAKEN_DB = DATA_FOLDER + '/indexes/kraken_db'
-
-    METADATA_FOLDER = DATA_FOLDER + "/metadata" 
-    PIPELINES = METADATA_FOLDER + "/pipelines.json"
+    #  -- App Metadata --
+    METADATA = './metadata'
+    PIPELINES = METADATA + '/pipelines.json'
 
     #  -- API Created Directories -- 
     DIRS = [UPLOAD_FOLDER, RESULTS_FOLDER]

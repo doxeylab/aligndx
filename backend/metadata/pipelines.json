@@ -1,0 +1,49 @@
+{
+    "metasense": {
+        "id": "metasense",
+        "name": "MetaSense",
+        "categories": [
+            "rna-seq"
+        ],
+        "fileTypes": [
+            ".fastq.gz",
+            ".fastq"
+        ],
+        "pluginType": "regular",
+        "description": "Clinical mNGS based pathogen diagnostics",
+        "repository": "mshunjan/metasense",
+        "user_inputs": {
+            "input": {
+                "command": "--input",
+                "mandatory": true
+            }
+        },
+        "predefined_inputs": [
+            "--kraken_db /data/indexes/kraken_db/"
+        ]
+    },
+    "visuflow": {
+        "id": "visuflow",
+        "name": "VisuFlow",
+        "categories": [
+            "lfa"
+        ],
+        "pluginType": "visual",
+        "description": "Lateral flow assay image detection",
+        "repository": "mshunjan/visuflow",
+        "fileTypes": [
+            ".jpg",
+            ".jpeg",
+            ".png"
+        ],
+        "user_inputs": {
+            "input": {
+                "command": "--input",
+                "mandatory": true
+            }
+        },
+        "predefined_inputs": [
+            ""
+        ]
+    }
+}

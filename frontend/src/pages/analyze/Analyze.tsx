@@ -18,7 +18,6 @@ const Uploader = dynamic(() => import('../../components/Uploader'), {
 })
 
 export default function Analyze() {
-    const [pipelineOptions, setPipelineOptions] = useState([])
     const [pipelineData, setPipelineData] = useState([])
 
     const [value, setValue] = useLocalStorage('sel_value', null);
@@ -34,25 +33,26 @@ export default function Analyze() {
             const raw_data = data?.data
             const pipeline_meta = Object.keys(raw_data).map(key => raw_data[key]);
             setPipelineData(pipeline_meta)
-            setPipelineOptions(pipeline_meta.map((o: any) => o.id))
         },
     })
 
     useEffect(() => {
-        console.log(pipelineOptions)
-    },[pipelineOptions])
+        console.log(value)
 
-    useEffect(() => {
-        let sel = pipelineData.find((o: any) => o.id === value)
-        if (sel != undefined) {
-            if (sel?.pluginType == 'visual')
-                sel['plugins'] = ["MyWebCam", "MyImageEditor", "GoogleDrive"]
-            else {
-                sel['plugins'] = ["GoogleDrive", "OneDrive", "Dropbox", "Url"]
+        if (value != null) {
+            let sel = pipelineData.find((o: any) => o.id === value.id)
+
+            if (sel != undefined) {
+                if (sel?.pluginType == 'visual')
+                    sel['plugins'] = ["MyWebCam", "MyImageEditor", "GoogleDrive"]
+                else {
+                    sel['plugins'] = ["GoogleDrive", "OneDrive", "Dropbox", "Url"]
+                }
+                setUpload(sel)
             }
-            setUpload(sel)
         }
-    }, [value, pipelineOptions])
+
+    }, [value])
 
     return (
         <>
@@ -76,11 +76,13 @@ export default function Analyze() {
                                 onInputChange={(event, newInputValue) => {
                                     setInputValue(newInputValue);
                                 }}
-                                isOptionEqualToValue={(option, value) => option === value}
+                                isOptionEqualToValue={(option, value) => option.id === value.id}
 
                                 disablePortal
                                 id="pipelines"
-                                options={pipelineOptions}
+                                options={pipelineData}
+                                // groupBy={(option) => option.label}
+                                getOptionLabel={(option) => option.id}
                                 renderInput={(params) => <TextField {...params} label="Select a pipeline" />}
                             />
                         </Paper>
@@ -105,11 +107,11 @@ export default function Analyze() {
                                     meta={
                                         {
                                             // username: context?.auth?.user,
-                                            pipeline: value,
+                                            pipeline: value.id,
                                         }
                                     }
                                     plugins={upload?.plugins}
-                                    height={'30vh'}
+                                    height={'50vh'}
                                     width={'100%'}
                                 />
                             </Grid>

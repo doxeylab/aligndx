@@ -23,6 +23,8 @@ from app.config.settings import settings
 
 from app.celery.tasks import setup_flow, update_flow
 
+import pandas as pd
+
 router = APIRouter()
 
 read_batch_size = settings.read_batch_size
@@ -38,6 +40,7 @@ async def start(
     current_user: UserDTO = Depends(get_current_user),
     items: List[str] = Body(...),
     pipeline: str = Body(...),
+    # inputs: dict = Body(...),
     # size: float = Body(...),
     db: AsyncSession = Depends(get_db)
 ):
@@ -66,11 +69,23 @@ async def start(
                 uploaded=False,
                 analyzed=False,
             )
-
         sub_items[item] = sub_item
 
+    pipeline_data = pd.read_json(settings.PIPELINES)[pipeline]
+    repo = pipeline_data['repository']
+    
+    user_inputs = f"--input {upload_dir}"
+    # for k,v in pipeline_data['user_inputs'].items():
+    #     flag = v['command'] + " " + inputs[k]
+    #     user_inputs + flag + " " 
+
+    predefined_inputs = ' '.join(pipeline_data['predefined_inputs'])
+    custom_inputs = user_inputs + " " + predefined_inputs
+
+    run_command = f"docker run -d -v /var/run/docker.sock:/var/run/docker.sock -v aligndx_app-data:/data -w /data -e 'NXF_HOME=/data' nextflow/nextflow:latest nextflow run {repo} -profile docker --outdir {results_dir} {custom_inputs}"
+
     metadata = MetaModel(
-        pipeline=pipeline,
+        command=run_command,
         updir=upload_dir,
         rdir=results_dir,
         items=sub_items,
@@ -108,5 +123,5 @@ async def tusd(
         #     sub_dal = SubmissionsDal(db)
         #     await sub_dal.update(sub_id, UpdateSubmissionDate(finished_date=datetime.now()))
         #     return {"Result": "OK"}
-     
+    
     return 200

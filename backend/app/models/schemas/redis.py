@@ -6,7 +6,7 @@ class ItemModel(BaseModel):
     analyzed: bool
 
 class MetaModel(BaseModel):
-    pipeline: str
+    command: str
     updir: str
     rdir: str
     items: Dict[str, ItemModel]
