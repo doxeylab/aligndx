@@ -28,11 +28,12 @@ class AppSettings(BaseSettings):
     RESULTS_FOLDER = DATA_FOLDER + '/results' 
 
     #  -- App Metadata --
-    METADATA = './metadata'
+    METADATA = '/app' + '/metadata'
     PIPELINES = METADATA + '/pipelines.json'
+    NXF_CONF = METADATA + '/nxf.conf'
 
     #  -- API Created Directories -- 
-    DIRS = [UPLOAD_FOLDER, RESULTS_FOLDER]
+    DIRS = [DATA_FOLDER, UPLOAD_FOLDER, RESULTS_FOLDER]
 
     # Chunk settings
 

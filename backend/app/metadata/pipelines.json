@@ -19,7 +19,7 @@
             }
         },
         "predefined_inputs": [
-            "--kraken_db /data/indexes/kraken_db/"
+            "--kraken_db /data/indexes/kraken_db.tgz"
         ]
     },
     "visuflow": {
