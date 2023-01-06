@@ -20,7 +20,8 @@ class AppSettings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_MINUTES = 30 * 24 * 14
 
     #  -- App Data -- 
-    DATA_FOLDER = './data'
+    PROJECT_PATH = os.getenv("PROJECT_PATH")
+    DATA_FOLDER =  PROJECT_PATH + '/data'
 
     #  -- User Data -- 
 
@@ -28,7 +29,7 @@ class AppSettings(BaseSettings):
     RESULTS_FOLDER = DATA_FOLDER + '/results' 
 
     #  -- App Metadata --
-    METADATA = '/app' + '/metadata'
+    METADATA = './app' + '/metadata'
     PIPELINES = METADATA + '/pipelines.json'
     NXF_CONF = METADATA + '/nxf.conf'
 

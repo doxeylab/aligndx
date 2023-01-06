@@ -82,7 +82,7 @@ async def start(
     predefined_inputs = ' '.join(pipeline_data['predefined_inputs'])
     custom_inputs = user_inputs + " " + predefined_inputs
 
-    run_command = f"docker run -d --rm -v /var/run/docker.sock:/var/run/docker.sock -v aligndx_app-data:/data -e 'NXF_HOME=/data/nxf' nextflow/nextflow:latest nextflow -log {results_dir}/nxf/logs.txt run {repo} -profile docker -w {results_dir}/nxf/work -c {settings.NXF_CONF} {custom_inputs} --outdir {results_dir}"
+    run_command = f"docker run -d --rm -v /var/run/docker.sock:/var/run/docker.sock -v {settings.DATA_FOLDER}:{settings.DATA_FOLDER} -e 'NXF_HOME={settings.DATA_FOLDER}/nxf_home' nextflow/nextflow:latest nextflow -log {results_dir}/nxf/logs.txt run {repo} -profile docker -w {results_dir}/nxf/work -c {settings.NXF_CONF} {custom_inputs} --outdir {results_dir}"
     print(run_command)
 
     metadata = MetaModel(

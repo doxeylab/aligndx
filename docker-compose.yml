@@ -10,7 +10,7 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
-    command: sh -c "uvicorn app.main:app --reload --host 0.0.0.0 --port 8080"
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
     tty: true
     depends_on:
       - postgres
@@ -18,7 +18,7 @@ services:
       - "8080:8080"
     volumes:
       - ./backend/app:/app/app
-      - app-data:/app/data
+      - ./backend/data:${PROJECT_PATH}
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       DATABASE_URL: ${DATABASE_URL}
@@ -33,6 +33,7 @@ services:
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       REDIS_URL: ${REDIS_URL}
+      PROJECT_PATH: ${PROJECT_PATH}
 
   # Client
   frontend:
@@ -60,7 +61,7 @@ services:
     ports:
       - "1080:1080"
     volumes:
-      - app-data:/data
+      - ./backend/data:${PROJECT_PATH}
 
   companion:
     build:
@@ -97,9 +98,9 @@ services:
     command: sh -c "celery -A app.celery.tasks worker -l info"
     tty: true
     volumes:
-      - ./backend/app:/app/app
-      - app-data:/app/data
+      - ./backend/app:/app/app 
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./backend/data:${PROJECT_PATH}
     environment:
       BASE_URL: ${BASE_URL}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
@@ -107,6 +108,7 @@ services:
       NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
       NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
       REDIS_URL: ${REDIS_URL}
+      PROJECT_PATH: ${PROJECT_PATH}
 
   # Databases
 
@@ -180,7 +182,7 @@ volumes:
   db-data:
   pgadmin-data:
   redis-data:
-  app-data:
+  # app-data:
     # driver: local
     # driver_opts:
     #   type: none
