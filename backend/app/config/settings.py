@@ -29,7 +29,7 @@ class AppSettings(BaseSettings):
     RESULTS_FOLDER = DATA_FOLDER + '/results' 
 
     #  -- App Metadata --
-    METADATA = './app' + '/metadata'
+    METADATA = DATA_FOLDER + '/metadata'
     PIPELINES = METADATA + '/pipelines.json'
     NXF_CONF = METADATA + '/nxf.conf'
 

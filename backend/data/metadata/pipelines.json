@@ -7,7 +7,9 @@
         ],
         "fileTypes": [
             ".fastq.gz",
-            ".fastq"
+            ".fastq",
+            ".fq.gz",
+            ".fq"
         ],
         "pluginType": "regular",
         "description": "Clinical mNGS based pathogen diagnostics",
@@ -19,7 +21,7 @@
             }
         },
         "predefined_inputs": [
-            "--kraken_db /data/indexes/kraken_db.tgz"
+            "--kraken_db ${PROJECT_PATH}/data/indexes/kraken_db.tar.gz"
         ]
     },
     "visuflow": {

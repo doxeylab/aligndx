@@ -1,13 +1,13 @@
 # current dockerfile contents
 FROM python:3.8 as python 
-
+ARG PROJECT_PATH
 ENV PYTHONUNBUFFERED=true
 RUN apt update \
   && apt install -y \
   postgresql-client \
   gcc
 
-WORKDIR /app
+WORKDIR $PROJECT_PATH
 
 FROM python as poetry 
 
@@ -21,8 +21,8 @@ RUN poetry install --no-interaction --no-ansi -vvv
 
 FROM python as runtime
 
-ENV PATH="/app/.venv/bin:$PATH"
-COPY --from=poetry /app /app
+ENV PATH="$PROJECT_PATH/.venv/bin:$PATH"
+COPY --from=poetry $PROJECT_PATH $PROJECT_PATH
 COPY --from=docker:dind /usr/local/bin/docker /usr/local/bin/
 COPY . .
 # ARG USER_ID=1000

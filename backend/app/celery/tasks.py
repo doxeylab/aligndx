@@ -76,8 +76,9 @@ def cleanup(subId: str, metadata : MetaModel, type : Literal['chunks', 'all']):
 # Setup Flow
 def setup_flow(subId : str, metadata: MetaModel, results_dir : str):
     res = group(
-        update_metadata.s(subId, metadata),
-        make_file_data.s(results_dir))()
+        update_metadata.s(subId, metadata)
+        # make_file_data.s(results_dir)
+        )()
 
 # Updater Analysis Flow
 def update_flow(tusdata: dict, uploads_folder: str):
@@ -91,15 +92,17 @@ def update_flow(tusdata: dict, uploads_folder: str):
 
     # move and rename files to submission folder
     files = glob.glob(uploads_folder + f'/{fileId}*')
-    dst = metadata.updir
     for file in files:
+        dst = metadata.updir 
         curr_name = os.path.basename(file)
         segments = curr_name.split('.')
 
         file_name = fname
         if len(segments) > 1 : 
-            file_name = fname + '.' + segments[1] 
-        
+            file_name = fname + '.' + segments[1]
+            dst = metadata.rdir + '/upload_info'
+            os.mkdir(dst)
+
         shutil.move(file, dst + f'/{file_name}')
 
     # update metadata for uploaded files
@@ -114,7 +117,7 @@ def update_flow(tusdata: dict, uploads_folder: str):
         uploaded.append(v.uploaded)
     
     if all(uploaded):
-        signal_upload_finish.s(f'{dst}/STOP.txt')()
+        # signal_upload_finish.s(f'{dst}/STOP.txt')()
         run_pipeline.s(metadata.command)()
 
 

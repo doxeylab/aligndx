@@ -10,6 +10,8 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
+      args:
+        PROJECT_PATH: ${PROJECT_PATH}
     command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
     tty: true
     depends_on:
@@ -17,8 +19,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./backend/app:/app/app
-      - ./backend/data:${PROJECT_PATH}
+      - ./backend/app:${PROJECT_PATH}/app
+      - ./backend/data:${PROJECT_PATH}/data
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       DATABASE_URL: ${DATABASE_URL}
@@ -32,6 +34,31 @@ services:
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      REDIS_URL: ${REDIS_URL}
+      PROJECT_PATH: ${PROJECT_PATH}
+
+    # Task Managment Executor
+  celery_worker:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+      args:
+        PROJECT_PATH: ${PROJECT_PATH}
+    depends_on:
+      - backend
+      - redis
+    command: sh -c "celery -A app.celery.tasks worker -l info"
+    tty: true
+    volumes:
+      - ./backend/app:${PROJECT_PATH}/app 
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./backend/data:${PROJECT_PATH}/data
+    environment:
+      BASE_URL: ${BASE_URL}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
+      NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
       REDIS_URL: ${REDIS_URL}
       PROJECT_PATH: ${PROJECT_PATH}
 
@@ -61,7 +88,7 @@ services:
     ports:
       - "1080:1080"
     volumes:
-      - ./backend/data:${PROJECT_PATH}
+      - ./backend/data:/data
 
   companion:
     build:
@@ -86,29 +113,6 @@ services:
       COMPANION_ONEDRIVE_KEY: ${COMPANION_ONEDRIVE_KEY}
       COMPANION_ONEDRIVE_SECRET: ${COMPANION_ONEDRIVE_SECRET}
       COMPANION_UPLOAD_URLS: ${TUS_ENDPOINT}
-
-  # Task Managment Executor
-  celery_worker:
-    build:
-      context: backend
-      dockerfile: Dockerfile
-    depends_on:
-      - backend
-      - redis
-    command: sh -c "celery -A app.celery.tasks worker -l info"
-    tty: true
-    volumes:
-      - ./backend/app:/app/app 
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./backend/data:${PROJECT_PATH}
-    environment:
-      BASE_URL: ${BASE_URL}
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
-      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
-      NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
-      REDIS_URL: ${REDIS_URL}
-      PROJECT_PATH: ${PROJECT_PATH}
 
   # Databases
 
