@@ -22,6 +22,12 @@
         },
         "predefined_inputs": [
             "--kraken_db ${PROJECT_PATH}/data/indexes/kraken_db.tar.gz"
+        ],
+        "results": [
+            "bracken",
+            "kraken2",
+            "multiqc",
+            "pipeline_info"
         ]
     },
     "visuflow": {

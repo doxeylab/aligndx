@@ -18,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.settings import settings
 from app.celery.tasks import retrieve
+import pandas as pd 
 
 RESULTS_FOLDER = settings.RESULTS_FOLDER
 
@@ -39,6 +40,22 @@ async def get_result(sub_id: str, current_user: UserDTO = Depends(get_current_us
     print(sub_meta)
     return 200
 
+def zip_dir(zip_subdir, name): 
+    """
+    Compress a directory (ZIP file).
+    """
+    zip_io = BytesIO()
+    with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip: 
+            for dir, subdirs, fnames in os.walk(zip_subdir):
+                for fname in fnames:
+                    fpath= os.path.join(dir,fname)
+                    arcname = os.path.relpath(fpath, zip_subdir)
+                    temp_zip.write(fpath, arcname)
+    return StreamingResponse(
+            iter([zip_io.getvalue()]), 
+            media_type="application/x-zip-compressed", 
+            headers = { "Content-Disposition": f"attachment; filename={name}"}
+        )
 
 @router.get('/download/{sub_id}') 
 async def download(sub_id: str, current_user: UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
@@ -49,19 +66,10 @@ async def download(sub_id: str, current_user: UserDTO = Depends(get_current_user
 
     if submission is None:
         raise HTTPException(status_code=404, detail="Submission not found")
-    def zipdir(path):
-        zip_io = BytesIO()
-        with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
-            for root, dirs, files in os.walk(path):
-                for file in files:
-                    temp_zip.write(os.path.join(path,file),
-                     os.path.relpath(os.path.join(root, file), 
-                                       os.path.join(path, '..')))
-        return StreamingResponse(
-            iter([zip_io.getvalue()]), 
-            media_type="application/x-zip-compressed", 
-            headers = { "Content-Disposition": f"attachment; filename=images.zip"}
-        )
-    zip_subdir = os.path.join(RESULTS_FOLDER, str(submission.id))
 
-    return zipdir(zip_subdir)
+
+    zip_subdir = os.path.join(RESULTS_FOLDER, str(submission.id))
+    name = "results.zip"
+    results = pd.read_json(settings.PIPELINES)[submission.pipeline]['results']
+    
+    return zip_dir(zip_subdir, name)
