@@ -7,11 +7,11 @@ import Autocomplete from '@mui/material/Autocomplete';
 
 import { useEffect, useState } from 'react';
 import { Typography } from '@mui/material';
-import { useAuthContext } from '../../context/AuthProvider';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import { useMeta } from '../../api/Meta'
 import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
+import CustomIframe from '../../components/CustomIframe';
 
 const Uploader = dynamic(() => import('../../components/Uploader'), {
     ssr: false,
@@ -23,8 +23,12 @@ export default function Analyze() {
     const [value, setValue] = useLocalStorage('sel_value', null);
     const [inputValue, setInputValue] = useLocalStorage('sel_input', '');
     const [upload, setUpload] = useLocalStorage('uploadparams', {} as any);
+    const [subId, setSubId] = useLocalStorage('subId', {} as any);
 
-    const context = useAuthContext();
+    const updateParentSubId = (id : string) => {
+        setSubId(id)
+    }
+
     const meta = useMeta();
     const pipeMeta = useQuery({
         queryKey: ['pipelineData'],
@@ -106,14 +110,21 @@ export default function Analyze() {
                                     fileTypes={upload?.fileTypes}
                                     meta={
                                         {
-                                            // username: context?.auth?.user,
                                             pipeline: value.id,
                                         }
                                     }
+                                    updateParentSubId={updateParentSubId}
                                     plugins={upload?.plugins}
                                     height={'50vh'}
                                     width={'100%'}
                                 />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <CustomIframe
+                                    width={'100%'} 
+                                    height={'100%'} 
+                                    frameBorder={0}
+                                    srcdoc="<p>Some HTML</p>" />
                             </Grid>
                         </>
 

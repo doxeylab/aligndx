@@ -1,7 +1,9 @@
 import os
-from typing import List 
 
 from fastapi import APIRouter, Depends, HTTPException, Body
+import zipfile
+from io import BytesIO 
+from fastapi.responses import StreamingResponse
 
 from app.auth.models import UserDTO
 from app.auth.auth_dependencies import get_current_user
@@ -15,27 +17,51 @@ from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.settings import settings
+from app.celery.tasks import retrieve
 
 RESULTS_FOLDER = settings.RESULTS_FOLDER
 
 router = APIRouter()
 
-@router.get('/{file_id}') 
-async def get_result(file_id: str, current_user: UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@router.get('/{sub_id}') 
+async def get_result(sub_id: str, current_user: UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
 
     # get submission data from db
     users_dal = UsersDal(db)
-    query = await users_dal.get_submission(current_user.id, file_id)
-
-    if (not query):
-        return HTTPException(status_code=404, detail="Item not found")
-
-    # destructure submission data with [pydantic]
+    query = await users_dal.get_submission(current_user.id, sub_id)
     submission = SubmissionSchema.from_orm(query)
-    sample_dir = os.path.join(RESULTS_FOLDER, str(submission.id), submission.name)
 
-    # load results based on submission type
-    controller = Controller(process=submission.submission_type,panel=submission.panel,in_dir=sample_dir)
-    data = controller.load_data()
-    
-    return data  
+    if submission is None:
+        raise HTTPException(status_code=404, detail="Submission not found")
+
+    sub_meta = retrieve.s(sub_id)()
+
+    print(sub_meta)
+    return 200
+
+
+@router.get('/download/{sub_id}') 
+async def download(sub_id: str, current_user: UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    # get submission data from db
+    users_dal = UsersDal(db)
+    query = await users_dal.get_submission(current_user.id, sub_id)
+    submission = SubmissionSchema.from_orm(query)
+
+    if submission is None:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    def zipdir(path):
+        zip_io = BytesIO()
+        with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
+            for root, dirs, files in os.walk(path):
+                for file in files:
+                    temp_zip.write(os.path.join(path,file),
+                     os.path.relpath(os.path.join(root, file), 
+                                       os.path.join(path, '..')))
+        return StreamingResponse(
+            iter([zip_io.getvalue()]), 
+            media_type="application/x-zip-compressed", 
+            headers = { "Content-Disposition": f"attachment; filename=images.zip"}
+        )
+    zip_subdir = os.path.join(RESULTS_FOLDER, str(submission.id))
+
+    return zipdir(zip_subdir)
