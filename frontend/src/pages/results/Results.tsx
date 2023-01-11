@@ -2,40 +2,79 @@ import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
 import EnhancedTable from '../../components/Table'
 import { useUsers } from '../../api/Users'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { dehydrate, QueryClient, useQuery, useMutation } from '@tanstack/react-query';
 
 // export async function getServerSideProps() {
 //     const queryClient = new QueryClient()
 //     const users = useUsers()
-  
+
 //     await queryClient.prefetchQuery(['submissions'],() => users.index_submissions())
-  
+
 //     return {
 //       props: {
 //         dehydratedState: dehydrate(queryClient),
 //       },
 //     }
 //   }
-  
+
 
 export default function Results() {
     const [rows, setRows] = useState<any[]>([])
+
     const users = useUsers()
+
+    interface HeadCell {
+        id: string;
+        label: string;
+    }
+
+    // order matters
+    const headCells = [
+        {
+            id: 'name',
+            label: 'Name',
+        },
+        {
+            id: 'created_date',
+            label: 'Created Date',
+        },
+        {
+            id: 'pipeline',
+            label: 'Pipeline',
+        },
+    ];
+
+    function createData(
+        key: string,
+        name: string,
+        created_date: string,
+        pipeline: string
+    ) {
+        let date = new Date(created_date).toUTCString()
+        return {
+            key,
+            name,
+            date,
+            pipeline
+        };
+    }
 
     const submissions = useQuery({
         retry: false,
         queryKey: ['submissions'],
         queryFn: () => users.index_submissions(),
+        onSuccess(data) {
+            let temp_rows = []
+            data.data.forEach((data: any) => {
+                const row = createData(data.id, data.name, data.created_date, data.pipeline)
+                temp_rows.push(row)
+            })
+            setRows(temp_rows)
+        }
     })
 
-    if (submissions.isSuccess) {
-        submissions.data?.data.forEach((data: any) => {
-            const row = createData(data.id, data.result, data.name, data.created_date, data.panel)
-            rows.push(row)
-        })
-    } 
-    
+
     const del_records = (seldata: any) => {
         return users.del_record(seldata)
     }
@@ -44,56 +83,10 @@ export default function Results() {
         retry: false,
     })
 
-    interface HeadCell {
-        id: string;
-        label: string;
-        numeric: boolean;
-    }
-
-    // order matters
-    const headCells = [
-        {
-            id: 'name',
-            numeric: false,
-            label: 'File/Sample Name',
-        },
-        {
-            id: 'created_date',
-            numeric: true,
-            label: 'Created Date',
-        },
-        {
-            id: 'panel',
-            numeric: true,
-            label: 'Panel',
-        },
-    ];
-
-    function createData(
-        key: string,
-        data: any,
-        name: string,
-        created_date: string,
-        panel: string
-    ) {
-        return {
-            key,
-            data,
-            name,
-            created_date,
-            panel
-        };
-    }
-
-    const contentgenerator = (row: any) => {
-        return (
-            <div>
-                {row.key}
-            </div>
-        )
-    }
-
     const deletefn = (seldata: any) => {
+        setRows((prevRows) =>
+            prevRows.filter((row) => !seldata.includes(row.key))
+        );
         sub_del.mutate(seldata)
     }
 
@@ -103,11 +96,11 @@ export default function Results() {
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
                         <EnhancedTable
-                            orderby={{ 'order': 'desc', 'id': 'created_data', 'key': 'key' }}
+                            orderby={{ 'order': 'desc', 'id': 'created_date', 'key': 'key' }}
                             tableName="Results"
-                            data={rows}
+                            rows={rows}
+                            setRows={setRows}
                             headCells={headCells}
-                            contentgenerator={contentgenerator}
                             deletefn={deletefn}
                         />
                     </Grid>
