@@ -77,8 +77,8 @@ def assemble_chunks(updir,tooldir, total, filename):
 @app.task(name="Cleanup")
 def cleanup(metadata : MetaModel, cleanup_command: str):
     container = client.containers.get(metadata.container_id)
-    container.exec_run(cmd=cleanup_command)
     container.remove(v=True)
+
     shutil.rmtree(metadata.dirs['updir'])
     shutil.rmtree(metadata.dirs['tdir'])
 
