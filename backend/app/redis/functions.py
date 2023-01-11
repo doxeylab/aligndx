@@ -10,7 +10,10 @@ class Handler:
         # get data
         def retrieve(id: str):
                 data = r.get(id)
-                return json.loads(data)
+                if data!=None:
+                        return json.loads(data)
+                else: 
+                        return data
 
         # delete key
         def delete(id: str):

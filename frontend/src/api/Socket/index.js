@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react"
-import { URL } from "../../config/Settings"
+import { BACKEND_URL } from "../../config/Settings"
 import { useAuthContext } from "../../context/AuthProvider"
 
 const base_ws_url = "ws"
-const socket_url = URL + "livegraphs"
+const socket_url = BACKEND_URL + "livestatus"
 const WEBSOCKET_URL = socket_url.replace(/http/, base_ws_url)
 
-const useWebSocket = (file_id, callback) => {
+const useWebSocket = () => {
     const context = useAuthContext()
 
-    const connectWebsocket = async () => {
+    const connectWebsocket = async (sub_id, callback) => {
         try {
             console.log("trying websocket connection")
-            const ws = new WebSocket(WEBSOCKET_URL + '/' + file_id)
+            const ws = new WebSocket(WEBSOCKET_URL + '/' + sub_id)
 
             ws.onerror = function (event) {
                 console.log("an error occured")

@@ -26,7 +26,8 @@ class AppSettings(BaseSettings):
     #  -- User Data -- 
 
     UPLOAD_FOLDER = DATA_FOLDER + '/uploads' 
-    RESULTS_FOLDER = DATA_FOLDER + '/results' 
+    RESULTS_FOLDER = DATA_FOLDER + '/results'
+    TMP_FOLDER = DATA_FOLDER + '/tmp' 
 
     #  -- App Metadata --
     METADATA = DATA_FOLDER + '/metadata'
@@ -34,7 +35,7 @@ class AppSettings(BaseSettings):
     NXF_CONF = METADATA + '/nxf.conf'
 
     #  -- API Created Directories -- 
-    DIRS = [DATA_FOLDER, UPLOAD_FOLDER, RESULTS_FOLDER]
+    DIRS = [DATA_FOLDER, UPLOAD_FOLDER, RESULTS_FOLDER, TMP_FOLDER]
 
     # Chunk settings
 

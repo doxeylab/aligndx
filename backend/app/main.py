@@ -16,7 +16,7 @@ from app.routers import uploads, results, users, socket_resources, metadata
 from app.routers.payments import payments, stripe_webhooks
 
 # utils
-from app.utils.utilities import dir_generator
+from app import utils
 
 # settings
 from app.config.settings import get_settings
@@ -35,7 +35,7 @@ async def setup_configs():
     Initializes settings for app
     '''
     settings = get_settings()
-    dir_generator(settings.DIRS)
+    utils.dir_generator(settings.DIRS)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):

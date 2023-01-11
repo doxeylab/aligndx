@@ -12,22 +12,23 @@ import { useMeta } from '../../api/Meta'
 import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
 import CustomIframe from '../../components/CustomIframe';
-
+import useWebSocket from '../../api/Socket'
 const Uploader = dynamic(() => import('../../components/Uploader'), {
     ssr: false,
 })
 
 export default function Analyze() {
     const [pipelineData, setPipelineData] = useState([])
-
     const [value, setValue] = useLocalStorage('sel_value', null);
     const [inputValue, setInputValue] = useLocalStorage('sel_input', '');
     const [upload, setUpload] = useLocalStorage('uploadparams', {} as any);
-    const [subId, setSubId] = useLocalStorage('subId', {} as any);
+    const [subId, setSubId] = useLocalStorage('subId', "" as any);
 
-    const updateParentSubId = (id : string) => {
+    const updateParentSubId = (id: string) => {
         setSubId(id)
     }
+
+    const {connectWebsocket} = useWebSocket();
 
     const meta = useMeta();
     const pipeMeta = useQuery({
@@ -39,10 +40,8 @@ export default function Analyze() {
             setPipelineData(pipeline_meta)
         },
     })
-
+    
     useEffect(() => {
-        console.log(value)
-
         if (value != null) {
             let sel = pipelineData.find((o: any) => o.id === value.id)
 
@@ -57,6 +56,13 @@ export default function Analyze() {
         }
 
     }, [value])
+
+    useEffect(()=> {
+        if (subId != ''){
+            connectWebsocket(subId, console.log)
+        }
+    },[subId])
+
 
     return (
         <>
@@ -119,13 +125,19 @@ export default function Analyze() {
                                     width={'100%'}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
-                                <CustomIframe
-                                    width={'100%'} 
-                                    height={'100%'} 
-                                    frameBorder={0}
-                                    srcdoc="<p>Some HTML</p>" />
-                            </Grid>
+                            {subId ?
+                                <Grid item xs={12}>
+                                    <Paper>
+                                        <CustomIframe
+                                            width={'100%'}
+                                            height={'100%'}
+                                            frameBorder={0}
+                                            srcDoc="<p>Some HTML</p>" />
+                                    </Paper>
+                                </Grid>
+                                :
+                                null
+                            }
                         </>
 
                         :

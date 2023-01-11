@@ -21,14 +21,21 @@
             }
         },
         "predefined_inputs": [
-            "--kraken_db ${PROJECT_PATH}/data/indexes/kraken_db.tar.gz"
+            "--kraken_db ./indexes/kraken_db.tar.gz"
         ],
-        "results": [
-            "bracken",
-            "kraken2",
-            "multiqc",
-            "pipeline_info"
-        ]
+        "report": "multiqc/multiqc_report.html",
+        "processes": {
+            "SAMPLESHEET_GENERATE": "",
+            "SAMPLESHEET_CHECK": "",
+            "UNPACK_DATABASE": "",
+            "KRAKEN2_KRAKEN2": "",
+            "BRACKEN_BRACKEN": "",
+            "BRACKEN_FILTER": "",
+            "BRACKEN_COMBINEBRACKENOUTPUTS": "",
+            "BRACKEN_PLOT": "",
+            "CUSTOM_DUMPSOFTWAREVERSIONS": "",
+            "MULTIQC": ""
+        }
     },
     "visuflow": {
         "id": "visuflow",
@@ -52,6 +59,10 @@
         },
         "predefined_inputs": [
             ""
-        ]
+        ],
+        "report": "multiqc/multiqc_report.html",
+        "processes": {
+            "test": ""
+        }
     }
 }
