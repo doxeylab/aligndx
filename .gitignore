@@ -8,7 +8,10 @@ node_modules
 venv
 
 # localstorage
+!data/
+
 **/data/*
+!**/data/metadata/
 
 # testing
 /app/coverage/

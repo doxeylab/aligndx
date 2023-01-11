@@ -29,54 +29,44 @@ manager = ConnectionManager()
 class Chunk_id(BaseModel):
     account_id: str 
 
-@router.websocket('/livegraphs/{file_id}') 
-async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSession = Depends(get_db)):
+@router.websocket('/livestatus/{sub_id}') 
+async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depends(get_db)):
     await manager.connect(websocket)
+
     token = await websocket.receive_text()
     current_user = await get_current_user_ws(token, db)
      
     users_dal = UsersDal(db)
-    query = await users_dal.get_submission(current_user.id, file_id)
+    query = await users_dal.get_submission(current_user.id, sub_id)
 
     submission = SubmissionSchema.from_orm(query)
     
-    if current_user:
-        print(f"User {current_user.id} connected!")
+    data = {"status": "", "processes": {}}
+    if current_user and submission != None:
         try:
             while True:
-                metadata = retrieve.s(file_id)()
-                upload_progress = metadata.processed/(metadata.total)
-                analysis_progress = 0
-                progress_data = {'analysis': analysis_progress, 'upload': upload_progress}
+                metadata = retrieve.s(sub_id)()
 
-                if metadata.status == 'completed':
-                    stored_data = metadata.data
-                    stored_data['status'] = "complete"
-                    stored_data['sample_name'] = submission.name
-                    stored_data['progress'] = progress_data
-
-                    await manager.send_data(stored_data, websocket) 
+                if metadata == None:
                     manager.disconnect(websocket)
                     return
+                
+                data["status"] = metadata.status
+                data["processes"] = metadata.processes
+                
+                await manager.send_data(data=data, websocket=websocket) 
+
+                if metadata.status == 'completed' or metadata.status =='error':
+                    manager.disconnect(websocket)
+                    return 
+
+                if metadata.status == 'uploading' or metadata.status == 'setup':
+                    await asyncio.sleep(1) 
+                    continue
 
                 if metadata.status == 'analyzing':
-                    stored_data['status'] = "ready"
-                    stored_data['sample_name'] = submission.name
-                    stored_data['progress'] = progress_data
-
-                    await manager.send_data(stored_data, websocket)  
-                    await asyncio.sleep(3) 
-                
-                if metadata.status == 'uploading' or metadata.status == 'setup':
-                    resp = {'status': 'pending','sample_name':submission.name,'progress': progress_data}
-                    await manager.send_data(resp, websocket)
-                    await asyncio.sleep(5) 
-
-                if metadata.status == 'error':
-                    resp = {'status': 'error','sample_name':submission.name,'progress': progress_data}
-                    await manager.send_data(resp, websocket)
-                    manager.disconnect(websocket)
-                    return
+                    await asyncio.sleep(1) 
+                    continue
 
         except WebSocketDisconnect:
             manager.disconnect(websocket)
@@ -84,7 +74,7 @@ async def live_graph_ws_endpoint(websocket: WebSocket, file_id: str, db: AsyncSe
 
         except Exception as e: 
             print(f"Exception occured so client {current_user.id}  disconnected")
-            # raise e 
+            raise e 
     else:
         manager.disconnect(websocket)  
         print(f"User could not be authenticated")

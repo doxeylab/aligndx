@@ -1,0 +1,68 @@
+{
+    "metasense": {
+        "id": "metasense",
+        "name": "MetaSense",
+        "categories": [
+            "rna-seq"
+        ],
+        "fileTypes": [
+            ".fastq.gz",
+            ".fastq",
+            ".fq.gz",
+            ".fq"
+        ],
+        "pluginType": "regular",
+        "description": "Clinical mNGS based pathogen diagnostics",
+        "repository": "mshunjan/metasense",
+        "user_inputs": {
+            "input": {
+                "command": "--input",
+                "mandatory": true
+            }
+        },
+        "predefined_inputs": [
+            "--kraken_db ./indexes/kraken_db.tar.gz"
+        ],
+        "report": "multiqc/multiqc_report.html",
+        "processes": {
+            "SAMPLESHEET_GENERATE": "",
+            "SAMPLESHEET_CHECK": "",
+            "UNPACK_DATABASE": "",
+            "KRAKEN2_KRAKEN2": "",
+            "BRACKEN_BRACKEN": "",
+            "BRACKEN_FILTER": "",
+            "BRACKEN_COMBINEBRACKENOUTPUTS": "",
+            "BRACKEN_PLOT": "",
+            "CUSTOM_DUMPSOFTWAREVERSIONS": "",
+            "MULTIQC": ""
+        }
+    },
+    "visuflow": {
+        "id": "visuflow",
+        "name": "VisuFlow",
+        "categories": [
+            "lfa"
+        ],
+        "pluginType": "visual",
+        "description": "Lateral flow assay image detection",
+        "repository": "mshunjan/visuflow",
+        "fileTypes": [
+            ".jpg",
+            ".jpeg",
+            ".png"
+        ],
+        "user_inputs": {
+            "input": {
+                "command": "--input",
+                "mandatory": true
+            }
+        },
+        "predefined_inputs": [
+            ""
+        ],
+        "report": "multiqc/multiqc_report.html",
+        "processes": {
+            "test": ""
+        }
+    }
+}

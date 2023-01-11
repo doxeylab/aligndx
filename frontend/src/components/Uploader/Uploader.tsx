@@ -43,7 +43,7 @@ function useUppy(onCreateOrChange: (uppyInstance: Uppy) => Uppy, deps: any[]) {
 }
 
 export default function Uploader(props: UploaderProps) {
-    const { id, meta, plugins, fileTypes, ...dashProps } = props
+    const { id, meta, plugins, fileTypes, updateParentSubId, ...dashProps } = props
     let availablePlugins = ["GoogleDrive", "MyWebCam", "OneDrive", "Dropbox", "Url", "MyImageEditor"]
     const createSubmission = useUploads();
     const { refresh } = useRefresh();
@@ -86,7 +86,8 @@ export default function Uploader(props: UploaderProps) {
             .use(CreateSubmission, {
                 pipeline: meta.pipeline,
                 createSubmission: createSubmission.start,
-                refresh: refresh
+                refresh: refresh,
+                updateParentSubId: updateParentSubId
             })
             .use(Webcam, {
                 id: 'MyWebCam',

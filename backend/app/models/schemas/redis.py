@@ -1,15 +1,15 @@
 from pydantic import BaseModel
-from typing import Literal, Dict
+from typing import Literal, Dict 
 
 class ItemModel(BaseModel):
     uploaded: bool
     analyzed: bool
 
 class MetaModel(BaseModel):
-    pipeline: str
-    updir: str
-    rdir: str
+    container_id: str
+    dirs: Dict[str, str]
     items: Dict[str, ItemModel]
-    status: Literal['setup', 'processing', 'completed', 'error'] 
-    data: str
+    status: Literal['setup', 'uploading', 'analyzing', 'processing', 'completed', 'error']
+    processes: Dict[str,str] 
+
 

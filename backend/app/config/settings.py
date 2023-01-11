@@ -19,24 +19,23 @@ class AppSettings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
     REFRESH_TOKEN_EXPIRE_MINUTES = 30 * 24 * 14
 
-    #  -- App Date -- 
-    DATA_FOLDER = './data'
+    #  -- App Data -- 
+    PROJECT_PATH = os.getenv("PROJECT_PATH")
+    DATA_FOLDER =  PROJECT_PATH + '/data'
 
     #  -- User Data -- 
 
     UPLOAD_FOLDER = DATA_FOLDER + '/uploads' 
-    RESULTS_FOLDER = DATA_FOLDER + '/results' 
+    RESULTS_FOLDER = DATA_FOLDER + '/results'
+    TMP_FOLDER = DATA_FOLDER + '/tmp' 
 
-    #  -- External Files or MetaData --
-    
-    INDEX_FOLDER = DATA_FOLDER + '/indexes' 
-    KRAKEN_DB = DATA_FOLDER + '/indexes/kraken_db'
-
-    METADATA_FOLDER = DATA_FOLDER + "/metadata" 
-    PANELS = METADATA_FOLDER + "/panels.csv"
+    #  -- App Metadata --
+    METADATA = DATA_FOLDER + '/metadata'
+    PIPELINES = METADATA + '/pipelines.json'
+    NXF_CONF = METADATA + '/nxf.conf'
 
     #  -- API Created Directories -- 
-    DIRS = [UPLOAD_FOLDER, RESULTS_FOLDER]
+    DIRS = [DATA_FOLDER, UPLOAD_FOLDER, RESULTS_FOLDER, TMP_FOLDER]
 
     # Chunk settings
 

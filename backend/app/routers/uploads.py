@@ -17,11 +17,15 @@ from app.models.schemas.submissions import SubmissionBase, UpdateSubmissionDate,
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.utils.utilities import dir_generator
+from app import utils
 
 from app.config.settings import settings
 
 from app.celery.tasks import setup_flow, update_flow
+
+import pandas as pd
+import docker 
+client = docker.from_env()
 
 router = APIRouter()
 
@@ -32,12 +36,14 @@ chunk_ratio = settings.chunk_ratio
 
 UPLOAD_FOLDER = settings.UPLOAD_FOLDER
 RESULTS_FOLDER = settings.RESULTS_FOLDER
+TMP_FOLDER = settings.TMP_FOLDER
 
 @router.post("/start")
 async def start(
     current_user: UserDTO = Depends(get_current_user),
     items: List[str] = Body(...),
     pipeline: str = Body(...),
+    # inputs: dict = Body(...),
     # size: float = Body(...),
     db: AsyncSession = Depends(get_db)
 ):
@@ -56,9 +62,10 @@ async def start(
 
     upload_dir = "{}/{}".format(UPLOAD_FOLDER, sub_id)
     results_dir = "{}/{}".format(RESULTS_FOLDER, sub_id)
+    tmp_dir = "{}/{}".format(TMP_FOLDER, sub_id)
 
-    dirs = [upload_dir, results_dir]
-    dir_generator(dirs)
+    dirs = [upload_dir, results_dir, tmp_dir]
+    utils.dir_generator(dirs)
 
     sub_items={}
     for item in items:
@@ -66,19 +73,53 @@ async def start(
                 uploaded=False,
                 analyzed=False,
             )
-
         sub_items[item] = sub_item
 
+    pipeline_data = pd.read_json(settings.PIPELINES)[pipeline]
+    repo = pipeline_data['repository']
+    
+    user_inputs = f"--input {upload_dir}"
+    # for k,v in pipeline_data['user_inputs'].items():
+    #     flag = v['command'] + " " + inputs[k]
+    #     user_inputs + flag + " " 
+
+    predefined_inputs = ' '.join(pipeline_data['predefined_inputs'])
+    custom_inputs = user_inputs + " " + predefined_inputs
+
+    # run_command = f"docker run -d --rm --name {sub_id} -v /var/run/docker.sock:/var/run/docker.sock -v {settings.DATA_FOLDER}:{settings.DATA_FOLDER} -e 'NXF_HOME={settings.DATA_FOLDER}/nxf_home' nextflow/nextflow:latest nextflow -log {results_dir}/nxf/.nextflow.log run {repo} -latest -profile docker -w {results_dir}/nxf/work -c {settings.NXF_CONF} {custom_inputs} --outdir {results_dir}"
+    
+    run_command = f"nextflow -log {tmp_dir}/.nextflow.log run {repo} -latest -profile docker  -w {tmp_dir} -c {settings.NXF_CONF} {custom_inputs} --outdir {results_dir}"
+    
+    container = client.containers.create(
+            image="nextflow/nextflow:latest",
+            command=run_command,
+            detach=True,
+            volumes=[
+                "/var/run/docker.sock:/var/run/docker.sock",
+                f"{settings.DATA_FOLDER}:{settings.DATA_FOLDER}"
+            ],
+            environment={
+                "NXF_HOME": f'{settings.DATA_FOLDER}/nxf_home'
+            },
+            working_dir=f'{settings.DATA_FOLDER}'
+        )
+
+    processes = pipeline_data['processes']
+
     metadata = MetaModel(
-        pipeline=pipeline,
-        updir=upload_dir,
-        rdir=results_dir,
+        container_id=container.id,
+        dirs={
+            "updir": upload_dir,
+            "rdir" : results_dir,
+            "tdir": tmp_dir,
+            "ddir": settings.DATA_FOLDER
+        },
         items=sub_items,
-        status='setup', 
-        data="",
+        status='setup',
+        processes=processes
     )
 
-    setup_flow(sub_id, metadata, results_dir)
+    setup_flow(sub_id, metadata)
 
     return {"sub_id": sub_id}
     
@@ -108,5 +149,5 @@ async def tusd(
         #     sub_dal = SubmissionsDal(db)
         #     await sub_dal.update(sub_id, UpdateSubmissionDate(finished_date=datetime.now()))
         #     return {"Result": "OK"}
-     
+    
     return 200

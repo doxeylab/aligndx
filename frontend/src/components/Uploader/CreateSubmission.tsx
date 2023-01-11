@@ -7,6 +7,8 @@ export default class CreateSubmission extends BasePlugin {
     super(uppy, opts)
     this.pipeline = opts.pipeline
     this.refresh = opts.refresh
+    this.updateParentSubId = opts.updateParentSubId
+
     this.id = opts.id || 'CreateSubmission'
     this.type = 'modifier'
     this.defaultLocale = {
@@ -46,17 +48,21 @@ export default class CreateSubmission extends BasePlugin {
 
       let result = axios.post(`http://localhost:8080/uploads/start`, data, config)
         .then((response) => {
-          return response.data['sub_id']
+          let subId = response.data['sub_id']
+          this.updateParentSubId(subId)
+          return subId
         })
         .catch(async (error) => {
           let newToken = await this.refresh()
           let config = {
             headers: {
-              Authorization : `Bearer ${newToken}`
+              Authorization: `Bearer ${newToken}`
             }
           }
           let refreshResult = axios.post('http://localhost:8080/uploads/start', data, config).then((response) => {
-            return response.data['sub_id']
+            let subId = response.data['sub_id']
+            this.updateParentSubId(subId)
+            return subId
           })
           return refreshResult
         })

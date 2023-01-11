@@ -11,9 +11,9 @@ task_routes = {
     'app.celery.tasks.update_metadata': {'queue': 'short'},
     'app.celery.tasks.retrieve': {'queue': 'short'},
     'app.celery.tasks.make_file_data': {'queue': 'short'},
-    'app.celery.tasks.assemble_chunks': {'queue': 'medium'},
     'app.celery.tasks.cleanup': {'queue': 'medium'},
-    'app.celery.tasks.analyze': {'queue': 'long'}
+    'app.celery.tasks.status_check': {'queue': 'medium'}
+
 }
 task_serializer = "pickle"
 result_serializer = "pickle"
