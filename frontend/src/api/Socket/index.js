@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react"
 import { BACKEND_URL } from "../../config/Settings"
 import { useAuthContext } from "../../context/AuthProvider"
 
@@ -9,28 +8,26 @@ const WEBSOCKET_URL = socket_url.replace(/http/, base_ws_url)
 const useWebSocket = () => {
     const context = useAuthContext()
 
-    const connectWebsocket = async (sub_id, callback) => {
+    const connectWebsocket = async (sub_id, callback = console.log) => {
         try {
             console.log("trying websocket connection")
             const ws = new WebSocket(WEBSOCKET_URL + '/' + sub_id)
 
             ws.onerror = function (event) {
-                console.log("an error occured")
-                console.log(event)
+                callback(event)
             }
 
             ws.onopen = function (event) {
+                callback(event)
                 ws.send(context.auth.accessToken)
             }
 
             ws.onclose = function (event) {
-                console.log("socket closed")
-                console.log(event)
+                callback(event)
             }
 
             ws.onmessage = function (event) {
-                const obj = JSON.parse(event.data)
-                callback(obj)
+                callback(event)
             }
         }
 

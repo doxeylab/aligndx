@@ -6,9 +6,13 @@ export const useResults = () => {
     const {get, post, put, destroy } = useAxios();
 
     return {
-        get_standard: () =>
-            get(`${results_endpoint}/standard`),
-        get_chunked: () =>
-            get(`${results_endpoint}/chunked`)
+        get_status: (sub_id) =>
+            get(`${results_endpoint}/status/${sub_id}`),
+        get_report: (sub_id) =>
+            get(`${results_endpoint}/report/${sub_id}`),
+        download: (sub_id) =>
+            get(`${results_endpoint}/download/${sub_id}`, {
+                responseType: 'arraybuffer'
+            })
     }
 }
