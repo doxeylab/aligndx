@@ -13,7 +13,28 @@ import { useSubmissions } from '../../api/Submissions'
 export default function Results() {
     const [rows, setRows] = useState<any[]>([])
     const submissions = useSubmissions();
-
+    
+    function getTimezoneName() {
+        const today = new Date();
+        const short = today.toLocaleDateString(undefined);
+        const full = today.toLocaleDateString(undefined, { timeZoneName: 'long' });
+      
+        // Trying to remove date from the string in a locale-agnostic way
+        const shortIndex = full.indexOf(short);
+        if (shortIndex >= 0) {
+          const trimmed = full.substring(0, shortIndex) + full.substring(shortIndex + short.length);
+          
+          // by this time `trimmed` should be the timezone's name with some punctuation -
+          // trim it from both sides
+          return trimmed.replace(/^[\s,.\-:;]+|[\s,.\-:;]+$/g, '');
+      
+        } else {
+          // in some magic case when short representation of date is not present in the long one, just return the long one as a fallback, since it should contain the timezone's name
+          return full;
+        }
+      }
+      
+    const timezone = getTimezoneName()
     // order matters
     const headCells = [
         {
@@ -21,12 +42,16 @@ export default function Results() {
             label: 'Name',
         },
         {
-            id: 'created_date',
-            label: 'Created Date',
-        },
-        {
             id: 'pipeline',
             label: 'Pipeline',
+        },
+        {
+            id: 'created_date',
+            label: `Created (${timezone})`,
+        },
+        {
+            id: 'finished_date',
+            label: `Finished (${timezone})`,
         },
         {
             id: 'status',
@@ -37,16 +62,28 @@ export default function Results() {
     function createData(
         key: string,
         name: string,
-        created_date: string,
         pipeline: string,
+        created_date: string,
+        finished_date: string,
         status: string
     ) {
-        let date = new Date(created_date).toUTCString()
+        const dateGenerator = (date : string) => {
+            if (date != null) {
+                let iso = new Date(date).toLocaleString()
+                return iso
+            }
+            else {
+                return null
+            }
+        }
+        let cdate = dateGenerator(created_date)
+        let fdate = dateGenerator(finished_date)
         return {
             key,
             name,
-            date,
             pipeline,
+            cdate,
+            fdate,
             status
         };
     }
@@ -58,7 +95,7 @@ export default function Results() {
         onSuccess(data) {
             let temp_rows = []
             data.data.forEach((data: any) => {
-                const row = createData(data.id, data.name, data.created_date, data.pipeline, data.status)
+                const row = createData(data.id, data.name, data.pipeline, data.created_date,data.finished_date, data.status)
                 temp_rows.push(row)
             })
             setRows(temp_rows)

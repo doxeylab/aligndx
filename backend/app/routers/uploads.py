@@ -1,6 +1,6 @@
 from http.client import HTTPException
-from datetime import datetime
 from typing import Dict, List
+import datetime
 
 from app.models.schemas.phi_logs import UploadLogBase
 from app.models.schemas.redis import MetaModel, ItemModel
@@ -48,9 +48,10 @@ async def start(
 ):
     status='setup'
 
+    created_date = datetime.datetime.now(datetime.timezone.utc).isoformat()
     db_entry = submissions.Base(
         user_id=current_user.id,
-        created_date=datetime.now(),
+        created_date=created_date,
         pipeline=pipeline,
         items=items,
         status=status

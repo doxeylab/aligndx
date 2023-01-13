@@ -18,7 +18,8 @@ async def status_update(sub_id: str, status: str, db: AsyncSession = Depends(get
 
     if submission is not None:
         if status == 'completed':
-            await sub_dal.update(sub_id, submissions.UpdateDateAndStatus(finished_date=datetime.datetime.now(), status=status))
+            finished_date = datetime.datetime.now(datetime.timezone.utc).isoformat()
+            await sub_dal.update(sub_id, submissions.UpdateDateAndStatus(finished_date=finished_date, status=status))
             return 200
         else:
             await sub_dal.update(sub_id, submissions.UpdateStatus(status=status))

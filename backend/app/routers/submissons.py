@@ -66,10 +66,9 @@ async def del_result(ids: List[str], current_user: UserDTO = Depends(get_current
         uid = uuid.UUID(id)
         try: 
             query = await sub_dal.delete_by_id(uid)
-            return 200
         except:
             raise HTTPException(status_code=404, detail="Item not found")
-
+    return 200 
 
 @router.get('/report/{sub_id}', response_class=HTMLResponse) 
 async def get_report(sub_id: str, current_user: UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
