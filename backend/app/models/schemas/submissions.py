@@ -19,4 +19,13 @@ class SubmissionSchema(SubmissionBase):
 
 class UpdateSubmissionDate(BaseSchema):
     finished_date: datetime
- 
+
+class SubmissionsResponse(BaseSchema):
+    created_date : datetime
+    pipeline : str 
+    items: list
+    status: str
+    # size : float 
+    name : str = None
+    finished_date : datetime = None
+    id: UUID

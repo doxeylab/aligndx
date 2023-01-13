@@ -88,7 +88,7 @@ def cleanup(metadata : MetaModel, cleanup_command: str):
 
 @app.task(name="Status Update")
 def status_update(subId : str, status : str):
-    resp = requests.post(f"{API_URL}/status_update", json={"subId": subId, "status": status}, headers={"authorization": CELERY_API_KEY})
+    resp = requests.post(f"{API_URL}/status_update", json={"subId": subId, "status": status}, headers={"authorization": f'Bearer {CELERY_API_KEY}'})
     return resp
 
 class StatusException(Exception):

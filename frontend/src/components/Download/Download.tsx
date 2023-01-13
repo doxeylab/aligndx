@@ -2,7 +2,7 @@ import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import Tooltip from '@mui/material/Tooltip';
 
-import { useResults } from '../../api/Results'
+import { useSubmissions } from '../../api/Submissions'
 import { useQuery } from '@tanstack/react-query'
 
 interface IDownload {
@@ -12,7 +12,7 @@ interface IDownload {
 
 export default function Download(props: IDownload) {
     const { subId, disabled } = props
-    const results = useResults();
+    const submissions = useSubmissions();
 
     function saveAs(blob, fileName) {
         var url = window.URL.createObjectURL(blob);
@@ -36,7 +36,7 @@ export default function Download(props: IDownload) {
 
     const download = useQuery({
         queryKey: ['download', subId],
-        queryFn: () => results.download(subId),
+        queryFn: () => submissions.download(subId),
         retry: false,
         enabled: false,
         onSuccess(data) {
@@ -49,10 +49,13 @@ export default function Download(props: IDownload) {
         }
     })
 
+    if (disabled) {
+        return null;
+    }
+
     return (
         <Tooltip title="Download Results">
             <IconButton
-                disabled={disabled}
                 size="large"
                 aria-label="download"
                 onClick={() => download.refetch()}>

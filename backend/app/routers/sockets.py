@@ -8,7 +8,7 @@ from starlette.websockets import WebSocketDisconnect
 from app.auth.auth_dependencies import get_current_user_ws
 from app.models.schemas.submissions import SubmissionSchema
 
-from app.db.dals.users import UsersDal 
+from app.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -36,8 +36,8 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
     token = await websocket.receive_text()
     current_user = await get_current_user_ws(token, db)
      
-    users_dal = UsersDal(db)
-    query = await users_dal.get_submission(current_user.id, sub_id)
+    sub_dal = SubmissionsDal(db)
+    query = await sub_dal.get_submission(current_user.id, sub_id)
 
     if query is None:
         raise WebSocketDisconnect()

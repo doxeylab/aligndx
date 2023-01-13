@@ -2,14 +2,15 @@ import uuid
 import os, zipfile
 from io import BytesIO 
 from typing import List 
+import pandas as pd 
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse, HTMLResponse
 
 from app.auth.models import UserDTO
+from app.models.schemas.submissions import SubmissionsResponse
 from app.auth.auth_dependencies import get_current_user
-from app.db.dals.users import UsersDal
 from app.db.dals.submissions import SubmissionsDal
 
 from app.services.db import get_db 
@@ -19,15 +20,31 @@ from app.config.settings import settings
 
 router = APIRouter()
 
-# Get the submission results for the currently logged in user
-@router.get('/submissions/')
-async def get_standard_submissions(current_user: UserDTO = Depends(get_current_user),
+@router.get('/{sub_id}')
+async def get_submission(sub_id : str ,current_user: UserDTO = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
+    """
+    Retrieve submission information
+    """
+    sub_dal = SubmissionsDal(db) 
+    submissions = await sub_dal.get_submission(user_id=current_user.id, sub_id=sub_id)
+    return SubmissionsResponse.from_orm(submissions)
+
+@router.get('/all/')
+async def get_all_submissions(current_user: UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Retrieve all submissions for a user
+    """
     sub_dal = SubmissionsDal(db) 
     submissions = await sub_dal.get_all_submissions(current_user.id)
-    return submissions
-        
+    
+    data = []
+    for sub in submissions:
+        data.append(SubmissionsResponse.from_orm(sub))
+    return data
 
 @router.get('/incomplete/')
 async def get_incomplete_submissions(current_user: UserDTO = Depends(get_current_user), 
@@ -35,30 +52,28 @@ async def get_incomplete_submissions(current_user: UserDTO = Depends(get_current
 ):
     sub_dal = SubmissionsDal(db) 
     submissions = await sub_dal.get_incomplete_submissions(current_user.id)
-    return submissions
+    return SubmissionsResponse.from_orm(submissions)
 
 
-@router.post('/delete_record')
+@router.post('/delete')
 async def del_result(ids: List[str], current_user: UserDTO = Depends(get_current_user),  db: AsyncSession = Depends(get_db)):
 
     sub_dal = SubmissionsDal(db)
     for id in ids:
         uid = uuid.UUID(id)
-        query = await sub_dal.delete_by_id(uid)
-
-        if (not query):
-            print("didn't work")
+        try: 
+            query = await sub_dal.delete_by_id(uid)
+            return 200
+        except:
             raise HTTPException(status_code=404, detail="Item not found")
-        
-        else :
-            print(query)
+
 
 @router.get('/report/{sub_id}', response_class=HTMLResponse) 
 async def get_report(sub_id: str, current_user: UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
 
     # get submission data from db
-    users_dal = UsersDal(db)
-    query = await users_dal.get_submission(current_user.id, sub_id)
+    sub_dal = SubmissionsDal(db)
+    query = await sub_dal.get_submission(current_user.id, sub_id)
     if query is None:
         raise HTTPException(status_code=404, detail="Submission not found")
 
@@ -97,8 +112,8 @@ def zip_dir(zip_subdir, name):
 @router.get('/download/{sub_id}', response_class=StreamingResponse) 
 async def download(sub_id: str, current_user: UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     # get submission data from db
-    users_dal = UsersDal(db)
-    query = await users_dal.get_submission(current_user.id, sub_id)
+    sub_dal = SubmissionsDal(db)
+    query = await sub_dal.get_submission(current_user.id, sub_id)
     if query is None:
         raise HTTPException(status_code=404, detail="Submission not found")
 

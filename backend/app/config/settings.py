@@ -73,7 +73,7 @@ class AppSettings(BaseSettings):
     #  -- Db settings --
     
     DATABASE_URL: str = os.getenv("DATABASE_URL")
-    DB_LOGS = True
+    DB_LOGS = False
     @property
     def async_database_url(self) -> Optional[str]:
         return (

@@ -7,12 +7,12 @@ import Container from '@mui/material/Container'
 import EnhancedTable from '../../components/Table'
 import Download from '../../components/Download';
 import Report from '../../components/Report';
+import { useSubmissions } from '../../api/Submissions'
 
-import { useUsers } from '../../api/Users'
 
 export default function Results() {
     const [rows, setRows] = useState<any[]>([])
-    const users = useUsers()
+    const submissions = useSubmissions();
 
     // order matters
     const headCells = [
@@ -51,10 +51,10 @@ export default function Results() {
         };
     }
 
-    const submissions = useQuery({
+    const all_submissions = useQuery({
         retry: 1,
         queryKey: ['submissions'],
-        queryFn: () => users.index_submissions(),
+        queryFn: () => submissions.index_submissions(),
         onSuccess(data) {
             let temp_rows = []
             data.data.forEach((data: any) => {
@@ -67,7 +67,7 @@ export default function Results() {
 
 
     const del_records = (seldata: any) => {
-        return users.del_record(seldata)
+        return submissions.del_record(seldata)
     }
 
     const sub_del = useMutation(['sub_del'], del_records, {

@@ -20,16 +20,6 @@ export const useUsers = () => {
             }),
         me: () =>
             get(`${users_endpoint}/me`),
-        index_submissions: () =>
-            get(`${users_endpoint}/submissions`),
-        index_incomplete_submissions: () =>
-            get(`${users_endpoint}/incomplete`),
-        linked_results: (params) =>
-            get(`${users_endpoint}/linked_results/${params}`),
-        del_record: (params) =>
-            post(`${users_endpoint}/delete_record`, params, {
-                withCredentials: true
-            }),
     }
 
 }

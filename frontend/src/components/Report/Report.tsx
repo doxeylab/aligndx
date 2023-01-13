@@ -2,7 +2,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import PageviewIcon from '@mui/icons-material/Pageview';
 
-import { useResults } from '../../api/Results'
+import { useSubmissions } from '../../api/Submissions'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react';
 
@@ -19,7 +19,7 @@ export default function Report(props: IReport) {
     const [result, setResult] = useState(null);
     const [open, setOpen] = useState(false);
 
-    const results = useResults();
+    const submissions = useSubmissions();
 
     const handleClickOpen = (callback: any) => {
         callback(true);
@@ -31,7 +31,7 @@ export default function Report(props: IReport) {
 
     const report = useQuery({
         queryKey: ['report', subId],
-        queryFn: () => results.get_report(subId),
+        queryFn: () => submissions.get_report(subId),
         retry: false,
         enabled: false,
         onSuccess(data) {
@@ -40,11 +40,14 @@ export default function Report(props: IReport) {
         }
     })
 
+    if (disabled) {
+        return null;
+    }
+
     return (
         <>
             <Tooltip title="View Results">
                 <IconButton
-                    disabled={disabled}
                     size="large"
                     aria-label="view-results"
                     onClick={() => report.refetch()}>
