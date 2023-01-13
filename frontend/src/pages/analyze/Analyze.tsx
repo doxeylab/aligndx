@@ -50,10 +50,10 @@ export default function Analyze() {
     const submissions = useSubmissions();
 
     const dataHandler = (event: any) => {
-        console.log(event)
         if (event.type == 'message') {
             let data = JSON.parse(event.data)
-            console.log(data)
+            console.log(data.status)
+            console.table(data.processes)
             setStatus(data)
         }
     }

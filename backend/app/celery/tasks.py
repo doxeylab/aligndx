@@ -79,7 +79,7 @@ def assemble_chunks(updir,tooldir, total, filename):
     p = subprocess.Popen(['/bin/bash', '-c', command]) 
     
 @app.task(name="Cleanup")
-def cleanup(metadata : MetaModel, cleanup_command: str):
+def cleanup(metadata : MetaModel):
     container = client.containers.get(metadata.container_id)
     container.remove(v=True)
 
@@ -107,14 +107,6 @@ def status_check(self, subId: str):
     container = client.containers.get(metadata.container_id)
     status = metadata.status
 
-    if nextflow.directory_is_ready(log_location=metadata.dirs['tdir'], history_location=metadata.dirs['ddir']):
-            execution = nextflow.Execution.create_from_location(log_location=metadata.dirs['tdir'], history_location=metadata.dirs['ddir'])
-            processes = execution.process_executions
-            if len(processes) > 0:
-                for process in processes:
-                    process_name = process.process.split(":")[-1]
-                    metadata.processes[process_name] = process.status
-        
     if container.status == 'exited':
         # check exit code 
         successful_containers = client.containers.list(all=True,filters={'exited':0})
@@ -124,8 +116,7 @@ def status_check(self, subId: str):
                 metadata.status = status
                 update_metadata.s(subId, metadata)()
                 status_update.s(subId, status).delay()
-                cleanup_command = f'nextflow clean -f {execution.id}'
-                cleanup.s(metadata, cleanup_command)()
+                cleanup.s(metadata).delay()
 
                 return True
 
@@ -135,7 +126,15 @@ def status_check(self, subId: str):
                 update_metadata.s(subId, metadata)()
                 status_update.s(subId, status).delay()
                 raise StatusException(status)
-    
+
+    if nextflow.directory_is_ready(log_location=metadata.dirs['tdir'], history_location=metadata.dirs['ddir']):
+            execution = nextflow.Execution.create_from_location(log_location=metadata.dirs['tdir'], history_location=metadata.dirs['ddir'])
+            processes = execution.process_executions
+            if len(processes) > 0:
+                for process in processes:
+                    process_name = process.process.split(":")[-1]
+                    metadata.processes[process_name] = process.status
+        
     if container.status == 'running':
         metadata.status = 'analyzing'
 
@@ -192,7 +191,6 @@ def update_flow(tusdata: dict, uploads_folder: str):
         # signal_upload_finish.s(f'{dst}/STOP.txt')()
         container = client.containers.get(metadata.container_id)
         container.start()
-        status = 'analyzing'
         status_check.s(subId).delay()   
 
     status_update.s(subId, status).delay()

@@ -89,7 +89,8 @@ async def start(
 
     # run_command = f"docker run -d --rm --name {sub_id} -v /var/run/docker.sock:/var/run/docker.sock -v {settings.DATA_FOLDER}:{settings.DATA_FOLDER} -e 'NXF_HOME={settings.DATA_FOLDER}/nxf_home' nextflow/nextflow:latest nextflow -log {results_dir}/nxf/.nextflow.log run {repo} -latest -profile docker -w {results_dir}/nxf/work -c {settings.NXF_CONF} {custom_inputs} --outdir {results_dir}"
     
-    run_command = f"nextflow -log {tmp_dir}/.nextflow.log run {repo} -latest -profile docker  -w {tmp_dir} -c {settings.NXF_CONF} {custom_inputs} --outdir {results_dir}"
+    run_name = f"run_{sub_id}"
+    run_command = f"sh -c 'nextflow -log {tmp_dir}/.nextflow.log run {repo} -latest  -name {run_name} -profile docker  -w {tmp_dir} -c {settings.NXF_CONF} {custom_inputs} --outdir {results_dir} ; nextflow clean {run_name} -f'"
     
     container = client.containers.create(
             image="nextflow/nextflow:latest",
@@ -116,7 +117,6 @@ async def start(
             "ddir": settings.DATA_FOLDER
         },
         items=sub_items,
-        endpoints={'status_update': 'https://backend:8080/celery/status_update'},
         status=status,
         processes=processes
     )

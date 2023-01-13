@@ -15,7 +15,7 @@ def get_directory_id(path):
     if not os.path.exists(log_path): return None
     with open(log_path) as f:
         log_text = f.read()
-    run_id = re.search(r"\[([a-z]+_[a-z]+)\]", log_text)
+    run_id = re.search(r"Run name:\s+(.*)", log_text)
     if not run_id: return None
     return run_id[1]
     
@@ -34,7 +34,7 @@ def directory_is_ready(log_location, history_location, existing_id=None):
     if not os.path.exists(Path(history_location, ".nextflow", "history")): return False
     with open(log_path) as f:
         log_text = f.read()
-    run_id = re.search(r"\[([a-z]+_[a-z]+)\]", log_text)
+    run_id = re.search(r"Run name:\s+(.*)", log_text)
     if not run_id: return False
     if existing_id and run_id[1] == existing_id: return False
     return True
