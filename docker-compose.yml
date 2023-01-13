@@ -26,6 +26,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       BASE_URL: ${BASE_URL}
       ORIGINS: ${ORIGINS}
+      API_URL: ${INTERNAL_API_URL}
       SECRET_KEY: ${SECRET_KEY}
       CELERY_API_KEY: ${CELERY_API_KEY}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
@@ -55,7 +56,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./backend/data:${PROJECT_PATH}/data
     environment:
-      API_URL: ${API_URL}
+      API_URL: ${INTERNAL_API_URL}
       CELERY_API_KEY: ${CELERY_API_KEY}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}

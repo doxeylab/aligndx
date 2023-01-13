@@ -88,9 +88,8 @@ def cleanup(metadata : MetaModel, cleanup_command: str):
 
 @app.task(name="Status Update")
 def status_update(subId : str, status : str):
-    resp = requests.post(f"{API_URL}/status_update", json={"subId": subId, "status": status}, headers={"authorization": f'Bearer {CELERY_API_KEY}'})
-    return resp
-
+    r = requests.post(f"{API_URL}/celery/status_update", params={"sub_id": subId, "status": status}, headers={"Authorization": f'Bearer {CELERY_API_KEY}'})
+    
 class StatusException(Exception):
     """Raised when the pipeline is not ready
      Attributes:
@@ -124,7 +123,7 @@ def status_check(self, subId: str):
                 status = 'completed'
                 metadata.status = status
                 update_metadata.s(subId, metadata)()
-                status_update.s(subId, status)()
+                status_update.s(subId, status).delay()
                 cleanup_command = f'nextflow clean -f {execution.id}'
                 cleanup.s(metadata, cleanup_command)()
 
@@ -134,7 +133,7 @@ def status_check(self, subId: str):
                 status = 'error'
                 metadata.status = status
                 update_metadata.s(subId, metadata)()
-                status_update.s(subId, status)()
+                status_update.s(subId, status).delay()
                 raise StatusException(status)
     
     if container.status == 'running':
@@ -196,7 +195,7 @@ def update_flow(tusdata: dict, uploads_folder: str):
         status = 'analyzing'
         status_check.s(subId).delay()   
 
-    status_update.s(subId, status)()
+    status_update.s(subId, status).delay()
 
 
 # Chunk Flow

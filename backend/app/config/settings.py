@@ -67,7 +67,7 @@ class AppSettings(BaseSettings):
     # Service settings
     CELERY_API_KEY: str = os.getenv("CELERY_API_KEY")
     SERVICES = {
-        "Celery": CELERY_API_KEY
+        "celery": CELERY_API_KEY
     }
 
     #  -- Db settings --

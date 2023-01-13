@@ -35,7 +35,7 @@ class SubmissionsDal(BaseDal[Submissions]):
                        self._table.id.in_(sub_ids)
                 ))
         query = await self._db_session.execute(stmt)
-        result = query.scalars().first()
+        result = query.scalars().all()
         return result
 
     async def get_all_submissions(self, user_id: UUID):

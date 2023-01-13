@@ -27,7 +27,7 @@ class Response(BaseSchema):
     created_date : datetime
     pipeline : str 
     items: list
-    status: str
+    status: str 
     # size : float 
     name : str = None
     finished_date : datetime = None

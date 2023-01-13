@@ -172,9 +172,9 @@ class ValidateService:
     """
     def __init__(self, service: str):
         self.service = service
-    def __call__(self, service: str, api_key: str = Depends(oauth2_scheme_auto_error)):
+    def __call__(self, api_key: str = Depends(oauth2_scheme_auto_error)):
         services = settings.SERVICES
-        service_key = services.get(service)
+        service_key = services.get(self.service)
 
         if api_key != service_key:
             raise credentials_exception

@@ -43,9 +43,6 @@ export default function Download(props: IDownload) {
             let blob = new Blob([data.data], { type: "application/octet-stream" });
             let name = data.headers['content-disposition']?.split('filename=')[1].split(';')[0];
             saveAs(blob, name)
-        },
-        onError(err) {
-            console.log(err?.response?.status)
         }
     })
 

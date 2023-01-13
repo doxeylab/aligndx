@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
 
 import { useMeta } from '../../api/Meta'
+import { useSubmissions } from '../../api/Submissions'
 import useWebSocket from '../../api/Socket'
 
 import Download from '../../components/Download';
@@ -29,8 +30,7 @@ export default function Analyze() {
     const [inputValue, setInputValue] = useLocalStorage('sel_input', '');
     const [upload, setUpload] = useLocalStorage('uploadparams', {} as any);
     const [subId, setSubId] = useLocalStorage('subId', "" as any);
-    const [status, setStatus] = useLocalStorage('status', {} as any);
-    const [result, setResult] = useLocalStorage('result', "" as any)
+    const [status, setStatus] = useState(false)
     const [snackbar, setSnackBar] = useState(false);
 
     const handleClickOpen = (callback: any) => {
@@ -47,9 +47,37 @@ export default function Analyze() {
 
     const { connectWebsocket } = useWebSocket();
     const meta = useMeta();
+    const submissions = useSubmissions();
+
+    const dataHandler = (event: any) => {
+        console.log(event)
+        if (event.type == 'message') {
+            let data = JSON.parse(event.data)
+            console.log(data)
+            setStatus(data)
+        }
+    }
+
+    // const submission_status = useQuery({
+    //     queryKey: ['sub_status', subId],
+    //     retry: false,
+    //     queryFn: () => subId ? submissions.get_submission(subId) : null,
+    //     onSuccess(data) {
+    //         let status = data?.data['status']
+    //         if (status && status != 'completed') {
+    //         }
+    //         else {
+    //             setSubId(null)
+    //         }
+    //     },
+    //     onError(err) {
+    //         setSubId(null)
+    //     }
+    // })
 
     const pipeMeta = useQuery({
         queryKey: ['pipelineData'],
+        retry: 1,
         queryFn: meta.get_pipelines,
         onSuccess(data) {
             const raw_data = data?.data
@@ -74,20 +102,6 @@ export default function Analyze() {
 
     }, [value])
 
-    const dataHandler = (event: any) => {
-        console.log(event)
-        if (event.type == 'message') {
-            let data = JSON.parse(event.data)
-            console.log(data)
-            setStatus(data)
-        }
-    }
-
-    useEffect(() => {
-        if (subId != '') {
-            connectWebsocket(subId, dataHandler)
-        }
-    }, [subId])
 
     useEffect(() => {
         if (status['status'] === 'completed') {
@@ -95,6 +109,14 @@ export default function Analyze() {
         }
 
     }, [status])
+
+    useEffect(() => {
+        if (subId != "") {
+            connectWebsocket(subId, dataHandler)
+        }
+
+    }, [subId])
+
 
     return (
         <>
@@ -171,7 +193,7 @@ export default function Analyze() {
                         <Grid item xs={12} >
                             <Paper component={Stack} direction="column">
                                 {
-                                    status['status'] != 'completed'
+                                    status && status['status'] != 'completed'
                                         ?
                                         <>
                                             <LoadingSpinner />
@@ -185,7 +207,7 @@ export default function Analyze() {
                                         null
                                 }
                                 {
-                                    status['status'] == 'completed'
+                                    status && status['status'] == 'completed'
                                         ?
                                         <>
                                             <Grid container justifyContent="center" alignItems="initial" p={2}>

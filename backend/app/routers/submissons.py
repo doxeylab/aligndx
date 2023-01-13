@@ -28,7 +28,11 @@ async def get_submission(sub_id : str ,current_user: UserDTO = Depends(get_curre
     """
     sub_dal = SubmissionsDal(db) 
     submission = await sub_dal.get_submission(user_id=current_user.id, sub_id=sub_id)
-    return submissions.Response.from_orm(submissions)
+    
+    if submission is not None:
+        return submissions.Response.from_orm(submission)
+    else:
+        raise HTTPException(status_code=404, detail="Item not found")
 
 @router.get('/all/')
 async def get_all_submissions(current_user: UserDTO = Depends(get_current_user),
