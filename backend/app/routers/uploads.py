@@ -12,8 +12,7 @@ from app.auth.auth_dependencies import get_current_user
 
 from app.db.dals.phi_logs import UploadLogsDal
 from app.db.dals.submissions import SubmissionsDal  
-from app.db.dals.users import UsersDal
-from app.models.schemas.submissions import SubmissionBase, UpdateSubmissionDate, SubmissionSchema
+from app.models.schemas import submissions
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -49,7 +48,7 @@ async def start(
 ):
     status='setup'
 
-    db_entry = SubmissionBase(
+    db_entry = submissions.Base(
         user_id=current_user.id,
         created_date=datetime.now(),
         pipeline=pipeline,
@@ -133,24 +132,19 @@ async def tusd(
     db: AsyncSession = Depends(get_db)
 ):
     if request.headers['hook-name'] == 'post-finish':
-        users_dal = UsersDal(db)
+        sub_dal = SubmissionsDal(db)
         
         body = await request.json()
         tus_data = body['Upload'] 
         metadata = tus_data['MetaData']
         sub_id = metadata['subId']
 
-        query = await users_dal.get_submission(current_user.id, sub_id)
-        submission = SubmissionSchema.from_orm(query)
+        query = await sub_dal.get_submission(current_user.id, sub_id)
+        submission = submissions.Schema.from_orm(query)
 
         if submission is None:
             raise HTTPException(status_code=404, detail="Submission not found")
 
         update_flow(tus_data, UPLOAD_FOLDER)
-
-        # if submission.finished_date is None:
-        #     sub_dal = SubmissionsDal(db)
-        #     await sub_dal.update(sub_id, UpdateSubmissionDate(finished_date=datetime.now()))
-        #     return {"Result": "OK"}
     
     return 200

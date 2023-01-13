@@ -4,7 +4,7 @@ from datetime import datetime
 from app.models.schemas.base_schema import BaseSchema
 
 
-class SubmissionBase(BaseSchema):
+class Base(BaseSchema):
     user_id : UUID
     created_date : datetime
     pipeline : str 
@@ -14,13 +14,16 @@ class SubmissionBase(BaseSchema):
     name : str = None
     finished_date : datetime = None
 
-class SubmissionSchema(SubmissionBase):
+class Schema(Base):
     id: UUID
 
-class UpdateSubmissionDate(BaseSchema):
+class UpdateDateAndStatus(BaseSchema):
     finished_date: datetime
+    status: str
 
-class SubmissionsResponse(BaseSchema):
+class UpdateStatus(BaseSchema):
+    status: str
+class Response(BaseSchema):
     created_date : datetime
     pipeline : str 
     items: list

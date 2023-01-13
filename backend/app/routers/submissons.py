@@ -9,12 +9,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse, HTMLResponse
 
 from app.auth.models import UserDTO
-from app.models.schemas.submissions import SubmissionsResponse
+from app.models.schemas import submissions
 from app.auth.auth_dependencies import get_current_user
 from app.db.dals.submissions import SubmissionsDal
 
 from app.services.db import get_db 
-from app.models.schemas.submissions import SubmissionSchema
 from app.config.settings import settings
 
 
@@ -28,8 +27,8 @@ async def get_submission(sub_id : str ,current_user: UserDTO = Depends(get_curre
     Retrieve submission information
     """
     sub_dal = SubmissionsDal(db) 
-    submissions = await sub_dal.get_submission(user_id=current_user.id, sub_id=sub_id)
-    return SubmissionsResponse.from_orm(submissions)
+    submission = await sub_dal.get_submission(user_id=current_user.id, sub_id=sub_id)
+    return submissions.Response.from_orm(submissions)
 
 @router.get('/all/')
 async def get_all_submissions(current_user: UserDTO = Depends(get_current_user),
@@ -39,11 +38,11 @@ async def get_all_submissions(current_user: UserDTO = Depends(get_current_user),
     Retrieve all submissions for a user
     """
     sub_dal = SubmissionsDal(db) 
-    submissions = await sub_dal.get_all_submissions(current_user.id)
+    all = await sub_dal.get_all_submissions(current_user.id)
     
     data = []
-    for sub in submissions:
-        data.append(SubmissionsResponse.from_orm(sub))
+    for sub in all:
+        data.append(submissions.Response.from_orm(sub))
     return data
 
 @router.get('/incomplete/')
@@ -51,8 +50,8 @@ async def get_incomplete_submissions(current_user: UserDTO = Depends(get_current
     db: AsyncSession = Depends(get_db)
 ):
     sub_dal = SubmissionsDal(db) 
-    submissions = await sub_dal.get_incomplete_submissions(current_user.id)
-    return SubmissionsResponse.from_orm(submissions)
+    incomplete = await sub_dal.get_incomplete_submissions(current_user.id)
+    return submissions.Response.from_orm(incomplete)
 
 
 @router.post('/delete')
@@ -77,7 +76,7 @@ async def get_report(sub_id: str, current_user: UserDTO = Depends(get_current_us
     if query is None:
         raise HTTPException(status_code=404, detail="Submission not found")
 
-    submission = SubmissionSchema.from_orm(query)
+    submission = submissions.Schema.from_orm(query)
         
     report_dir = pd.read_json(settings.PIPELINES)[submission.pipeline]['report']
     report_path = os.path.join(settings.RESULTS_FOLDER, sub_id, report_dir)
@@ -117,7 +116,7 @@ async def download(sub_id: str, current_user: UserDTO = Depends(get_current_user
     if query is None:
         raise HTTPException(status_code=404, detail="Submission not found")
 
-    submission = SubmissionSchema.from_orm(query)
+    submission = submissions.Schema.from_orm(query)
 
     zip_subdir = os.path.join(settings.RESULTS_FOLDER, str(submission.id))
     name = "results.zip"

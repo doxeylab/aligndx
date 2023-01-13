@@ -6,7 +6,7 @@ from fastapi import WebSocket
 from starlette.websockets import WebSocketDisconnect 
 
 from app.auth.auth_dependencies import get_current_user_ws
-from app.models.schemas.submissions import SubmissionSchema
+from app.models.schemas import submissions
 
 from app.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db 
@@ -42,7 +42,7 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
     if query is None:
         raise WebSocketDisconnect()
 
-    submission = SubmissionSchema.from_orm(query)
+    submission = submissions.Schema.from_orm(query)
     
     data = {"status": "", "processes": {}}
     if current_user and submission != None:
