@@ -1,7 +1,6 @@
 from datetime import timedelta
-from pickle import TRUE
-from typing import List 
-import uuid
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastapi import APIRouter, Depends, Response, Cookie, Request, Body
 from fastapi import HTTPException, status 
@@ -9,12 +8,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 import app.auth.auth_dependencies as auth
 from app.auth.models import UserTemp, Token, User
-from app.auth.auth_dependencies import get_current_user
-from app.auth.models import UserDTO, RefreshRequest
-
-from app.db.dals.users import UsersDal
 from app.services.db import get_db 
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.settings import settings
 
@@ -91,53 +85,3 @@ async def refresh(refresh_token: str = Cookie(None),  db: AsyncSession = Depends
 @router.get("/me", response_model=User)
 async def read_users_me(current_user: User = Depends(auth.get_current_user)):
     return current_user
-
-
-# Get the submission results for the currently logged in user
-@router.get('/submissions/')
-async def get_standard_submissions(current_user: UserDTO = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
-):
-    users_dal = UsersDal(db) 
-    submissions = await users_dal.get_all_submissions(current_user.id)
-    return submissions
-        
-
-@router.get('/incomplete/')
-async def get_incomplete_submissions(current_user: UserDTO = Depends(get_current_user), 
-    db: AsyncSession = Depends(get_db)
-):
-    users_dal = UsersDal(db) 
-    submissions = await users_dal.get_incomplete_submissions(current_user.id)
-    return submissions
-
-# returns single result for UI to access when user clicks on a linked result
-@router.get('/linked_results/{file_id}')
-async def get_result(file_id: str, current_user: UserDTO = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
-):
-    users_dal = UsersDal(db) 
-    query = await users_dal.get_submission(current_user.id, file_id)
-    
-    if (not query):
-        return HTTPException(status_code=404, detail="Item not found")
-    
-    data = query.result
-    
-    return data
-
-@router.post('/delete_record')
-async def del_result(ids: List[str], current_user: UserDTO = Depends(get_current_user),  db: AsyncSession = Depends(get_db)):
-
-    users_dal = UsersDal(db)
-
-    for id in ids:
-        uid = uuid.UUID(id)
-        query = await users_dal.delete_by_id(uid)
-
-        if (not query):
-            print("didn't work")
-            return HTTPException(status_code=404, detail="Item not found")
-        
-        else :
-            print(query)

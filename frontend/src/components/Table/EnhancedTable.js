@@ -47,7 +47,7 @@ function stableSort(array, comparator) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-export default function EnhancedTable({ orderby, tableName, rows, setRows, headCells, contentgenerator, deletefn }) {
+export default function EnhancedTable({ orderby, tableName, rows, setRows, headCells, contentgenerator, deletefn, tools }) {
     const [order, setOrder] = React.useState(orderby.order);
     const [orderBy, setOrderBy] = React.useState(orderby.id);
     const [selected, setSelected] = React.useState([]);
@@ -160,7 +160,7 @@ export default function EnhancedTable({ orderby, tableName, rows, setRows, headC
                                 onSelectAllClick={handleSelectAllClick}
                                 onRequestSort={handleRequestSort}
                                 rowCount={rows.length}
-                                emptycell={true}
+                                emptycell={tools? true : false}
                             />
                             <TableBody>
                                 {rows.length > 0 ? null
@@ -248,10 +248,17 @@ export default function EnhancedTable({ orderby, tableName, rows, setRows, headC
                                                         <TableCell
                                                             key={k}
                                                             align={'left'}
-                                                            onClick={(event) => handleClick(event, row[orderby.key])}
+                                                        // onClick={(event) => handleClick(event, row[orderby.key])}
 
                                                         >{v}</TableCell>
                                                     ))
+                                                    }
+                                                    {tools ?
+                                                        <TableCell>
+                                                            {tools(row)}
+                                                        </TableCell>
+                                                        :
+                                                        null
                                                     }
                                                 </TableRow>
                                             )

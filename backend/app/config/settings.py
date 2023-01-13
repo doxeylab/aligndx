@@ -64,10 +64,16 @@ class AppSettings(BaseSettings):
     BACKEND_RESULTS_URL: str = os.getenv("CELERY_RESULT_BACKEND")
     REDIS_URL: str = os.getenv("REDIS_URL")
 
+    # Service settings
+    CELERY_API_KEY: str = os.getenv("CELERY_API_KEY")
+    SERVICES = {
+        "Celery": CELERY_API_KEY
+    }
+
     #  -- Db settings --
     
     DATABASE_URL: str = os.getenv("DATABASE_URL")
-    DB_LOGS = False
+    DB_LOGS = True
     @property
     def async_database_url(self) -> Optional[str]:
         return (

@@ -5,24 +5,19 @@ import Alert from '@mui/material/Alert';
 import Container from '@mui/material/Container'
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import DownloadIcon from '@mui/icons-material/Download';
-import PageviewIcon from '@mui/icons-material/Pageview';
-import IconButton from '@mui/material/IconButton';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 import { useEffect, useState } from 'react';
-import { Button, Stack, Tooltip, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
 
 import { useMeta } from '../../api/Meta'
-import { useResults } from '../../api/Results'
 import useWebSocket from '../../api/Socket'
 
-import CustomIframe from '../../components/CustomIframe';
-import FullScreenDialog from '../../components/FullScreenDialog';
-import { Download } from '@mui/icons-material';
+import Download from '../../components/Download';
+import Report from '../../components/Report';
 
 const Uploader = dynamic(() => import('../../components/Uploader'), {
     ssr: false,
@@ -36,7 +31,6 @@ export default function Analyze() {
     const [subId, setSubId] = useLocalStorage('subId', "" as any);
     const [status, setStatus] = useLocalStorage('status', {} as any);
     const [result, setResult] = useLocalStorage('result', "" as any)
-    const [open, setOpen] = useState(false);
     const [snackbar, setSnackBar] = useState(false);
 
     const handleClickOpen = (callback: any) => {
@@ -52,7 +46,6 @@ export default function Analyze() {
     }
 
     const { connectWebsocket } = useWebSocket();
-    const results = useResults();
     const meta = useMeta();
 
     const pipeMeta = useQuery({
@@ -63,47 +56,6 @@ export default function Analyze() {
             const pipeline_meta = Object.keys(raw_data).map(key => raw_data[key]);
             setPipelineData(pipeline_meta)
         },
-    })
-
-    const report = useQuery({
-        queryKey: ['report', subId],
-        queryFn: () => results.get_report(subId),
-        enabled: false,
-        onSuccess(data) {
-            setResult(data?.data)
-        },
-    })
-
-    function saveAs(blob, fileName) {
-        var url = window.URL.createObjectURL(blob);
-
-        var anchorElem = document.createElement("a");
-        anchorElem.style = "display: none";
-        anchorElem.href = url;
-        anchorElem.download = fileName;
-
-        document.body.appendChild(anchorElem);
-        anchorElem.click();
-
-        document.body.removeChild(anchorElem);
-
-        // On Edge, revokeObjectURL should be called only after
-        // a.click() has completed, atleast on EdgeHTML 15.15048
-        setTimeout(function () {
-            window.URL.revokeObjectURL(url);
-        }, 1000);
-    }
-
-
-    const download = useQuery({
-        queryKey: ['download', subId],
-        queryFn: () => results.download(subId),
-        enabled: false,
-        onSuccess(data) {
-            let blob = new Blob([data.data], { type: "application/octet-stream" });
-            let name = data.headers['content-disposition']?.split('filename=')[1].split(';')[0];
-            saveAs(blob, name)
-        }
     })
 
     useEffect(() => {
@@ -139,15 +91,10 @@ export default function Analyze() {
 
     useEffect(() => {
         if (status['status'] === 'completed') {
-            report.refetch()
+            handleClickOpen(setSnackBar)
         }
 
     }, [status])
-
-    useEffect(() => {
-        handleClickOpen(setSnackBar)
-
-    }, [result])
 
     return (
         <>
@@ -246,32 +193,14 @@ export default function Analyze() {
                                                     Results
                                                 </Typography>
                                             </Grid>
-                                            {
-                                                result ?
-                                                    <Grid container justifyContent="center" alignItems="initial" columnGap={5}>
-                                                        <Grid item>
-                                                            <Tooltip title="View Report">
-                                                                <IconButton aria-label="view-report"
-                                                                    size="large"
-                                                                    onClick={() => handleClickOpen(setOpen)}>
-                                                                    <PageviewIcon />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </Grid>
-                                                        <Grid item>
-                                                            <Tooltip title="Download Results">
-                                                                <IconButton
-                                                                    size="large"
-                                                                    aria-label="download"
-                                                                    onClick={() => download.refetch()}>
-                                                                    <DownloadIcon />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </Grid>
-                                                    </Grid>
-                                                    :
-                                                    null
-                                            }
+                                            <Grid container justifyContent="center" alignItems="initial" columnGap={5}>
+                                                <Grid item>
+                                                    <Report subId={subId} />
+                                                </Grid>
+                                                <Grid item>
+                                                    <Download subId={subId} />
+                                                </Grid>
+                                            </Grid>
                                         </>
 
                                         :
@@ -284,21 +213,6 @@ export default function Analyze() {
                         null
                     }
                 </Grid>
-                {subId && results ?
-                    <>
-                        <FullScreenDialog
-                            open={open}
-                            handleClose={() => handleClose(setOpen)}
-                            content={
-                                <CustomIframe
-                                    width={'100%'}
-                                    height={'100%'}
-                                    frameBorder={0}
-                                    srcDoc={result} />
-                            } />
-                    </>
-                    :
-                    null}
             </Container>
         </>
     )

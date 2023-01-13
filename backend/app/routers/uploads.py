@@ -47,12 +47,14 @@ async def start(
     # size: float = Body(...),
     db: AsyncSession = Depends(get_db)
 ):
+    status='setup'
 
     db_entry = SubmissionBase(
         user_id=current_user.id,
         created_date=datetime.now(),
         pipeline=pipeline,
         items=items,
+        status=status
         # size=size,
     ) 
 
@@ -115,7 +117,8 @@ async def start(
             "ddir": settings.DATA_FOLDER
         },
         items=sub_items,
-        status='setup',
+        endpoints={'status_update': 'https://backend:8080/celery/status_update'},
+        status=status,
         processes=processes
     )
 

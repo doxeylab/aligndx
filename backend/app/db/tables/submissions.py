@@ -13,6 +13,7 @@ class Submissions(Base):
     items = Column(ARRAY(String))
     # size = Column(Float, nullable=False)
     name = Column(String, nullable=True)
+    status = Column(String, nullable=False)
 
     finished_date = Column(DateTime, nullable=True)
 

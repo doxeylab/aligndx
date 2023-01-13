@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
 from typing import Optional 
 
-from fastapi import Depends, HTTPException, status 
+from fastapi import Depends, HTTPException, status, Header
 from jose import JWTError, ExpiredSignatureError, jwt
 
 from app.config.settings import settings
@@ -164,3 +164,18 @@ async def get_current_user_ws(token: str, db):
         customer_id=user.customer_id,
         is_admin=user.is_admin
     )
+
+
+class ValidateService:
+    """
+    Validates that request comes from an authenticated service
+    """
+    def __init__(self, service: str):
+        self.service = service
+    def __call__(self, service: str, api_key: str = Depends(oauth2_scheme_auto_error)):
+        services = settings.SERVICES
+        service_key = services.get(service)
+
+        if api_key != service_key:
+            raise credentials_exception
+    

@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, List
 
 from app.db.dals.base_dal import BaseDal
 from app.db.tables.users import Users
@@ -32,8 +32,25 @@ class UsersDal(BaseDal[Users]):
         )
         query = await self._db_session.execute(stmt)
         result = query.scalars().first()
-        return result.submissions[0]
-        
+        if len(result.submissions) == 0 :
+            return None
+        else:
+            return result.submissions[0]
+
+    async def get_submissions(self, user_id: UUID, sub_ids: List[UUID]):
+        '''
+        returns query submissions for a user, if they exist
+        '''
+        stmt =  (
+            select(self._table)
+                .where(self._table.id == user_id)
+                .options(joinedload(self._table.submissions.and_(Submissions.id.in_(sub_ids))))
+
+        )
+        query = await self._db_session.execute(stmt)
+        result = query.scalars().first()
+        return result.submissions
+
     async def get_all_submissions(self, user_id: UUID):
         '''
         returns all submissions for a user

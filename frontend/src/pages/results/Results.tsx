@@ -1,33 +1,18 @@
+import { useEffect, useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
+
 import EnhancedTable from '../../components/Table'
+import Download from '../../components/Download';
+import Report from '../../components/Report';
+
 import { useUsers } from '../../api/Users'
-import { useEffect, useState } from 'react';
-import { dehydrate, QueryClient, useQuery, useMutation } from '@tanstack/react-query';
-
-// export async function getServerSideProps() {
-//     const queryClient = new QueryClient()
-//     const users = useUsers()
-
-//     await queryClient.prefetchQuery(['submissions'],() => users.index_submissions())
-
-//     return {
-//       props: {
-//         dehydratedState: dehydrate(queryClient),
-//       },
-//     }
-//   }
-
 
 export default function Results() {
     const [rows, setRows] = useState<any[]>([])
-
     const users = useUsers()
-
-    interface HeadCell {
-        id: string;
-        label: string;
-    }
 
     // order matters
     const headCells = [
@@ -43,31 +28,37 @@ export default function Results() {
             id: 'pipeline',
             label: 'Pipeline',
         },
+        {
+            id: 'status',
+            label: 'Status',
+        },
     ];
 
     function createData(
         key: string,
         name: string,
         created_date: string,
-        pipeline: string
+        pipeline: string,
+        status: string
     ) {
         let date = new Date(created_date).toUTCString()
         return {
             key,
             name,
             date,
-            pipeline
+            pipeline,
+            status
         };
     }
 
     const submissions = useQuery({
-        retry: false,
+        retry: 1,
         queryKey: ['submissions'],
         queryFn: () => users.index_submissions(),
         onSuccess(data) {
             let temp_rows = []
             data.data.forEach((data: any) => {
-                const row = createData(data.id, data.name, data.created_date, data.pipeline)
+                const row = createData(data.id, data.name, data.created_date, data.pipeline, data.status)
                 temp_rows.push(row)
             })
             setRows(temp_rows)
@@ -90,6 +81,23 @@ export default function Results() {
         sub_del.mutate(seldata)
     }
 
+    const tools = (row: any) => {
+        let disabled = true
+        if (row.status == 'completed') {
+            disabled = false
+        }
+        return (
+            <Grid container justifyContent="center" alignItems="initial" >
+                <Grid item>
+                    <Report subId={row.key} disabled={disabled} />
+                </Grid>
+                <Grid item>
+                    <Download subId={row.key} disabled={disabled}/>
+                </Grid>
+            </Grid>
+        )
+    }
+
     return (
         <>
             <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>
@@ -102,6 +110,7 @@ export default function Results() {
                             setRows={setRows}
                             headCells={headCells}
                             deletefn={deletefn}
+                            tools={tools}
                         />
                     </Grid>
                 </Grid>

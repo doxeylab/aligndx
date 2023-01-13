@@ -1,4 +1,5 @@
 import docker 
+import requests
 import shutil, json, subprocess, glob, os
 from app.models.schemas.redis import MetaModel
 from app.redis.functions import Handler
@@ -6,6 +7,9 @@ from app.utils import dir_generator
 from app.scripts import nextflow
 
 from celery import Celery, group, chain
+
+CELERY_API_KEY = os.getenv("CELERY_API_KEY")
+API_URL = os.getenv("API_URL")
 client = docker.from_env()
 
 app = Celery('tasks')
@@ -82,6 +86,11 @@ def cleanup(metadata : MetaModel, cleanup_command: str):
     shutil.rmtree(metadata.dirs['updir'])
     shutil.rmtree(metadata.dirs['tdir'])
 
+@app.task(name="Status Update")
+def status_update(subId : str, status : str):
+    resp = requests.post(f"{API_URL}/status_update", json={"subId": subId, "status": status}, headers={"authorization": CELERY_API_KEY})
+    return resp
+
 class StatusException(Exception):
     """Raised when the pipeline is not ready
      Attributes:
@@ -112,8 +121,10 @@ def status_check(self, subId: str):
         successful_containers = client.containers.list(all=True,filters={'exited':0})
         for cntr in successful_containers:
             if cntr.id == container.id:
-                metadata.status = 'completed'
+                status = 'completed'
+                metadata.status = status
                 update_metadata.s(subId, metadata)()
+                status_update.s(subId, status)()
                 cleanup_command = f'nextflow clean -f {execution.id}'
                 cleanup.s(metadata, cleanup_command)()
 
@@ -123,6 +134,7 @@ def status_check(self, subId: str):
                 status = 'error'
                 metadata.status = status
                 update_metadata.s(subId, metadata)()
+                status_update.s(subId, status)()
                 raise StatusException(status)
     
     if container.status == 'running':
@@ -169,7 +181,8 @@ def update_flow(tusdata: dict, uploads_folder: str):
     items = metadata.items
     items[fname].uploaded = True
     metadata.items = items
-    metadata.status = 'uploading'
+    status = 'uploading'
+    metadata.status = status
     update_metadata.s(subId, metadata)()
 
     uploaded = []
@@ -180,7 +193,10 @@ def update_flow(tusdata: dict, uploads_folder: str):
         # signal_upload_finish.s(f'{dst}/STOP.txt')()
         container = client.containers.get(metadata.container_id)
         container.start()
+        status = 'analyzing'
         status_check.s(subId).delay()   
+
+    status_update.s(subId, status)()
 
 
 # Chunk Flow

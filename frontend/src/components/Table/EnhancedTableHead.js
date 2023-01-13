@@ -52,7 +52,9 @@ function EnhancedTableHead(props) {
                             </TableSortLabel>}
                     </TableCell>
                 ))}
-
+                {emptycell && 
+                <TableCell></TableCell>
+                }
             </TableRow>
         </TableHead>
     );

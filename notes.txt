@@ -1,7 +1,7 @@
 How to run a database migration:
 
 Idk why but for some reason you need to delete the old column and make a new one with a completely different name (in models.py)
-docker-compose run --rm backend sh -c "alembic revision --autogenerate -m 'like a commit message'"
+docker-compose run --rm backend sh -c "cd app; alembic revision --autogenerate -m 'like a commit message'"
 docker-compose run --rm backend sh -c "cd app; alembic upgrade head"
 
 To run monitoring profiles:

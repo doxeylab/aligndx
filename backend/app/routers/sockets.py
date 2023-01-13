@@ -39,6 +39,9 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
     users_dal = UsersDal(db)
     query = await users_dal.get_submission(current_user.id, sub_id)
 
+    if query is None:
+        raise WebSocketDisconnect()
+
     submission = SubmissionSchema.from_orm(query)
     
     data = {"status": "", "processes": {}}
