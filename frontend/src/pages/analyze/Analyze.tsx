@@ -58,22 +58,24 @@ export default function Analyze() {
         }
     }
 
-    // const submission_status = useQuery({
-    //     queryKey: ['sub_status', subId],
-    //     retry: false,
-    //     queryFn: () => subId ? submissions.get_submission(subId) : null,
-    //     onSuccess(data) {
-    //         let status = data?.data['status']
-    //         if (status && status != 'completed') {
-    //         }
-    //         else {
-    //             setSubId(null)
-    //         }
-    //     },
-    //     onError(err) {
-    //         setSubId(null)
-    //     }
-    // })
+    const submission_status = useQuery({
+        queryKey: ['sub_status', subId],
+        retry: false,
+        enabled: true,
+        queryFn: () => subId ? submissions.get_submission(subId) : null,
+        onSuccess(data) {
+            let status = data?.data['status']
+            if (status && status != 'completed') {
+                connectWebsocket(subId, dataHandler)
+            }
+            else {
+                setSubId(null)
+            }
+        },
+        onError(err) {
+            setSubId(null)
+        }
+    })
 
     const pipeMeta = useQuery({
         queryKey: ['pipelineData'],
@@ -110,12 +112,12 @@ export default function Analyze() {
 
     }, [status])
 
-    useEffect(() => {
-        if (subId != "") {
-            connectWebsocket(subId, dataHandler)
-        }
+    // useEffect(() => {
+    //     if (subId != "") {
+    //         connectWebsocket(subId, dataHandler)
+    //     }
 
-    }, [subId])
+    // }, [subId])
 
 
     return (
