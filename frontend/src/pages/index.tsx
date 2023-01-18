@@ -1,5 +1,6 @@
 import { useAuthContext } from "../context/AuthProvider"
 import Dashboard from "./dashboard";
+import Analyze from "./analyze";
 import Landing from "./landing"
 
 export default function DefaultRoute() {
@@ -8,7 +9,7 @@ export default function DefaultRoute() {
     return (
         <>
             {context?.authenticated ?
-                <Dashboard />
+                <Analyze />
                 :
                 <Landing />
             }

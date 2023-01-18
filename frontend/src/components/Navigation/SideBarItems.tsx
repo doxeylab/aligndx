@@ -18,7 +18,7 @@ export default function SideBarItems() {
     })
 
     const icons = {
-        'Dashboard': <DashboardIcon />,
+        // 'Dashboard': <DashboardIcon />,
         'Analyze': <ScienceIcon />,
         'Results': <BarChartIcon />,
     }
@@ -39,7 +39,7 @@ export default function SideBarItems() {
                     )
                 })}
                 <Divider sx={{ my: 1 }} />
-                <ListSubheader component="div" inset sx={{bgcolor:'inherit'}}>
+                {/* <ListSubheader component="div" inset sx={{bgcolor:'inherit'}}>
                     Saved reports
                 </ListSubheader>
                 <ListItemButton>
@@ -59,7 +59,7 @@ export default function SideBarItems() {
                         <AssignmentIcon />
                     </ListItemIcon>
                     <ListItemText primary="Sample3" />
-                </ListItemButton>
+                </ListItemButton> */}
             </Fragment>
         </>
     )
