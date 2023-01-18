@@ -42,6 +42,7 @@ async def start(
     current_user: UserDTO = Depends(get_current_user),
     items: List[str] = Body(...),
     pipeline: str = Body(...),
+    name: str = Body(...),
     # inputs: dict = Body(...),
     # size: float = Body(...),
     db: AsyncSession = Depends(get_db)
@@ -54,7 +55,8 @@ async def start(
         created_date=created_date,
         pipeline=pipeline,
         items=items,
-        status=status
+        status=status,
+        name=name
         # size=size,
     ) 
 

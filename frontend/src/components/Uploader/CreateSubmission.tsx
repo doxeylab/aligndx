@@ -6,7 +6,7 @@ import { BASE_URL } from "../../config/Settings"
 export default class CreateSubmission extends BasePlugin {
   constructor(uppy, opts) {
     super(uppy, opts)
-    this.pipeline = opts.pipeline
+    this.meta = opts.meta
     this.refresh = opts.refresh
     this.updateParentSubId = opts.updateParentSubId
 
@@ -38,7 +38,8 @@ export default class CreateSubmission extends BasePlugin {
 
       let data = {
         "items": names,
-        'pipeline': this.pipeline
+        'pipeline': this.meta['pipeline'],
+        'name': this.meta['name']
       }
 
       let config = {

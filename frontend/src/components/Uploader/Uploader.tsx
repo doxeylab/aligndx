@@ -84,7 +84,7 @@ export default function Uploader(props: UploaderProps) {
                 },
             })
             .use(CreateSubmission, {
-                pipeline: meta.pipeline,
+                meta: meta,
                 createSubmission: createSubmission.start,
                 refresh: refresh,
                 updateParentSubId: updateParentSubId

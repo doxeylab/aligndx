@@ -19,6 +19,7 @@ import useWebSocket from '../../api/Socket'
 
 import Download from '../../components/Download';
 import Report from '../../components/Report';
+import getRandomName from '../../utils/getRandomName';
 
 const Uploader = dynamic(() => import('../../components/Uploader'), {
     ssr: false,
@@ -32,6 +33,11 @@ export default function Analyze() {
     const [subId, setSubId] = useLocalStorage('subId', "" as any);
     const [status, setStatus] = useState(false)
     const [snackbar, setSnackBar] = useState(false);
+    const [name, setName] = useState(getRandomName());
+
+    const handleChange = (event: any) => {
+        setName(event.target.value);
+    }
 
     const handleClickOpen = (callback: any) => {
         callback(true);
@@ -96,7 +102,8 @@ export default function Analyze() {
                 if (sel?.pluginType == 'visual')
                     sel['plugins'] = ["MyWebCam", "MyImageEditor", "GoogleDrive"]
                 else {
-                    sel['plugins'] = ["GoogleDrive", "OneDrive", "Dropbox", "Url"]
+                    // sel['plugins'] = ["GoogleDrive", "OneDrive", "Dropbox", "Url"]
+                    sel['plugins'] = ["GoogleDrive", "Url"]
                 }
                 setUpload(sel)
             }
@@ -172,19 +179,33 @@ export default function Analyze() {
                                 </Paper>
                             </Grid>
                             <Grid item xs={12}>
-                                <Uploader
-                                    id={`uppy_${upload?.label}`}
-                                    fileTypes={upload?.fileTypes}
-                                    meta={
-                                        {
-                                            pipeline: value.id,
+                                <Paper sx={{
+                                    p:2
+                                }}>
+                                    <Grid item xs={12} sm={9} md={6} lg={3} pb={2}>
+                                        <TextField
+                                            label="Run Name"
+                                            fullWidth
+                                            value={name}
+                                            onChange={handleChange}
+                                        />
+                                    </Grid>
+                                    <Uploader
+                                        id={`uppy_${upload?.label}`}
+                                        fileTypes={upload?.fileTypes}
+                                        meta={
+                                            {
+                                                pipeline: value.id,
+                                                name: name
+                                            }
                                         }
-                                    }
-                                    updateParentSubId={updateParentSubId}
-                                    plugins={upload?.plugins}
-                                    height={'40vh'}
-                                    width={'100%'}
-                                />
+                                        updateParentSubId={updateParentSubId}
+                                        plugins={upload?.plugins}
+                                        height={'40vh'}
+                                        width={'100%'}
+                                    />
+                                </Paper>
+
                             </Grid>
                         </>
                         :
