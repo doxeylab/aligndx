@@ -12,7 +12,7 @@
             ".fq"
         ],
         "pluginType": "regular",
-        "description": "Clinical mNGS based pathogen diagnostics",
+        "description": "Taxonomic profiling of mNGS datasets",
         "repository": "mshunjan/metasense",
         "user_inputs": {
             "input": {

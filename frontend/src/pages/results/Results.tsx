@@ -144,7 +144,6 @@ export default function Results() {
                             orderby={{ 'order': 'desc', 'id': 'created_date', 'key': 'key' }}
                             tableName="Results"
                             rows={rows}
-                            setRows={setRows}
                             headCells={headCells}
                             deletefn={deletefn}
                             tools={tools}
