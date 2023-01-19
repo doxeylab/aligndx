@@ -1,6 +1,6 @@
 from app.redis.base import r  
 import json
-
+ 
 class Handler:
         # create key,data entry
         def create(id: str, data: dict):

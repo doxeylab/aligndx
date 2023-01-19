@@ -1,11 +1,12 @@
 import BasePlugin from '@uppy/core/lib/BasePlugin.js'
 import axios from 'axios'
 import { apiClient } from '../../api/Config'
+import { BASE_URL } from "../../config/Settings"
 
 export default class CreateSubmission extends BasePlugin {
   constructor(uppy, opts) {
     super(uppy, opts)
-    this.pipeline = opts.pipeline
+    this.meta = opts.meta
     this.refresh = opts.refresh
     this.updateParentSubId = opts.updateParentSubId
 
@@ -37,7 +38,8 @@ export default class CreateSubmission extends BasePlugin {
 
       let data = {
         "items": names,
-        'pipeline': this.pipeline
+        'pipeline': this.meta['pipeline'],
+        'name': this.meta['name']
       }
 
       let config = {
@@ -46,7 +48,7 @@ export default class CreateSubmission extends BasePlugin {
         }
       }
 
-      let result = axios.post(`http://localhost:8080/uploads/start`, data, config)
+      let result = axios.post(`${BASE_URL}/uploads/start`, data, config)
         .then((response) => {
           let subId = response.data['sub_id']
           this.updateParentSubId(subId)
@@ -59,7 +61,7 @@ export default class CreateSubmission extends BasePlugin {
               Authorization: `Bearer ${newToken}`
             }
           }
-          let refreshResult = axios.post('http://localhost:8080/uploads/start', data, config).then((response) => {
+          let refreshResult = axios.post(`${BASE_URL}/uploads/start`, data, config).then((response) => {
             let subId = response.data['sub_id']
             this.updateParentSubId(subId)
             return subId

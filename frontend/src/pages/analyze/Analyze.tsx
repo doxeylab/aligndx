@@ -5,24 +5,23 @@ import Alert from '@mui/material/Alert';
 import Container from '@mui/material/Container'
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import DownloadIcon from '@mui/icons-material/Download';
-import PageviewIcon from '@mui/icons-material/Pageview';
-import IconButton from '@mui/material/IconButton';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
 
 import { useEffect, useState } from 'react';
-import { Button, Stack, Tooltip, Typography } from '@mui/material';
+import { Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
 
 import { useMeta } from '../../api/Meta'
-import { useResults } from '../../api/Results'
+import { useSubmissions } from '../../api/Submissions'
 import useWebSocket from '../../api/Socket'
 
-import CustomIframe from '../../components/CustomIframe';
-import FullScreenDialog from '../../components/FullScreenDialog';
-import { Download } from '@mui/icons-material';
+import Download from '../../components/Download';
+import Report from '../../components/Report';
+import getRandomName from '../../utils/getRandomName';
+import * as yup from "yup";
 
 const Uploader = dynamic(() => import('../../components/Uploader'), {
     ssr: false,
@@ -34,10 +33,39 @@ export default function Analyze() {
     const [inputValue, setInputValue] = useLocalStorage('sel_input', '');
     const [upload, setUpload] = useLocalStorage('uploadparams', {} as any);
     const [subId, setSubId] = useLocalStorage('subId', "" as any);
-    const [status, setStatus] = useLocalStorage('status', {} as any);
-    const [result, setResult] = useLocalStorage('result', "" as any)
-    const [open, setOpen] = useState(false);
+    const [status, setStatus] = useState(false)
     const [snackbar, setSnackBar] = useState(false);
+    const [name, setName] = useState(getRandomName());
+    const [error, setError] = useState({'error': false, 'message': ''});
+    const [submissionData, setSubmissionData] = useState({});
+
+    const schema = yup.object({
+        name: yup
+            .string()
+            .required('No name provided')
+            .min(8, 'Name should be 8 chars minimum.')
+            .max(25, 'Exceeded name char limit')
+            .matches(/^[a-zA-Z0-9_]+$/, '*No special characters except underscores'),
+
+    })
+
+    const handleChange = (event: any) => {
+        setName(event.target.value);
+        try {
+            schema.validateSync({ 'name': event.target.value })
+            setError({
+                'error': false,
+                'message': ''
+            })
+        }
+        catch (err) {
+            setError({
+                'error': true,
+                'message': err.errors[0]
+            })
+
+        }
+    }
 
     const handleClickOpen = (callback: any) => {
         callback(true);
@@ -52,58 +80,47 @@ export default function Analyze() {
     }
 
     const { connectWebsocket } = useWebSocket();
-    const results = useResults();
     const meta = useMeta();
+    const submissions = useSubmissions();
+
+    const dataHandler = (event: any) => {
+        if (event.type == 'message') {
+            let data = JSON.parse(event.data)
+            console.log(data.status)
+            console.table(data.processes)
+            setStatus(data)
+        }
+    }
+
+    const submission_status = useQuery({
+        queryKey: ['sub_status', subId],
+        retry: false,
+        enabled: true,
+        queryFn: () => subId ? submissions.get_submission(subId) : null,
+        onSuccess(data) {
+            setSubmissionData(data?.data)
+            let status = data?.data['status']
+            if (status && status != 'completed') {
+                connectWebsocket(subId, dataHandler)
+            }
+            // else {
+                // setSubId(null)
+            // }
+        },
+        onError(err) {
+            setSubId(null)
+        }
+    })
 
     const pipeMeta = useQuery({
         queryKey: ['pipelineData'],
+        retry: 1,
         queryFn: meta.get_pipelines,
         onSuccess(data) {
             const raw_data = data?.data
             const pipeline_meta = Object.keys(raw_data).map(key => raw_data[key]);
             setPipelineData(pipeline_meta)
         },
-    })
-
-    const report = useQuery({
-        queryKey: ['report', subId],
-        queryFn: () => results.get_report(subId),
-        enabled: false,
-        onSuccess(data) {
-            setResult(data?.data)
-        },
-    })
-
-    function saveAs(blob, fileName) {
-        var url = window.URL.createObjectURL(blob);
-
-        var anchorElem = document.createElement("a");
-        anchorElem.style = "display: none";
-        anchorElem.href = url;
-        anchorElem.download = fileName;
-
-        document.body.appendChild(anchorElem);
-        anchorElem.click();
-
-        document.body.removeChild(anchorElem);
-
-        // On Edge, revokeObjectURL should be called only after
-        // a.click() has completed, atleast on EdgeHTML 15.15048
-        setTimeout(function () {
-            window.URL.revokeObjectURL(url);
-        }, 1000);
-    }
-
-
-    const download = useQuery({
-        queryKey: ['download', subId],
-        queryFn: () => results.download(subId),
-        enabled: false,
-        onSuccess(data) {
-            let blob = new Blob([data.data], { type: "application/octet-stream" });
-            let name = data.headers['content-disposition']?.split('filename=')[1].split(';')[0];
-            saveAs(blob, name)
-        }
     })
 
     useEffect(() => {
@@ -114,7 +131,8 @@ export default function Analyze() {
                 if (sel?.pluginType == 'visual')
                     sel['plugins'] = ["MyWebCam", "MyImageEditor", "GoogleDrive"]
                 else {
-                    sel['plugins'] = ["GoogleDrive", "OneDrive", "Dropbox", "Url"]
+                    // sel['plugins'] = ["GoogleDrive", "OneDrive", "Dropbox", "Url"]
+                    sel['plugins'] = ["GoogleDrive", "Url"]
                 }
                 setUpload(sel)
             }
@@ -122,32 +140,21 @@ export default function Analyze() {
 
     }, [value])
 
-    const dataHandler = (event: any) => {
-        console.log(event)
-        if (event.type == 'message') {
-            let data = JSON.parse(event.data)
-            console.log(data)
-            setStatus(data)
-        }
-    }
-
-    useEffect(() => {
-        if (subId != '') {
-            connectWebsocket(subId, dataHandler)
-        }
-    }, [subId])
 
     useEffect(() => {
         if (status['status'] === 'completed') {
-            report.refetch()
+            handleClickOpen(setSnackBar)
         }
 
     }, [status])
 
-    useEffect(() => {
-        handleClickOpen(setSnackBar)
+    // useEffect(() => {
+    //     if (subId != "") {
+    //         connectWebsocket(subId, dataHandler)
+    //     }
 
-    }, [result])
+    // }, [subId])
+
 
     return (
         <>
@@ -201,19 +208,50 @@ export default function Analyze() {
                                 </Paper>
                             </Grid>
                             <Grid item xs={12}>
-                                <Uploader
-                                    id={`uppy_${upload?.label}`}
-                                    fileTypes={upload?.fileTypes}
-                                    meta={
-                                        {
-                                            pipeline: value.id,
+                                <Paper sx={{
+                                    p: 2
+                                }}>
+                                    <Grid container item xs={12} sm={9} md={6} lg={3} pb={2}
+                                        alignItems="center"
+                                    >
+                                        <Grid >
+                                            <TextField
+                                                label="Run Name"
+                                                fullWidth
+                                                value={name}
+                                                onChange={handleChange}
+                                                error={error.error}
+                                                helperText={error.message}
+                                            />
+                                        </Grid>
+                                        <Grid >
+                                            <Tooltip title={'Generate a random name'} placement={'top'}>
+                                                <IconButton onClick={() => {
+                                                    let name = getRandomName()
+                                                    setName(name)
+                                                    setError({'error': false, 'message': ''})
+                                                }}>
+                                                    <ShuffleIcon />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Grid>
+                                    </Grid>
+                                    <Uploader
+                                        id={`uppy_${upload?.label}`}
+                                        fileTypes={upload?.fileTypes}
+                                        meta={
+                                            {
+                                                pipeline: value.id,
+                                                name: name
+                                            }
                                         }
-                                    }
-                                    updateParentSubId={updateParentSubId}
-                                    plugins={upload?.plugins}
-                                    height={'40vh'}
-                                    width={'100%'}
-                                />
+                                        updateParentSubId={updateParentSubId}
+                                        plugins={upload?.plugins}
+                                        width={'100%'}
+                                        disabled={error.error}
+                                    />
+                                </Paper>
+
                             </Grid>
                         </>
                         :
@@ -224,7 +262,7 @@ export default function Analyze() {
                         <Grid item xs={12} >
                             <Paper component={Stack} direction="column">
                                 {
-                                    status['status'] != 'completed'
+                                    status && status['status'] != 'completed'
                                         ?
                                         <>
                                             <LoadingSpinner />
@@ -238,40 +276,22 @@ export default function Analyze() {
                                         null
                                 }
                                 {
-                                    status['status'] == 'completed'
+                                    status && status['status'] == 'completed' || submissionData?.status == 'completed'
                                         ?
                                         <>
                                             <Grid container justifyContent="center" alignItems="initial" p={2}>
                                                 <Typography variant='h5'>
-                                                    Results
+                                                    Results for {submissionData?.name}
                                                 </Typography>
                                             </Grid>
-                                            {
-                                                result ?
-                                                    <Grid container justifyContent="center" alignItems="initial" columnGap={5}>
-                                                        <Grid item>
-                                                            <Tooltip title="View Report">
-                                                                <IconButton aria-label="view-report"
-                                                                    size="large"
-                                                                    onClick={() => handleClickOpen(setOpen)}>
-                                                                    <PageviewIcon />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </Grid>
-                                                        <Grid item>
-                                                            <Tooltip title="Download Results">
-                                                                <IconButton
-                                                                    size="large"
-                                                                    aria-label="download"
-                                                                    onClick={() => download.refetch()}>
-                                                                    <DownloadIcon />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </Grid>
-                                                    </Grid>
-                                                    :
-                                                    null
-                                            }
+                                            <Grid container justifyContent="center" alignItems="initial" columnGap={5}>
+                                                <Grid item>
+                                                    <Report subId={subId} />
+                                                </Grid>
+                                                <Grid item>
+                                                    <Download subId={subId} />
+                                                </Grid>
+                                            </Grid>
                                         </>
 
                                         :
@@ -284,21 +304,6 @@ export default function Analyze() {
                         null
                     }
                 </Grid>
-                {subId && results ?
-                    <>
-                        <FullScreenDialog
-                            open={open}
-                            handleClose={() => handleClose(setOpen)}
-                            content={
-                                <CustomIframe
-                                    width={'100%'}
-                                    height={'100%'}
-                                    frameBorder={0}
-                                    srcDoc={result} />
-                            } />
-                    </>
-                    :
-                    null}
             </Container>
         </>
     )

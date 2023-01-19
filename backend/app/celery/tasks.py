@@ -1,4 +1,5 @@
 import docker 
+import requests
 import shutil, json, subprocess, glob, os
 from app.models.schemas.redis import MetaModel
 from app.redis.functions import Handler
@@ -6,6 +7,9 @@ from app.utils import dir_generator
 from app.scripts import nextflow
 
 from celery import Celery, group, chain
+
+CELERY_API_KEY = os.getenv("CELERY_API_KEY")
+API_URL = os.getenv("API_URL")
 client = docker.from_env()
 
 app = Celery('tasks')
@@ -75,13 +79,17 @@ def assemble_chunks(updir,tooldir, total, filename):
     p = subprocess.Popen(['/bin/bash', '-c', command]) 
     
 @app.task(name="Cleanup")
-def cleanup(metadata : MetaModel, cleanup_command: str):
+def cleanup(metadata : MetaModel):
     container = client.containers.get(metadata.container_id)
     container.remove(v=True)
 
     shutil.rmtree(metadata.dirs['updir'])
     shutil.rmtree(metadata.dirs['tdir'])
 
+@app.task(name="Status Update")
+def status_update(subId : str, status : str):
+    r = requests.post(f"{API_URL}/celery/status_update", params={"sub_id": subId, "status": status}, headers={"Authorization": f'Bearer {CELERY_API_KEY}'})
+    
 class StatusException(Exception):
     """Raised when the pipeline is not ready
      Attributes:
@@ -99,6 +107,26 @@ def status_check(self, subId: str):
     container = client.containers.get(metadata.container_id)
     status = metadata.status
 
+    if container.status == 'exited':
+        # check exit code 
+        successful_containers = client.containers.list(all=True,filters={'exited':0})
+        for cntr in successful_containers:
+            if cntr.id == container.id:
+                status = 'completed'
+                metadata.status = status
+                update_metadata.s(subId, metadata)()
+                status_update.s(subId, status).delay()
+                cleanup.s(metadata).delay()
+
+                return True
+
+            else:
+                status = 'error'
+                metadata.status = status
+                update_metadata.s(subId, metadata)()
+                status_update.s(subId, status).delay()
+                raise StatusException(status)
+
     if nextflow.directory_is_ready(log_location=metadata.dirs['tdir'], history_location=metadata.dirs['ddir']):
             execution = nextflow.Execution.create_from_location(log_location=metadata.dirs['tdir'], history_location=metadata.dirs['ddir'])
             processes = execution.process_executions
@@ -107,24 +135,6 @@ def status_check(self, subId: str):
                     process_name = process.process.split(":")[-1]
                     metadata.processes[process_name] = process.status
         
-    if container.status == 'exited':
-        # check exit code 
-        successful_containers = client.containers.list(all=True,filters={'exited':0})
-        for cntr in successful_containers:
-            if cntr.id == container.id:
-                metadata.status = 'completed'
-                update_metadata.s(subId, metadata)()
-                cleanup_command = f'nextflow clean -f {execution.id}'
-                cleanup.s(metadata, cleanup_command)()
-
-                return True
-
-            else:
-                status = 'error'
-                metadata.status = status
-                update_metadata.s(subId, metadata)()
-                raise StatusException(status)
-    
     if container.status == 'running':
         metadata.status = 'analyzing'
 
@@ -169,7 +179,8 @@ def update_flow(tusdata: dict, uploads_folder: str):
     items = metadata.items
     items[fname].uploaded = True
     metadata.items = items
-    metadata.status = 'uploading'
+    status = 'uploading'
+    metadata.status = status
     update_metadata.s(subId, metadata)()
 
     uploaded = []
@@ -181,6 +192,8 @@ def update_flow(tusdata: dict, uploads_folder: str):
         container = client.containers.get(metadata.container_id)
         container.start()
         status_check.s(subId).delay()   
+
+    status_update.s(subId, status).delay()
 
 
 # Chunk Flow

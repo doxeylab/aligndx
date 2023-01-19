@@ -6,9 +6,9 @@ from fastapi import WebSocket
 from starlette.websockets import WebSocketDisconnect 
 
 from app.auth.auth_dependencies import get_current_user_ws
-from app.models.schemas.submissions import SubmissionSchema
+from app.models.schemas import submissions
 
-from app.db.dals.users import UsersDal 
+from app.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,15 +31,18 @@ class Chunk_id(BaseModel):
 
 @router.websocket('/livestatus/{sub_id}') 
 async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depends(get_db)):
-    await manager.connect(websocket)
+    await manager.connect(id=sub_id, websocket=websocket)
 
     token = await websocket.receive_text()
     current_user = await get_current_user_ws(token, db)
      
-    users_dal = UsersDal(db)
-    query = await users_dal.get_submission(current_user.id, sub_id)
+    sub_dal = SubmissionsDal(db)
+    query = await sub_dal.get_submission(current_user.id, sub_id)
 
-    submission = SubmissionSchema.from_orm(query)
+    if query is None:
+        raise WebSocketDisconnect()
+
+    submission = submissions.Schema.from_orm(query)
     
     data = {"status": "", "processes": {}}
     if current_user and submission != None:
@@ -48,16 +51,16 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
                 metadata = retrieve.s(sub_id)()
 
                 if metadata == None:
-                    manager.disconnect(websocket)
+                    manager.disconnect(id=sub_id)
                     return
                 
                 data["status"] = metadata.status
                 data["processes"] = metadata.processes
                 
-                await manager.send_data(data=data, websocket=websocket) 
+                await manager.send_data(data=data, id=sub_id) 
 
                 if metadata.status == 'completed' or metadata.status =='error':
-                    manager.disconnect(websocket)
+                    manager.disconnect(id=sub_id)
                     return 
 
                 if metadata.status == 'uploading' or metadata.status == 'setup':
@@ -69,7 +72,7 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
                     continue
 
         except WebSocketDisconnect:
-            manager.disconnect(websocket)
+            manager.disconnect(id=sub_id)
             print(f"User {current_user.id} disconnected!")
 
         except Exception as e: 

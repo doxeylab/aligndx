@@ -1,6 +1,6 @@
 from http.client import HTTPException
-from datetime import datetime
 from typing import Dict, List
+import datetime
 
 from app.models.schemas.phi_logs import UploadLogBase
 from app.models.schemas.redis import MetaModel, ItemModel
@@ -12,8 +12,7 @@ from app.auth.auth_dependencies import get_current_user
 
 from app.db.dals.phi_logs import UploadLogsDal
 from app.db.dals.submissions import SubmissionsDal  
-from app.db.dals.users import UsersDal
-from app.models.schemas.submissions import SubmissionBase, UpdateSubmissionDate, SubmissionSchema
+from app.models.schemas import submissions
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -43,16 +42,21 @@ async def start(
     current_user: UserDTO = Depends(get_current_user),
     items: List[str] = Body(...),
     pipeline: str = Body(...),
+    name: str = Body(...),
     # inputs: dict = Body(...),
     # size: float = Body(...),
     db: AsyncSession = Depends(get_db)
 ):
+    status='setup'
 
-    db_entry = SubmissionBase(
+    created_date = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    db_entry = submissions.Base(
         user_id=current_user.id,
-        created_date=datetime.now(),
+        created_date=created_date,
         pipeline=pipeline,
         items=items,
+        status=status,
+        name=name
         # size=size,
     ) 
 
@@ -88,7 +92,8 @@ async def start(
 
     # run_command = f"docker run -d --rm --name {sub_id} -v /var/run/docker.sock:/var/run/docker.sock -v {settings.DATA_FOLDER}:{settings.DATA_FOLDER} -e 'NXF_HOME={settings.DATA_FOLDER}/nxf_home' nextflow/nextflow:latest nextflow -log {results_dir}/nxf/.nextflow.log run {repo} -latest -profile docker -w {results_dir}/nxf/work -c {settings.NXF_CONF} {custom_inputs} --outdir {results_dir}"
     
-    run_command = f"nextflow -log {tmp_dir}/.nextflow.log run {repo} -latest -profile docker  -w {tmp_dir} -c {settings.NXF_CONF} {custom_inputs} --outdir {results_dir}"
+    run_name = f"run_{sub_id}"
+    run_command = f"sh -c 'nextflow -log {tmp_dir}/.nextflow.log run {repo} -latest  -name {run_name} -profile docker  -w {tmp_dir} -c {settings.NXF_CONF} {custom_inputs} --outdir {results_dir} ; nextflow clean {run_name} -f'"
     
     container = client.containers.create(
             image="nextflow/nextflow:latest",
@@ -115,7 +120,7 @@ async def start(
             "ddir": settings.DATA_FOLDER
         },
         items=sub_items,
-        status='setup',
+        status=status,
         processes=processes
     )
 
@@ -130,24 +135,19 @@ async def tusd(
     db: AsyncSession = Depends(get_db)
 ):
     if request.headers['hook-name'] == 'post-finish':
-        users_dal = UsersDal(db)
+        sub_dal = SubmissionsDal(db)
         
         body = await request.json()
         tus_data = body['Upload'] 
         metadata = tus_data['MetaData']
         sub_id = metadata['subId']
 
-        query = await users_dal.get_submission(current_user.id, sub_id)
-        submission = SubmissionSchema.from_orm(query)
+        query = await sub_dal.get_submission(current_user.id, sub_id)
+        submission = submissions.Schema.from_orm(query)
 
         if submission is None:
             raise HTTPException(status_code=404, detail="Submission not found")
 
         update_flow(tus_data, UPLOAD_FOLDER)
-
-        # if submission.finished_date is None:
-        #     sub_dal = SubmissionsDal(db)
-        #     await sub_dal.update(sub_id, UpdateSubmissionDate(finished_date=datetime.now()))
-        #     return {"Result": "OK"}
     
     return 200

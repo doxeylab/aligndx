@@ -9,10 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 
 # auth
-from app.auth.auth_dependencies import get_current_user 
+from app.auth.auth_dependencies import get_current_user, ValidateService
 
 # routers
-from app.routers import uploads, results, users, socket_resources, metadata 
+from app.routers import users, uploads, submissons, sockets, metadata, celery
 from app.routers.payments import payments, stripe_webhooks
 
 # utils
@@ -72,9 +72,9 @@ app.include_router(
 )
 
 app.include_router(
-    results.router,
-    prefix="/results",
-    tags=["Results"],
+    submissons.router,
+    prefix="/submissions",
+    tags=["Submissions"],
     dependencies=[Depends(get_current_user)],
     responses={418: {"description": "I'm a teapot"}},
 )
@@ -95,14 +95,20 @@ app.include_router(
 )
 
 app.include_router(
-    socket_resources.router
+    sockets.router
 )
- 
 
 app.include_router(
     metadata.router,
     prefix="/metadata",
     tags=["Metadata"],
+)
+
+app.include_router(
+    celery.router,
+    prefix="/celery",
+    tags=["Celery"],
+    dependencies=[Depends(ValidateService("celery"))],
 )
 
 @app.get("/")

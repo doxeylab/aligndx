@@ -47,13 +47,12 @@ function stableSort(array, comparator) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-export default function EnhancedTable({ orderby, tableName, data, headCells, contentgenerator, deletefn }) {
+export default function EnhancedTable({ orderby, tableName, rows, headCells, contentgenerator, deletefn, tools }) {
     const [order, setOrder] = React.useState(orderby.order);
     const [orderBy, setOrderBy] = React.useState(orderby.id);
     const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
-    const [rows, setRows] = React.useState(data);
     const [delDialog, setDelDialog] = React.useState(false);
     const [snackBar, setSnackBar] = React.useState(false);
 
@@ -109,9 +108,6 @@ export default function EnhancedTable({ orderby, tableName, data, headCells, con
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
     const filter = (items) => {
-        setRows((prevRows) =>
-            prevRows.filter((row) => !items.includes(row.key))
-        );
         deletefn(items)
         setSelected([])
     }
@@ -164,7 +160,7 @@ export default function EnhancedTable({ orderby, tableName, data, headCells, con
                                 onSelectAllClick={handleSelectAllClick}
                                 onRequestSort={handleRequestSort}
                                 rowCount={rows.length}
-                                emptycell={true}
+                                emptycell={tools? true : false}
                             />
                             <TableBody>
                                 {rows.length > 0 ? null
@@ -181,54 +177,92 @@ export default function EnhancedTable({ orderby, tableName, data, headCells, con
                                         const remaining_rows = Object.fromEntries(Object.entries(row).filter(e => !exclude.has(e[0])))
                                         const isItemSelected = isSelected(row[orderby.key]);
                                         const labelId = `enhanced-table-checkbox-${index}`;
-                                        return (
-                                            <CollapsibleRow
-                                                hover={true}
-                                                role="checkbox"
-                                                aria_checked={isItemSelected}
-                                                tabIndex={-1}
-                                                id={index}
-                                                key={`collapsible-${index}`}
-                                                selected={isItemSelected}
-                                                length={headCells.length + 2}
-                                                content={
-                                                    <>
-                                                        {contentgenerator ? contentgenerator(row) : null}
+                                        if (contentgenerator) {
+                                            return (
+                                                <CollapsibleRow
+                                                    hover={true}
+                                                    role="checkbox"
+                                                    aria_checked={isItemSelected}
+                                                    tabIndex={-1}
+                                                    id={index}
+                                                    key={`collapsible-${index}`}
+                                                    selected={isItemSelected}
+                                                    length={headCells.length + 2}
+                                                    content={
+                                                        <>
+                                                            {contentgenerator ? contentgenerator(row) : null}
 
-                                                    </>
-                                                }
-                                            >
-                                                <TableCell padding="checkbox">
-                                                    <Checkbox
-                                                        color="primary"
-                                                        checked={isItemSelected}
-                                                        inputProps={{
-                                                            'aria-labelledby': labelId,
-                                                        }}
-                                                        onClick={(event) => handleClick(event, row[orderby.key])}
-
-                                                    />
-                                                </TableCell>
-                                                <TableCell
-                                                    component="th"
-                                                    id={labelId}
-                                                    scope="row"
-                                                    onClick={(event) => handleClick(event, row[orderby.key])}
-
+                                                        </>
+                                                    }
                                                 >
-                                                    {row[orderby.id]}
-                                                </TableCell>
-                                                {Object.entries(remaining_rows).map(([k, v]) => (
-                                                    <TableCell
-                                                        key={k}
-                                                        align='right'
-                                                        onClick={(event) => handleClick(event, row[orderby.key])}
+                                                    <TableCell padding="checkbox">
+                                                        {row[orderby.id]}
+                                                        <Checkbox
+                                                            color="primary"
+                                                            checked={isItemSelected}
+                                                            inputProps={{
+                                                                'aria-labelledby': labelId,
+                                                            }}
+                                                            onClick={(event) => handleClick(event, row[orderby.key])}
 
-                                                    >{v}</TableCell>
-                                                ))
-                                                }
-                                            </CollapsibleRow>
-                                        );
+                                                        />
+                                                    </TableCell>
+                                                    {Object.entries(remaining_rows).map(([k, v]) => (
+                                                        <TableCell
+                                                            key={k}
+                                                            align={'left'}
+                                                            onClick={(event) => handleClick(event, row[orderby.key])}
+
+                                                        >{v}</TableCell>
+                                                    ))
+                                                    }
+                                                </CollapsibleRow>
+                                            )
+                                        }
+                                        else {
+                                            return (
+                                                <TableRow
+                                                    hover={true}
+                                                    role="checkbox"
+                                                    tabIndex={-1}
+                                                    key={row.key}
+                                                >
+                                                    <TableCell
+                                                        padding="checkbox"
+                                                        component="th"
+                                                        id={labelId}
+                                                        scope="row"
+                                                        key={row.key}
+                                                    >
+                                                        <Checkbox
+                                                            color="primary"
+                                                            checked={isItemSelected}
+                                                            inputProps={{
+                                                                'aria-labelledby': labelId,
+                                                            }}
+                                                            onClick={(event) => handleClick(event, row[orderby.key])}
+
+                                                        />
+                                                    </TableCell>
+                                                    {Object.entries(remaining_rows).map(([k, v]) => (
+                                                        <TableCell
+                                                            key={k}
+                                                            align={'left'}
+                                                        // onClick={(event) => handleClick(event, row[orderby.key])}
+
+                                                        >{v}</TableCell>
+                                                    ))
+                                                    }
+                                                    {tools ?
+                                                        <TableCell>
+                                                            {tools(row)}
+                                                        </TableCell>
+                                                        :
+                                                        null
+                                                    }
+                                                </TableRow>
+                                            )
+                                        }
                                     })}
                                 {emptyRows > 0 && (
                                     <TableRow
@@ -253,6 +287,6 @@ export default function EnhancedTable({ orderby, tableName, data, headCells, con
                     />
                 </Paper>
             </Box>
-        </Container>
+        </Container >
     );
 }

@@ -7,10 +7,11 @@ const WEBSOCKET_URL = socket_url.replace(/http/, base_ws_url)
 
 const useWebSocket = () => {
     const context = useAuthContext()
-
+    
     const connectWebsocket = async (sub_id, callback = console.log) => {
         try {
             console.log("trying websocket connection")
+
             const ws = new WebSocket(WEBSOCKET_URL + '/' + sub_id)
 
             ws.onerror = function (event) {

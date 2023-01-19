@@ -1,7 +1,7 @@
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_ACCESS_URL
-const BASE_URL_RAW = process.env.NEXT_PUBLIC_BASE_URL
+// const BASE_URL_RAW = process.env.NEXT_PUBLIC_BASE_URL
 
-export const BASE_URL = BASE_URL_RAW + ":3000/"
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL + ':8080'
 export const COMPANION_URL = process.env.NEXT_PUBLIC_COMPANION_URL
 export const TUS_ENDPOINT = process.env.NEXT_PUBLIC_TUS_ENDPOINT
 

@@ -1,100 +1,138 @@
+import { useEffect, useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
-import EnhancedTable from '../../components/Table'
-import { useUsers } from '../../api/Users'
-import { useState } from 'react';
-import { dehydrate, QueryClient, useQuery, useMutation } from '@tanstack/react-query';
 
-// export async function getServerSideProps() {
-//     const queryClient = new QueryClient()
-//     const users = useUsers()
-  
-//     await queryClient.prefetchQuery(['submissions'],() => users.index_submissions())
-  
-//     return {
-//       props: {
-//         dehydratedState: dehydrate(queryClient),
-//       },
-//     }
-//   }
-  
+import EnhancedTable from '../../components/Table'
+import Download from '../../components/Download';
+import Report from '../../components/Report';
+import { useSubmissions } from '../../api/Submissions'
+
 
 export default function Results() {
     const [rows, setRows] = useState<any[]>([])
-    const users = useUsers()
+    const submissions = useSubmissions();
+    
+    function getTimezoneName() {
+        const today = new Date();
+        const short = today.toLocaleDateString(undefined);
+        const full = today.toLocaleDateString(undefined, { timeZoneName: 'long' });
+      
+        // Trying to remove date from the string in a locale-agnostic way
+        const shortIndex = full.indexOf(short);
+        if (shortIndex >= 0) {
+          const trimmed = full.substring(0, shortIndex) + full.substring(shortIndex + short.length);
+          
+          // by this time `trimmed` should be the timezone's name with some punctuation -
+          // trim it from both sides
+          return trimmed.replace(/^[\s,.\-:;]+|[\s,.\-:;]+$/g, '');
+      
+        } else {
+          // in some magic case when short representation of date is not present in the long one, just return the long one as a fallback, since it should contain the timezone's name
+          return full;
+        }
+      }
+      
+    const timezone = getTimezoneName()
+    // order matters
+    const headCells = [
+        {
+            id: 'name',
+            label: 'Name',
+        },
+        {
+            id: 'pipeline',
+            label: 'Pipeline',
+        },
+        {
+            id: 'created_date',
+            label: `Created (${timezone})`,
+        },
+        {
+            id: 'finished_date',
+            label: `Finished (${timezone})`,
+        },
+        {
+            id: 'status',
+            label: 'Status',
+        },
+    ];
 
-    const submissions = useQuery({
-        retry: false,
+    function createData(
+        key: string,
+        name: string,
+        pipeline: string,
+        created_date: string,
+        finished_date: string,
+        status: string
+    ) {
+        const dateGenerator = (date : string) => {
+            if (date != null) {
+                let iso = new Date(date).toLocaleString()
+                return iso
+            }
+            else {
+                return null
+            }
+        }
+        let cdate = dateGenerator(created_date)
+        let fdate = dateGenerator(finished_date)
+        return {
+            key,
+            name,
+            pipeline,
+            cdate,
+            fdate,
+            status
+        };
+    }
+
+    const all_submissions = useQuery({
+        retry: 1,
         queryKey: ['submissions'],
-        queryFn: () => users.index_submissions(),
+        queryFn: () => submissions.index_submissions(),
+        onSuccess(data) {
+            let temp_rows = []
+            data.data.forEach((data: any) => {
+                const row = createData(data.id, data.name, data.pipeline, data.created_date,data.finished_date, data.status)
+                temp_rows.push(row)
+            })
+            setRows(temp_rows)
+        }
     })
 
-    if (submissions.isSuccess) {
-        submissions.data?.data.forEach((data: any) => {
-            const row = createData(data.id, data.result, data.name, data.created_date, data.panel)
-            rows.push(row)
-        })
-    } 
-    
+
     const del_records = (seldata: any) => {
-        return users.del_record(seldata)
+        return submissions.del_record(seldata)
     }
 
     const sub_del = useMutation(['sub_del'], del_records, {
         retry: false,
     })
 
-    interface HeadCell {
-        id: string;
-        label: string;
-        numeric: boolean;
-    }
-
-    // order matters
-    const headCells = [
-        {
-            id: 'name',
-            numeric: false,
-            label: 'File/Sample Name',
-        },
-        {
-            id: 'created_date',
-            numeric: true,
-            label: 'Created Date',
-        },
-        {
-            id: 'panel',
-            numeric: true,
-            label: 'Panel',
-        },
-    ];
-
-    function createData(
-        key: string,
-        data: any,
-        name: string,
-        created_date: string,
-        panel: string
-    ) {
-        return {
-            key,
-            data,
-            name,
-            created_date,
-            panel
-        };
-    }
-
-    const contentgenerator = (row: any) => {
-        return (
-            <div>
-                {row.key}
-            </div>
-        )
-    }
-
     const deletefn = (seldata: any) => {
+        setRows((prevRows) =>
+            prevRows.filter((row) => !seldata.includes(row.key))
+        );
         sub_del.mutate(seldata)
+    }
+
+    const tools = (row: any) => {
+        let disabled = true
+        if (row.status == 'completed') {
+            disabled = false
+        }
+        return (
+            <Grid container justifyContent="center" alignItems="initial" >
+                <Grid item>
+                    <Report subId={row.key} disabled={disabled} />
+                </Grid>
+                <Grid item>
+                    <Download subId={row.key} disabled={disabled}/>
+                </Grid>
+            </Grid>
+        )
     }
 
     return (
@@ -103,12 +141,12 @@ export default function Results() {
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
                         <EnhancedTable
-                            orderby={{ 'order': 'desc', 'id': 'created_data', 'key': 'key' }}
+                            orderby={{ 'order': 'desc', 'id': 'created_date', 'key': 'key' }}
                             tableName="Results"
-                            data={rows}
+                            rows={rows}
                             headCells={headCells}
-                            contentgenerator={contentgenerator}
                             deletefn={deletefn}
+                            tools={tools}
                         />
                     </Grid>
                 </Grid>
