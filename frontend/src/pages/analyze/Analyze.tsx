@@ -37,6 +37,7 @@ export default function Analyze() {
     const [snackbar, setSnackBar] = useState(false);
     const [name, setName] = useState(getRandomName());
     const [error, setError] = useState({'error': false, 'message': ''});
+    const [submissionData, setSubmissionData] = useState({});
 
     const schema = yup.object({
         name: yup
@@ -97,13 +98,14 @@ export default function Analyze() {
         enabled: true,
         queryFn: () => subId ? submissions.get_submission(subId) : null,
         onSuccess(data) {
+            setSubmissionData(data?.data)
             let status = data?.data['status']
             if (status && status != 'completed') {
                 connectWebsocket(subId, dataHandler)
             }
-            else {
-                setSubId(null)
-            }
+            // else {
+                // setSubId(null)
+            // }
         },
         onError(err) {
             setSubId(null)
@@ -274,12 +276,12 @@ export default function Analyze() {
                                         null
                                 }
                                 {
-                                    status && status['status'] == 'completed'
+                                    status && status['status'] == 'completed' || submissionData?.status == 'completed'
                                         ?
                                         <>
                                             <Grid container justifyContent="center" alignItems="initial" p={2}>
                                                 <Typography variant='h5'>
-                                                    Results
+                                                    Results for {submissionData?.name}
                                                 </Typography>
                                             </Grid>
                                             <Grid container justifyContent="center" alignItems="initial" columnGap={5}>
