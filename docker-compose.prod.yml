@@ -1,4 +1,6 @@
 version: "3.7"
+name: aligndx
+
 services:
 
   # Core services
@@ -7,21 +9,26 @@ services:
   backend:
     build:
       context: backend
-      dockerfile: docker/api/Dockerfile
-    command: sh -c "uvicorn app.main:app --reload --host 0.0.0.0 --port 8080"
+      dockerfile: Dockerfile
+      args:
+        PROJECT_PATH: ${PROJECT_PATH}
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
     tty: true
     depends_on:
       - postgres
     ports:
       - "8080:8080"
     volumes:
-      - ./backend/app:/app/app
-      - ./backend/data:/app/data
+      - ./backend/app:${PROJECT_PATH}/app
+      - ./backend/data:${PROJECT_PATH}/data
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       DATABASE_URL: ${DATABASE_URL}
       BASE_URL: ${BASE_URL}
       ORIGINS: ${ORIGINS}
+      API_URL: ${INTERNAL_API_URL}
       SECRET_KEY: ${SECRET_KEY}
+      CELERY_API_KEY: ${CELERY_API_KEY}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
       NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
@@ -30,56 +37,85 @@ services:
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       REDIS_URL: ${REDIS_URL}
-
-  # Client
-  frontend:
-     build:
-       context: frontend
-       target: production
-       args:
-        NEXT_PUBLIC_BASE_URL: ${BASE_URL}
-        NEXT_PUBLIC_BACKEND_ACCESS_URL: ${NEXT_PUBLIC_BACKEND_ACCESS_URL}
-     tty: true
-     ports:
-       - "80:3000"
-     environment:
-      NODE_ENV: production
-
-  # Tool 
-  kraken2:
-    build:
-      context: tool
-      dockerfile: docker/kraken2/Dockerfile
-    command: uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port 80
-    tty: true
-    ports:
-      - "8003:80"
-    volumes:
-      - ./tool/app/:/app/app/:ro
-      - ./backend/data:/app/data
-      - /mnt/tmp/:/app/data/indexes:ro
+      PROJECT_PATH: ${PROJECT_PATH}
 
   # Task Managment Executor
   celery_worker:
     build:
       context: backend
-      dockerfile: docker/celery_worker/Dockerfile
+      dockerfile: Dockerfile
+      args:
+        PROJECT_PATH: ${PROJECT_PATH}
     depends_on:
       - backend
       - redis
-    # command: sh -c "celery -A app.celery.tasks worker -l info"
+    command: sh -c "celery -A app.celery.tasks worker -l info"
     tty: true
     volumes:
-      - ./backend/app:/app/app
-      - ./backend/data:/app/data
+      - ./backend/app:${PROJECT_PATH}/app 
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./backend/data:${PROJECT_PATH}/data
     environment:
-      BASE_URL: ${BASE_URL}
+      API_URL: ${INTERNAL_API_URL}
+      CELERY_API_KEY: ${CELERY_API_KEY}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
       NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
       NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
       REDIS_URL: ${REDIS_URL}
+      PROJECT_PATH: ${PROJECT_PATH}
 
+      NODE_ENV: ${NODE_ENV}
+ 
+  # client
+  frontend:
+    build:
+      context: frontend
+      target: production
+      args:
+        NEXT_PUBLIC_BASE_URL: ${BASE_URL}
+        NEXT_PUBLIC_BACKEND_ACCESS_URL: ${API_URL}
+        NEXT_PUBLIC_TUS_ENDPOINT: ${TUS_ENDPOINT}
+        NEXT_PUBLIC_COMPANION_URL: ${COMPANION_DOMAIN}
+    tty: true
+    ports:
+      - "80:3000"
+    volumes:
+      - ./frontend/:/opt/app
+      - /opt/app/node_modules
+
+  tusd:
+    image: tusproject/tusd
+    command: -upload-dir=/data/uploads --hooks-http http://backend:8080/uploads/tusd -hooks-http-forward-headers Authorization
+    tty: true
+    ports:
+      - "1080:1080"
+    volumes:
+      - ./backend/data:/data
+
+  companion:
+    build:
+      context: companion
+    tty: true
+    command: sh -c "npx companion"
+    ports:
+      - "3020:3020"
+    environment:
+      COMPANION_CLIENT_ORIGINS: ${ORIGINS}
+      # COMPANION_HIDE_WELCOME: true 
+      # COMPANION_HIDE_METRICS: true 
+      COMPANION_ALLOW_LOCAL_URLS: true
+      COMPANION_STREAMING_UPLOAD: true
+      COMPANION_DOMAIN: 'localhost:3020'
+      COMPANION_SECRET: ${COMPANION_SECRET}
+      COMPANION_DATADIR: ${COMPANION_DATADIR}
+      COMPANION_GOOGLE_KEY: ${COMPANION_GOOGLE_KEY}
+      COMPANION_GOOGLE_SECRET: ${COMPANION_GOOGLE_SECRET}
+      COMPANION_DROPBOX_KEY: ${COMPANION_DROPBOX_KEY}
+      COMPANION_DROPBOX_SECRET: ${COMPANION_DROPBOX_SECRET}
+      COMPANION_ONEDRIVE_KEY: ${COMPANION_ONEDRIVE_KEY}
+      COMPANION_ONEDRIVE_SECRET: ${COMPANION_ONEDRIVE_SECRET}
+      COMPANION_UPLOAD_URLS: ${TUS_ENDPOINT}
 
   # Databases
 
@@ -105,13 +141,13 @@ services:
     expose:
       - ${REDIS_PORT}
     volumes:
-      - redis-data:/sdata 
+      - redis-data:/sdata
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_PORT: ${REDIS_PORT}
 
   # Monitoring Services
-  
+
   # Postgres admin
   pgadmin:
     tty: true
@@ -128,12 +164,12 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
-  
+
   # Celery Monitoring tool
   flower:
     build:
       context: backend
-      dockerfile: docker/flower/Dockerfile
+      dockerfile: Dockerfile
     profiles: [ "monitoring" ]
     depends_on:
       - backend
@@ -144,17 +180,14 @@ services:
     volumes:
       - ./backend/app:/app/app
     ports:
-      - 5556:5555 
+      - 5556:5555
     environment:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-  
+
 volumes:
   db-data:
-  pgadmin-data: 
+  pgadmin-data:
   redis-data:
-  # app-data:
-  #   driver_opts:
-  #     type: none 
-  #     device: ${PWD}/backend/data
-  #     o: bind
+
+ 

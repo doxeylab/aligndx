@@ -17,9 +17,9 @@ const Transition = forwardRef(function Transition(
 });
 
 interface FullScreenDialogProps {
-    content: any,
-    open: any,
-    handleClose: any
+    content: any;
+    open: boolean;
+    handleClose: any;
 }
 
 export default function FullScreenDialog(props: FullScreenDialogProps) {

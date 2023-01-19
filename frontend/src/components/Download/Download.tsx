@@ -14,11 +14,11 @@ export default function Download(props: IDownload) {
     const { subId, disabled } = props
     const submissions = useSubmissions();
 
-    function saveAs(blob, fileName) {
-        var url = window.URL.createObjectURL(blob);
+    function saveAs(blob :any, fileName : any) {
+        const url = window.URL.createObjectURL(blob);
 
-        var anchorElem = document.createElement("a");
-        anchorElem.style = "display: none";
+        const anchorElem = document.createElement("a");
+        // anchorElem.style = "display: none";
         anchorElem.href = url;
         anchorElem.download = fileName;
 
@@ -39,9 +39,9 @@ export default function Download(props: IDownload) {
         queryFn: () => submissions.download(subId),
         retry: false,
         enabled: false,
-        onSuccess(data) {
-            let blob = new Blob([data.data], { type: "application/octet-stream" });
-            let name = data.headers['content-disposition']?.split('filename=')[1].split(';')[0];
+        onSuccess(data : any) {
+            const blob = new Blob([data.data], { type: "application/octet-stream" });
+            const name = data.headers['content-disposition']?.split('filename=')[1].split(';')[0];
             saveAs(blob, name)
         }
     })

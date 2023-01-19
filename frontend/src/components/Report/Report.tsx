@@ -34,7 +34,7 @@ export default function Report(props: IReport) {
         queryFn: () => submissions.get_report(subId),
         retry: false,
         enabled: false,
-        onSuccess(data) {
+        onSuccess(data : any) {
             setResult(data?.data)
             handleClickOpen(setOpen)
         }

@@ -28,16 +28,16 @@ const Uploader = dynamic(() => import('../../components/Uploader'), {
 })
 
 export default function Analyze() {
-    const [pipelineData, setPipelineData] = useState([])
-    const [value, setValue] = useLocalStorage('sel_value', null);
+    const [pipelineData, setPipelineData] = useState([] as any)
+    const [value, setValue] = useLocalStorage('sel_value', {} as any);
     const [inputValue, setInputValue] = useLocalStorage('sel_input', '');
     const [upload, setUpload] = useLocalStorage('uploadparams', {} as any);
     const [subId, setSubId] = useLocalStorage('subId', "" as any);
-    const [status, setStatus] = useState(false)
+    const [status, setStatus] = useState({} as any);
     const [snackbar, setSnackBar] = useState(false);
     const [name, setName] = useState(getRandomName());
     const [error, setError] = useState({'error': false, 'message': ''});
-    const [submissionData, setSubmissionData] = useState({});
+    const [submissionData, setSubmissionData] = useState({} as any);
 
     const schema = yup.object({
         name: yup
@@ -58,10 +58,10 @@ export default function Analyze() {
                 'message': ''
             })
         }
-        catch (err) {
+        catch (err : any) {
             setError({
                 'error': true,
-                'message': err.errors[0]
+                'message': err?.errors[0]
             })
 
         }
@@ -85,7 +85,7 @@ export default function Analyze() {
 
     const dataHandler = (event: any) => {
         if (event.type == 'message') {
-            let data = JSON.parse(event.data)
+            const data = JSON.parse(event.data)
             console.log(data.status)
             console.table(data.processes)
             setStatus(data)
@@ -97,9 +97,9 @@ export default function Analyze() {
         retry: false,
         enabled: true,
         queryFn: () => subId ? submissions.get_submission(subId) : null,
-        onSuccess(data) {
+        onSuccess(data : any) {
             setSubmissionData(data?.data)
-            let status = data?.data['status']
+            const status = data?.data['status']
             if (status && status != 'completed') {
                 connectWebsocket(subId, dataHandler)
             }
@@ -107,7 +107,7 @@ export default function Analyze() {
                 // setSubId(null)
             // }
         },
-        onError(err) {
+        onError(err : any) {
             setSubId(null)
         }
     })
@@ -116,7 +116,7 @@ export default function Analyze() {
         queryKey: ['pipelineData'],
         retry: 1,
         queryFn: meta.get_pipelines,
-        onSuccess(data) {
+        onSuccess(data : any) {
             const raw_data = data?.data
             const pipeline_meta = Object.keys(raw_data).map(key => raw_data[key]);
             setPipelineData(pipeline_meta)
@@ -125,7 +125,7 @@ export default function Analyze() {
 
     useEffect(() => {
         if (value != null) {
-            let sel = pipelineData.find((o: any) => o.id === value.id)
+            const sel = pipelineData.find((o: any) => o.id === value?.id)
 
             if (sel != undefined) {
                 if (sel?.pluginType == 'visual')
@@ -180,17 +180,17 @@ export default function Analyze() {
                                 onChange={(event: any, newValue: any | null) => {
                                     setValue(newValue);
                                 }}
-                                onInputChange={(event, newInputValue) => {
+                                onInputChange={(event : any, newInputValue :any) => {
                                     setInputValue(newInputValue);
                                 }}
-                                isOptionEqualToValue={(option, value) => option.id === value.id}
+                                isOptionEqualToValue={(option :any, value :any) => option.id === value.id}
 
                                 disablePortal
                                 id="pipelines"
                                 options={pipelineData}
                                 // groupBy={(option) => option.label}
-                                getOptionLabel={(option) => option.id}
-                                renderInput={(params) => <TextField {...params} label="Select a pipeline" />}
+                                getOptionLabel={(option : any) => option.id || ""}
+                                renderInput={(params: any) => <TextField {...params} label="Select a pipeline" />}
                             />
                         </Paper>
 
@@ -227,7 +227,7 @@ export default function Analyze() {
                                         <Grid >
                                             <Tooltip title={'Generate a random name'} placement={'top'}>
                                                 <IconButton onClick={() => {
-                                                    let name = getRandomName()
+                                                    const name = getRandomName()
                                                     setName(name)
                                                     setError({'error': false, 'message': ''})
                                                 }}>
@@ -276,7 +276,7 @@ export default function Analyze() {
                                         null
                                 }
                                 {
-                                    status && status['status'] == 'completed' || submissionData?.status == 'completed'
+                                    status && status?.status == 'completed' || submissionData?.status == 'completed'
                                         ?
                                         <>
                                             <Grid container justifyContent="center" alignItems="initial" p={2}>

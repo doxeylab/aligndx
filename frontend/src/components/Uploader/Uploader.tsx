@@ -45,7 +45,7 @@ function useUppy(onCreateOrChange: (uppyInstance: Uppy) => Uppy, deps: any[]) {
 
 export default function Uploader(props: UploaderProps) {
     const { id, meta, plugins, fileTypes, updateParentSubId, disabled, ...dashProps } = props
-    let availablePlugins = ["GoogleDrive", "MyWebCam", "OneDrive", "Dropbox", "Url", "MyImageEditor"]
+    const availablePlugins = ["GoogleDrive", "MyWebCam", "OneDrive", "Dropbox", "Url", "MyImageEditor"]
     const createSubmission = useUploads();
     const { refresh } = useRefresh();
 
@@ -67,29 +67,25 @@ export default function Uploader(props: UploaderProps) {
                 limit: 0,
                 endpoint: TUS_ENDPOINT,
                 retryDelays: [1000],
-                async onBeforeRequest(req) {
-                    let token = JSON.parse(localStorage.getItem('auth') || '')['accessToken']
+                async onBeforeRequest(req: any) {
+                    const token = JSON.parse(localStorage.getItem('auth') || '')['accessToken']
                     req.setHeader('Authorization', `Bearer ${token}`)
                 },
-                onShouldRetry(err, retryAttempt, options, next) {
+                onShouldRetry( err: any, retryAttempt: any, options: any, next: any) {
                     const status = err?.originalResponse?.getStatus()
                     if (status === 401) {
                         return true
                     }
                     return next(err)
                 },
-                async onAfterResponse(req, res) {
+                async onAfterResponse( req : any, res :any) {
                     if (res.getStatus() === 401) {
                         await refresh()
                     }
                 },
             })
-            .use(CreateSubmission, {
-                meta: meta,
-                createSubmission: createSubmission.start,
-                refresh: refresh,
-                updateParentSubId: updateParentSubId
-            })
+            // @ts-ignore
+            .use(CreateSubmission, { meta: meta, createSubmission: createSubmission.start, refresh: refresh, updateParentSubId: updateParentSubId })
             .use(Webcam, {
                 id: 'MyWebCam',
                 modes: ['picture'],

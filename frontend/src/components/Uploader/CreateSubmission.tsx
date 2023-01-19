@@ -1,10 +1,27 @@
-import BasePlugin from '@uppy/core/lib/BasePlugin.js'
+/* eslint-disable */
+import { BasePlugin, PluginOptions } from '@uppy/core'
 import axios from 'axios'
-import { apiClient } from '../../api/Config'
+// @ts-ignore
 import { BASE_URL } from "../../config/Settings"
 
-export default class CreateSubmission extends BasePlugin {
-  constructor(uppy, opts) {
+interface CreateSubmissionOptions extends PluginOptions {
+    meta: any;
+    createSubmission: any;
+    refresh: any;
+    updateParentSubId: any;
+}
+
+export default class CreateSubmission extends BasePlugin<CreateSubmissionOptions> {
+  public meta: any;
+  public refresh: any;
+  public updateParentSubId: any;
+  public id: any;
+  public type: any;
+  public defaultLocale: any;
+  public i18nInit: any;
+  public uppy: any;
+
+  public constructor(uppy : any, opts: any ) {
     super(uppy, opts)
     this.meta = opts.meta
     this.refresh = opts.refresh
@@ -20,12 +37,12 @@ export default class CreateSubmission extends BasePlugin {
     this.i18nInit()
   }
 
-  prepareUpload = async (fileIDs) => {
+  prepareUpload = async (fileIDs: string[]) => {
     const items = this.uppy.getFiles()
-    const names = items.map(object => object.name)
+    const names = items.map((object: any) => object.name)
 
     const createSubId = async () => {
-      const parse = (value: string | null) => {
+      const parse = (value: string) => {
         try {
           return JSON.parse(value)
         } catch {
@@ -33,36 +50,36 @@ export default class CreateSubmission extends BasePlugin {
         }
       }
 
-      const stored = parse(localStorage.getItem('auth'))
+      const stored = parse(localStorage.getItem('auth') || '{}')
       const token = stored['accessToken']
 
-      let data = {
+      const data = {
         "items": names,
         'pipeline': this.meta['pipeline'],
         'name': this.meta['name']
       }
 
-      let config = {
+      const config = {
         headers: {
           Authorization: `Bearer ${token}`
         }
       }
 
-      let result = axios.post(`${BASE_URL}/uploads/start`, data, config)
-        .then((response) => {
-          let subId = response.data['sub_id']
+      const result = axios.post(`${BASE_URL}/uploads/start`, data, config)
+        .then((response: any) => {
+          const subId = response.data['sub_id']
           this.updateParentSubId(subId)
           return subId
         })
-        .catch(async (error) => {
-          let newToken = await this.refresh()
-          let config = {
+        .catch(async (error: any) => {
+          const newToken = await this.refresh()
+          const config = {
             headers: {
               Authorization: `Bearer ${newToken}`
             }
           }
-          let refreshResult = axios.post(`${BASE_URL}/uploads/start`, data, config).then((response) => {
-            let subId = response.data['sub_id']
+          const refreshResult = axios.post(`${BASE_URL}/uploads/start`, data, config).then((response : any) => {
+            const subId = response.data['sub_id']
             this.updateParentSubId(subId)
             return subId
           })
@@ -71,9 +88,9 @@ export default class CreateSubmission extends BasePlugin {
       return result
     }
 
-    let subId = await createSubId()
+    const subId = await createSubId()
 
-    const createAndApplySubId = async (fileID, subId) => {
+    const createAndApplySubId = async (fileID : string, subId : string ) => {
       this.uppy.log(`[Create Submission] Setting Submission Meta`)
       this.uppy.setFileMeta(fileID, { subId: subId })
     }
@@ -82,7 +99,7 @@ export default class CreateSubmission extends BasePlugin {
       const file = this.uppy.getFile(fileID)
       this.uppy.emit('preprocess-progress', file, {
         mode: 'indeterminate',
-        message: this.i18n('creatingSubmission'),
+        message: this.i18nInit('creatingSubmission'),
       })
 
       if (file.isRemote) {

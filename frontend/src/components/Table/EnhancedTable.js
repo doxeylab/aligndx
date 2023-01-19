@@ -47,7 +47,7 @@ function stableSort(array, comparator) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-export default function EnhancedTable({ orderby, tableName, rows, headCells, contentgenerator, deletefn, tools }) {
+export default function EnhancedTable({ orderby, tableName, rows, headCells, contentgenerator=null, deletefn, tools }) {
     const [order, setOrder] = React.useState(orderby.order);
     const [orderBy, setOrderBy] = React.useState(orderby.id);
     const [selected, setSelected] = React.useState([]);

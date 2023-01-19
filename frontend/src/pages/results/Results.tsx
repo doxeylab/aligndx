@@ -69,15 +69,15 @@ export default function Results() {
     ) {
         const dateGenerator = (date : string) => {
             if (date != null) {
-                let iso = new Date(date).toLocaleString()
+                const iso = new Date(date).toLocaleString()
                 return iso
             }
             else {
                 return null
             }
         }
-        let cdate = dateGenerator(created_date)
-        let fdate = dateGenerator(finished_date)
+        const cdate = dateGenerator(created_date)
+        const fdate = dateGenerator(finished_date)
         return {
             key,
             name,
@@ -92,8 +92,8 @@ export default function Results() {
         retry: 1,
         queryKey: ['submissions'],
         queryFn: () => submissions.index_submissions(),
-        onSuccess(data) {
-            let temp_rows = []
+        onSuccess(data: any) {
+            const temp_rows = [] as any
             data.data.forEach((data: any) => {
                 const row = createData(data.id, data.name, data.pipeline, data.created_date,data.finished_date, data.status)
                 temp_rows.push(row)
