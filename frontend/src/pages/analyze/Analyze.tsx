@@ -44,7 +44,7 @@ export default function Analyze() {
             .string()
             .required('No name provided')
             .min(8, 'Name should be 8 chars minimum.')
-            .max(20, 'Exceeded name char limit')
+            .max(25, 'Exceeded name char limit')
             .matches(/^[a-zA-Z0-9_]+$/, '*No special characters except underscores'),
 
     })
