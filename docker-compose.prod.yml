@@ -3,16 +3,41 @@ name: aligndx
 
 services:
 
-  reverse:
-    hostname: reverse
-    image: nginx
+  nginx:
+    build: ./nginx
+    image: evgeniy-khyst/nginx
     ports:
-      - 80:80
-      - 443:443
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
     volumes:
-      - ./nginx:/etc/nginx
-      - ./nginx:/etc/ssl/private
+      - nginx_conf:/etc/nginx/sites
+      - letsencrypt_certs:/etc/letsencrypt
+      - certbot_acme_challenge:/var/www/certbot
+      - ./vhosts:/etc/nginx/vhosts
+      - ./html:/var/www/html
+    environment:
+      DOMAINS: ${DOMAINS}
+      CERTBOT_EMAILS: ${CERTBOT_EMAILS}
+      CERTBOT_TEST_CERT: ${CERTBOT_TEST_CERT}
+      CERTBOT_RSA_KEY_SIZE: ${CERTBOT_RSA_KEY_SIZE}
 
+  certbot:
+    build: ./certbot
+    image: evgeniy-khyst/certbot
+    volumes:
+      - letsencrypt_certs:/etc/letsencrypt
+      - certbot_acme_challenge:/var/www/certbot
+
+  cron:
+    build: ./cron
+    image: evgeniy-khyst/cron
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/workdir:ro
+    environment:
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
 
   # API Server
   backend:
@@ -25,8 +50,8 @@ services:
     tty: true
     depends_on:
       - postgres
-    ports:
-      - "8080:8080"
+    expose:
+      - 8080
     volumes:
       - ./backend/app:${PROJECT_PATH}/app
       - ./backend/data:${PROJECT_PATH}/data
@@ -61,7 +86,7 @@ services:
     command: sh -c "celery -A app.celery.tasks worker -l info"
     tty: true
     volumes:
-      - ./backend/app:${PROJECT_PATH}/app 
+      - ./backend/app:${PROJECT_PATH}/app
       - /var/run/docker.sock:/var/run/docker.sock
       - ./backend/data:${PROJECT_PATH}/data
     environment:
@@ -75,7 +100,7 @@ services:
       PROJECT_PATH: ${PROJECT_PATH}
 
       NODE_ENV: ${NODE_ENV}
- 
+
   # client
   frontend:
     build:
@@ -87,8 +112,8 @@ services:
         NEXT_PUBLIC_TUS_ENDPOINT: ${TUS_ENDPOINT}
         NEXT_PUBLIC_COMPANION_URL: ${COMPANION_DOMAIN}
     tty: true
-    ports:
-      - "3000:3000"
+    expose:
+      - 3000
     volumes:
       - ./frontend/:/opt/app
       - /opt/app/node_modules
@@ -97,8 +122,8 @@ services:
     image: tusproject/tusd
     command: -upload-dir=/data/uploads --hooks-http http://backend:8080/uploads/tusd -hooks-http-forward-headers Authorization
     tty: true
-    ports:
-      - "1080:1080"
+    expose:
+      - 1080
     volumes:
       - ./backend/data:/data
 
@@ -107,8 +132,8 @@ services:
       context: companion
     tty: true
     command: sh -c "npx companion"
-    ports:
-      - "3020:3020"
+    expose:
+      - 3020
     environment:
       COMPANION_CLIENT_ORIGINS: ${ORIGINS}
       # COMPANION_HIDE_WELCOME: true 
@@ -155,48 +180,9 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_PORT: ${REDIS_PORT}
 
-  # Monitoring Services
-
-  # Postgres admin
-  pgadmin:
-    tty: true
-    image: dpage/pgadmin4
-    profiles: [ "monitoring" ]
-    restart: unless-stopped
-    depends_on:
-      - postgres
-    ports:
-      - "8001:80"
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-      PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
-
-  # Celery Monitoring tool
-  flower:
-    build:
-      context: backend
-      dockerfile: Dockerfile
-    profiles: [ "monitoring" ]
-    depends_on:
-      - backend
-      - redis
-      - celery_worker
-    command: sh -c "celery flower --port=5555 --broker=$${CELERY_BROKER_URL}"
-    tty: true
-    volumes:
-      - ./backend/app:/app/app
-    ports:
-      - 5556:5555
-    environment:
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
-      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-
 volumes:
   db-data:
   pgadmin-data:
   redis-data:
 
- 
+
