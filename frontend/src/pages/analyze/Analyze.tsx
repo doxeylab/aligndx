@@ -64,13 +64,6 @@ export default function Analyze() {
             })
 
         }
-
-        // if (name) {
-        //     setError({ 'error': false, 'message': '' })
-        // }
-        // else {
-        //     setError({ 'error': true, 'message': 'error' })
-        // }
     }
 
     const handleClickOpen = (callback: any) => {
@@ -218,7 +211,6 @@ export default function Analyze() {
                                 }}>
                                     <Grid container item xs={12} sm={9} md={6} lg={3} pb={2}
                                         alignItems="center"
-                                        justifyContent="center"
                                     >
                                         <Grid >
                                             <TextField
