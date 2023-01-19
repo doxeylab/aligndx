@@ -44,7 +44,7 @@ export default function Analyze() {
             .required('No name provided')
             .min(8, 'Name should be 8 chars minimum.')
             .max(20, 'Exceeded name char limit')
-            .matches(/^'?\p{L}+(?:[_ ]\p{L}+)*'?$/u, '*No special characters except underscores'),
+            .matches(/^[a-zA-Z0-9_]+$/, '*No special characters except underscores'),
 
     })
 
@@ -223,10 +223,11 @@ export default function Analyze() {
                                             />
                                         </Grid>
                                         <Grid >
-                                            <Tooltip title={'Generate a random name'} placement={'right'}>
+                                            <Tooltip title={'Generate a random name'} placement={'top'}>
                                                 <IconButton onClick={() => {
                                                     let name = getRandomName()
                                                     setName(name)
+                                                    setError({'error': false, 'message': ''})
                                                 }}>
                                                     <ShuffleIcon />
                                                 </IconButton>
