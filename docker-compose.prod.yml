@@ -3,7 +3,16 @@ name: aligndx
 
 services:
 
-  # Core services
+  reverse:
+    hostname: reverse
+    image: nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx:/etc/nginx
+      - ./nginx:/etc/ssl/private
+
 
   # API Server
   backend:
@@ -79,7 +88,7 @@ services:
         NEXT_PUBLIC_COMPANION_URL: ${COMPANION_DOMAIN}
     tty: true
     ports:
-      - "80:3000"
+      - "3000:3000"
     volumes:
       - ./frontend/:/opt/app
       - /opt/app/node_modules
