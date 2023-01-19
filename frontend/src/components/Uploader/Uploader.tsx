@@ -13,7 +13,7 @@ import GoldenRetriever from '@uppy/golden-retriever'
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import '@uppy/image-editor/dist/style.css'
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import { COMPANION_URL } from '../../config/Settings'
 import { TUS_ENDPOINT } from '../../config/Settings'
 
@@ -26,6 +26,7 @@ interface UploaderProps {
     meta?: Record<string, unknown>;
     plugins?: string[];
     fileTypes?: string[];
+    disabled?: boolean;
     [dashProps: string]: any;
 }
 
@@ -43,7 +44,7 @@ function useUppy(onCreateOrChange: (uppyInstance: Uppy) => Uppy, deps: any[]) {
 }
 
 export default function Uploader(props: UploaderProps) {
-    const { id, meta, plugins, fileTypes, updateParentSubId, ...dashProps } = props
+    const { id, meta, plugins, fileTypes, updateParentSubId, disabled, ...dashProps } = props
     let availablePlugins = ["GoogleDrive", "MyWebCam", "OneDrive", "Dropbox", "Url", "MyImageEditor"]
     const createSubmission = useUploads();
     const { refresh } = useRefresh();
@@ -108,12 +109,15 @@ export default function Uploader(props: UploaderProps) {
     }, [plugins, fileTypes])
 
     return <>
-        <Dashboard
-            uppy={uppy}
-            plugins={plugins}
-            theme={'dark'}
-            {...dashProps}
-            proudlyDisplayPoweredByUppy={false}
-        />
+        {disabled ?
+            null :
+            <Dashboard
+                uppy={uppy}
+                plugins={plugins}
+                theme={'dark'}
+                {...dashProps}
+                proudlyDisplayPoweredByUppy={false}
+            />
+        }
     </>
 }

@@ -6,9 +6,10 @@ import Container from '@mui/material/Container'
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
 
 import { useEffect, useState } from 'react';
-import { Stack, Typography } from '@mui/material';
+import { Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
@@ -20,6 +21,7 @@ import useWebSocket from '../../api/Socket'
 import Download from '../../components/Download';
 import Report from '../../components/Report';
 import getRandomName from '../../utils/getRandomName';
+import * as yup from "yup";
 
 const Uploader = dynamic(() => import('../../components/Uploader'), {
     ssr: false,
@@ -34,9 +36,41 @@ export default function Analyze() {
     const [status, setStatus] = useState(false)
     const [snackbar, setSnackBar] = useState(false);
     const [name, setName] = useState(getRandomName());
+    const [error, setError] = useState({'error': false, 'message': ''});
+
+    const schema = yup.object({
+        name: yup
+            .string()
+            .required('No name provided')
+            .min(8, 'Name should be 8 chars minimum.')
+            .max(20, 'Exceeded name char limit')
+            .matches(/^'?\p{L}+(?:[_ ]\p{L}+)*'?$/u, '*No special characters except underscores'),
+
+    })
 
     const handleChange = (event: any) => {
         setName(event.target.value);
+        try {
+            schema.validateSync({ 'name': event.target.value })
+            setError({
+                'error': false,
+                'message': ''
+            })
+        }
+        catch (err) {
+            setError({
+                'error': true,
+                'message': err.errors[0]
+            })
+
+        }
+
+        // if (name) {
+        //     setError({ 'error': false, 'message': '' })
+        // }
+        // else {
+        //     setError({ 'error': true, 'message': 'error' })
+        // }
     }
 
     const handleClickOpen = (callback: any) => {
@@ -180,15 +214,32 @@ export default function Analyze() {
                             </Grid>
                             <Grid item xs={12}>
                                 <Paper sx={{
-                                    p:2
+                                    p: 2
                                 }}>
-                                    <Grid item xs={12} sm={9} md={6} lg={3} pb={2}>
-                                        <TextField
-                                            label="Run Name"
-                                            fullWidth
-                                            value={name}
-                                            onChange={handleChange}
-                                        />
+                                    <Grid container item xs={12} sm={9} md={6} lg={3} pb={2}
+                                        alignItems="center"
+                                        justifyContent="center"
+                                    >
+                                        <Grid >
+                                            <TextField
+                                                label="Run Name"
+                                                fullWidth
+                                                value={name}
+                                                onChange={handleChange}
+                                                error={error.error}
+                                                helperText={error.message}
+                                            />
+                                        </Grid>
+                                        <Grid >
+                                            <Tooltip title={'Generate a random name'} placement={'right'}>
+                                                <IconButton onClick={() => {
+                                                    let name = getRandomName()
+                                                    setName(name)
+                                                }}>
+                                                    <ShuffleIcon />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Grid>
                                     </Grid>
                                     <Uploader
                                         id={`uppy_${upload?.label}`}
@@ -201,8 +252,8 @@ export default function Analyze() {
                                         }
                                         updateParentSubId={updateParentSubId}
                                         plugins={upload?.plugins}
-                                        height={'40vh'}
                                         width={'100%'}
+                                        disabled={error.error}
                                     />
                                 </Paper>
 
