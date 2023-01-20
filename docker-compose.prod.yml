@@ -4,8 +4,8 @@ name: aligndx
 services:
 
   nginx:
-    build: ./nginx
-    image: evgeniy-khyst/nginx
+    build: 
+      context: ./nginx
     ports:
       - "80:80"
       - "443:443"
@@ -15,7 +15,6 @@ services:
       - letsencrypt_certs:/etc/letsencrypt
       - certbot_acme_challenge:/var/www/certbot
       - ./vhosts:/etc/nginx/vhosts
-      - ./html:/var/www/html
     environment:
       DOMAINS: ${DOMAINS}
       CERTBOT_EMAILS: ${CERTBOT_EMAILS}
@@ -23,15 +22,20 @@ services:
       CERTBOT_RSA_KEY_SIZE: ${CERTBOT_RSA_KEY_SIZE}
 
   certbot:
-    build: ./certbot
-    image: evgeniy-khyst/certbot
+    build: 
+      context: ./certbot
     volumes:
       - letsencrypt_certs:/etc/letsencrypt
       - certbot_acme_challenge:/var/www/certbot
+    environment:
+      DOMAINS: ${DOMAINS}
+      CERTBOT_EMAILS: ${CERTBOT_EMAILS}
+      CERTBOT_TEST_CERT: ${CERTBOT_TEST_CERT}
+      CERTBOT_RSA_KEY_SIZE: ${CERTBOT_RSA_KEY_SIZE}
 
   cron:
-    build: ./cron
-    image: evgeniy-khyst/cron
+    build: 
+      context: cron
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -98,8 +102,6 @@ services:
       NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
       REDIS_URL: ${REDIS_URL}
       PROJECT_PATH: ${PROJECT_PATH}
-
-      NODE_ENV: ${NODE_ENV}
 
   # client
   frontend:
@@ -184,5 +186,6 @@ volumes:
   db-data:
   pgadmin-data:
   redis-data:
-
-
+  nginx_conf:
+  letsencrypt_certs:
+  certbot_acme_challenge:

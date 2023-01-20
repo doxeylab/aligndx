@@ -27,6 +27,7 @@ app = FastAPI(
     title="AlignDX",
     description="This is the restful API for the AlignDX application. Here you will find the auto docs genereated for the API endpoints",
     version="1.0", 
+    root_path="/api/"
 )
 
 @app.on_event('startup')
