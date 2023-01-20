@@ -25,7 +25,7 @@ interface UploaderProps {
     id: string;
     meta?: Record<string, unknown>;
     plugins?: string[];
-    fileTypes?: string[];
+    fileTypes?: Record<string, unknown>;
     disabled?: boolean;
     [dashProps: string]: any;
 }
@@ -49,6 +49,8 @@ export default function Uploader(props: UploaderProps) {
     const createSubmission = useUploads();
     const { refresh } = useRefresh();
 
+    const allowed_extensions = fileTypes?.allowed
+
     const uppy = useUppy(() => {
         const uppy = new Uppy({
             id: id,
@@ -59,9 +61,19 @@ export default function Uploader(props: UploaderProps) {
                 maxFileSize: null,
                 maxTotalFileSize: null,
                 maxNumberOfFiles: null,
-                allowedFileTypes: (fileTypes ? fileTypes : null),
+                allowedFileTypes: (fileTypes ? allowed_extensions : null),
             },
             meta: (meta ? meta : {}),
+            onBeforeFileAdded: (currentFile: any, files: any) => {
+                if (fileTypes?.match.some((s: string) => currentFile.name.endsWith(s)) != true) {
+                    // log to console
+                    uppy.log(`Invalid filetype`)
+                    // show error message to the user
+                    uppy.info(`Invalid filetype`, 'error', 500)
+                    return false
+                }
+            },
+            infoTimeout: 6000
         })
             .use(Tus, {
                 limit: 0,
@@ -71,14 +83,14 @@ export default function Uploader(props: UploaderProps) {
                     const token = JSON.parse(localStorage.getItem('auth') || '')['accessToken']
                     req.setHeader('Authorization', `Bearer ${token}`)
                 },
-                onShouldRetry( err: any, retryAttempt: any, options: any, next: any) {
+                onShouldRetry(err: any, retryAttempt: any, options: any, next: any) {
                     const status = err?.originalResponse?.getStatus()
                     if (status === 401) {
                         return true
                     }
                     return next(err)
                 },
-                async onAfterResponse( req : any, res :any) {
+                async onAfterResponse(req: any, res: any) {
                     if (res.getStatus() === 401) {
                         await refresh()
                     }
@@ -112,6 +124,7 @@ export default function Uploader(props: UploaderProps) {
                 plugins={plugins}
                 theme={'dark'}
                 {...dashProps}
+                note={`${fileTypes?.match.join(', ')}`}
                 proudlyDisplayPoweredByUppy={false}
             />
         }

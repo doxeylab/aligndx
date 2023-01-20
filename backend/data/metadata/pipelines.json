@@ -5,12 +5,20 @@
         "categories": [
             "rna-seq"
         ],
-        "fileTypes": [
-            ".fastq.gz",
-            ".fastq",
-            ".fq.gz",
-            ".fq"
-        ],
+        "fileTypes": {
+            "allowed": [
+                ".fastq",
+                ".fq",
+                "application/gzip",
+                "application/x-gzip"
+            ],
+            "match": [
+                ".fastq.gz",
+                ".fq.gz",
+                ".fastq",
+                ".fq"
+            ]
+        },
         "pluginType": "regular",
         "description": "Taxonomic profiling of mNGS datasets",
         "repository": "mshunjan/metasense",
