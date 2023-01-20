@@ -5,7 +5,7 @@ services:
 
   nginx:
     build: 
-      context: ./nginx
+      context: ./proxy/nginx
     ports:
       - "80:80"
       - "443:443"
@@ -14,7 +14,7 @@ services:
       - nginx_conf:/etc/nginx/sites
       - letsencrypt_certs:/etc/letsencrypt
       - certbot_acme_challenge:/var/www/certbot
-      - ./vhosts:/etc/nginx/vhosts
+      - ./proxy/vhosts:/etc/nginx/vhosts
     environment:
       DOMAINS: ${DOMAINS}
       CERTBOT_EMAILS: ${CERTBOT_EMAILS}
@@ -23,7 +23,7 @@ services:
 
   certbot:
     build: 
-      context: ./certbot
+      context: ./proxy/certbot
     volumes:
       - letsencrypt_certs:/etc/letsencrypt
       - certbot_acme_challenge:/var/www/certbot
@@ -35,7 +35,7 @@ services:
 
   cron:
     build: 
-      context: cron
+      context: ./proxy/cron
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
