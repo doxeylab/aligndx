@@ -1,13 +1,19 @@
-export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_ACCESS_URL
-// const BASE_URL_RAW = process.env.NEXT_PUBLIC_BASE_URL
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
-export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL + ':8080'
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_ACCESS_URL
 export const COMPANION_URL = process.env.NEXT_PUBLIC_COMPANION_URL
 export const TUS_ENDPOINT = process.env.NEXT_PUBLIC_TUS_ENDPOINT
 
+function socketMapper(url: string) {
+    let socket_url = ""
 
-// allowed filetypes
-export const ALLOWED_FILETYPES = ".fastq, .fastq.gz"
+    if (url.includes("https://")) {
+        socket_url = BACKEND_URL?.replace(/https/, "wss") || ""
+    }
+    else {
+        socket_url = BACKEND_URL?.replace(/http/, "ws") || ""
+    }
+    return socket_url
+}
 
-// miscellaneous for now
-export const CHUNK_SIZE = 8000000
+export const SOCKET_URL = socketMapper(BACKEND_URL || "")

@@ -39,7 +39,7 @@ services:
       REDIS_URL: ${REDIS_URL}
       PROJECT_PATH: ${PROJECT_PATH}
 
-    # Task Managment Executor
+  # Task Managment Executor
   celery_worker:
     build:
       context: backend
@@ -78,7 +78,6 @@ services:
       - ./frontend/:/opt/app
       - /opt/app/node_modules
     environment:
-      NODE_ENV: development
       NEXT_PUBLIC_BASE_URL: ${BASE_URL}
       NEXT_PUBLIC_BACKEND_ACCESS_URL: ${API_URL}
       NEXT_PUBLIC_TUS_ENDPOINT: ${TUS_ENDPOINT}

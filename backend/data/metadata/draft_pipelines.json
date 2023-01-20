@@ -36,5 +36,33 @@
             "CUSTOM_DUMPSOFTWAREVERSIONS": "",
             "MULTIQC": ""
         }
+    },
+    "visuflow": {
+        "id": "visuflow",
+        "name": "VisuFlow",
+        "categories": [
+            "lfa"
+        ],
+        "pluginType": "visual",
+        "description": "Lateral flow assay image detection",
+        "repository": "mshunjan/visuflow",
+        "fileTypes": [
+            ".jpg",
+            ".jpeg",
+            ".png"
+        ],
+        "user_inputs": {
+            "input": {
+                "command": "--input",
+                "mandatory": true
+            }
+        },
+        "predefined_inputs": [
+            ""
+        ],
+        "report": "multiqc/multiqc_report.html",
+        "processes": {
+            "test": ""
+        }
     }
 }

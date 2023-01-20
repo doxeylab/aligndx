@@ -6,7 +6,7 @@ interface FormTextFieldProps {
     label: string;
     type: string;
     autoComplete?: string;
-    hint?: any;
+    hint?: string;
 }
 
 const FormTextField = ({name, label, type, autoComplete, hint } : FormTextFieldProps) => {
@@ -16,7 +16,7 @@ const FormTextField = ({name, label, type, autoComplete, hint } : FormTextFieldP
             name={name}
             control={methods?.control}
             defaultValue=""
-            render={({ field }) =>
+            render={({ field } : any) =>
                 <>
                     <StyledTextField
                         {...field} 
