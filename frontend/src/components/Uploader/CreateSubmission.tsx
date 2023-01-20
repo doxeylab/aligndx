@@ -2,7 +2,7 @@
 import { BasePlugin, PluginOptions } from '@uppy/core'
 import axios from 'axios'
 // @ts-ignore
-import { BASE_URL } from "../../config/Settings"
+import { BACKEND_URL } from "../../config/Settings"
 
 interface CreateSubmissionOptions extends PluginOptions {
     meta: any;
@@ -65,7 +65,7 @@ export default class CreateSubmission extends BasePlugin<CreateSubmissionOptions
         }
       }
 
-      const result = axios.post(`${BASE_URL}/uploads/start`, data, config)
+      const result = axios.post(`${BACKEND_URL}/uploads/start`, data, config)
         .then((response: any) => {
           const subId = response.data['sub_id']
           this.updateParentSubId(subId)
@@ -78,7 +78,7 @@ export default class CreateSubmission extends BasePlugin<CreateSubmissionOptions
               Authorization: `Bearer ${newToken}`
             }
           }
-          const refreshResult = axios.post(`${BASE_URL}/uploads/start`, data, config).then((response : any) => {
+          const refreshResult = axios.post(`${BACKEND_URL}/uploads/start`, data, config).then((response : any) => {
             const subId = response.data['sub_id']
             this.updateParentSubId(subId)
             return subId

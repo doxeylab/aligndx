@@ -124,6 +124,7 @@ services:
     image: tusproject/tusd
     command: -upload-dir=/data/uploads --hooks-http http://backend:8080/uploads/tusd -hooks-http-forward-headers Authorization
     tty: true
+    user: 0:0
     expose:
       - 1080
     volumes:
@@ -141,6 +142,8 @@ services:
       COMPANION_HIDE_WELCOME: true 
       COMPANION_HIDE_METRICS: true 
       COMPANION_STREAMING_UPLOAD: true
+      COMPANION_PROTOCOL: ${COMPANION_PROTOCOL}
+      COMPANION_IMPLICIT_PATH: ${COMPANION_IMPLICIT_PATH} 
       COMPANION_DOMAIN: ${COMPANION_DOMAIN}
       COMPANION_SECRET: ${COMPANION_SECRET}
       COMPANION_DATADIR: ${COMPANION_DATADIR}

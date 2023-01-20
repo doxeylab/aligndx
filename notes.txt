@@ -9,3 +9,6 @@ docker-compose --profile monitoring up service
 
 To checkout psql via commandline:
 psql -d aligndx_data -U aligndx_dev
+
+To reload nginx if needed
+docker-compose -f docker-compose.prod.yml exec --no-TTY nginx nginx -s reload

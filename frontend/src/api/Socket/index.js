@@ -1,9 +1,7 @@
-import { BACKEND_URL } from "../../config/Settings"
+import { SOCKET_URL } from "../../config/Settings"
 import { useAuthContext } from "../../context/AuthProvider"
 
-const base_ws_url = "ws"
-const socket_url = BACKEND_URL + "livestatus"
-const WEBSOCKET_URL = socket_url.replace(/http/, base_ws_url)
+const WEBSOCKET_URL = SOCKET_URL + "livestatus"
 
 const useWebSocket = () => {
     const context = useAuthContext()

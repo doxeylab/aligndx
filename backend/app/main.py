@@ -114,7 +114,7 @@ app.include_router(
 
 @app.get("/")
 async def root():
-    return RedirectResponse(url='/docs')
+    return RedirectResponse(url='/api/docs')
 
 
 @app.get("/api/v1")
