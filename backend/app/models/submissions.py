@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import datetime
 
-from app.models.schemas.base_schema import BaseSchema
+from .base_schema import BaseSchema
 
 
 class Base(BaseSchema):

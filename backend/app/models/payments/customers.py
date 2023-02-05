@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import datetime
 from typing import Optional
-from app.models.schemas.base_schema import BaseSchema
+from ..base_schema import BaseSchema
 
 #  -- Customers Schema -- 
 

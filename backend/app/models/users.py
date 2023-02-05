@@ -1,7 +1,7 @@
 from uuid import UUID
-
-from app.models.schemas.base_schema import BaseSchema
 from typing import Optional
+from .base_schema import BaseSchema
+
 
 class UserBase(BaseSchema):
     name: str
