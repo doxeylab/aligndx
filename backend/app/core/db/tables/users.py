@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
-from app.db.tables.base import Base
+from .base import Base
 
 class Users(Base):
     __tablename__ = "users"

@@ -1,7 +1,7 @@
 from typing import Type
 
-from app.db.dals.base_dal import BaseDal
-from app.db.tables.phi_logs import UploadLogs, DeletionLogs 
+from .base_dal import BaseDal
+from ..tables.phi_logs import UploadLogs, DeletionLogs 
 
 from sqlalchemy import select
 #  -- UploadLogs DAL -- 

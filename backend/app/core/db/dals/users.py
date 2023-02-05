@@ -1,7 +1,7 @@
-from typing import Type, List
+from typing import Type
 
-from app.db.dals.base_dal import BaseDal
-from app.db.tables.users import Users
+from .base_dal import BaseDal
+from ..tables.users import Users
 
 from sqlalchemy import select
 

@@ -1,27 +1,21 @@
-# python
 import os 
 import logging 
 
-# fastapi
 from fastapi import FastAPI, Depends, status
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 
-# auth
 from app.auth.auth_dependencies import get_current_user, ValidateService
 
-# routers
-from app.routers import users, uploads, submissons, sockets, metadata, celery
-from app.routers.payments import payments, stripe_webhooks
+from app.api.routers import users, uploads, submissons, sockets, metadata, celery
+from app.api.routers.payments import payments, stripe_webhooks
 
 # utils
-from app import utils
+from app.core import utils
 
 # settings
-from app.config.settings import get_settings
-
-from app.redis.base import r 
+from app.core.config.settings import get_settings
 
 app = FastAPI(
     title="AlignDX",
@@ -127,7 +121,7 @@ async def root():
     settings = get_settings()
     return {"key": settings.stripe_publishable_key}
 
-from app.db.session import engine
+from app.core.db.session import engine
 @app.on_event("shutdown")
 async def close_database_connection_pools() -> None:
     await engine.dispose()

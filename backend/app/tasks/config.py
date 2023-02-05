@@ -1,4 +1,4 @@
-from app.config.settings import settings
+from app.core.config.settings import settings
 
 # broker url
 broker_url = settings.BROKER_URL

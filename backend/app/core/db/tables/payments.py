@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, String, Boolean, Float
 from sqlalchemy.dialects.postgresql import UUID
 
-from app.db.tables.base import Base
+from .base import Base
 
 class Customers(Base):
     __tablename__ = "customers"

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 
-from app.db.tables.base import Base
+from .base import Base
 
 class UploadLogs(Base):
     __tablename__ = "upload_logs"

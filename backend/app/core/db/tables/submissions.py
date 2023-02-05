@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, ForeignKey, TIMESTAMP, ARRAY
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from app.db.tables.base import Base
+from .base import Base
 
 class Submissions(Base):
     __tablename__ = "submissions"

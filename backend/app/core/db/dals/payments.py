@@ -1,7 +1,7 @@
 from typing import Type
 from sqlalchemy import select
-from app.db.dals.base_dal import BaseDal
-from app.db.tables.payments import Customers, Subscriptions, Invoices, Plans
+from .base_dal import BaseDal
+from ..tables.payments import Customers, Subscriptions, Invoices, Plans
 
 #  -- Customers DAL -- 
 
