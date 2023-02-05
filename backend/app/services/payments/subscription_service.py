@@ -7,10 +7,12 @@ from app.auth.models import UserDTO
 from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, CreateNewSubscription, UpdateInitialSubscription, UpdateItemsAfterPaymentSuccess, SetAutoRenew, SubCancelResponse, UpdateItemsAfterCancel, UpgradeSubscription, DowngradeSubscription, CancelDowngradeSubscription, ProcessDowngradeSubscription, UpdateData
 
 # Services
-from app.services import stripe_service, customer_service, plans_service
+from app.services import stripe_service, plans_service
 
 # Utils
 from datetime import datetime
+
+from backend.app.services.payments import customer_service
 
 async def create_subscription(current_user: UserDTO, req: CreateSubscriptionRequest, db):
     """

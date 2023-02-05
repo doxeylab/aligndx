@@ -1,5 +1,5 @@
 from celery import Celery
-from app.tasks.tasks import *
+from .tasks import update_metadata, retrieve, cleanup, status_update, status_check
 
 app = Celery('Tasks')
 app.config_from_object('app.services.celery.config')

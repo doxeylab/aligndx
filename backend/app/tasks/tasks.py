@@ -1,7 +1,7 @@
 import requests
 import shutil, os
 from app.models.redis import MetaModel
-from app.services.redis.functions import Handler
+from .redis.functions import Handler
 from app.services.containers import client
 from celery import shared_task
 

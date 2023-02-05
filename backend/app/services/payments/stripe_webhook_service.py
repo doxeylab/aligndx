@@ -1,4 +1,5 @@
-from app.services import invoice_service, subscription_service, stripe_service, customer_service
+from app.services import invoice_service, subscription_service, stripe_service
+from backend.app.services.payments import customer_service
 
 async def handle_invoice_pmt_succeeded(db, req):
     """

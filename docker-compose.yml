@@ -49,7 +49,7 @@ services:
     depends_on:
       - backend
       - redis
-    command: sh -c "celery -A app.celery.tasks worker -l info"
+    command: sh -c "celery -A app.tasks.tasks worker -l info -E"
     tty: true
     volumes:
       - ./backend/app:${PROJECT_PATH}/app 
@@ -85,7 +85,7 @@ services:
 
   tusd:
     image: tusproject/tusd
-    command: -upload-dir=/data/uploads --hooks-http http://backend:8080/uploads/tusd -hooks-http-forward-headers Authorization
+    command: -upload-dir=/data/uploads --hooks-http http://backend:8080/webhooks/tus -hooks-http-forward-headers Authorization
     tty: true
     ports:
       - "1080:1080"

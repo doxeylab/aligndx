@@ -6,15 +6,12 @@ from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 
-from app.auth.auth_dependencies import get_current_user, ValidateService
+from app.services.auth.auth_dependencies import get_current_user 
 
-from app.api.routers import users, uploads, submissons, sockets, metadata, celery
-from app.api.routers.payments import payments, stripe_webhooks
+from app.api.routers import users, submissons, sockets, metadata, payments, webhooks
 
-# utils
 from app.core import utils
 
-# settings
 from app.core.config.settings import get_settings
 
 app = FastAPI(
@@ -55,42 +52,23 @@ app.include_router(
     users.router,
     prefix="/users",
     tags=["Users"],
+    # include_in_schema=False,
     responses={408: {"description": "Ain't gonna work buddy"}},
 )
-
-app.include_router(
-    uploads.router,
-    prefix="/uploads",
-    tags=["Uploads"],
-    dependencies=[Depends(get_current_user)],
-    responses={418: {"description": "I'm a teapot"}},
-)
-
+ 
 app.include_router(
     submissons.router,
     prefix="/submissions",
     tags=["Submissions"],
     dependencies=[Depends(get_current_user)],
-    responses={418: {"description": "I'm a teapot"}},
 )
 
 app.include_router(
     payments.router,
     prefix="/payments",
     tags=["Payments"],
+    # include_in_schema=False,
     dependencies=[Depends(get_current_user)],
-    responses={418: {"description": "I'm a teapot"}},
-)
-
-app.include_router(
-    stripe_webhooks.router,
-    prefix="/webhooks/stripe",
-    tags=["Stripe Webhooks"],
-    responses={418: {"description": "I'm a teapot"}},
-)
-
-app.include_router(
-    sockets.router
 )
 
 app.include_router(
@@ -100,10 +78,14 @@ app.include_router(
 )
 
 app.include_router(
-    celery.router,
-    prefix="/celery",
-    tags=["Celery"],
-    dependencies=[Depends(ValidateService("celery"))],
+    sockets.router
+)
+ 
+app.include_router(
+    webhooks.router,
+    prefix="/webhooks",
+    # include_in_schema=False,
+    tags=["Webhooks"]
 )
 
 @app.get("/")

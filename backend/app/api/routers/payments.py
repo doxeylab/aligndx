@@ -11,9 +11,11 @@ from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest,
 from app.models.schemas.payments.plans import AllPlansResponse
 
 # Services
-from app.services import subscription_service, customer_service, plans_service, settings_page_service
+from app.services import subscription_service, plans_service, settings_page_service
 from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from backend.app.services.payments import customer_service
 
 router = APIRouter()
 

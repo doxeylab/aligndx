@@ -1,4 +1,4 @@
-from app.redis.base import r  
+from .base import r  
 import json
  
 class Handler:
