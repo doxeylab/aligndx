@@ -8,19 +8,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse, HTMLResponse
 
-from app.auth.models import UserDTO
-from app.models.schemas import submissions
-from app.auth.auth_dependencies import get_current_user
-from app.db.dals.submissions import SubmissionsDal
-
+from app.models import auth, submissions
 from app.services.db import get_db 
-from app.config.settings import settings
+from app.services.auth import get_current_user
+from app.core.db.dals.submissions import SubmissionsDal
+from app.core.config.settings import settings
 
 
 router = APIRouter()
 
 @router.get('/{sub_id}')
-async def get_submission(sub_id : str ,current_user: UserDTO = Depends(get_current_user),
+async def get_submission(sub_id : str ,current_user: auth.UserDTO = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -35,7 +33,7 @@ async def get_submission(sub_id : str ,current_user: UserDTO = Depends(get_curre
         raise HTTPException(status_code=404, detail="Item not found")
 
 @router.get('/all/')
-async def get_all_submissions(current_user: UserDTO = Depends(get_current_user),
+async def get_all_submissions(current_user: auth.UserDTO = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -50,7 +48,7 @@ async def get_all_submissions(current_user: UserDTO = Depends(get_current_user),
     return data
 
 @router.get('/incomplete/')
-async def get_incomplete_submissions(current_user: UserDTO = Depends(get_current_user), 
+async def get_incomplete_submissions(current_user: auth.UserDTO = Depends(get_current_user), 
     db: AsyncSession = Depends(get_db)
 ):
     sub_dal = SubmissionsDal(db) 
@@ -59,7 +57,7 @@ async def get_incomplete_submissions(current_user: UserDTO = Depends(get_current
 
 
 @router.post('/delete')
-async def del_result(ids: List[str], current_user: UserDTO = Depends(get_current_user),  db: AsyncSession = Depends(get_db)):
+async def del_result(ids: List[str], current_user: auth.UserDTO = Depends(get_current_user),  db: AsyncSession = Depends(get_db)):
 
     sub_dal = SubmissionsDal(db)
     for id in ids:
@@ -71,7 +69,7 @@ async def del_result(ids: List[str], current_user: UserDTO = Depends(get_current
     return 200 
 
 @router.get('/report/{sub_id}', response_class=HTMLResponse) 
-async def get_report(sub_id: str, current_user: UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_report(sub_id: str, current_user: auth.UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
 
     # get submission data from db
     sub_dal = SubmissionsDal(db)
@@ -112,7 +110,7 @@ def zip_dir(zip_subdir, name):
         )
 
 @router.get('/download/{sub_id}', response_class=StreamingResponse) 
-async def download(sub_id: str, current_user: UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def download(sub_id: str, current_user: auth.UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     # get submission data from db
     sub_dal = SubmissionsDal(db)
     query = await sub_dal.get_submission(current_user.id, sub_id)

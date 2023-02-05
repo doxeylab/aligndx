@@ -1,29 +1,19 @@
-# FastAPI
 from typing import Union
 from fastapi import APIRouter, Depends, status, HTTPException
-
-# auth components
-from app.services.auth.models import UserDTO
-from app.services.auth.auth_dependencies import get_current_user
-
-# Payments Schemas
-from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, ChangePlanRequest, SubscriptionDTO
-from app.models.schemas.payments.plans import AllPlansResponse
-
-# Services
-from app.services.payments import subscription_service, plans_service, settings_page_service
-from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.services.payments import customer_service
+from app.models import auth, payments
+from app.services.payments import subscription_service, plans_service, settings_page_service, customer_service
+from app.services.db import get_db
+from app.services.auth import get_current_user
 
 router = APIRouter()
 
 # Create new subscription: POST /payments/subscriptions
 @router.post("/subscriptions", status_code=status.HTTP_201_CREATED)
 async def create_subscription(
-        request: CreateSubscriptionRequest,
-        current_user: UserDTO = Depends(get_current_user),
+        request: payments.subscriptions.CreateSubscriptionRequest,
+        current_user: auth.UserDTO = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
     ):
     """
@@ -34,9 +24,9 @@ async def create_subscription(
     return {"client_secret": res}
 
 # Get active subscription: GET /payments/subscriptions
-@router.get("/subscriptions", response_model=Union[SubscriptionDTO, None])
+@router.get("/subscriptions", response_model=Union[payments.subscriptions.SubscriptionDTO, None])
 async def get_active_subscription(
-        current_user: UserDTO = Depends(get_current_user),
+        current_user: auth.UserDTO = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
     ):
     """
@@ -46,7 +36,7 @@ async def get_active_subscription(
 # Get a client secret to render Payment Element
 @router.get("/update-card/secret")
 async def payment_card_secret(
-    current_user: UserDTO = Depends(get_current_user),
+    current_user: auth.UserDTO = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -59,7 +49,7 @@ async def payment_card_secret(
 # Cancel Subscription - DELETE /payments/subscriptions
 @router.delete("/subscriptions")
 async def cancel_subscription(
-    current_user: UserDTO = Depends(get_current_user),
+    current_user: auth.UserDTO = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -74,7 +64,7 @@ async def cancel_subscription(
 # Reactivate Subscription - PUT /payments/subscriptions
 @router.put("/subscriptions")
 async def reactivate_subscription(
-    current_user: UserDTO = Depends(get_current_user),
+    current_user: auth.UserDTO = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -89,8 +79,8 @@ async def reactivate_subscription(
 # Upgrade/downgrade subscription: PUT /payments/subscriptions/change-plan
 @router.put("/subscriptions/change-plan", status_code=status.HTTP_200_OK)
 async def change_plan(
-        request: ChangePlanRequest,
-        current_user: UserDTO = Depends(get_current_user),
+        request: payments.subscriptions.ChangePlanRequest,
+        current_user: auth.UserDTO = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
     """
@@ -109,7 +99,7 @@ async def change_plan(
 # Cancel downgrade subscription: DELETE /payments/subscriptions/change-plan
 @router.delete("/subscriptions/change-plan", status_code=status.HTTP_200_OK)
 async def cancel_downgrade(
-        current_user: UserDTO = Depends(get_current_user),
+        current_user: auth.UserDTO = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
     """
@@ -123,7 +113,7 @@ async def cancel_downgrade(
     return {"response": res}
 
 # GET: /payments/plans
-@router.get("/plans", response_model=AllPlansResponse)
+@router.get("/plans", response_model=payments.plans.AllPlansResponse)
 async def get_plans(db: AsyncSession = Depends(get_db)):
     """
     Returns all available plans offered at this time.
@@ -134,7 +124,7 @@ async def get_plans(db: AsyncSession = Depends(get_db)):
 # Settings Page Endpoint: GET /payments/settings
 @router.get("/settings")
 async def settings_page(
-    current_user: UserDTO = Depends(get_current_user),
+    current_user: auth.UserDTO = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """

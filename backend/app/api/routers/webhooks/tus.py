@@ -3,14 +3,13 @@ from http.client import HTTPException
 from fastapi import APIRouter, HTTPException, Request
 from fastapi import Depends
 
-from app.auth.models import UserDTO
-from app.auth.auth_dependencies import get_current_user
-from app.models import submissions
+from app.services.auth import get_current_user
+from app.models import submissions, auth
 
-from app.db.dals.submissions import SubmissionsDal  
+from app.core.db.dals.submissions import SubmissionsDal  
 from app.services.db import get_db 
-from app.services.celery import retrieve, update_metadata 
-from app.config.settings import settings
+from app.tasks import retrieve, update_metadata 
+from app.core.config.settings import settings
 
 import shutil
 
@@ -21,7 +20,7 @@ router = APIRouter()
 @router.post("/")
 async def tusd(  
     request: Request,
-    current_user: UserDTO = Depends(get_current_user),
+    current_user: auth.UserDTO = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):  
     headers = request.headers.get('hook-name')

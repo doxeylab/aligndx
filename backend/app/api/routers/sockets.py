@@ -1,21 +1,19 @@
 import os, asyncio
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastapi import APIRouter, Depends 
 from fastapi import WebSocket
 from starlette.websockets import WebSocketDisconnect 
 
-from app.auth.auth_dependencies import get_current_user_ws
-from app.models.schemas import submissions
+from app.services.auth import get_current_user_ws
+from app.services import web_socket
+from app.models import submissions
 
-from app.db.dals.submissions import SubmissionsDal
+from app.core.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db 
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.scripts.web_socket.manager import ConnectionManager
-from app.celery.tasks import retrieve
-
-from app.config.settings import settings
+from app.tasks import retrieve
+from app.core.config.settings import settings
 
 UPLOAD_FOLDER = settings.UPLOAD_FOLDER
 RESULTS_FOLDER = settings.RESULTS_FOLDER 
@@ -24,7 +22,7 @@ router = APIRouter()
 
 # -- chunked upload results --
 
-manager = ConnectionManager()
+manager = web_socket.manager.ConnectionManager()
 
 class Chunk_id(BaseModel):
     account_id: str 

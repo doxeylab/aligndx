@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from app.services.auth.auth_dependencies import get_current_user, ValidateService
+from app.services.auth import get_current_user, ValidateService
 from . import celery, tus, stripe
 
 router = APIRouter()

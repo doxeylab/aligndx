@@ -1,8 +1,7 @@
-
+import pandas as pd 
 from fastapi import APIRouter 
 
 from app.core.config.settings import settings
-import pandas as pd 
 
 router = APIRouter()
 

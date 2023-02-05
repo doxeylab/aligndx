@@ -1,16 +1,14 @@
-from base64 import encode
-from app.models.schemas.users import UserPassword, UserSchema, UserDTO, UserTemp, UserInDB, RefreshRequest, TokenData, User
-from app.db.dals.users import UsersDal  
+from app.models.users import UserSchema, UserDTO, UserTemp, UserInDB, TokenData, User
+from app.core.db.dals.users import UsersDal  
 from app.services.db import get_db 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from datetime import datetime, timedelta
-from typing import Optional 
 
-from fastapi import Depends, HTTPException, status, Header
+from fastapi import Depends, HTTPException, status
 from jose import JWTError, ExpiredSignatureError, jwt
 
-from app.config.settings import settings
+from app.core.config.settings import settings
 
 oauth2_scheme_auto_error = settings.oauth2_scheme_auto_error
 oauth2_scheme = settings.oauth2_scheme

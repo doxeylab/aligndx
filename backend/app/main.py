@@ -6,10 +6,9 @@ from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 
-from app.services.auth.auth_dependencies import get_current_user 
-
 from app.api.routers import users, submissons, sockets, metadata, payments, webhooks
 
+from app.services.auth import get_current_user
 from app.core import utils
 
 from app.core.config.settings import get_settings
