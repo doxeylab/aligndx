@@ -2,7 +2,7 @@
 from fastapi import HTTPException, status
 
 # Settings
-from app.config.settings import settings
+from app.core.config.settings import settings
 
 # Stripe
 import stripe

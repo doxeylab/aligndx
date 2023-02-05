@@ -1,7 +1,7 @@
-from app.services import subscription_service, plans_service, invoice_service
+from app.services.payments import subscription_service, plans_service, invoice_service
 from app.models.schemas.payments.settings_page import AdminSettingsPageResponse, NonAdminSettingsPageResponse
-from app.db.dals.users import UsersDal
-from app.auth.models import UserDTO
+from app.core.db.dals.users import UsersDal
+from app.services.auth.models import UserDTO
 from fastapi import status, HTTPException
 
 from backend.app.services.payments import customer_service

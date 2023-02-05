@@ -2,12 +2,12 @@
 from fastapi import HTTPException, status
 
 # Database Models & DAL
-from app.db.dals.payments import SubscriptionsDal, PlansDal
-from app.auth.models import UserDTO
+from app.core.db.dals.payments import SubscriptionsDal, PlansDal
+from app.services.auth.models import UserDTO
 from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, CreateNewSubscription, UpdateInitialSubscription, UpdateItemsAfterPaymentSuccess, SetAutoRenew, SubCancelResponse, UpdateItemsAfterCancel, UpgradeSubscription, DowngradeSubscription, CancelDowngradeSubscription, ProcessDowngradeSubscription, UpdateData
 
 # Services
-from app.services import stripe_service, plans_service
+from app.services.payments import stripe_service, plans_service
 
 # Utils
 from datetime import datetime

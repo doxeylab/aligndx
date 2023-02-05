@@ -1,6 +1,6 @@
 # Schemas & DAL
 from app.models.schemas.payments.invoices import CreateNewInvoice
-from app.db.dals.payments import InvoicesDal
+from app.core.db.dals.payments import InvoicesDal
 
 # Utils
 from datetime import datetime

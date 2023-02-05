@@ -1,5 +1,5 @@
 # Schemas & DAL
-from app.db.dals.payments import PlansDal
+from app.core.db.dals.payments import PlansDal
 
 async def get_all_plans(db):
     '''

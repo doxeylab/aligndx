@@ -3,15 +3,15 @@ from typing import Union
 from fastapi import APIRouter, Depends, status, HTTPException
 
 # auth components
-from app.auth.models import UserDTO
-from app.auth.auth_dependencies import get_current_user
+from app.services.auth.models import UserDTO
+from app.services.auth.auth_dependencies import get_current_user
 
 # Payments Schemas
 from app.models.schemas.payments.subscriptions import CreateSubscriptionRequest, ChangePlanRequest, SubscriptionDTO
 from app.models.schemas.payments.plans import AllPlansResponse
 
 # Services
-from app.services import subscription_service, plans_service, settings_page_service
+from app.services.payments import subscription_service, plans_service, settings_page_service
 from app.services.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
