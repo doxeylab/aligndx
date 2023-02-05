@@ -16,8 +16,7 @@ from app.core.config.settings import get_settings
 app = FastAPI(
     title="AlignDX",
     description="This is the restful API for the AlignDX application. Here you will find the auto docs genereated for the API endpoints",
-    version="1.0", 
-    root_path="/api/"
+    version="1.0"
 )
 
 @app.on_event('startup')
@@ -52,7 +51,6 @@ app.include_router(
     prefix="/users",
     tags=["Users"],
     # include_in_schema=False,
-    responses={408: {"description": "Ain't gonna work buddy"}},
 )
  
 app.include_router(

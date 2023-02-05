@@ -2,7 +2,7 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from bs4 import BeautifulSoup as bs
-from app.config.settings import settings
+from app.core.config.settings import settings
 import os 
 
 baseURL = settings.base_url
