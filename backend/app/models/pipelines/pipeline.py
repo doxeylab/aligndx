@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List
-from inputs import InputSchema
+from .inputs import InputSchema
 
 class Schema(BaseModel):
     id : str = Field(description='A unique identifier for the pipeline')

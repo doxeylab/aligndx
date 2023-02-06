@@ -1,0 +1,407 @@
+{
+    "title": "Pipelines Schema",
+    "$ref": "#/definitions/Schema",
+    "definitions": {
+        "FileMeta": {
+            "title": "FileMeta",
+            "type": "object",
+            "properties": {
+                "size": {
+                    "title": "Size",
+                    "description": "Size of file in bytes",
+                    "type": "integer"
+                },
+                "status": {
+                    "title": "Status",
+                    "enum": [
+                        "created",
+                        "uploading",
+                        "finished",
+                        "terminated"
+                    ],
+                    "type": "string"
+                }
+            },
+            "required": [
+                "size",
+                "status"
+            ]
+        },
+        "File": {
+            "title": "File",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "Id",
+                    "description": "A unique command identifier",
+                    "type": "string"
+                },
+                "values": {
+                    "title": "Values",
+                    "description": "Input value(s)",
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    }
+                },
+                "status": {
+                    "title": "Status",
+                    "enum": [
+                        "ready",
+                        "pending"
+                    ],
+                    "type": "string"
+                },
+                "title": {
+                    "title": "Title",
+                    "description": "Title for input",
+                    "type": "string"
+                },
+                "description": {
+                    "title": "Description",
+                    "description": "Description for input field",
+                    "type": "string"
+                },
+                "count": {
+                    "title": "Count",
+                    "enum": [
+                        "single",
+                        "multiple"
+                    ],
+                    "type": "string"
+                },
+                "optional": {
+                    "title": "Optional",
+                    "description": "Boolean flag to describe input as optional or not",
+                    "type": "boolean"
+                },
+                "input_type": {
+                    "title": "Input Type",
+                    "enum": [
+                        "file"
+                    ],
+                    "type": "string"
+                },
+                "file_types": {
+                    "title": "File Types",
+                    "description": "Allowed file_types for input",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "file_meta": {
+                    "title": "File Meta",
+                    "description": "File metadata",
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/FileMeta"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "title",
+                "description",
+                "count",
+                "optional",
+                "input_type",
+                "file_types"
+            ]
+        },
+        "Select": {
+            "title": "Select",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "Id",
+                    "description": "A unique command identifier",
+                    "type": "string"
+                },
+                "values": {
+                    "title": "Values",
+                    "description": "Input value(s)",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "title": "Status",
+                    "enum": [
+                        "ready",
+                        "pending"
+                    ],
+                    "type": "string"
+                },
+                "title": {
+                    "title": "Title",
+                    "description": "Title for input",
+                    "type": "string"
+                },
+                "description": {
+                    "title": "Description",
+                    "description": "Description for input field",
+                    "type": "string"
+                },
+                "count": {
+                    "title": "Count",
+                    "enum": [
+                        "single",
+                        "multiple"
+                    ],
+                    "type": "string"
+                },
+                "optional": {
+                    "title": "Optional",
+                    "description": "Boolean flag to describe input as optional or not",
+                    "type": "boolean"
+                },
+                "input_type": {
+                    "title": "Input Type",
+                    "enum": [
+                        "select"
+                    ],
+                    "type": "string"
+                },
+                "options": {
+                    "title": "Options",
+                    "description": "List of options for this input",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "metadata": {
+                    "title": "Metadata",
+                    "description": "CSV providing metadata on the options",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "title",
+                "description",
+                "count",
+                "optional",
+                "input_type",
+                "options",
+                "metadata"
+            ]
+        },
+        "Text": {
+            "title": "Text",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "Id",
+                    "description": "A unique command identifier",
+                    "type": "string"
+                },
+                "values": {
+                    "title": "Values",
+                    "description": "Input value(s)",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "title": "Status",
+                    "enum": [
+                        "ready",
+                        "pending"
+                    ],
+                    "type": "string"
+                },
+                "title": {
+                    "title": "Title",
+                    "description": "Title for input",
+                    "type": "string"
+                },
+                "description": {
+                    "title": "Description",
+                    "description": "Description for input field",
+                    "type": "string"
+                },
+                "count": {
+                    "title": "Count",
+                    "enum": [
+                        "single",
+                        "multiple"
+                    ],
+                    "type": "string"
+                },
+                "optional": {
+                    "title": "Optional",
+                    "description": "Boolean flag to describe input as optional or not",
+                    "type": "boolean"
+                },
+                "input_type": {
+                    "title": "Input Type",
+                    "enum": [
+                        "text"
+                    ],
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "title",
+                "description",
+                "count",
+                "optional",
+                "input_type"
+            ]
+        },
+        "PreDefined": {
+            "title": "PreDefined",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "Id",
+                    "description": "A unique command identifier",
+                    "type": "string"
+                },
+                "values": {
+                    "title": "Values",
+                    "description": "Input value(s)",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "title": "Status",
+                    "enum": [
+                        "ready",
+                        "pending"
+                    ],
+                    "type": "string"
+                },
+                "title": {
+                    "title": "Title",
+                    "description": "Title for input",
+                    "type": "string"
+                },
+                "description": {
+                    "title": "Description",
+                    "description": "Description for input field",
+                    "type": "string"
+                },
+                "count": {
+                    "title": "Count",
+                    "enum": [
+                        "single",
+                        "multiple"
+                    ],
+                    "type": "string"
+                },
+                "optional": {
+                    "title": "Optional",
+                    "description": "Boolean flag to describe input as optional or not",
+                    "type": "boolean"
+                },
+                "input_type": {
+                    "title": "Input Type",
+                    "enum": [
+                        "predefined"
+                    ],
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "title",
+                "description",
+                "count",
+                "optional",
+                "input_type"
+            ]
+        },
+        "Schema": {
+            "title": "Schema",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "Id",
+                    "description": "A unique identifier for the pipeline",
+                    "type": "string"
+                },
+                "title": {
+                    "title": "Title",
+                    "description": "Title for pipeline",
+                    "type": "string"
+                },
+                "description": {
+                    "title": "Description",
+                    "description": "Description for the pipeline",
+                    "type": "string"
+                },
+                "categories": {
+                    "title": "Categories",
+                    "description": "List of categories the pipeline may classified under",
+                    "type": "array",
+                    "items": {}
+                },
+                "inputs": {
+                    "title": "Inputs",
+                    "type": "array",
+                    "items": {
+                        "discriminator": {
+                            "propertyName": "input_type",
+                            "mapping": {
+                                "file": "#/definitions/File",
+                                "select": "#/definitions/Select",
+                                "text": "#/definitions/Text",
+                                "predefined": "#/definitions/PreDefined"
+                            }
+                        },
+                        "oneOf": [
+                            {
+                                "$ref": "#/definitions/File"
+                            },
+                            {
+                                "$ref": "#/definitions/Select"
+                            },
+                            {
+                                "$ref": "#/definitions/Text"
+                            },
+                            {
+                                "$ref": "#/definitions/PreDefined"
+                            }
+                        ]
+                    }
+                },
+                "pipeline_type": {
+                    "title": "Pipeline Type",
+                    "description": "The type of pipeline",
+                    "type": "string"
+                },
+                "repository": {
+                    "title": "Repository",
+                    "description": "Repository for this pipeline",
+                    "type": "string"
+                },
+                "report_inputs": {
+                    "title": "Report Inputs",
+                    "description": "Files for report generation",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "title",
+                "description",
+                "categories",
+                "inputs",
+                "pipeline_type",
+                "repository",
+                "report_inputs"
+            ]
+        }
+    }
+}
