@@ -15,18 +15,43 @@ import { Uploader } from "../Uploader";
 import useRefresh from "../../api/useRefresh";
 import { ProgressView } from "./Views";
 import { CrossFade } from "./CrossFade";
+import useSubmissionStarter from "./useSubmissionStarter";
 
 export default function PipelineForm() {
     const [selectedPipeline, SetSelectedPipeline] = useState({} as any)
     const [uploaders, setUploaders] = useState({} as any)
     const [schema, setSchema] = useState(null);
     const [success, setSuccess] = useState(false);
-    const [data,setData] = useState({} as any);
 
     const refresh = useRefresh();
+    
+    const onSuccess = (data) => {
+        for (const [inp, uploader] of Object.entries(uploaders)) {
+            uploader.setMeta({'sub_id': data?.data['sub_id'],'input_id': inp})
+            uploader.upload()
+        }
+    }
+    const submissionStarter = useSubmissionStarter(onSuccess)
+
     const onSubmit = (data: any) => {
-        setData(data)
-        setSuccess(true);
+        const inputs = [] as any
+        selectedPipeline.inputs.forEach((inp: object) => {
+            inp['values'] = data[inp.id]
+            inputs.push(inp)
+        })
+
+        let submissionData = {
+            name: data['name'],
+            pipeline: selectedPipeline.id,
+            inputs: inputs
+        }
+        try {
+            submissionStarter.mutate(submissionData)
+            setSuccess(true);
+        }
+        catch (e) {
+            // error
+        }
     };
 
     useEffect(() => {
@@ -50,7 +75,7 @@ export default function PipelineForm() {
             <CrossFade
                 components={[{
                     in: success,
-                    component: <ProgressView data={data} setSucess={setSuccess} uploaders={uploaders} />,
+                    component: <ProgressView setSucess={setSuccess} uploaders={uploaders} />,
                 }, {
                     in: success == false,
                     component: <>

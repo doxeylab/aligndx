@@ -2,10 +2,38 @@ import { Box, Button, Divider, Grid, Paper, Typography } from "@mui/material";
 import { StatusBar } from '@uppy/react'
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
+import useWebSocket from "../../../api/Socket";
+import useSubmissionStatus from './useSubmissionStatus'
 
-export default function ProgressView({ data, setSucess, uploaders }) {
+export default function ProgressView({ subId, setSucess, uploaders }) {
     const [complete, setComplete] = useState(false);
+    const [data, setData] = useState({} as any);
+
     const methods = useFormContext()
+    const { connectWebsocket } = useWebSocket();
+
+    const dataHandler = (event: any) => {
+        if (event.type == 'message') {
+            const data = JSON.parse(event.data)
+            setData(data)
+            if (data?.status == 'completed') {
+                setComplete(true)
+            }
+        }
+    }
+
+    const onSuccess = (data: any) => {
+        setData(data?.data)
+        const status = data?.data['status']
+        if (status && status != 'completed') {
+            connectWebsocket(subId, dataHandler)
+        }
+        else {
+            setComplete(true)
+        }
+    }
+
+    const status = useSubmissionStatus(subId, onSuccess)
 
     Object.entries(uploaders).map(([inp, uploader]) => {
         uploader.off('complete', null).on('complete', (result) => {
@@ -34,10 +62,13 @@ export default function ProgressView({ data, setSucess, uploaders }) {
                             pb={2}
                         >
                             <Typography variant="h5">
-                                Run : {data.name}
+                                Run : {data?.name}
                             </Typography>
-                            <Button color="success" variant={'contained'} >status</Button>
-
+                            <Button
+                                color="success"
+                                variant={'contained'}>
+                                {data?.status}
+                            </Button>
                         </Box>
                         <Typography variant="h5" pb={1}>
                             Uploads
@@ -62,7 +93,18 @@ export default function ProgressView({ data, setSucess, uploaders }) {
                         <Divider />
 
                         {complete ?
-                            <Button onClick={() => setSucess(false)}>New Submission</Button>
+                            <Grid
+                                container
+                                pt={4}
+                                justifyContent={'center'}
+                            >
+                                <Button
+                                    variant={'contained'}
+                                    onClick={() => setSucess(false)}>
+                                    New Submission
+                                </Button>
+
+                            </Grid>
                             :
                             null
                         }
