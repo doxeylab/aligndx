@@ -1,15 +1,16 @@
 from pydantic import BaseModel
-from typing import Literal, Dict 
-
-class ItemModel(BaseModel):
-    uploaded: bool
-    analyzed: bool
+from typing import List, Dict
+from app.models.shared import status
+from app.models.pipelines.inputs import InputSchema
 
 class MetaModel(BaseModel):
+    """
+    MetaModel descriptor for rapid tracking of submissions
+    """
     container_id: str
-    dirs: Dict[str, str]
-    items: Dict[str, ItemModel]
-    status: Literal['setup', 'uploading', 'analyzing', 'processing', 'completed', 'error']
-    processes: Dict[str,str] 
+    inputs: List[InputSchema]
+    store: Dict[str,str]
+    status: status
+    processes: Dict[str,str] = None
 
 

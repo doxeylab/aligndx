@@ -29,24 +29,8 @@ class AppSettings(BaseSettings):
     RESULTS_FOLDER = DATA_FOLDER + '/results'
     TMP_FOLDER = DATA_FOLDER + '/tmp' 
 
-    #  -- App Metadata --
-    METADATA = DATA_FOLDER + '/metadata'
-    PIPELINES = METADATA + '/pipelines.json'
-    NXF_CONF = METADATA + '/nxf.conf'
-
     #  -- API Created Directories -- 
     DIRS = [DATA_FOLDER, UPLOAD_FOLDER, RESULTS_FOLDER, TMP_FOLDER]
-
-    # Chunk settings
-
-    read_batch_size = 4096
-    salmon_chunk_size = math.floor(1e9)
-    upload_chunk_size = 8e6
-    chunk_ratio = salmon_chunk_size / upload_chunk_size   
-
-    # Tool settings
-    TOOLS = {"rna-seq": "salmon", "metagenomics": "kraken2"}
-    ACCESS_POINTS = {"salmon": "http://salmon:80/", "kraken2": "http://kraken2:80/"}
 
     # Notification settings
 
