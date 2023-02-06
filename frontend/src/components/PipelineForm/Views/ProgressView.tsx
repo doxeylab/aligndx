@@ -1,11 +1,12 @@
 import { Box, Button, Divider, Grid, Paper, Typography } from "@mui/material";
 import { StatusBar } from '@uppy/react'
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import useWebSocket from "../../../api/Socket";
+import StatusButton from "./StatusButton";
 import useSubmissionStatus from './useSubmissionStatus'
 
-export default function ProgressView({ subId, setSucess, uploaders }) {
+export default function ProgressView({ subId, setSuccess, uploaders }) {
     const [complete, setComplete] = useState(false);
     const [data, setData] = useState({} as any);
 
@@ -14,36 +15,38 @@ export default function ProgressView({ subId, setSucess, uploaders }) {
 
     const dataHandler = (event: any) => {
         if (event.type == 'message') {
-            const data = JSON.parse(event.data)
-            setData(data)
-            if (data?.status == 'completed') {
-                setComplete(true)
-            }
+            const resp = JSON.parse(event.data)
+            setData(resp)
         }
     }
 
     const onSuccess = (data: any) => {
-        setData(data?.data)
         const status = data?.data['status']
         if (status && status != 'completed') {
             connectWebsocket(subId, dataHandler)
-        }
-        else {
-            setComplete(true)
         }
     }
 
     const status = useSubmissionStatus(subId, onSuccess)
 
-    Object.entries(uploaders).map(([inp, uploader]) => {
-        uploader.off('complete', null).on('complete', (result) => {
-            if (result.sucessful.length > 0) {
-                uploader.cancelAll()
-                methods.setValue(inp, null, { shouldValidate: true })
-            }
+    const handleNewSubmission = () => {
+        Object.entries(uploaders).map(([inp, uploader]) => {
+            uploader.cancelAll()
+            methods.setValue(inp, null, { shouldValidate: true })
         })
+        setSuccess(false)
+    }
 
-    })
+    useEffect(() => {
+        if (data) {
+            if (data['status'] == 'completed') {
+                setComplete(true)
+            }
+            if (data['status'] == 'error') {
+                setComplete(true)
+            }
+        }
+    }, [data])
 
     return (
         <>
@@ -64,11 +67,7 @@ export default function ProgressView({ subId, setSucess, uploaders }) {
                             <Typography variant="h5">
                                 Run : {data?.name}
                             </Typography>
-                            <Button
-                                color="success"
-                                variant={'contained'}>
-                                {data?.status}
-                            </Button>
+                            <StatusButton status={data['status']} />
                         </Box>
                         <Typography variant="h5" pb={1}>
                             Uploads
@@ -82,6 +81,11 @@ export default function ProgressView({ subId, setSucess, uploaders }) {
                                         <StatusBar
                                             uppy={uploader}
                                             hideUploadButton
+                                            hideAfterFinish={false}
+                                            showProgressDetails={true}
+                                            hideRetryButton={true}
+                                            hidePauseResumeButton={true}
+                                            hideCancelButton={true}
                                         />
                                     </Grid>
                                 </>
@@ -100,7 +104,7 @@ export default function ProgressView({ subId, setSucess, uploaders }) {
                             >
                                 <Button
                                     variant={'contained'}
-                                    onClick={() => setSucess(false)}>
+                                    onClick={handleNewSubmission}>
                                     New Submission
                                 </Button>
 

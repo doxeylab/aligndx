@@ -7,6 +7,7 @@ class MetaModel(BaseModel):
     """
     MetaModel descriptor for rapid tracking of submissions
     """
+    name: str
     container_id: str
     inputs: List[InputSchema]
     store: Dict[str,str]

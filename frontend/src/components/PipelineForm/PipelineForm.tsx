@@ -22,10 +22,12 @@ export default function PipelineForm() {
     const [uploaders, setUploaders] = useState({} as any)
     const [schema, setSchema] = useState(null);
     const [success, setSuccess] = useState(false);
+    const [subId, setSubId] = useState(null);
 
     const refresh = useRefresh();
     
     const onSuccess = (data) => {
+        setSubId(data?.data['sub_id'])
         for (const [inp, uploader] of Object.entries(uploaders)) {
             uploader.setMeta({'sub_id': data?.data['sub_id'],'input_id': inp})
             uploader.upload()
@@ -75,7 +77,7 @@ export default function PipelineForm() {
             <CrossFade
                 components={[{
                     in: success,
-                    component: <ProgressView setSucess={setSuccess} uploaders={uploaders} />,
+                    component: <ProgressView subId={subId} setSuccess={setSuccess} uploaders={uploaders} />,
                 }, {
                     in: success == false,
                     component: <>

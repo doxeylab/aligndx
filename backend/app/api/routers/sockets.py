@@ -36,9 +36,8 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
     if query is None:
         raise WebSocketDisconnect()
 
-    submission = submissions.Schema.from_orm(query)
+    submission = submissions.Entry.from_orm(query)
     
-    data = {"status": "", "processes": {}}
     if current_user and submission != None:
         try:
             while True:
@@ -48,10 +47,7 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
                     manager.disconnect(id=sub_id)
                     return
                 
-                data["status"] = metadata.status
-                data["processes"] = metadata.processes
-                
-                await manager.send_data(data=data, id=sub_id) 
+                await manager.send_data(data=metadata.dict(), id=sub_id) 
 
                 if metadata.status == 'completed' or metadata.status =='error':
                     manager.disconnect(id=sub_id)

@@ -34,7 +34,7 @@ async def tusd(
     if sub_id == None:
         raise HTTPException(status_code=405, detail="Submission requires a valid submission Id")
     metadata = retrieve.s(sub_id)()
-    inputs = metadata.inputs
+    inputs = [x for x in metadata.inputs if x.input_type == 'file']
 
     if headers == 'pre-create':
         # check to see if the entity exists
@@ -43,34 +43,41 @@ async def tusd(
         if submission is None:
             raise HTTPException(status_code=404, detail="Submission not found")
         # TODO check to see if input id exists
-        else: 
-            for inp in inputs:
-                if inp.id == input_id:
-                    file_meta = {
-                        'size': tus_data['Size'],
-                        'status': 'created'
-                    }
-                    if inp.file_meta == None:
-                        inp.file_meta = {fname : file_meta}
-                    else:
-                        inp.file_meta[fname] = file_meta
-                    inp.status = 'pending'
-                    metadata.inputs = inputs
+    
+    if headers == 'post-create':
+        file_id = tus_data['ID']
+        for inp in inputs:
+            if inp.id == input_id:
+                file_meta = {
+                    'size': tus_data['Size'],
+                    'status': 'created',
+                    'fname': fname
+                }
+                if inp.file_meta == None:
+                    inp.file_meta = {file_id : file_meta}
+                else:
+                    inp.file_meta[file_id] = file_meta
+                inp.status = 'pending'
+                metadata.inputs = inputs
 
     if headers == 'post-finish':
         # update status and move and rename file to appropriate location
+        file_id = tus_data['ID']
+
         for inp in inputs:
                 if inp.id == input_id:
-                    inp.file_meta[fname].status = 'finished'
+                    new_file_meta = inp.file_meta[file_id] 
+                    new_file_meta.status = 'finished'
+                    inp.file_meta[file_id] = new_file_meta
                     metadata.inputs = inputs
                     if all({meta.status == 'finished' for filename, meta in  inp.file_meta.items()}):
                         inp.status = 'ready'
-        file_id = tus_data['ID']
+                        
         src = "{}/{}".format(settings.UPLOAD_FOLDER, file_id)
         dst = "{}/{}".format(metadata.store[input_id], fname)
         shutil.move(src=src, dst=dst)
 
-        info_id = tus_data['ID'] + '.info'
+        info_id = file_id + '.info'
         info_src = "{}/{}".format(settings.UPLOAD_FOLDER, info_id)
         info_dst = "{}/{}".format(metadata.store['temp'], info_id)
         shutil.move(src=info_src, dst=info_dst)

@@ -36,7 +36,10 @@ class BaseDal(Generic[TABLE], metaclass=abc.ABCMeta):
         '''
         Creates new row entry in table. Autogenerates a new UUID, requires the rest of the table columns. Returns an id
         '''
-        entry = self._table(id=uuid4(), **entry.dict())
+        # remove id if none is supplied as parameter
+        data = entry.dict()
+        data.pop('id', None)
+        entry = self._table(id=uuid4(), **data)
         self._db_session.add(entry)
         await self._db_session.commit()
         return entry.id 
@@ -45,7 +48,7 @@ class BaseDal(Generic[TABLE], metaclass=abc.ABCMeta):
         '''
         updates table row value val with update_val(s). Requires entry_id 
         '''
-        statement = update(self._table).where(self._table.id==entry_id).values(**update_val.dict()).execution_options(synchronize_session="fetch")
+        statement = update(self._table).where(self._table.id==entry_id).values(**update_val).execution_options(synchronize_session="fetch")
         await self._db_session.execute(statement)
         await self._db_session.commit()
 

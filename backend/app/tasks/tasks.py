@@ -66,7 +66,7 @@ def status_check(self, sub_id: str):
     metadata = retrieve.s(sub_id)()
     container = client.containers.get(metadata.container_id)
     status = metadata.status
-    print(container.status)
+
     if status == 'setup':
         if all([inp.status == 'ready' for inp in metadata.inputs]):
             container = client.containers.get(metadata.container_id)
@@ -94,10 +94,5 @@ def status_check(self, sub_id: str):
             status_update.s(sub_id, status).delay()
             cleanup.s(sub_id, metadata).delay()
             return True
-
-    if container.status == 'running':
-        metadata.status = 'analyzing'
-
-        update_metadata.s(sub_id, metadata)()
 
     raise StatusException(status)

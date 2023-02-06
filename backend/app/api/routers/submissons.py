@@ -66,6 +66,7 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
 
     # Generate submission metadata for redis
     metadata = redis.MetaModel(
+        name=submission.name,
         container_id=config.container.id,
         inputs=submission.inputs,
         store=store,
