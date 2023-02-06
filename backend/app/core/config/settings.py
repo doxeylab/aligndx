@@ -32,17 +32,6 @@ class AppSettings(BaseSettings):
     #  -- API Created Directories -- 
     DIRS = [DATA_FOLDER, UPLOAD_FOLDER, RESULTS_FOLDER, TMP_FOLDER]
 
-    # Chunk settings
-
-    read_batch_size = 4096
-    salmon_chunk_size = math.floor(1e9)
-    upload_chunk_size = 8e6
-    chunk_ratio = salmon_chunk_size / upload_chunk_size   
-
-    # Tool settings
-    TOOLS = {"rna-seq": "salmon", "metagenomics": "kraken2"}
-    ACCESS_POINTS = {"salmon": "http://salmon:80/", "kraken2": "http://kraken2:80/"}
-
     # Notification settings
 
     sender_email: str = os.getenv("NOTIFICATION_EMAIL") 
