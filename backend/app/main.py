@@ -87,18 +87,7 @@ app.include_router(
 
 @app.get("/")
 async def root():
-    return RedirectResponse(url='/api/docs')
-
-
-@app.get("/api/v1")
-async def root():
-    return {"message": "API_v1"}
-
-# Stripe Publishable Key for front-end
-@app.get("/stripe-key")
-async def root():
-    settings = get_settings()
-    return {"key": settings.stripe_publishable_key}
+    return RedirectResponse(url='/docs')
 
 from app.core.db.session import engine
 @app.on_event("shutdown")

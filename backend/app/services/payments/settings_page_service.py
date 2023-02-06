@@ -1,10 +1,8 @@
-from app.services.payments import subscription_service, plans_service, invoice_service
-from app.models.schemas.payments.settings_page import AdminSettingsPageResponse, NonAdminSettingsPageResponse
+from app.services.payments import subscription_service, plans_service, invoice_service, customer_service
+from app.models.payments.settings_page import AdminSettingsPageResponse, NonAdminSettingsPageResponse
+from app.models.auth import UserDTO
 from app.core.db.dals.users import UsersDal
-from app.services.auth.models import UserDTO
 from fastapi import status, HTTPException
-
-from backend.app.services.payments import customer_service
 
 async def get_admin_settings(db, current_user: UserDTO):
     '''

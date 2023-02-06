@@ -1,5 +1,5 @@
 # Schemas & DAL
-from app.models.schemas.payments.invoices import CreateNewInvoice
+from app.models.payments.invoices import CreateNewInvoice
 from app.core.db.dals.payments import InvoicesDal
 
 # Utils

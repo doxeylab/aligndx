@@ -4,8 +4,8 @@ from fastapi import HTTPException, status
 # Database Models & DAL
 from app.core.db.dals.payments import CustomersDal
 from app.core.db.dals.users import UsersDal
-from app.models.schemas.users import SetAdminUpdateItems
-from app.models.schemas.payments.customers import NewCustomer, UpdatePaymentMethod, UpdateCustomerStripeId
+from app.models.users import SetAdminUpdateItems
+from app.models.payments.customers import NewCustomer, UpdatePaymentMethod, UpdateCustomerStripeId
 
 # Services
 from app.services.payments import stripe_service
