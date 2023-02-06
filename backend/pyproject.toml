@@ -6,7 +6,7 @@ authors = ["Manjot <manjothunjan@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-alembic = "1.7.7"
+alembic = "1.9.2"
 asyncpg = "0.25.0"
 celery = {extras = ["redis"], version = "^5.2.7"}
 fastapi = "0.85.0"
