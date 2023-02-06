@@ -6,7 +6,7 @@ const defaultValidationFields = [
       validations: [
         {
           type: 'required',
-          params: ['This field is required']
+          params: ['Required']
         },
         {
           type: 'min',

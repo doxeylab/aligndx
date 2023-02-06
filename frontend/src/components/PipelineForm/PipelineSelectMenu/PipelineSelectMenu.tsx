@@ -3,11 +3,10 @@ import SelectMenu from "../../SelectMenu"
 import usePipelineMeta from "./usePipelineMeta"
 
 interface PipelineSelectProps {
-    selectedPipeline: any;
     SetSelectedPipeline: any;
 }
 
-export default function PipelineSelect({selectedPipeline, SetSelectedPipeline} : PipelineSelectProps) {
+export default function PipelineSelect({onChange, SetSelectedPipeline} : PipelineSelectProps) {
     const [options, setOptions] = useState([] as any)
 
     const onSuccess = (data: any) => {
@@ -22,9 +21,9 @@ export default function PipelineSelect({selectedPipeline, SetSelectedPipeline} :
         <SelectMenu
             label="Select a pipeline"
             options={options}
-            groupBy={(option: any) => option.categories}
             onChange={(event : any, newInputValue :any) => {
                 SetSelectedPipeline(newInputValue);
+                onChange();
             }}
             getOptionLabel={(option: any) => {
                 if (option.length != 0) {

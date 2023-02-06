@@ -14,10 +14,10 @@ export default function SelectMenu({options, groupBy, getOptionLabel, label, ...
         <Autocomplete 
             autoComplete
             id="sel-menu"
+            renderInput={(params) => <TextField {...params} label={label} />}
             options={options}
             getOptionLabel={getOptionLabel}
             groupBy={groupBy? groupBy : null}
-            renderInput={(params) => <TextField {...params} label={label} />}
             {...selMenuProps}
         />
     )

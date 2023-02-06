@@ -1,4 +1,80 @@
 {
+  "pathosleuth": {
+    "id": "pathosleuth",
+    "title": "PathoSleuth",
+    "description": "Clinical mNGS based pathogen detection",
+    "categories": [
+      "rna-seq"
+    ],
+    "inputs": [
+      {
+        "id": "panel",
+        "title": "Pathogen Panel",
+        "input_type": "select",
+        "description": "Pathogen panel",
+        "count": "single",
+        "optional": false,
+        "options": [
+          "CDC",
+          "Respiratory",
+          "Pharyngitis",
+          "Wound",
+          "Skin",
+          "UTI",
+          "Genital/Reproductive",
+          "Soft-tissue/organs",
+          "Meningitis/Encephalitis",
+          "Endocarditis/Mycocarditis",
+          "Sepsis",
+          "Bacteremia",
+          "Enteritis",
+          "Ear",
+          "Opthalmic",
+          "Joint",
+          "Osteomyelitis",
+          "Sinus",
+          "CNS"
+        ],
+        "metadata": "panels.csv"
+      },
+      {
+        "id": "input",
+        "title": "Input Files",
+        "input_type": "file",
+        "description": "1 or more fastq files",
+        "count": "multiple",
+        "file_types": [
+          ".fastq",
+          ".fq",
+          ".fastq.gz",
+          ".fq.gz"
+        ],
+        "optional": false
+      },
+      {
+        "id": "kraken_db",
+        "title": "Kraken Database",
+        "description": "The PFP-8gb db from https://benlangmead.github.io/aws-indexes/k2",
+        "input_type": "predefined",
+        "count": "single",
+        "optional": false
+      }
+    ],
+    "predefined_commands": [
+      "--kraken_db ./pipelines/shared/kraken_db",
+      "--max_cpus 2",
+      "--max_memory 1.GB",
+      "--max_time 1.h"
+    ],
+    "pipeline_type": "nextflow",
+    "repository": "mshunjan/metasense",
+    "results": "*",
+    "report_inputs": [
+      "metadata.md",
+      "bracken_combined.tsv",
+      "software_versions.yml"
+    ]
+  },
   "metasense": {
     "id": "metasense",
     "title": "MetaSense",

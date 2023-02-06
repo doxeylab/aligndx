@@ -25,20 +25,31 @@ export default function PipelineForm() {
     const [subId, setSubId] = useState(null);
 
     const refresh = useRefresh();
-    
+
     const onSuccess = (data) => {
         setSubId(data?.data['sub_id'])
         for (const [inp, uploader] of Object.entries(uploaders)) {
-            uploader.setMeta({'sub_id': data?.data['sub_id'],'input_id': inp})
+            uploader.setMeta({ 'sub_id': data?.data['sub_id'], 'input_id': inp })
             uploader.upload()
         }
+        setSuccess(true);
     }
     const submissionStarter = useSubmissionStarter(onSuccess)
 
     const onSubmit = (data: any) => {
         const inputs = [] as any
         selectedPipeline.inputs.forEach((inp: object) => {
-            inp['values'] = data[inp.id]
+            if (inp.input_type == 'select') {
+                if (typeof (data[inp.id]) != 'object') {
+                    inp['values'] = [data[inp.id]]
+                }
+                else {
+                    inp['values'] = data[inp.id]
+                }
+            }
+            else {
+                inp['values'] = data[inp.id]
+            }
             inputs.push(inp)
         })
 
@@ -47,14 +58,14 @@ export default function PipelineForm() {
             pipeline: selectedPipeline.id,
             inputs: inputs
         }
-        try {
-            submissionStarter.mutate(submissionData)
-            setSuccess(true);
-        }
-        catch (e) {
-            // error
-        }
+        submissionStarter.mutate(submissionData)
     };
+
+    const onPipelineChange = () => {
+        Object.entries(uploaders).map(([inp, uploader]) => {
+            uploader.cancelAll()
+        })
+    }
 
     useEffect(() => {
         if (isEmpty(selectedPipeline) == false) {
@@ -91,7 +102,7 @@ export default function PipelineForm() {
                                     }}
                                 >
                                     <PipelineSelectMenu
-                                        selectedPipeline={selectedPipeline}
+                                        onChange={onPipelineChange}
                                         SetSelectedPipeline={SetSelectedPipeline}
                                     />
                                 </Paper>

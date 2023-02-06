@@ -32,7 +32,6 @@ export default function SubmissionNameField({ name, defaultValue, ...textFieldPr
                             error={!!methods?.formState.errors[name]}
                             helperText={methods?.formState.errors[name] ? methods?.formState.errors[name]?.message : " "}
                             variant={'filled'}
-                            sx={{ width: '100%', marginBottom: '1em' }}
                             {...textFieldProps}
                         />
                         <Tooltip title={'Generate a random name'} placement={'top'}>

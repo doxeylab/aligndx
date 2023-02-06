@@ -1,6 +1,7 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { FileSelector } from "../../Uploader";
 import { useEffect } from 'react'
+import FormHelperText from '@mui/material/FormHelperText';
 
 interface FileSelectorProps {
     name: string;
@@ -11,8 +12,8 @@ interface FileSelectorProps {
 }
 
 export default function FileSelectorField({ name, defaultValue, uploader, plugins, ...fileSelectorProps }: FileSelectorProps) {
-    const { register, setValue, formState} = useFormContext({
-        defaultValues:{
+    const { register, setValue, formState } = useFormContext({
+        defaultValues: {
             [name]: ''
         }
     });
@@ -27,13 +28,13 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
         setValue(name, currentUploads, { shouldValidate: true })
     })
     uploader.off('file-removed', null).on('file-removed', (file, reason) => {
-        setValue(name, null, { shouldValidate: true })
+        setValue(name, "", { shouldValidate: true })
     })
     uploader.off('cancel-all', null).on('cancel-all', (file, reason) => {
-        setValue(name, null, { shouldValidate: true })
+        setValue(name, "", { shouldValidate: true })
     })
     uploader.off('error', null).on('error', (file, reason) => {
-        setValue(name, null, { shouldValidate: true })
+        setValue(name, "", { shouldValidate: true })
     })
     // uploader.off('complete', null).on('complete', (result) => {
     //     if (result.sucessful.length > 0) {
@@ -54,6 +55,7 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
                 plugins={plugins}
                 {...fileSelectorProps}
             />
+            {formState.errors[name] ? <FormHelperText error>{formState.errors[name].message}</FormHelperText> : " "}
         </>
     )
 }

@@ -40,49 +40,54 @@ export default function DynamicInputs({ selectedPipelineInputs, uploaders }: Dyn
     if (isEmpty(selectedPipelineInputs) == false) {
         return (
             <>
-                <Grid container>
-                    <SubmissionNameField name="name" />
-                </Grid>
-                {selectedPipelineInputs.map((input: any) => {
-                    const plugins = ['GoogleDrive', 'Url']
-                    if (input.input_type === 'file') {
-                        if (isEmpty(uploaders)) {
-                            return (null)
+                <Grid container py={2} justifyContent='space-between'>
+                    <Grid item xs>
+                        <SubmissionNameField name="name" />
+                    </Grid>
+                    {selectedPipelineInputs.map((input: any) => {
+                        const plugins = ['GoogleDrive', 'Url']
+                        if (input.input_type === 'file') {
+                            if (isEmpty(uploaders)) {
+                                return (null)
+                            }
+                            else {
+                                return (
+                                    <Grid item xs={12} mb={1} key={input.id}>
+                                        <FileSelectorField
+                                            width={'100%'}
+                                            name={input.id}
+                                            uploader={uploaders[input.id]}
+                                            plugins={plugins} />
+                                    </Grid>
+                                )
+                            }
                         }
-                        else {
+                        if (input.input_type == 'select') {
                             return (
-                                <Grid item mb={1} key={input.id}>
-                                    <FileSelectorField
-                                        width={'100%'}
+                                <Grid item xs={12} sm={6} md={6} lg={3} pb={2} key={input.id} >
+                                    <FormSelect
                                         name={input.id}
-                                        uploader={uploaders[input.id]}
-                                        plugins={plugins} />
+                                        label={input.title}
+                                        options={input.options}
+                                        getOptionLabel={(option) => option || ""}
+                                        isOptionEqualToValue={(option: any, value: any) => option === value}
+                                    />
                                 </Grid>
                             )
                         }
+                        if (input.input_type == 'text') {
+                            return (
+                                <Grid item xs={12} sm={6} md={6} lg={3} pb={2} key={input.id} >
+                                    <Typography>{input.title}</Typography>
+                                    <FormTextField name={input.id} label={input.title} type={""} />
+                                </Grid>
+                            )
+                        }
+                    })
                     }
-                    if (input.input_type == 'select') {
-                        return (
-                            <Grid item xs={12} sm={6} md={6} lg={3} pb={2} key={input.id} >
-                                <Typography>{input.title}</Typography>
-                                <FormSelect
-                                    name={input.id}
-                                    label={input.title}
-                                    options={input.options}
-                                />
-                            </Grid>
-                        )
-                    }
-                    if (input.input_type == 'text') {
-                        return (
-                            <Grid item xs={12} sm={6} md={6} lg={3} pb={2} key={input.id} >
-                                <Typography>{input.title}</Typography>
-                                <FormTextField name={input.id} label={input.title} type={""} />
-                            </Grid>
-                        )
-                    }
-                })
-                }
+
+                </Grid>
+
             </>
         )
     }
