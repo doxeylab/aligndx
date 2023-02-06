@@ -1,7 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { FileSelector } from "../../Uploader";
-
-import Box from '@mui/material/Box'
+import { useEffect } from 'react'
 
 interface FileSelectorProps {
     name: string;
@@ -12,41 +11,50 @@ interface FileSelectorProps {
 }
 
 export default function FileSelectorField({ name, defaultValue, uploader, plugins, ...fileSelectorProps }: FileSelectorProps) {
-    const methods = useFormContext();
+    const { register, setValue, formState} = useFormContext({
+        defaultValues:{
+            [name]: ''
+        }
+    });
 
-    uploader.off('files-added',null).on('files-added', (files) => {
+    uploader.off('files-added', null).on('files-added', (files) => {
         const values = files.map((a: any) => a.data.name)
-        methods.setValue(name, values, { shouldValidate: true })
-    }) 
+        setValue(name, values, { shouldValidate: true })
+    })
     uploader.once('restore-confirmed', () => {
         const currentUploads = []
         currentUploads.push(uploader.getState()['files'])
-        methods.setValue(name, currentUploads,{ shouldValidate: true })
-    }) 
-    uploader.off('file-removed',null).on('file-removed', (file, reason) => {
-        methods.setValue(name, null, { shouldValidate: true })
+        setValue(name, currentUploads, { shouldValidate: true })
     })
-    uploader.off('cancel-all',null).on('cancel-all', (file, reason) => {
-        methods.setValue(name, null, { shouldValidate: true })
+    uploader.off('file-removed', null).on('file-removed', (file, reason) => {
+        setValue(name, null, { shouldValidate: true })
     })
-    uploader.off('error','null').on('error', (file, reason) => {
-        methods.setValue(name, null, { shouldValidate: true })
+    uploader.off('cancel-all', null).on('cancel-all', (file, reason) => {
+        setValue(name, null, { shouldValidate: true })
     })
+    uploader.off('error', null).on('error', (file, reason) => {
+        setValue(name, null, { shouldValidate: true })
+    })
+    // uploader.off('complete', null).on('complete', (result) => {
+    //     if (result.sucessful.length > 0) {
+    //         uploader.cancelAll()
+    //         setValue(name, null, {shouldValidate: true})
+    //     } 
+    // })
+
+    useEffect(() => {
+        register(name, { required: true });
+    }, [])
+
     return (
-        <Controller
-            name={name}
-            control={methods?.control}
-            defaultValue={defaultValue ? defaultValue : ""}
-            render={({ field }: any) =>
-                <>
-                        <FileSelector
-                            uploader={uploader}
-                            plugins={plugins}
-                            {...fileSelectorProps}
-                        />
-                </>
-            }
-        />
+        <>
+            <FileSelector
+                name={name}
+                uploader={uploader}
+                plugins={plugins}
+                {...fileSelectorProps}
+            />
+        </>
     )
 }
 

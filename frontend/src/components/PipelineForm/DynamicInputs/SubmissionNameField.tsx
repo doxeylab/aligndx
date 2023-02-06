@@ -19,7 +19,7 @@ export default function SubmissionNameField({ name, defaultValue, ...textFieldPr
         <Controller
             name={name}
             control={methods?.control}
-            defaultValue={defaultValue ? defaultValue : getRandomName()}
+            defaultValue={defaultValue ? defaultValue : ""}
             render={({ field }: any) =>
                 <>
                     <Box
