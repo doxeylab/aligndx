@@ -16,21 +16,31 @@ passlib = "1.7.4"
 python-multipart = "0.0.5"
 SQLAlchemy = "1.4.32"
 uvicorn = {extras = ["standard"], version = "^0.17.6"}
-gdown = "4.4.0"
 gunicorn = "^20.1.0"
 stripe = "2.67.0"
-pytest = "7.1.0"
-beautifulsoup4 = "4.10.0"
-aiofiles = "0.8.0"
 redis = "^4.3.4"
 flower = "^1.2.0"
 python-jose = "^3.3.0"
-prefect = "^2.4.0"
-psycopg2 = "^2.9.3"
 docker = "^6.0.1"
 
-[tool.poetry.dev-dependencies]
-black = "22.1.0"
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+black = "^23.1.0"
+pytest = "^7.2.1"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+psycopg2-binary = "^2.9.5"
+
+[tool.poetry.group.prod]
+optional = true
+
+[tool.poetry.group.prod.dependencies]
+psycopg2 = "^2.9.5"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
