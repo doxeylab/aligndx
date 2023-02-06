@@ -35,13 +35,19 @@ def initialize():
     with open(PIPELINES_PATH, 'w') as ap:
         json.dump(available_pipelines, ap, indent=2)
 
+def get_available_pipelines():
+    """
+    Returns available pipelines
+    """
+    with open(PIPELINES_PATH, 'r') as f:
+        available_pipelines = json.loads(f.read())
+    return available_pipelines
 
 def get_pipeline(pipeline: str):
     """
     Returns the pipeline schema for a chosen pipeline
     """
-    pipelines_path = PIPELINES_PATH
-    pipelines = pd.read_json(pipelines_path)
+    pipelines = get_available_pipelines()
     return pipelines[pipeline]
 
 def configure_pipeline(meta, name, inputs, store):

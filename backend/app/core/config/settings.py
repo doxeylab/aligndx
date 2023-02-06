@@ -29,11 +29,6 @@ class AppSettings(BaseSettings):
     RESULTS_FOLDER = DATA_FOLDER + '/results'
     TMP_FOLDER = DATA_FOLDER + '/tmp' 
 
-    #  -- App Metadata --
-    METADATA = DATA_FOLDER + '/metadata'
-    PIPELINES = METADATA + '/pipelines.json'
-    NXF_CONF = METADATA + '/nxf.conf'
-
     #  -- API Created Directories -- 
     DIRS = [DATA_FOLDER, UPLOAD_FOLDER, RESULTS_FOLDER, TMP_FOLDER]
 

@@ -1,1 +1,1 @@
-from .pipelines import initialize, start
+from .pipelines import initialize, start, get_available_pipelines
