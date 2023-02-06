@@ -2,6 +2,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import { FileSelector } from "../../Uploader";
 import { useEffect } from 'react'
 import FormHelperText from '@mui/material/FormHelperText';
+import Box from '@mui/material/Box'
 
 interface FileSelectorProps {
     name: string;
@@ -49,12 +50,14 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
 
     return (
         <>
-            <FileSelector
-                name={name}
-                uploader={uploader}
-                plugins={plugins}
-                {...fileSelectorProps}
-            />
+            <Box sx={{border: formState.errors[name]? '2px solid red' : null}}>
+                <FileSelector
+                    name={name}
+                    uploader={uploader}
+                    plugins={plugins}
+                    {...fileSelectorProps}
+                />
+            </Box>
             {formState.errors[name] ? <FormHelperText error>{formState.errors[name].message}</FormHelperText> : " "}
         </>
     )
