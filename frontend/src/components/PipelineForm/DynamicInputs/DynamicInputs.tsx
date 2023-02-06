@@ -1,3 +1,8 @@
+import { useFormContext } from 'react-hook-form';
+import { Fragment, useEffect, useState } from 'react';
+import { FormSelect, FormTextField, } from '../../Form';
+import isEmpty from '../../../utils/isEmpty';
+
 import Typography from '@mui/material/Typography'
 import Dialog from '@mui/material/Dialog';
 import IconButton from '@mui/material/IconButton';
@@ -8,18 +13,14 @@ import DialogContent from '@mui/material/DialogContent';
 import Grid from '@mui/material/Grid'
 
 import SubmissionNameField from './SubmissionNameField';
-import { Fragment, useEffect, useState } from 'react';
-import { FormSelect, FormTextField, } from '../../Form';
-import isEmpty from '../../../utils/isEmpty';
-import { useFormContext } from 'react-hook-form';
+import FileSelectorField from './FileSelectorField';
 
 interface DynamicInputsProps {
     selectedPipelineInputs: any;
     uploaders?: any;
-    setUploaders?: any;
 }
 
-export default function DynamicInputs({ selectedPipelineInputs, uploaders, setUploaders }: DynamicInputsProps) {
+export default function DynamicInputs({ selectedPipelineInputs, uploaders }: DynamicInputsProps) {
     const [open, setOpen] = useState({})
     const methods = useFormContext();
     const handleOpen = (id: string) => {
@@ -39,21 +40,26 @@ export default function DynamicInputs({ selectedPipelineInputs, uploaders, setUp
     if (isEmpty(selectedPipelineInputs) == false) {
         return (
             <>
-                <Grid >
+                <Grid container>
                     <SubmissionNameField name="name" />
                 </Grid>
                 {selectedPipelineInputs.map((input: any) => {
+                    const plugins = ['GoogleDrive', 'Url']
                     if (input.input_type === 'file') {
-                        return (
-                            <Grid item mb={1} height={'20%'} key={input.id}>
-                                {isEmpty(uploaders) == false ?
-                                    <>
-                                        {/* sp,ethom */}
-                                    </>
-                                    :
-                                    null}
-                            </Grid>
-                        )
+                        if (isEmpty(uploaders)) {
+                            return (null)
+                        }
+                        else {
+                            return (
+                                <Grid item mb={1} key={input.id}>
+                                    <FileSelectorField
+                                        width={'100%'}
+                                        name={input.id}
+                                        uploader={uploaders[input.id]}
+                                        plugins={plugins} />
+                                </Grid>
+                            )
+                        }
                     }
                     if (input.input_type == 'select') {
                         return (

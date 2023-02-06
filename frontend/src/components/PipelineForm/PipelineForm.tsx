@@ -11,11 +11,15 @@ import isEmpty from "../../utils/isEmpty";
 
 import PipelineSelectMenu from "./PipelineSelectMenu";
 import DynamicInputs from "./DynamicInputs";
+import { Uploader } from "../Uploader";
+import useRefresh from "../../api/useRefresh";
 
 export default function PipelineForm() {
     const [selectedPipeline, SetSelectedPipeline] = useState({} as any)
+    const [uploaders, setUploaders] = useState({} as any)
     const [schema, setSchema] = useState(null);
 
+    const refresh = useRefresh();
     const onSubmit = (data: any) => {
         console.log(data)
     };
@@ -23,6 +27,13 @@ export default function PipelineForm() {
     useEffect(() => {
         if (isEmpty(selectedPipeline) == false) {
             setSchema(SchemaGenerator(selectedPipeline.inputs))
+            const createUploader = (val: any) => {
+                return Uploader({ id: val.id, fileTypes: val.file_types, refresh: refresh })
+            }
+            const fileInputs = selectedPipeline.inputs.filter((obj: any) => obj.input_type === 'file')
+            const pipelineUploaders = fileInputs.reduce((o, key) => ({ ...o, [key.id]: createUploader(key) }), {})
+            setUploaders({ ...pipelineUploaders })
+
         }
     }, [selectedPipeline])
 
@@ -67,14 +78,11 @@ export default function PipelineForm() {
                             <Paper sx={{
                                 p: 2
                             }}>
-                                <Grid container item xs={12} sm={9} md={6} lg={3} pb={2}
-                                    alignItems="center"
-                                >
 
-                                    <Grid >
-                                        <DynamicInputs selectedPipelineInputs={selectedPipeline.inputs}/>
-                                    </Grid>
-                                </Grid>
+                                <DynamicInputs
+                                    selectedPipelineInputs={selectedPipeline.inputs}
+                                    uploaders={uploaders}
+                                />
                                 <Grid
                                     container
                                     alignContent={'center'}
