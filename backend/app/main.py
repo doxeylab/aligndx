@@ -1,33 +1,22 @@
-# python
 import os 
 import logging 
 
-# fastapi
 from fastapi import FastAPI, Depends, status
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 
-# auth
-from app.auth.auth_dependencies import get_current_user, ValidateService
+from app.api.routers import users, submissons, sockets, metadata, payments, webhooks
 
-# routers
-from app.routers import users, uploads, submissons, sockets, metadata, celery
-from app.routers.payments import payments, stripe_webhooks
+from app.services.auth import get_current_user
+from app.core import utils
 
-# utils
-from app import utils
-
-# settings
-from app.config.settings import get_settings
-
-from app.redis.base import r 
+from app.core.config.settings import get_settings
 
 app = FastAPI(
     title="AlignDX",
     description="This is the restful API for the AlignDX application. Here you will find the auto docs genereated for the API endpoints",
-    version="1.0", 
-    root_path="/api/"
+    version="1.0"
 )
 
 @app.on_event('startup')
@@ -61,42 +50,22 @@ app.include_router(
     users.router,
     prefix="/users",
     tags=["Users"],
-    responses={408: {"description": "Ain't gonna work buddy"}},
+    # include_in_schema=False,
 )
-
-app.include_router(
-    uploads.router,
-    prefix="/uploads",
-    tags=["Uploads"],
-    dependencies=[Depends(get_current_user)],
-    responses={418: {"description": "I'm a teapot"}},
-)
-
+ 
 app.include_router(
     submissons.router,
     prefix="/submissions",
     tags=["Submissions"],
     dependencies=[Depends(get_current_user)],
-    responses={418: {"description": "I'm a teapot"}},
 )
 
 app.include_router(
     payments.router,
     prefix="/payments",
     tags=["Payments"],
+    # include_in_schema=False,
     dependencies=[Depends(get_current_user)],
-    responses={418: {"description": "I'm a teapot"}},
-)
-
-app.include_router(
-    stripe_webhooks.router,
-    prefix="/webhooks/stripe",
-    tags=["Stripe Webhooks"],
-    responses={418: {"description": "I'm a teapot"}},
-)
-
-app.include_router(
-    sockets.router
 )
 
 app.include_router(
@@ -106,28 +75,21 @@ app.include_router(
 )
 
 app.include_router(
-    celery.router,
-    prefix="/celery",
-    tags=["Celery"],
-    dependencies=[Depends(ValidateService("celery"))],
+    sockets.router
+)
+ 
+app.include_router(
+    webhooks.router,
+    prefix="/webhooks",
+    # include_in_schema=False,
+    tags=["Webhooks"]
 )
 
 @app.get("/")
 async def root():
-    return RedirectResponse(url='/api/docs')
+    return RedirectResponse(url='/docs')
 
-
-@app.get("/api/v1")
-async def root():
-    return {"message": "API_v1"}
-
-# Stripe Publishable Key for front-end
-@app.get("/stripe-key")
-async def root():
-    settings = get_settings()
-    return {"key": settings.stripe_publishable_key}
-
-from app.db.session import engine
+from app.core.db.session import engine
 @app.on_event("shutdown")
 async def close_database_connection_pools() -> None:
     await engine.dispose()

@@ -17,7 +17,7 @@ ENV PATH="$POETRY_HOME/bin:$PATH"
 RUN python -c 'from urllib.request import urlopen; print(urlopen("https://install.python-poetry.org").read().decode())' | python -
 # copy deps
 COPY pyproject.toml poetry.lock ./
-RUN poetry install --no-interaction --no-ansi -vvv
+RUN poetry install --no-interaction --no-ansi -vvv --with prod
 
 FROM python as runtime
 ARG PROJECT_PATH
