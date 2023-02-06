@@ -25,6 +25,9 @@ export default function ProgressView({ subId, setSuccess, uploaders }) {
         if (status && status != 'completed') {
             connectWebsocket(subId, dataHandler)
         }
+        else {
+            setData(data?.data)
+        }
     }
 
     const status = useSubmissionStatus(subId, onSuccess)
