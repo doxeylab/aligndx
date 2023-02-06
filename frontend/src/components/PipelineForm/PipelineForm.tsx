@@ -10,7 +10,7 @@ import SchemaGenerator from "./SchemaGenerator";
 import isEmpty from "../../utils/isEmpty";
 
 import PipelineSelectMenu from "./PipelineSelectMenu";
-import { SubmissionNameField } from "./PipelineFormComponents";
+import DynamicInputs from "./DynamicInputs";
 
 export default function PipelineForm() {
     const [selectedPipeline, SetSelectedPipeline] = useState({} as any)
@@ -72,10 +72,8 @@ export default function PipelineForm() {
                                 >
 
                                     <Grid >
-                                        <SubmissionNameField name="name" />
+                                        <DynamicInputs selectedPipelineInputs={selectedPipeline.inputs}/>
                                     </Grid>
-                                </Grid>
-                                <Grid>
                                 </Grid>
                                 <Grid
                                     container
