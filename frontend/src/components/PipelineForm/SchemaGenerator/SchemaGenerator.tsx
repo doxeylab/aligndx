@@ -1,5 +1,5 @@
-import defaultValidationFields from "./defaultValidationFields" from "./defaultValidationFields"
-import getValidationSchema from "./getValidationSchema"
+import defaultValidationFields from "./defaultValidationFields" ; 
+import getValidationSchema from "./getValidationSchema";
 
 export default function SchemaGenerator(selectedPipelineInputs: any) {
     const validations = []

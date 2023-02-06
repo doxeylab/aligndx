@@ -1,1 +1,1 @@
-import SchemaGenerator from "./SchemaGenerator";
+export { default } from './SchemaGenerator'
