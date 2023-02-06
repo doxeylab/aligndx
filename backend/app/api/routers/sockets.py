@@ -13,10 +13,6 @@ from app.models import submissions
 from app.core.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db 
 from app.tasks import retrieve
-from app.core.config.settings import settings
-
-UPLOAD_FOLDER = settings.UPLOAD_FOLDER
-RESULTS_FOLDER = settings.RESULTS_FOLDER 
 
 router = APIRouter() 
 
