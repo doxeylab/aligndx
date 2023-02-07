@@ -1,6 +1,7 @@
 import { useState } from "react"
 import SelectMenu from "../../SelectMenu"
 import usePipelineMeta from "./usePipelineMeta"
+import useLocalStorage from "../../../hooks/useLocalStorage"
 
 interface PipelineSelectProps {
     onChange: any;
@@ -8,6 +9,8 @@ interface PipelineSelectProps {
 
 export default function PipelineSelect({onChange} : PipelineSelectProps) {
     const [options, setOptions] = useState([] as any)
+    // const [value, setValue] = useLocalStorage('selectedPipeline',null)
+
 
     const onSuccess = (data: any) => {
         setOptions(data)
