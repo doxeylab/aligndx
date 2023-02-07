@@ -36,7 +36,6 @@ const FormSelect = ({ name, options, getOptionLabel, label, groupBy, ...selMenuP
                                 error={!!methods?.formState.errors[name]}
                                 helperText={methods?.formState.errors[name] ? methods?.formState.errors[name]?.message :" "}
                                 label={label}
-                                variant="filled"
                             />
                         )
 
