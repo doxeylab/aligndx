@@ -39,3 +39,10 @@ class Response(Base):
     status: status
     created_date : datetime
     finished_date : datetime = None
+
+class UpdateDateAndStatus(BaseSchema):
+    finished_date: datetime
+    status: str
+
+class UpdateStatus(BaseSchema):
+    status: str

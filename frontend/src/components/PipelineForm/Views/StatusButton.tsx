@@ -22,7 +22,7 @@ export default function StatusButton({status}: any) {
     else if (status == 'completed') {
         return (
             <Button
-                color="sucess"
+                color="success"
                 variant={'contained'}>
                 {status}
             </Button>
