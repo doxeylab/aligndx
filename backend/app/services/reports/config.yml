@@ -1,0 +1,16 @@
+report: 
+  fileName: 'report'
+  title: 'MetaSense Report' 
+
+order: 
+  report.ipynb: 1
+  metadata.ipynb: 2
+
+options:
+  exclude_input: True
+  exclude_output_prompt: True
+  exclude_input_prompt: True
+
+parameters:
+  brac_file: 'example_results/bracken_combined.tsv'
+  sv_file: 'example_results/software_versions.yml'
