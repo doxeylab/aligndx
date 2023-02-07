@@ -79,6 +79,7 @@ def status_check(self, sub_id: str):
     if container.status == 'exited':
         # check exit code 
         successful_containers = client.containers.list(all=True,filters={'exited':0})
+ 
         if any(x.id == container.id for x in successful_containers):
             status = 'completed'
             metadata.status = status 
@@ -87,11 +88,9 @@ def status_check(self, sub_id: str):
             status = 'error'
             metadata.status = status
         
-        res = chain(
-            update_metadata.s(sub_id, metadata),
-            status_update.s(sub_id, status),
-            cleanup.s(sub_id, metadata)
-        ).delay()
+        update_metadata.s(sub_id, metadata).delay()
+        status_update.s(sub_id, status).delay()
+        cleanup.s(sub_id, metadata).delay()
         return True
 
     raise StatusException(status)

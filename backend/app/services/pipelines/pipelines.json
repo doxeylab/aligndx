@@ -69,11 +69,10 @@
     "pipeline_type": "nextflow",
     "repository": "mshunjan/metasense",
     "results": "*",
-    "report_inputs": [
-      "metadata.md",
-      "bracken_combined.tsv",
-      "software_versions.yml"
-    ]
+    "report_inputs": {
+      "bracken": "bracken/bracken_combined.tsv",
+      "software": "pipeline_info/software_versions.yml"
+    }
   },
   "metasense": {
     "id": "metasense",
@@ -115,10 +114,9 @@
     "pipeline_type": "nextflow",
     "repository": "mshunjan/metasense",
     "results": "*",
-    "report_inputs": [
-      "metadata.md",
-      "bracken_combined.tsv",
-      "software_versions.yml"
-    ]
+    "report_inputs": {
+      "bracken": "bracken/bracken_combined.tsv",
+      "software": "pipeline_info/software_versions.yml"
+    }
   }
 }

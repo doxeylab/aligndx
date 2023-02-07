@@ -26,7 +26,7 @@ class Nextflow():
             for c in pdc:
                 parameters = parameters + " " + c
 
-        self.command = f"nextflow -log {store['results']}/.nextflow.log run {meta['repository']} -latest -name {name} -profile docker -w {store['temp']} {parameters} --outdir {store['results']} ; nextflow clean {name}"
+        self.command = f"nextflow -log {store['results']}/logs.txt run {meta['repository']} -latest -name {name} -profile docker -w {store['temp']} {parameters} --outdir {store['results']}"
 
 class Config():
     def __init__(self, meta, name, inputs, store):

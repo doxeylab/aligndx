@@ -70,8 +70,10 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
         container_id=config.container.id,
         inputs=submission.inputs,
         store=store,
-        status=status
+        status=status,
+        pipeline=submission.pipeline
     )
+    
     update_metadata.s(sub_id=sub_id, metadata=metadata)()
 
     # Initiate pipeline monitor
@@ -142,8 +144,7 @@ async def get_report(sub_id: str, current_user: auth.UserDTO = Depends(get_curre
 
     submission = submissions.Entry.from_orm(query)
 
-    pipeline_details = pipelines.get_pipeline(submission.pipeline)
-    report_path = os.path.join(settings.RESULTS_FOLDER, sub_id, pipeline_details['report'])
+    report_path = os.path.join(settings.RESULTS_FOLDER, sub_id, 'report.html')
 
     if os.path.exists(report_path) != True:
         raise HTTPException(status_code=404, detail="Report not found")

@@ -390,9 +390,9 @@
                 },
                 "report_inputs": {
                     "title": "Report Inputs",
-                    "description": "Files for report generation",
-                    "type": "array",
-                    "items": {
+                    "description": "Keyword arguments for report construction",
+                    "type": "object",
+                    "additionalProperties": {
                         "type": "string"
                     }
                 }

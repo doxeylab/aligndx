@@ -45,10 +45,10 @@ def get_available_pipelines():
 
 def get_pipeline(pipeline: str):
     """
-    Returns the pipeline schema for a chosen pipeline
+    Returns the pipeline schema and assets for a chosen pipeline
     """
     pipelines = get_available_pipelines()
-    return pipelines[pipeline]
+    return (pipelines[pipeline], Path(__file__).parent / 'pipelines' / {pipeline})
 
 def configure_pipeline(meta, name, inputs, store):
     """
@@ -65,6 +65,6 @@ def start(pipeline, name, inputs, store):
     """
     Initialization point for running a pipeline
     """
-    schema = get_pipeline(pipeline)
+    schema, assets = get_pipeline(pipeline)
     container = configure_pipeline(meta=schema, name=name, inputs=inputs, store=store)
-    return container
+    return container 
