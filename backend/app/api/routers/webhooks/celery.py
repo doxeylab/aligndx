@@ -19,10 +19,10 @@ async def celery(sub_id: str, status: str, db: AsyncSession = Depends(get_db)):
     if submission is not None:
         if status == 'completed':
             finished_date = datetime.datetime.now(datetime.timezone.utc).isoformat()
-            await sub_dal.update(sub_id, {'finished_data': finished_date, 'status': status})
+            await sub_dal.update(sub_id, submissions.UpdateDateAndStatus(finished_date=finished_date, status=status))
             return 200
         else:
-            await sub_dal.update(sub_id, {'status':status})
+            await sub_dal.update(sub_id, submissions.UpdateStatus(status=status))
         
     else:
         raise HTTPException(status_code=404, detail="Item not found")

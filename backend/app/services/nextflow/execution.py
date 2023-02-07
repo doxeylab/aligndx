@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 import re
 from datetime import datetime
-from app.scripts.nextflow.utils import *
+from .utils import *
 
 class Execution:
     """The record of the running of a Nextflow script. Upon initialisation all

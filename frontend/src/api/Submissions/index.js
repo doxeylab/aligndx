@@ -6,7 +6,9 @@ export const useSubmissions = () => {
     const { get, post, put, destroy } = useAxios();
 
     return {
-        get_submission: (sub_id) => 
+        start: (params) =>
+            post(`${submissions_endpoint}/start`, params),
+        get_submission: (sub_id) =>
             get(`${submissions_endpoint}/${sub_id}`),
         index_submissions: () =>
             get(`${submissions_endpoint}/all/`),

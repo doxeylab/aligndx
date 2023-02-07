@@ -66,6 +66,7 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
 
     # Generate submission metadata for redis
     metadata = redis.MetaModel(
+        name=submission.name,
         container_id=config.container.id,
         inputs=submission.inputs,
         store=store,
@@ -139,10 +140,10 @@ async def get_report(sub_id: str, current_user: auth.UserDTO = Depends(get_curre
     if query is None:
         raise HTTPException(status_code=404, detail="Submission not found")
 
-    submission = submissions.Schema.from_orm(query)
-        
-    report_dir = pd.read_json(settings.PIPELINES)[submission.pipeline]['report']
-    report_path = os.path.join(settings.RESULTS_FOLDER, sub_id, report_dir)
+    submission = submissions.Entry.from_orm(query)
+
+    pipeline_details = pipelines.get_pipeline(submission.pipeline)
+    report_path = os.path.join(settings.RESULTS_FOLDER, sub_id, pipeline_details['report'])
 
     if os.path.exists(report_path) != True:
         raise HTTPException(status_code=404, detail="Report not found")
@@ -179,10 +180,10 @@ async def download(sub_id: str, current_user: auth.UserDTO = Depends(get_current
     if query is None:
         raise HTTPException(status_code=404, detail="Submission not found")
 
-    submission = submissions.Schema.from_orm(query)
+    submission = submissions.Entry.from_orm(query)
 
     zip_subdir = os.path.join(settings.RESULTS_FOLDER, str(submission.id))
-    name = "results.zip"
+    name = f"{submission.name}_results.zip"
     
     if os.path.exists(zip_subdir) != True :
         raise HTTPException(status_code=404, detail="No results available")

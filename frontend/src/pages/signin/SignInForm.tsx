@@ -6,6 +6,8 @@ import * as yup from "yup";
 import { useAuthContext } from "../../context/AuthProvider";
 import { useUsers } from "../../api/Users"
 import { useRouter } from "next/router";
+import { FormContainer, StyledButton } from "../../components/Form/StyledForm";
+import { CircularProgress, Typography } from "@mui/material";
 
 const SignInForm = () => {
     /**
@@ -42,7 +44,7 @@ const SignInForm = () => {
     })
 
     // mutation function used to update auth serverstate
-    const sendLogin = (login : any) => {
+    const sendLogin = (login: any) => {
         const payload = new URLSearchParams(login)
         return users.login(payload)
     }
@@ -53,7 +55,7 @@ const SignInForm = () => {
             context?.setupUser(data.data)
             router.push('/')
         },
-        onError: (error : any) => {
+        onError: (error: any) => {
             if (error?.response?.status === 401) {
                 setInvalid(true)
             }
@@ -61,13 +63,13 @@ const SignInForm = () => {
     })
 
     // Form handling for calling mutation function
-    const loginFormHandler = (data : any) => {
+    const loginFormHandler = (data: any) => {
         data['username'] = data['email']
         delete data['email']
         login.mutate(data)
     }
 
-    const switchHandler = (event : any) => {
+    const switchHandler = (event: any) => {
         setChecked(event.target.checked)
     }
 
@@ -75,27 +77,50 @@ const SignInForm = () => {
         <Form
             schema={schema}
             onSubmit={loginFormHandler}
-            name={"Sign In"}
-            btnlabel={"Log In"}
-            loading={login.isLoading}
         >
-            <FormTextField name={"email"} label={"email"} type={"email"} autoComplete={"email"} />
-            <FormTextField name={"password"} label={"password"} type={"password"} autoComplete={"new-password"} />
+            <FormContainer>
+                <Typography variant="h4">Sign In</Typography>
+                <FormTextField
+                    name={"email"}
+                    label={"Email"}
+                    type={"email"}
+                    autoComplete={"email"}
 
-            {invalid ? <Grid container justifyContent={"center"}>
-                <Alert severity="error" variant="outlined">Invalid credentials!</Alert>
-            </Grid> :
-                null}
-            <Grid container direction={"row"} justifyContent={"center"}>
-                <Grid item  xs container justifyContent={"flex-start"} alignItems={"center"}>
-                    <FormGroup>
-                        <FormControlLabel control={<Switch checked={checked} onChange={switchHandler} />} label="Remember Me" />
-                    </FormGroup>
-                </Grid>
-                <Grid item xs container justifyContent={"flex-end"} alignItems={"center"}>
+                />
+                <FormTextField
+                    name={"password"}
+                    label={"Password"}
+                    type={"password"}
+                    autoComplete={"current-password"}
+                />
+
+                {invalid ? <Grid container justifyContent={"center"}>
+                    <Alert
+                        severity="error"
+                        variant="outlined">Invalid credentials!</Alert>
+                </Grid> :
+                    null}
+                <Grid container direction={"row"} justifyContent={"center"}>
+                    <Grid item xs container justifyContent={"flex-start"} alignItems={"center"}>
+                        <FormGroup>
+                            <FormControlLabel
+                                control={<Switch checked={checked} onChange={switchHandler} />}
+                                label="Remember Me"
+                            />
+                        </FormGroup>
+                    </Grid>
+                    <Grid item xs container justifyContent={"flex-end"} alignItems={"center"}>
                         <Link href="/404">Forgot Password</Link>
+                    </Grid>
                 </Grid>
-            </Grid>
+                <StyledButton
+                    size='large'
+                    variant="contained"
+                    type="submit"
+                >
+                    {login.isLoading ? <CircularProgress size={25} /> : 'Log In'}
+                </StyledButton>
+            </FormContainer>
         </Form>
     );
 }

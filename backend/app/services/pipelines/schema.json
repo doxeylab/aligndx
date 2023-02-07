@@ -20,11 +20,16 @@
                         "terminated"
                     ],
                     "type": "string"
+                },
+                "fname": {
+                    "title": "Fname",
+                    "type": "string"
                 }
             },
             "required": [
                 "size",
-                "status"
+                "status",
+                "fname"
             ]
         },
         "File": {
@@ -41,7 +46,7 @@
                     "description": "Input value(s)",
                     "type": "array",
                     "items": {
-                        "type": "object"
+                        "type": "string"
                     }
                 },
                 "status": {

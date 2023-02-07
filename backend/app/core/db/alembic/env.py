@@ -5,8 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from ...config.settings import settings
-from ..base import Base 
+from app.core.config.settings import settings
+from app.core.db.base import Base 
 
 # import os, sys
 # from dotenv import load_dotenv

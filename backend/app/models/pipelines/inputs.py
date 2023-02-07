@@ -14,12 +14,13 @@ class Base(BaseModel):
 class FileMeta(BaseModel):
     size: int = Field(description='Size of file in bytes')
     status: Literal['created', 'uploading', 'finished', 'terminated']
-
+    fname: str
+    
 class File(Base):
     input_type : Literal['file']
     file_types: List[str] = Field(description='Allowed file_types for input')
     file_meta: Dict[str, FileMeta] = Field(None, description='File metadata')
-    values: List[dict] = Field(None, description='Input value(s)')
+    values: List[str] = Field(None, description='Input value(s)')
 
 class Select(Base):
     input_type : Literal['select']
