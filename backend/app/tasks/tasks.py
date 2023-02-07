@@ -3,7 +3,7 @@ import shutil, os
 from app.models.redis import MetaModel
 from .redis.functions import Handler
 from app.services.containers import client
-from celery import shared_task
+from celery import shared_task, chain
 
 CELERY_API_KEY = os.getenv("CELERY_API_KEY")
 API_URL = os.getenv("API_URL")
@@ -49,7 +49,7 @@ def cleanup(sub_id: str, metadata : MetaModel):
 @shared_task(name="Status Update")
 def status_update(sub_id : str, status : str):
     requests.post(f"{API_URL}/webhooks/celery/status_update", params={"sub_id": sub_id, "status": status}, headers={"Authorization": f'Bearer {CELERY_API_KEY}'})
-    
+
 class StatusException(Exception):
     """Raised when the pipeline is not ready
      Attributes:
@@ -81,18 +81,17 @@ def status_check(self, sub_id: str):
         successful_containers = client.containers.list(all=True,filters={'exited':0})
         if any(x.id == container.id for x in successful_containers):
             status = 'completed'
-            metadata.status = status
-            update_metadata.s(sub_id, metadata)()
-            status_update.s(sub_id, status).delay()
-            cleanup.s(sub_id, metadata).delay()
-            return True
+            metadata.status = status 
 
         else:
             status = 'error'
             metadata.status = status
-            update_metadata.s(sub_id, metadata)()
-            status_update.s(sub_id, status).delay()
-            cleanup.s(sub_id, metadata).delay()
-            return True
+        
+        res = chain(
+            update_metadata.s(sub_id, metadata),
+            status_update.s(sub_id, status),
+            cleanup.s(sub_id, metadata)
+        ).delay()
+        return True
 
     raise StatusException(status)
