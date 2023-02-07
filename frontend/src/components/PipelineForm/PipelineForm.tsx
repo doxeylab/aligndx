@@ -59,7 +59,9 @@ export default function PipelineForm() {
             pipeline: selectedPipeline.id,
             inputs: inputs
         }
-        submissionStarter.mutate(submissionData)
+        console.log(data)
+        console.log(submissionData)
+        // submissionStarter.mutate(submissionData)
     };
 
     const onPipelineChange = (value : any) => {
@@ -77,19 +79,16 @@ export default function PipelineForm() {
         else {
             for (const [inp, uploader] of Object.entries(uploaders[selectedPipeline.id])) {
                 uploader.close()
+                uploader.cancelAll()
             }
             setUploaders({})
             setShowInputs(false)
         } 
-        // if (isEmpty(selectedPipeline) == false) {
-        //     Object.entries(uploaders[selectedPipeline?.id]).map(([inp, uploader]) => {
-        //         uploader.cancelAll()
-        //     })
-        // }
     }
  
     return (
         <Form
+            key={selectedPipeline?.id}
             schema={schema}
             onSubmit={onSubmit}
         >

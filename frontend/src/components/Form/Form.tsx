@@ -6,9 +6,10 @@ interface IForm {
     schema?: any;
     onSubmit?: any;
     children?: any;
+    [formProps: string]: any;
 }
 
-const Form = ({ schema, onSubmit, children }: IForm) => {
+const Form = ({ schema, onSubmit, children, ...formProps }: IForm) => {
     const [isSafeToReset, setIsSafeToReset] = useState(false);
 
     const methods = useForm({
@@ -39,7 +40,7 @@ const Form = ({ schema, onSubmit, children }: IForm) => {
     // }, [isSafeToReset])
 
     return (
-        <FormProvider {...methods}>
+        <FormProvider {...methods} {...formProps}>
             <form onSubmit={methods.handleSubmit(handleSubmit)}>
                 {children}
             </form>
