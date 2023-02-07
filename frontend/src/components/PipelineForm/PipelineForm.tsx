@@ -23,12 +23,13 @@ export default function PipelineForm() {
     const [schema, setSchema] = useState(null);
     const [success, setSuccess] = useState(false);
     const [subId, setSubId] = useState(null);
+    const [showInputs, setShowInputs] = useState(false);
 
     const refresh = useRefresh();
 
     const onSuccess = (data) => {
         setSubId(data?.data['sub_id'])
-        for (const [inp, uploader] of Object.entries(uploaders)) {
+        for (const [inp, uploader] of Object.entries(uploaders[selectedPipeline.id])) {
             uploader.setMeta({ 'sub_id': data?.data['sub_id'], 'input_id': inp })
             uploader.upload()
         }
@@ -61,25 +62,32 @@ export default function PipelineForm() {
         submissionStarter.mutate(submissionData)
     };
 
-    const onPipelineChange = () => {
-        Object.entries(uploaders).map(([inp, uploader]) => {
-            uploader.cancelAll()
-        })
-    }
-
-    useEffect(() => {
-        if (isEmpty(selectedPipeline) == false) {
-            setSchema(SchemaGenerator(selectedPipeline.inputs))
+    const onPipelineChange = (value : any) => {
+        if (value) {
+            SetSelectedPipeline(value)
+            setSchema(SchemaGenerator(value.inputs))
             const createUploader = (val: any) => {
-                return Uploader({ id: val.id, fileTypes: val.file_types, refresh: refresh })
+                return Uploader({ id: `${value.id}-${val.id}`, fileTypes: val.file_types, refresh: refresh })
             }
-            const fileInputs = selectedPipeline.inputs.filter((obj: any) => obj.input_type === 'file')
+            const fileInputs = value.inputs.filter((obj: any) => obj.input_type === 'file')
             const pipelineUploaders = fileInputs.reduce((o, key) => ({ ...o, [key.id]: createUploader(key) }), {})
-            setUploaders({ ...pipelineUploaders })
-
+            setUploaders({...uploaders, [value.id] : {...pipelineUploaders }})
+            setShowInputs(true)
         }
-    }, [selectedPipeline])
-
+        else {
+            for (const [inp, uploader] of Object.entries(uploaders[selectedPipeline.id])) {
+                uploader.close()
+            }
+            setUploaders({})
+            setShowInputs(false)
+        } 
+        // if (isEmpty(selectedPipeline) == false) {
+        //     Object.entries(uploaders[selectedPipeline?.id]).map(([inp, uploader]) => {
+        //         uploader.cancelAll()
+        //     })
+        // }
+    }
+ 
     return (
         <Form
             schema={schema}
@@ -88,7 +96,7 @@ export default function PipelineForm() {
             <CrossFade
                 components={[{
                     in: success,
-                    component: <ProgressView subId={subId} setSuccess={setSuccess} uploaders={uploaders} />,
+                    component: <ProgressView selectedPipeline={selectedPipeline} subId={subId} setSuccess={setSuccess} uploaders={uploaders} />,
                 }, {
                     in: success == false,
                     component: <>
@@ -103,13 +111,10 @@ export default function PipelineForm() {
                                 >
                                     <PipelineSelectMenu
                                         onChange={onPipelineChange}
-                                        SetSelectedPipeline={SetSelectedPipeline}
                                     />
                                 </Paper>
                             </Grid>
-                            {isEmpty(selectedPipeline) ?
-                                null
-                                :
+                            {showInputs ?
                                 <>
                                     <Grid item xs={12} md={8}>
                                         <Paper
@@ -130,7 +135,7 @@ export default function PipelineForm() {
                                         }}>
 
                                             <DynamicInputs
-                                                selectedPipelineInputs={selectedPipeline.inputs}
+                                                selectedPipeline={selectedPipeline}
                                                 uploaders={uploaders}
                                             />
                                             <Grid
@@ -147,6 +152,8 @@ export default function PipelineForm() {
                                         </Paper>
                                     </Grid>
                                 </>
+                                :
+                                null
                             }
                         </Grid>
                     </>,

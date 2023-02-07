@@ -24,9 +24,9 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
         setValue(name, values, { shouldValidate: true })
     })
     uploader.once('restore-confirmed', () => {
-        const currentUploads = []
-        currentUploads.push(uploader.getState()['files'])
-        setValue(name, currentUploads, { shouldValidate: true })
+        const filesState = uploader.getState()['files']
+        const values = Object.values(filesState).map((a: any) => a.name)
+        setValue(name, values, { shouldValidate: true })
     })
     uploader.off('file-removed', null).on('file-removed', (file, reason) => {
         setValue(name, "", { shouldValidate: true })

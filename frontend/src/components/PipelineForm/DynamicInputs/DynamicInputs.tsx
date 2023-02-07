@@ -16,11 +16,11 @@ import SubmissionNameField from './SubmissionNameField';
 import FileSelectorField from './FileSelectorField';
 
 interface DynamicInputsProps {
-    selectedPipelineInputs: any;
+    selectedPipeline: any;
     uploaders?: any;
 }
 
-export default function DynamicInputs({ selectedPipelineInputs, uploaders }: DynamicInputsProps) {
+export default function DynamicInputs({ selectedPipeline, uploaders }: DynamicInputsProps) {
     const [open, setOpen] = useState({})
     const methods = useFormContext();
     const handleOpen = (id: string) => {
@@ -37,14 +37,14 @@ export default function DynamicInputs({ selectedPipelineInputs, uploaders }: Dyn
         })
     }
 
-    if (isEmpty(selectedPipelineInputs) == false) {
+    if (isEmpty(selectedPipeline) == false) {
         return (
             <>
                 <Grid container py={2} justifyContent='space-between'>
                     <Grid item xs>
                         <SubmissionNameField name="name" />
                     </Grid>
-                    {selectedPipelineInputs.map((input: any) => {
+                    {selectedPipeline?.inputs.map((input: any) => {
                         const plugins = ['GoogleDrive', 'Url']
                         if (input.input_type === 'file') {
                             if (isEmpty(uploaders)) {
@@ -56,7 +56,7 @@ export default function DynamicInputs({ selectedPipelineInputs, uploaders }: Dyn
                                         <FileSelectorField
                                             width={'100%'}
                                             name={input.id}
-                                            uploader={uploaders[input.id]}
+                                            uploader={uploaders[selectedPipeline.id][input.id]}
                                             plugins={plugins} />
                                     </Grid>
                                 )

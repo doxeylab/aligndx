@@ -6,7 +6,7 @@ import useWebSocket from "../../../api/Socket";
 import StatusButton from "./StatusButton";
 import useSubmissionStatus from './useSubmissionStatus'
 
-export default function ProgressView({ subId, setSuccess, uploaders }) {
+export default function ProgressView({ subId, setSuccess, selectedPipeline, uploaders }) {
     const [complete, setComplete] = useState(false);
     const [data, setData] = useState({} as any);
 
@@ -22,7 +22,7 @@ export default function ProgressView({ subId, setSuccess, uploaders }) {
 
     const onSuccess = (data: any) => {
         const status = data?.data['status']
-        if (status && status != 'completed') {
+        if (status && status != 'completed' || status != 'error') {
             connectWebsocket(subId, dataHandler)
         }
         else {
@@ -33,7 +33,7 @@ export default function ProgressView({ subId, setSuccess, uploaders }) {
     const status = useSubmissionStatus(subId, onSuccess)
 
     const handleNewSubmission = () => {
-        Object.entries(uploaders).map(([inp, uploader]) => {
+        Object.entries(uploaders[selectedPipeline.id]).map(([inp, uploader]) => {
             uploader.cancelAll()
             methods.setValue(inp, null, { shouldValidate: true })
         })
@@ -67,20 +67,23 @@ export default function ProgressView({ subId, setSuccess, uploaders }) {
                             justifyContent={"space-between"}
                             pb={2}
                         >
-                            <Typography variant="h5">
-                                Run : {data?.name}
-                            </Typography>
+                            <Paper sx={{ backgroundColor: 'black', padding: 1 }} elevation={2}>
+                                <Typography variant="body1" sx={{ whiteSpace: 'pre-line'}}>
+                                    Run | {data?.name}
+                                </Typography>
+                            </Paper>
                             <StatusButton status={data['status']} />
                         </Box>
                         <Typography variant="h5" pb={1}>
                             Uploads
                         </Typography>
                         <Divider />
-                        {Object.entries(uploaders).map(([inp, uploader]) => {
+                        {Object.entries(uploaders[selectedPipeline?.id]).map(([inp, uploader]) => {
+                            const currInp = selectedPipeline?.inputs.find(e => e.id === inp)
                             return (
                                 <>
-                                    <Grid py={2}>
-                                        <Typography > {inp} </Typography>
+                                    <Grid py={2} key={`${selectedPipeline.id}-${inp}-uploadprogress`}>
+                                        <Typography > {currInp.title} </Typography>
                                         <StatusBar
                                             uppy={uploader}
                                             hideUploadButton
