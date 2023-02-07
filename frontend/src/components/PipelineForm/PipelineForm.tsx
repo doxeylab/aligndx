@@ -59,9 +59,7 @@ export default function PipelineForm() {
             pipeline: selectedPipeline.id,
             inputs: inputs
         }
-        console.log(data)
-        console.log(submissionData)
-        // submissionStarter.mutate(submissionData)
+        submissionStarter.mutate(submissionData)
     };
 
     const onPipelineChange = (value : any) => {

@@ -54,7 +54,6 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
     }, [])
 
     useEffect(() => {
-        console.log(files)
         if (files.length == 0) {
             setValue(name, null, { shouldValidate: true})
         }
