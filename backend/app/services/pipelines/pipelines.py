@@ -48,7 +48,8 @@ def get_pipeline(pipeline: str):
     Returns the pipeline schema and assets for a chosen pipeline
     """
     pipelines = get_available_pipelines()
-    return (pipelines[pipeline], Path(__file__).parent / 'pipelines' / {pipeline})
+    pipeline_assets = Path(__file__).parent / 'pipelines' / pipeline
+    return (pipelines[pipeline], pipeline_assets )
 
 def configure_pipeline(meta, name, inputs, store):
     """

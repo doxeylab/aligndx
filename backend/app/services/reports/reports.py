@@ -111,6 +111,7 @@ def create_report(metadata : redis.MetaModel):
         name = metadata.name,
         status = metadata.status,
         error = error,
+        pipeline = metadata.pipeline,
         timestamp = "This report was created on {date}".format(date=date.today())
     )
     meta_nb['cells'] = [nbf.v4.new_markdown_cell(metadata_layout)]
@@ -123,12 +124,15 @@ def create_report(metadata : redis.MetaModel):
     book = book_combiner([meta_nb,pipeline_nb])
     cell_combiner(book,condition=(lambda x: True if x['metadata'].get('tags') and 'parameters' in x['metadata'].get('tags') else False))
     
-    final_nb = pm.execute.execute_notebook(book, None, parameters=parameters, cwd=results)
-    html_exporter = HTMLExporter(template_file=TEMPLATE_PATH)
-    
-    (body, resources) = html_exporter.from_notebook_node(
-        final_nb, {"metadata": {"name": f"{metadata.pipeline.capitalize()} report"}}
-    )
+    try:
+        final_nb = pm.execute.execute_notebook(book, None, parameters=parameters, cwd=results, progress_bar=False)
+        html_exporter = HTMLExporter(template_file=TEMPLATE_PATH)
 
-    with open(f'{results}/report.html', "w") as o:
-        o.write(body)
+        (body, resources) = html_exporter.from_notebook_node(
+            final_nb, {"metadata": {"name": f"{metadata.pipeline.capitalize()} report"}}
+        )
+
+        with open(f'{results}/report.html', "w") as o:
+            o.write(body)
+    except Exception as e:
+        print(e)

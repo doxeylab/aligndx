@@ -6,6 +6,9 @@ import useWebSocket from "../../../api/Socket";
 import StatusButton from "./StatusButton";
 import useSubmissionStatus from './useSubmissionStatus'
 
+import Download from '../../../components/Download';
+import Report from '../../../components/Report';
+
 export default function ProgressView({ subId, setSuccess, selectedPipeline, uploaders }) {
     const [complete, setComplete] = useState(false);
     const [data, setData] = useState({} as any);
@@ -68,7 +71,7 @@ export default function ProgressView({ subId, setSuccess, selectedPipeline, uplo
                             pb={2}
                         >
                             <Paper sx={{ backgroundColor: 'black', padding: 1 }} elevation={2}>
-                                <Typography variant="body1" sx={{ whiteSpace: 'pre-line'}}>
+                                <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
                                     Run | {data?.name}
                                 </Typography>
                             </Paper>
@@ -108,6 +111,19 @@ export default function ProgressView({ subId, setSuccess, selectedPipeline, uplo
                                 pt={4}
                                 justifyContent={'center'}
                             >
+                                <Grid container justifyContent="center" alignItems="initial" p={2}>
+                                    <Typography variant='h5'>
+                                        Results for {data?.name}
+                                    </Typography>
+                                </Grid>
+                                <Grid container justifyContent="center" alignItems="initial" columnGap={5}>
+                                    <Grid item>
+                                        <Report subId={subId} />
+                                    </Grid>
+                                    <Grid item>
+                                        <Download subId={subId} />
+                                    </Grid>
+                                </Grid>
                                 <Button
                                     variant={'contained'}
                                     onClick={handleNewSubmission}>
