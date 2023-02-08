@@ -1,8 +1,7 @@
 from pathlib import Path
 from datetime import date
-import shutil
+import shutil, os, subprocess
 
-import subprocess
 import nbformat as nbf
 from nbconvert import HTMLExporter
 import papermill as pm
@@ -30,9 +29,9 @@ metadata_layout_md = """
 
 error_md = """
 
-## Oops ... looks like there was an error
-<!-- language: none -->
-    {error}
+## Error
+
+{error}
 
 """
 
@@ -106,7 +105,7 @@ def create_report(metadata : redis.MetaModel):
 
     logs_path = "{}/{}".format(metadata.store['results'],"logs.txt")
     pattern = '/Caused by:/,/Command executed:/{/Command executed:/!p};/Command exit status:/,/Work dir:/{/Work dir:/!p}'
-    error = error_md.format(error=get_errors(logs_path), pattern=pattern) if metadata.status == 'error' else ''
+    error = error_md.format(error=get_errors(logs_path, pattern=pattern)) if metadata.status == 'error' else ''
 
     meta_nb = nbf.v4.new_notebook()
     metadata_layout = metadata_layout_md.format(
@@ -128,7 +127,8 @@ def create_report(metadata : redis.MetaModel):
     cell_combiner(book,condition=(lambda x: True if x['metadata'].get('tags') and 'parameters' in x['metadata'].get('tags') else False))
     
     report_assets = pipeline_assets / 'assets'
-    shutil.copytree(src=report_assets, dst="{}/assets".format(results))
+    if os.path.exists(report_assets):
+        shutil.copytree(src=report_assets, dst="{}/assets".format(results))
 
     out_nb = results + '/report.ipynb'
     try:
