@@ -18,13 +18,17 @@ interface UppyFactoryProps {
 
 export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactoryProps) {
     const temp = Array.from(fileTypes, (element) => {
-        if (element.includes('.')) {
-            const split_extensions = element.split('.').filter(r => r !== '')
-            return split_extensions
+        const count = (element.match(/./g) || []).length
+        if (count > 1) {
+            const split_extensions = element.split('.')
+            const new_extensions = ['.' + split_extensions[1], '.'+ split_extensions[2]]
+            return new_extensions
+        }
+        else {
+            return element
         }
     })
     const allowed_extensions = [...new Set(temp.flat())]
-
     const uppy = new Uppy({
         id: id,
         autoProceed: false,
