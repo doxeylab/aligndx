@@ -65,10 +65,6 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
         }
     }, [files])
 
-    useEffect(() => {
-        console.log(formState.errors[name])
-    },[formState])
-
     return (
         <>
             <Box sx={{ border: formState.errors[name] ? '2px solid red' : null }}>
