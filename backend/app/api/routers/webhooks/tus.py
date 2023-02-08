@@ -34,7 +34,6 @@ async def tusd(
     if sub_id == None:
         raise HTTPException(status_code=405, detail="Submission requires a valid submission Id")
     metadata = retrieve.s(sub_id)()
-    inputs = [x for x in metadata.inputs if x.input_type == 'file']
 
     if headers == 'pre-create':
         # check to see if the entity exists
@@ -46,7 +45,7 @@ async def tusd(
     
     if headers == 'post-create':
         file_id = tus_data['ID']
-        for inp in inputs:
+        for inp in metadata.inputs:
             if inp.id == input_id:
                 file_meta = {
                     'size': tus_data['Size'],
@@ -58,18 +57,16 @@ async def tusd(
                 else:
                     inp.file_meta[file_id] = file_meta
                 inp.status = 'pending'
-                metadata.inputs = inputs
 
     if headers == 'post-finish':
         # update status and move and rename file to appropriate location
         file_id = tus_data['ID']
 
-        for inp in inputs:
+        for inp in metadata.inputs:
                 if inp.id == input_id:
                     new_file_meta = inp.file_meta[file_id] 
                     new_file_meta.status = 'finished'
                     inp.file_meta[file_id] = new_file_meta
-                    metadata.inputs = inputs
                     if all({meta.status == 'finished' for filename, meta in  inp.file_meta.items()}):
                         inp.status = 'ready'
                         
