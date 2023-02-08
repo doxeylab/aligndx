@@ -26,6 +26,7 @@ plotly = "^5.13.0"
 nbconvert = "^7.2.9"
 nbformat = "^5.7.3"
 papermill = "^2.4.0"
+notebook = "^6.5.2"
 
 [tool.poetry.group.test]
 optional = true
