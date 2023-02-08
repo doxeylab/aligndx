@@ -70,7 +70,6 @@
     "results": "*",
     "report_inputs": {
         "bracken":"bracken/bracken_combined.tsv",
-        "panels": "panels.csv",
         "software": "pipeline_info/software_versions.yml"
     }
 }

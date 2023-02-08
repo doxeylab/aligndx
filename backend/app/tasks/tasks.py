@@ -3,7 +3,9 @@ import shutil, os
 from app.models.redis import MetaModel
 from .redis.functions import Handler
 from app.services.containers import client
-from celery import shared_task, chain
+from app.services.reports import create_report
+
+from celery import shared_task
 
 CELERY_API_KEY = os.getenv("CELERY_API_KEY")
 API_URL = os.getenv("API_URL")
@@ -90,6 +92,7 @@ def status_check(self, sub_id: str):
         
         update_metadata.s(sub_id, metadata).delay()
         status_update.s(sub_id, status).delay()
+        create_report(metadata)
         cleanup.s(sub_id, metadata).delay()
         return True
 
