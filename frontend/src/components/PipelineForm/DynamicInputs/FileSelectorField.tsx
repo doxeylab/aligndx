@@ -48,6 +48,9 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
     uploader.off('error', null).on('error', (error) => {
         setFiles([])
     })
+    uploader.off('complete', null).on('complete', (result) => {
+        setFiles([])
+    })
 
     useEffect(() => {
         register(name, { required: true });
@@ -55,10 +58,10 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
 
     useEffect(() => {
         if (files.length == 0) {
-            setValue(name, null, { shouldValidate: true})
+            setValue(name, null)
         }
         else {
-            setValue(name, files, { shouldValidate: true})
+            setValue(name, files, { shouldValidate: true })
         }
     }, [files])
 

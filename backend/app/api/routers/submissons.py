@@ -23,6 +23,7 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
     """
     Generates submission and returns a submission id
     """
+    print(submission.inputs)
     # Create db submission entry
     status='setup'
     submission_entry = submissions.Entry(

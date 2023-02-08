@@ -19,7 +19,7 @@ const CrossFade: React.FC<CrossFadeProps> = ({ components }) => {
       }}
     >
       {components.map((component, index) => (
-        <Fade key={index} in={component.in} timeout={400}>
+        <Fade key={index} in={component.in} timeout={600}>
           {component.in ?
             <Box
               sx={{

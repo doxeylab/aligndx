@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import date
+import shutil
 
 import subprocess
 import nbformat as nbf
@@ -19,6 +20,7 @@ REPORT_CONFIG = {
 
 metadata_layout_md = """
 # Metadata
+<!-- language: none -->
     Run : {name} 
     Status: {status}
     Pipeline: {pipeline}
@@ -121,15 +123,21 @@ def create_report(metadata : redis.MetaModel):
     parameters = create_parameters(inputs, pipeline_schema)
 
     pipeline_nb = nbf.read(pipeline_assets / 'report.ipynb', as_version=4)
+
     book = book_combiner([meta_nb,pipeline_nb])
     cell_combiner(book,condition=(lambda x: True if x['metadata'].get('tags') and 'parameters' in x['metadata'].get('tags') else False))
     
+    report_assets = pipeline_assets / 'assets'
+    shutil.copytree(src=report_assets, dst="{}/assets".format(results))
+
+    out_nb = results + '/report.ipynb'
     try:
-        final_nb = pm.execute.execute_notebook(book, None, parameters=parameters, cwd=results, progress_bar=False)
-        html_exporter = HTMLExporter(template_file=TEMPLATE_PATH)
+        final_nb = pm.execute.execute_notebook(book, out_nb, parameters=parameters, cwd=results, progress_bar=False)
+        html_exporter = HTMLExporter(template_file=str(TEMPLATE_PATH))
+        html_exporter.__dict__['_trait_values'].update(REPORT_CONFIG)
 
         (body, resources) = html_exporter.from_notebook_node(
-            final_nb, {"metadata": {"name": f"{metadata.pipeline.capitalize()} report"}}
+            final_nb, {"metadata": {"name": f"{metadata.pipeline.capitalize()} Report"}}
         )
 
         with open(f'{results}/report.html', "w") as o:

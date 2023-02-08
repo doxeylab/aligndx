@@ -71,7 +71,8 @@
     "results": "*",
     "report_inputs": {
       "bracken": "bracken/bracken_combined.tsv",
-      "software": "pipeline_info/software_versions.yml"
+      "software": "pipeline_info/software_versions.yml",
+      "panels": "assets/panels.csv"
     }
   },
   "metasense": {
