@@ -8,22 +8,19 @@
     "inputs": [
         {
             "id": "input_dir",
-            "title": "Input Files",
+            "title": "LFA Images",
             "input_type": "file",
-            "description": "1 or more fastq files",
+            "description": "1 or more LFA images",
             "count": "multiple",
             "file_types": [
-                ".fastq",
-                ".fq",
-                ".fastq.gz",
-                ".fq.gz"
+                "image/jpeg",
+                "image/png"
             ],
             "optional": false
         }
     ],
-    "pipeline_type": "python",
+    "pipeline_type": "containerized",
     "repository": "mshunjan/visuflow",
-    "results": "*",
     "report_inputs": {
         "detection": "detection_result.csv"
     }

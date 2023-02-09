@@ -18,10 +18,15 @@ interface UppyFactoryProps {
 
 export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactoryProps) {
     const temp = Array.from(fileTypes, (element) => {
-        const count = (element.match(/./g) || []).length
-        if (count > 1) {
-            const split_extensions = element.split('.')
-            const new_extensions = ['.' + split_extensions[1], '.'+ split_extensions[2]]
+        if (element.includes('.')) {
+            const split_extensions = element.split('.').filter(i => i != '')
+            let new_extensions = []
+            if (split_extensions.length > 1) {
+                new_extensions = ['.' + split_extensions[0], '.' + split_extensions[1]]
+            }
+            else {
+                new_extensions = ['.' + split_extensions[0]]
+            }
             return new_extensions
         }
         else {
@@ -29,6 +34,10 @@ export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactor
         }
     })
     const allowed_extensions = [...new Set(temp.flat())]
+    const doubledots = fileTypes.filter(e => e.includes('.'))
+    console.log(doubledots)
+    console.log(fileTypes)
+    
     const uppy = new Uppy({
         id: id,
         autoProceed: false,
@@ -42,12 +51,14 @@ export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactor
         meta: (meta ? meta : {}),
         infoTimeout: 6000,
         onBeforeFileAdded: (currentFile: any, files: any) => {
-            if (fileTypes.some((s: string) => currentFile.name.endsWith(s)) != true) {
-                // log to console
-                uppy.log(`Invalid filetype`)
-                // show error message to the user
-                uppy.info(`Invalid filetype`, 'error', 500)
-                return false
+            if (doubledots.length > 0) {
+                if (doubledots.some((s: string) => currentFile.name.endsWith(s)) != true) {
+                    // log to console
+                    uppy.log(`Invalid filetype`)
+                    // show error message to the user
+                    uppy.info(`Invalid filetype`, 'error', 500)
+                    return false
+                }
             }
         }
     })
