@@ -1,0 +1,30 @@
+{
+    "id": "visuflow",
+    "title": "VisuFlow",
+    "description": "Lateral Flow detection pipeline",
+    "categories": [
+        "lfa"
+    ],
+    "inputs": [
+        {
+            "id": "input_dir",
+            "title": "Input Files",
+            "input_type": "file",
+            "description": "1 or more fastq files",
+            "count": "multiple",
+            "file_types": [
+                ".fastq",
+                ".fq",
+                ".fastq.gz",
+                ".fq.gz"
+            ],
+            "optional": false
+        }
+    ],
+    "pipeline_type": "python",
+    "repository": "mshunjan/visuflow",
+    "results": "*",
+    "report_inputs": {
+        "detection": "detection_result.csv"
+    }
+}

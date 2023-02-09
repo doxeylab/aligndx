@@ -119,5 +119,51 @@
       "bracken": "bracken/bracken_combined.tsv",
       "software": "pipeline_info/software_versions.yml"
     }
+  },
+  "visuflow": {
+    "id": "visuflow",
+    "title": "VisuFlow",
+    "description": "Lateral Flow detection pipeline",
+    "categories": [
+      "lfa"
+    ],
+    "inputs": [
+      {
+        "id": "input",
+        "title": "Input Files",
+        "input_type": "file",
+        "description": "1 or more fastq files",
+        "count": "multiple",
+        "file_types": [
+          ".fastq",
+          ".fq",
+          ".fastq.gz",
+          ".fq.gz"
+        ],
+        "optional": false
+      },
+      {
+        "id": "kraken_db",
+        "title": "Kraken Database",
+        "description": "The PFP-8gb db from https://benlangmead.github.io/aws-indexes/k2",
+        "input_type": "predefined",
+        "count": "single",
+        "optional": false
+      }
+    ],
+    "predefined_commands": [
+      "--kraken_db ./pipelines/shared/kraken_db",
+      "--max_cpus 2",
+      "--max_memory 1.GB",
+      "--max_time 1.h"
+    ],
+    "pipeline_type": "nextflow",
+    "repository": "mshunjan/metasense",
+    "results": "*",
+    "report_inputs": {
+      "bracken": "bracken/bracken_combined.tsv",
+      "software": "pipeline_info/software_versions.yml",
+      "panels": "assets/panels.csv"
+    }
   }
 }
