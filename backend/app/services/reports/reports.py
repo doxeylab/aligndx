@@ -19,20 +19,20 @@ REPORT_CONFIG = {
 
 metadata_layout_md = """
 # Metadata
-<!-- language: none -->
-    Run : {name} 
-    Status: {status}
-    Pipeline: {pipeline}
+
+```
+Run : {name} 
+Status: {status}
+Created: {timestamp}
+```
 {error}
-{timestamp}
 """
 
 error_md = """
-
-## Error
-
+# Error
+```bash    
 {error}
-
+```
 """
 
 def get_errors(file, pattern):
@@ -112,8 +112,7 @@ def create_report(metadata : redis.MetaModel):
         name = metadata.name,
         status = metadata.status,
         error = error,
-        pipeline = metadata.pipeline,
-        timestamp = "This report was created on {date}".format(date=date.today())
+        timestamp = date.today()
     )
     meta_nb['cells'] = [nbf.v4.new_markdown_cell(metadata_layout)]
     
@@ -130,7 +129,7 @@ def create_report(metadata : redis.MetaModel):
     if os.path.exists(report_assets):
         shutil.copytree(src=report_assets, dst="{}/assets".format(results))
 
-    out_nb = results + '/report.ipynb'
+    out_nb = metadata.store['temp'] + '/report.ipynb'
     try:
         final_nb = pm.execute.execute_notebook(book, out_nb, parameters=parameters, cwd=results, progress_bar=False)
         html_exporter = HTMLExporter(template_file=str(TEMPLATE_PATH))

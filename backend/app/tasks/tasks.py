@@ -43,9 +43,9 @@ def cleanup(sub_id: str, metadata : MetaModel):
     container = client.containers.get(metadata.container_id)
     container.remove(v=True)
 
-    for store in metadata.store.values():
+    for store, path in metadata.store.items():
         if store == 'uploads' or store =='temp':
-            shutil.rmtree(store)
+            shutil.rmtree(path)
     Handler.delete(sub_id)
 
 @shared_task(name="Status Update")
