@@ -35,6 +35,11 @@ error_md = """
 ```
 """
 
+code = """
+import pandas as pd 
+pd.set_option('display.max_rows', None, 'display.max_columns', None)
+"""
+
 def get_errors(file, pattern):
     errors = subprocess.run([
         "sed",
@@ -114,7 +119,9 @@ def create_report(metadata : redis.MetaModel):
         error = error,
         timestamp = date.today()
     )
-    meta_nb['cells'] = [nbf.v4.new_markdown_cell(metadata_layout)]
+    meta_nb['cells'] = [
+        nbf.v4.new_markdown_cell(metadata_layout),
+        nbf.v4.new_code_cell(code)]
     
     results = metadata.store['results']
     inputs = {inp.id: inp.values for inp in metadata.inputs}
@@ -129,7 +136,7 @@ def create_report(metadata : redis.MetaModel):
     if os.path.exists(report_assets):
         shutil.copytree(src=report_assets, dst="{}/assets".format(results))
 
-    out_nb = metadata.store['temp'] + '/report.ipynb'
+    out_nb = metadata.store['results'] + '/report.ipynb'
     try:
         final_nb = pm.execute.execute_notebook(book, out_nb, parameters=parameters, cwd=results, progress_bar=False)
         html_exporter = HTMLExporter(template_file=str(TEMPLATE_PATH))

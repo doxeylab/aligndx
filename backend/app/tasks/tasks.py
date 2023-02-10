@@ -77,6 +77,12 @@ def status_check(self, sub_id: str):
             update_metadata.s(sub_id, metadata)()
 
             raise StatusException(status)
+        else: 
+            for inp in metadata.inputs:
+                if inp.input_type == 'file' and inp.file_meta != None:
+                    if all({meta.status == 'finished' for filename, meta in  inp.file_meta.items()}):
+                        inp.status = 'ready'
+            raise StatusException(status)
 
     if container.status == 'exited':
         # check exit code 
