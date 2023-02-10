@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse, HTMLResponse
 
 from app.models import auth, submissions, redis
+from app.models.pipelines import inputs
 from app.services.db import get_db 
 from app.services.auth import get_current_user
 from app.services import pipelines
@@ -23,7 +24,6 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
     """
     Generates submission and returns a submission id
     """
-    print(submission.inputs)
     # Create db submission entry
     status='setup'
     submission_entry = submissions.Entry(
@@ -43,17 +43,15 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
         'results': "{}/{}".format(settings.RESULTS_FOLDER, sub_id),
         'temp': "{}/{}".format(settings.TMP_FOLDER, sub_id),
     }
-    # check if inputs are ready
+
+    # Parse inputs and apply necessary transformations on inputs
     for inp in submission.inputs:
-        if inp.input_type == 'predefined':
+        if inp.input_type == 'select' or inp.input_type == 'text' or inp.input_type == 'predefined':
             inp.status = 'ready'
-
-        path = "{}/{}/{}".format(settings.UPLOAD_FOLDER, sub_id, inp.id)
-        store[inp.id] = path
-
-        if inp.input_type == 'select' or inp.input_type == 'text':
-            if inp.values != None:
-                inp.status = 'ready'
+        if inp.input_type == 'file':
+            inp.file_meta = {v : inputs.FileMeta(status='requested') for v in inp.values}
+            path = "{}/{}/{}".format(settings.UPLOAD_FOLDER, sub_id, inp.id)
+            store[inp.id] = path
 
     dir_generator(store.values())
 

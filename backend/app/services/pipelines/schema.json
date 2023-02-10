@@ -11,25 +11,32 @@
                     "description": "Size of file in bytes",
                     "type": "integer"
                 },
+                "name": {
+                    "title": "Name",
+                    "default": "",
+                    "type": "string"
+                },
+                "offset": {
+                    "title": "Offset",
+                    "description": "Current offset",
+                    "default": 0,
+                    "type": "integer"
+                },
                 "status": {
                     "title": "Status",
                     "enum": [
+                        "requested",
                         "created",
                         "uploading",
                         "finished",
+                        "paused",
                         "terminated"
                     ],
-                    "type": "string"
-                },
-                "fname": {
-                    "title": "Fname",
                     "type": "string"
                 }
             },
             "required": [
-                "size",
-                "status",
-                "fname"
+                "status"
             ]
         },
         "File": {
@@ -98,6 +105,7 @@
                 "file_meta": {
                     "title": "File Meta",
                     "description": "File metadata",
+                    "default": {},
                     "type": "object",
                     "additionalProperties": {
                         "$ref": "#/definitions/FileMeta"

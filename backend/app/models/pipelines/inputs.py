@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Union, Literal, Dict
+from typing import List, Union, Literal, Dict, Optional
 from typing_extensions import Annotated
 
 class Base(BaseModel):
@@ -12,14 +12,15 @@ class Base(BaseModel):
     optional: bool = Field(description='Boolean flag to describe input as optional or not')
 
 class FileMeta(BaseModel):
-    size: int = Field(description='Size of file in bytes')
-    status: Literal['created', 'uploading', 'finished', 'terminated']
-    fname: str
+    size: Optional[int] = Field(None, description='Size of file in bytes')
+    name: str = Field('')
+    offset: int = Field(0,description='Current offset')
+    status: Literal['requested','created', 'uploading', 'finished', 'paused', 'terminated']
     
 class File(Base):
     input_type : Literal['file']
     file_types: List[str] = Field(description='Allowed file_types for input')
-    file_meta: Dict[str, FileMeta] = Field(None, description='File metadata')
+    file_meta: Dict[str, FileMeta] = Field({}, description='File metadata')
     values: List[str] = Field(None, description='Input value(s)')
 
 class Select(Base):

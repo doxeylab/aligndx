@@ -5,8 +5,7 @@ from passlib.context import CryptContext
 from functools import lru_cache
 from typing import Optional
 
-import os, math
-
+import os
 class AppSettings(BaseSettings):
 
     #  -- Auth -- 
@@ -65,6 +64,7 @@ class AppSettings(BaseSettings):
             if self.DATABASE_URL
             else self.DATABASE_URL
         )
+    
 
 
 @lru_cache()

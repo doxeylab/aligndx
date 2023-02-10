@@ -1,5 +1,4 @@
-import os 
-import time 
+import os, time
 
 def dir_generator(dirs):
     for dir in dirs:
@@ -13,3 +12,4 @@ def wait_until(delegate, timeout: int, sleep: float):
             break
         else:
             time.sleep(sleep)
+ 

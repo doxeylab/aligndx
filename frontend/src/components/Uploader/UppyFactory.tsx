@@ -35,8 +35,6 @@ export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactor
     })
     const allowed_extensions = [...new Set(temp.flat())]
     const doubledots = fileTypes.filter(e => e.includes('.'))
-    console.log(doubledots)
-    console.log(fileTypes)
     
     const uppy = new Uppy({
         id: id,
