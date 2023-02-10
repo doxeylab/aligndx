@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse, HTMLResponse
 
 from app.models import auth, submissions, redis
+from app.models.pipelines import inputs
 from app.services.db import get_db 
 from app.services.auth import get_current_user
 from app.services import pipelines
@@ -42,17 +43,15 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
         'results': "{}/{}".format(settings.RESULTS_FOLDER, sub_id),
         'temp': "{}/{}".format(settings.TMP_FOLDER, sub_id),
     }
-    # check if inputs are ready
+
+    # Parse inputs and apply necessary transformations on inputs
     for inp in submission.inputs:
-        if inp.input_type == 'predefined':
+        if inp.input_type == 'select' or inp.input_type == 'text' or inp.input_type == 'predefined':
             inp.status = 'ready'
-
-        path = "{}/{}/{}".format(settings.UPLOAD_FOLDER, sub_id, inp.id)
-        store[inp.id] = path
-
-        if inp.input_type == 'select' or inp.input_type == 'text':
-            if inp.values != None:
-                inp.status = 'ready'
+        if inp.input_type == 'file':
+            inp.file_meta = {v : inputs.FileMeta(status='requested') for v in inp.values}
+            path = "{}/{}/{}".format(settings.UPLOAD_FOLDER, sub_id, inp.id)
+            store[inp.id] = path
 
     dir_generator(store.values())
 
@@ -70,8 +69,10 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
         container_id=config.container.id,
         inputs=submission.inputs,
         store=store,
-        status=status
+        status=status,
+        pipeline=submission.pipeline
     )
+    
     update_metadata.s(sub_id=sub_id, metadata=metadata)()
 
     # Initiate pipeline monitor
@@ -142,8 +143,7 @@ async def get_report(sub_id: str, current_user: auth.UserDTO = Depends(get_curre
 
     submission = submissions.Entry.from_orm(query)
 
-    pipeline_details = pipelines.get_pipeline(submission.pipeline)
-    report_path = os.path.join(settings.RESULTS_FOLDER, sub_id, pipeline_details['report'])
+    report_path = os.path.join(settings.RESULTS_FOLDER, sub_id, 'report.html')
 
     if os.path.exists(report_path) != True:
         raise HTTPException(status_code=404, detail="Report not found")

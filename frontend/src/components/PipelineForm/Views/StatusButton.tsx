@@ -6,7 +6,7 @@ export default function StatusButton({status}: any) {
             <Button
                 color="warning"
                 variant={'contained'}>
-                {status}
+                Status | {status}
             </Button>
         )
     }
@@ -15,7 +15,7 @@ export default function StatusButton({status}: any) {
             <Button
                 color="info"
                 variant={'contained'}>
-                {status}
+                Status | {status}
             </Button>
         )
     }
@@ -24,7 +24,7 @@ export default function StatusButton({status}: any) {
             <Button
                 color="success"
                 variant={'contained'}>
-                {status}
+                Status | {status}
             </Button>
         )
     }
@@ -33,7 +33,7 @@ export default function StatusButton({status}: any) {
             <Button
                 color="error"
                 variant={'contained'}>
-                {status}
+                Status | {status}
             </Button>
         )
     }

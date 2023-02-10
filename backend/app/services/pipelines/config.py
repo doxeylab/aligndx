@@ -26,7 +26,35 @@ class Nextflow():
             for c in pdc:
                 parameters = parameters + " " + c
 
-        self.command = f"nextflow -log {store['results']}/.nextflow.log run {meta['repository']} -latest -name {name} -profile docker -w {store['temp']} {parameters} --outdir {store['results']} ; nextflow clean {name}"
+        self.command = f"nextflow -log {store['results']}/logs.txt run {meta['repository']} -latest -name {name} -profile docker -w {store['temp']} {parameters} --outdir {store['results']}"
+
+
+class Containerized():
+    def __init__(self, meta, name, inputs, store):
+        self.image = meta['repository']
+        self.environment = {}
+        self.create_command(meta, name, inputs, store)
+
+    def create_command(self, meta, name, inputs, store):
+        parameters = ""
+        # get user defined inputs
+        for inp in inputs:
+            if inp.input_type == 'file':
+                parameter = f"--{inp.id} {store[inp.id]} "
+            if inp.input_type == 'predefined':
+                continue
+            if inp.input_type == 'select' or inp.input_type == 'text': 
+                value = " ".join(inp.values)
+                parameter = f"--{inp.id} {value} "
+            parameters = parameters + parameter
+
+        # get system defined inputs
+        pdc = meta.get('predefined_commands')
+        if pdc:
+            for c in pdc:
+                parameters = parameters + " " + c
+
+        self.command = f"visuflow {parameters} --output {store['results']}"
 
 class Config():
     def __init__(self, meta, name, inputs, store):
@@ -35,7 +63,8 @@ class Config():
         self.store = store
         self.inputs = inputs
         self.classes = {
-            "nextflow": Nextflow
+            "nextflow": Nextflow,
+            "containerized": Containerized
         }
         self.configure(self.meta, self.name, self.inputs, self.store)
 

@@ -17,6 +17,25 @@ interface UppyFactoryProps {
 }
 
 export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactoryProps) {
+    const temp = Array.from(fileTypes, (element) => {
+        if (element.includes('.')) {
+            const split_extensions = element.split('.').filter(i => i != '')
+            let new_extensions = []
+            if (split_extensions.length > 1) {
+                new_extensions = ['.' + split_extensions[0], '.' + split_extensions[1]]
+            }
+            else {
+                new_extensions = ['.' + split_extensions[0]]
+            }
+            return new_extensions
+        }
+        else {
+            return element
+        }
+    })
+    const allowed_extensions = [...new Set(temp.flat())]
+    const doubledots = fileTypes.filter(e => e.includes('.'))
+    
     const uppy = new Uppy({
         id: id,
         autoProceed: false,
@@ -25,10 +44,21 @@ export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactor
             maxFileSize: null,
             maxTotalFileSize: null,
             maxNumberOfFiles: null,
-            allowedFileTypes: (fileTypes ? fileTypes : null),
+            allowedFileTypes: (fileTypes ? allowed_extensions : null),
         },
         meta: (meta ? meta : {}),
-        infoTimeout: 6000
+        infoTimeout: 6000,
+        onBeforeFileAdded: (currentFile: any, files: any) => {
+            if (doubledots.length > 0) {
+                if (doubledots.some((s: string) => currentFile.name.endsWith(s)) != true) {
+                    // log to console
+                    uppy.log(`Invalid filetype`)
+                    // show error message to the user
+                    uppy.info(`Invalid filetype`, 'error', 500)
+                    return false
+                }
+            }
+        }
     })
         .use(Tus, {
             limit: 0,

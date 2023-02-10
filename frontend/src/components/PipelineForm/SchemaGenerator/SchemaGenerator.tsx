@@ -12,6 +12,10 @@ export default function SchemaGenerator(selectedPipelineInputs: any) {
                 {
                     type: 'required',
                     params: ['Required']
+                },
+                {
+                    type: 'typeError',
+                    params: ['Required']
                 }
             ]
         }

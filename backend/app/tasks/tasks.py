@@ -3,6 +3,8 @@ import shutil, os
 from app.models.redis import MetaModel
 from .redis.functions import Handler
 from app.services.containers import client
+from app.services.reports import create_report
+
 from celery import shared_task
 
 CELERY_API_KEY = os.getenv("CELERY_API_KEY")
@@ -41,15 +43,15 @@ def cleanup(sub_id: str, metadata : MetaModel):
     container = client.containers.get(metadata.container_id)
     container.remove(v=True)
 
-    for store in metadata.store.values():
+    for store, path in metadata.store.items():
         if store == 'uploads' or store =='temp':
-            shutil.rmtree(store)
+            shutil.rmtree(path)
     Handler.delete(sub_id)
 
 @shared_task(name="Status Update")
 def status_update(sub_id : str, status : str):
     requests.post(f"{API_URL}/webhooks/celery/status_update", params={"sub_id": sub_id, "status": status}, headers={"Authorization": f'Bearer {CELERY_API_KEY}'})
-    
+
 class StatusException(Exception):
     """Raised when the pipeline is not ready
      Attributes:
@@ -79,20 +81,19 @@ def status_check(self, sub_id: str):
     if container.status == 'exited':
         # check exit code 
         successful_containers = client.containers.list(all=True,filters={'exited':0})
+ 
         if any(x.id == container.id for x in successful_containers):
             status = 'completed'
-            metadata.status = status
-            update_metadata.s(sub_id, metadata)()
-            status_update.s(sub_id, status).delay()
-            cleanup.s(sub_id, metadata).delay()
-            return True
+            metadata.status = status 
 
         else:
             status = 'error'
             metadata.status = status
-            update_metadata.s(sub_id, metadata)()
-            status_update.s(sub_id, status).delay()
-            cleanup.s(sub_id, metadata).delay()
-            return True
+        
+        update_metadata.s(sub_id, metadata).delay()
+        status_update.s(sub_id, status).delay()
+        create_report(metadata)
+        cleanup.s(sub_id, metadata).delay()
+        return True
 
     raise StatusException(status)

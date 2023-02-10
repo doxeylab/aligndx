@@ -13,5 +13,6 @@ class MetaModel(BaseModel):
     store: Dict[str,str]
     status: status
     processes: Dict[str,str] = None
+    pipeline: str
 
 

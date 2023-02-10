@@ -45,8 +45,24 @@ export default function DynamicInputs({ selectedPipeline, uploaders }: DynamicIn
                         <SubmissionNameField name="name" />
                     </Grid>
                     {selectedPipeline?.inputs.map((input: any) => {
-                        const plugins = ['GoogleDrive', 'Url']
                         if (input.input_type === 'file') {
+                            // can be files, folders or both
+                            let selectionType = 'files'
+                            if (input.count == 'single'){
+                                selectionType = 'both'
+                            }
+
+                            let plugins = [""]
+                            const imageTypes = ["image/jpeg	", "image/png"]
+                            const needsCam = input.file_types.some(r=> imageTypes.includes(r))
+
+                            if (needsCam) {
+                                plugins = ['MyWebCam','GoogleDrive', 'Url']
+                            }
+                            else {
+                                plugins = ['GoogleDrive', 'Url']
+                            }
+
                             if (isEmpty(uploaders)) {
                                 return (null)
                             }
@@ -57,7 +73,9 @@ export default function DynamicInputs({ selectedPipeline, uploaders }: DynamicIn
                                             width={'100%'}
                                             name={input.id}
                                             uploader={uploaders[selectedPipeline.id][input.id]}
-                                            plugins={plugins} />
+                                            plugins={plugins} 
+                                            fileManagerSelectionType={selectionType}
+                                            />
                                     </Grid>
                                 )
                             }

@@ -1,16 +1,19 @@
 import { Box, Button, Divider, Grid, Paper, Typography } from "@mui/material";
 import { StatusBar } from '@uppy/react'
 import { useState, useEffect } from "react";
-import { useFormContext } from "react-hook-form";
 import useWebSocket from "../../../api/Socket";
 import StatusButton from "./StatusButton";
 import useSubmissionStatus from './useSubmissionStatus'
+import CircularProgress from '@mui/material/CircularProgress';
+import { CrossFade } from "../CrossFade";
+
+import Download from '../../../components/Download';
+import Report from '../../../components/Report';
 
 export default function ProgressView({ subId, setSuccess, selectedPipeline, uploaders }) {
     const [complete, setComplete] = useState(false);
     const [data, setData] = useState({} as any);
 
-    const methods = useFormContext()
     const { connectWebsocket } = useWebSocket();
 
     const dataHandler = (event: any) => {
@@ -35,7 +38,6 @@ export default function ProgressView({ subId, setSuccess, selectedPipeline, uplo
     const handleNewSubmission = () => {
         Object.entries(uploaders[selectedPipeline.id]).map(([inp, uploader]) => {
             uploader.cancelAll()
-            methods.setValue(inp, null, { shouldValidate: true })
         })
         setSuccess(false)
     }
@@ -68,56 +70,81 @@ export default function ProgressView({ subId, setSuccess, selectedPipeline, uplo
                             pb={2}
                         >
                             <Paper sx={{ backgroundColor: 'black', padding: 1 }} elevation={2}>
-                                <Typography variant="body1" sx={{ whiteSpace: 'pre-line'}}>
+                                <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
                                     Run | {data?.name}
                                 </Typography>
                             </Paper>
                             <StatusButton status={data['status']} />
                         </Box>
-                        <Typography variant="h5" pb={1}>
-                            Uploads
-                        </Typography>
-                        <Divider />
-                        {Object.entries(uploaders[selectedPipeline?.id]).map(([inp, uploader]) => {
-                            const currInp = selectedPipeline?.inputs.find(e => e.id === inp)
-                            return (
-                                <>
-                                    <Grid py={2} key={`${selectedPipeline.id}-${inp}-uploadprogress`}>
-                                        <Typography > {currInp.title} </Typography>
-                                        <StatusBar
-                                            uppy={uploader}
-                                            hideUploadButton
-                                            hideAfterFinish={false}
-                                            showProgressDetails={true}
-                                            hideRetryButton={true}
-                                            hidePauseResumeButton={true}
-                                            hideCancelButton={true}
-                                        />
-                                    </Grid>
-                                </>
-                            )
-                        })}
-                        <Typography variant="h5" pb={1}>
-                            Analysis
-                        </Typography>
-                        <Divider />
+                        <CrossFade
+                            components={[
+                                {
+                                    in: complete == false,
+                                    component: <>
+                                        <Typography variant="h5" pb={1}>
+                                            Uploads
+                                        </Typography>
+                                        <Divider />
+                                        {Object.entries(uploaders[selectedPipeline?.id]).map(([inp, uploader]) => {
+                                            const currInp = selectedPipeline?.inputs.find(e => e.id === inp)
+                                            return (
+                                                <Grid py={2} key={`${selectedPipeline.id}-${inp}-uploadprogress`}>
+                                                    <Typography > {currInp.title} </Typography>
+                                                    <StatusBar
+                                                        uppy={uploader}
+                                                        hideUploadButton
+                                                        hideAfterFinish={false}
+                                                        showProgressDetails={true}
+                                                        hideRetryButton={true}
+                                                        hidePauseResumeButton={true}
+                                                        hideCancelButton={true}
+                                                    />
+                                                </Grid>
+                                            )
+                                        })}
+                                        <Typography variant="h5" pb={1}>
+                                            Analysis
+                                        </Typography>
+                                        <Divider />
+                                        <Grid container direction={'column'} py={3} justifyContent={'center'} alignItems={'center'}>
+                                            <Grid item>
+                                                <CircularProgress />
 
-                        {complete ?
-                            <Grid
-                                container
-                                pt={4}
-                                justifyContent={'center'}
-                            >
-                                <Button
-                                    variant={'contained'}
-                                    onClick={handleNewSubmission}>
-                                    New Submission
-                                </Button>
+                                            </Grid>
+                                            Tinkering ...
+                                        </Grid>
+                                    </>
+                                },
+                                {
+                                    in: complete,
+                                    component: <>
+                                        <Typography variant="h5" pb={1}>
+                                            Results
+                                        </Typography>
+                                        <Divider />
+                                        <Grid
+                                            container
+                                            pt={4}
+                                        >
+                                            <Grid pb={4} container justifyContent="center" alignItems="initial" columnGap={5}>
+                                                <Grid item>
+                                                    <Report subId={subId} />
+                                                </Grid>
+                                                <Grid item>
+                                                    <Download subId={subId} />
+                                                </Grid>
+                                            </Grid>
+                                            <Button
+                                                variant={'contained'}
+                                                onClick={handleNewSubmission}>
+                                                New
+                                            </Button>
 
-                            </Grid>
-                            :
-                            null
-                        }
+                                        </Grid>
+                                    </>
+                                },
+                            ]}
+                        />
                     </Paper>
                 </Grid>
             </Grid>
