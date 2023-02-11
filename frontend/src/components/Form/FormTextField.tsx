@@ -23,7 +23,7 @@ const FormTextField = ({name, label, type, autoComplete, hint } : FormTextFieldP
                         autoComplete={autoComplete? autoComplete : undefined}
                         id="filled-basic"
                         type={type}
-                        label={label.replace(/(?<=\b)[a-z](?=\w*)/g, c => c.toUpperCase())}
+                        label={label}
                         variant="filled"
                         error={!!methods?.formState.errors[name]}
                         helperText={methods?.formState.errors[name] ? methods?.formState.errors[name]?.message : (hint ? hint : " ")} />
