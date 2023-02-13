@@ -12,8 +12,7 @@ from app.core.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db 
 from app.tasks import retrieve, update_metadata 
 from app.core.config.settings import settings
-from app.core.utils.utilities import getFileLogger
-import shutil
+import shutil 
 
 router = APIRouter() 
 
@@ -70,13 +69,12 @@ async def tusd(
         # Update status for matching input and fileid
         for inp in metadata.inputs:
             if inp.id == input_id:
-                print(inp.file_meta)
                 inp.file_meta[fname].status = 'finished'
                 
                 ready = [meta.status == 'finished' for filename, meta in  inp.file_meta.items()] 
                 if all(ready):
                     inp.status = 'ready'
-
+        
         # Move and rename file to appropriate location
         src = "{}/{}".format(settings.UPLOAD_FOLDER, file_id)
         dst = "{}/{}".format(metadata.store[input_id], fname)
