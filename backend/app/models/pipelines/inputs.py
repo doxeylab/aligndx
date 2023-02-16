@@ -9,7 +9,7 @@ class Base(BaseModel):
     title: str = Field(description='Title for input')
     description: str = Field(description='Description for input field')
     count: Literal['single', 'multiple']
-    optional: bool = Field(description='Boolean flag to describe input as optional or not')
+    optional: bool = Field(default=False,description='Boolean flag to describe input as optional or not')
 
 class FileMeta(BaseModel):
     size: Optional[int] = Field(None, description='Size of file in bytes')

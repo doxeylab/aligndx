@@ -9,6 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from app.api.routers import users, submissons, sockets, metadata, payments, webhooks
 
 from app.services.auth import get_current_user
+from app.services.factory import initialize
 from app.core import utils
 
 from app.core.config.settings import get_settings
@@ -26,6 +27,7 @@ async def setup_configs():
     '''
     settings = get_settings()
     utils.dir_generator(settings.DIRS)
+    initialize()
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):

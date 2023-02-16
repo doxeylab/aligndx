@@ -38,24 +38,23 @@ def initialize():
     os.remove(output)
     
     # find pipelines subdirectory and move contents to pipelines directory
-    tree = glob(settings.DOWNLOADS_PATH + "**", recursive=True)
+    tree = glob(settings.DOWNLOADS_PATH + "/**", recursive=True)
     repo_pipelines = [x for x in tree if x.endswith("pipelines")][0]
-    pipelines_path = "{}/{}".format(settings.PIPELINES_PATH, 'pipelines')
-    shutil.move(repo_pipelines, pipelines_path)
+    
+    pipelines_path = settings.PIPELINES_PATH
+    
+    if os.path.exists(pipelines_path):
+        shutil.rmtree(pipelines_path)
+        shutil.copytree(repo_pipelines, pipelines_path)
 
     # Read pipelines, validate them and create the available json file
     available = {}
-    pipelines = glob(pipelines_path + "*/schema.yml")
+    pipelines = glob(pipelines_path + "/**/schema.yml")
     for pipeline in pipelines:
         with open(pipeline, 'r') as p:
-            data = yaml.safe_loads(p)
-            try:
-                Schema.parse_obj(data)
-                available[data['id']] = data
-            except:
-                continue
+            data = yaml.safe_load(p)
+            Schema.parse_obj(data)
+            available[data['id']] = data
     
     with open(settings.PIPELINES_PATH + "/available.json", 'w') as ap:
         json.dump(available, ap, indent=2)
-
-initialize()
