@@ -2,8 +2,8 @@ import requests
 import shutil, os
 from app.models.redis import MetaModel
 from .redis.functions import Handler
-from app.services.containers import client
-from app.services.reports import create_report
+# from app.services.containers import client
+# from app.services.reports import create_report
 
 from celery import shared_task
 
@@ -40,12 +40,12 @@ def cleanup(sub_id: str, metadata : MetaModel):
     Cleans up container and storage
     :param metadata: unique Metadata Model class
     """
-    container = client.containers.get(metadata.container_id)
-    container.remove(v=True)
+    # container = client.containers.get(metadata.container_id)
+    # container.remove(v=True)
 
-    for store, path in metadata.store.items():
-        if store == 'uploads' or store =='temp':
-            shutil.rmtree(path)
+    # for store, path in metadata.store.items():
+    #     if store == 'uploads' or store =='temp':
+    #         shutil.rmtree(path)
     Handler.delete(sub_id)
 
 @shared_task(name="Status Update")
@@ -66,34 +66,34 @@ class StatusException(Exception):
 @shared_task(name="Status Check", bind=True, autoretry_for=(StatusException,), max_retries=None, retry_kwargs={'max_retries': None, 'countdown': 10})
 def status_check(self, sub_id: str):
     metadata = retrieve.s(sub_id)()
-    container = client.containers.get(metadata.container_id)
-    status = metadata.status
+    # container = client.containers.get(metadata.container_id)
+    # status = metadata.status
 
-    if status == 'setup':
-        if all([inp.status == 'ready' for inp in metadata.inputs]):
-            container = client.containers.get(metadata.container_id)
-            container.start()
-            metadata.status = 'processing'
-            update_metadata.s(sub_id, metadata)()
+    # if status == 'setup':
+    #     if all([inp.status == 'ready' for inp in metadata.inputs]):
+    #         container = client.containers.get(metadata.container_id)
+    #         container.start()
+    #         metadata.status = 'processing'
+    #         update_metadata.s(sub_id, metadata)()
 
-            raise StatusException(status)
+    #         raise StatusException(status)
 
-    if container.status == 'exited':
-        # check exit code 
-        successful_containers = client.containers.list(all=True,filters={'exited':0})
+    # if container.status == 'exited':
+    #     # check exit code 
+    #     successful_containers = client.containers.list(all=True,filters={'exited':0})
  
-        if any(x.id == container.id for x in successful_containers):
-            status = 'completed'
-            metadata.status = status 
+    #     if any(x.id == container.id for x in successful_containers):
+    #         status = 'completed'
+    #         metadata.status = status 
 
-        else:
-            status = 'error'
-            metadata.status = status
+    #     else:
+    #         status = 'error'
+    #         metadata.status = status
         
-        update_metadata.s(sub_id, metadata).delay()
-        status_update.s(sub_id, status).delay()
-        create_report(metadata)
-        cleanup.s(sub_id, metadata).delay()
-        return True
+    #     update_metadata.s(sub_id, metadata).delay()
+    #     status_update.s(sub_id, status).delay()
+    #     create_report(metadata)
+    #     cleanup.s(sub_id, metadata).delay()
+    #     return True
 
     raise StatusException(status)

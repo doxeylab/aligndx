@@ -23,21 +23,20 @@ services:
       - ./backend/data:${PROJECT_PATH}/data
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      DATABASE_URL: ${DATABASE_URL}
       BASE_URL: ${BASE_URL}
       ORIGINS: ${ORIGINS}
-      API_URL: ${INTERNAL_API_URL}
       SECRET_KEY: ${SECRET_KEY}
+      DATABASE_URL: ${DATABASE_URL}
       CELERY_API_KEY: ${CELERY_API_KEY}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
-      NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
+      PROJECT_PATH: ${PROJECT_PATH}
+      PIPELINES_REPO: ${PIPELINES_REPO}
+      PIPELINES_REPO_TOKEN: ${PIPELINES_REPO_TOKEN}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
-      REDIS_URL: ${REDIS_URL}
-      PROJECT_PATH: ${PROJECT_PATH}
 
   # Task Managment Executor
   celery_worker:
@@ -60,8 +59,6 @@ services:
       CELERY_API_KEY: ${CELERY_API_KEY}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-      NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
-      NOTIFICATION_EMAIL_PASSWORD: ${NOTIFICATION_EMAIL_PASSWORD}
       REDIS_URL: ${REDIS_URL}
       PROJECT_PATH: ${PROJECT_PATH}
 
@@ -78,10 +75,10 @@ services:
       - ./frontend/:/opt/app
       - /opt/app/node_modules
     environment:
-      NEXT_PUBLIC_BASE_URL: ${BASE_URL}
-      NEXT_PUBLIC_BACKEND_ACCESS_URL: ${API_URL}
-      NEXT_PUBLIC_TUS_ENDPOINT: ${TUS_ENDPOINT}
-      NEXT_PUBLIC_COMPANION_URL: ${COMPANION_DOMAIN}
+      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
+      NEXT_PUBLIC_BACKEND_ACCESS_URL: ${NEXT_PUBLIC_BACKEND_ACCESS_URL}
+      NEXT_PUBLIC_TUS_ENDPOINT: ${NEXT_PUBLIC_TUS_ENDPOINT}
+      NEXT_PUBLIC_COMPANION_URL: ${NEXT_PUBLIC_COMPANION_URL}
 
   tusd:
     image: tusproject/tusd
@@ -187,10 +184,4 @@ services:
 volumes:
   db-data:
   pgadmin-data:
-  redis-data:
-  # app-data:
-    # driver: local
-    # driver_opts:
-    #   type: none
-    #   o: bind
-    #   device: ${PWD}/backend/data
+  redis-data: 

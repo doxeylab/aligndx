@@ -11,7 +11,6 @@ from app.models import auth, submissions, redis
 from app.models.pipelines import inputs
 from app.services.db import get_db 
 from app.services.auth import get_current_user
-from app.services import pipelines
 from app.core.utils import dir_generator
 from app.core.db.dals.submissions import SubmissionsDal
 from app.core.config.settings import settings
@@ -56,27 +55,27 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
     dir_generator(store.values())
 
     # Create a container for the submissions, configured to the pipeline chosen
-    config = pipelines.start(
-        pipeline=submission.pipeline,
-        name=submission.name + '_' + sub_id,
-        inputs=submission.inputs,
-        store=store
-    ) 
+    # config = pipelines.start(
+    #     pipeline=submission.pipeline,
+    #     name=submission.name + '_' + sub_id,
+    #     inputs=submission.inputs,
+    #     store=store
+    # ) 
 
-    # Generate submission metadata for redis
-    metadata = redis.MetaModel(
-        name=submission.name,
-        container_id=config.container.id,
-        inputs=submission.inputs,
-        store=store,
-        status=status,
-        pipeline=submission.pipeline
-    )
+    # # Generate submission metadata for redis
+    # metadata = redis.MetaModel(
+    #     name=submission.name,
+    #     container_id=config.container.id,
+    #     inputs=submission.inputs,
+    #     store=store,
+    #     status=status,
+    #     pipeline=submission.pipeline
+    # )
     
-    update_metadata.s(sub_id=sub_id, metadata=metadata)()
+    # update_metadata.s(sub_id=sub_id, metadata=metadata)()
 
-    # Initiate pipeline monitor
-    status_check.s(sub_id=sub_id).delay()
+    # # Initiate pipeline monitor
+    # status_check.s(sub_id=sub_id).delay()
 
     # Return a submission id for tracking
     return {"sub_id": sub_id}
