@@ -21,6 +21,10 @@ class AppSettings(BaseSettings):
     #  -- App Data -- 
     PROJECT_PATH = os.getenv("PROJECT_PATH")
     DATA_FOLDER =  PROJECT_PATH + '/data'
+    DOWNLOADS_PATH =  DATA_FOLDER + '/downloads'
+    PIPELINES_PATH =  DATA_FOLDER + '/pipelines'
+    PIPELINES_REPO =  os.getenv("PIPELINES_REPO")
+    PIPELINES_REPO_TOKEN =  os.getenv("PIPELINES_REPO_TOKEN")
 
     #  -- User Data -- 
 
