@@ -1,3 +1,4 @@
 from .factory import (
-    initialize
+    initialize,
+    get_available_pipelines
 )

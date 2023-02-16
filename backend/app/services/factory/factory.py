@@ -5,6 +5,9 @@ from glob import glob
 from app.core.config.settings import settings
 from app.models.pipelines.pipeline import Schema
 
+PIPELINES_PATH = settings.PIPELINES_PATH
+AVAILABLE = PIPELINES_PATH + "/available.json"
+
 def download(repo,token, output):
     """
     Downloads a github repository, and optionally
@@ -22,6 +25,11 @@ def download(repo,token, output):
     
 
 def initialize():
+    """
+    Initializes pipelines service
+
+    Note: Should be run on startup, but can be used to update the service as well
+    """
 
     output = "{}/{}".format(settings.DOWNLOADS_PATH,"pipelines.zip")
     
@@ -40,21 +48,27 @@ def initialize():
     # find pipelines subdirectory and move contents to pipelines directory
     tree = glob(settings.DOWNLOADS_PATH + "/**", recursive=True)
     repo_pipelines = [x for x in tree if x.endswith("pipelines")][0]
-    
-    pipelines_path = settings.PIPELINES_PATH
-    
-    if os.path.exists(pipelines_path):
-        shutil.rmtree(pipelines_path)
-        shutil.copytree(repo_pipelines, pipelines_path)
+        
+    if os.path.exists(PIPELINES_PATH):
+        shutil.rmtree(PIPELINES_PATH)
+        shutil.copytree(repo_pipelines, PIPELINES_PATH)
 
     # Read pipelines, validate them and create the available json file
     available = {}
-    pipelines = glob(pipelines_path + "/**/schema.yml")
+    pipelines = glob(PIPELINES_PATH + "/**/schema.yml")
     for pipeline in pipelines:
         with open(pipeline, 'r') as p:
             data = yaml.safe_load(p)
             Schema.parse_obj(data)
             available[data['id']] = data
     
-    with open(settings.PIPELINES_PATH + "/available.json", 'w') as ap:
+    with open(AVAILABLE, 'w') as ap:
         json.dump(available, ap, indent=2)
+
+def get_available_pipelines():
+    """
+    Returns available pipelines
+    """
+    with open(AVAILABLE, 'r') as f:
+        available_pipelines = json.loads(f.read())
+    return available_pipelines
