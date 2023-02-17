@@ -33,5 +33,12 @@ class Text(Base):
 
 class PreDefined(Base):
     input_type : Literal['predefined']
+
+class Output(BaseModel):
+    input_type : Literal['output']
+    id : str = Field(description='A unique command identifier')
+    title: str = Field(description='Title for input')
+    status: Literal['ready', 'pending'] = Field(None)
+    description: str = Field(description='Description for input field')
  
-InputSchema = Annotated[Union[File, Select, Text, PreDefined], Field(..., discriminator='input_type',description='A dynamic schema consisting of the inputs users can submit for the pipeline')]
+InputSchema = Annotated[Union[File, Select, Text, PreDefined, Output], Field(..., discriminator='input_type',description='A dynamic schema consisting of the inputs users can submit for the pipeline')]

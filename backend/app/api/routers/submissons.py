@@ -11,6 +11,7 @@ from app.models import auth, submissions, redis
 from app.models.pipelines import inputs
 from app.services.db import get_db 
 from app.services.auth import get_current_user
+from app.services import factory
 from app.core.utils import dir_generator
 from app.core.db.dals.submissions import SubmissionsDal
 from app.core.config.settings import settings
@@ -45,7 +46,7 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
 
     # Parse inputs and apply necessary transformations on inputs
     for inp in submission.inputs:
-        if inp.input_type == 'select' or inp.input_type == 'text' or inp.input_type == 'predefined':
+        if inp.input_type in ['predefined','text','select','output']:
             inp.status = 'ready'
         if inp.input_type == 'file':
             inp.file_meta = {v : inputs.FileMeta(status='requested') for v in inp.values}
@@ -55,27 +56,26 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
     dir_generator(store.values())
 
     # Create a container for the submissions, configured to the pipeline chosen
-    # config = pipelines.start(
-    #     pipeline=submission.pipeline,
-    #     name=submission.name + '_' + sub_id,
-    #     inputs=submission.inputs,
-    #     store=store
-    # ) 
+    id = factory.create(
+        pipeline=submission.pipeline,
+        inputs=submission.inputs,
+        store=store
+    ) 
 
-    # # Generate submission metadata for redis
-    # metadata = redis.MetaModel(
-    #     name=submission.name,
-    #     container_id=config.container.id,
-    #     inputs=submission.inputs,
-    #     store=store,
-    #     status=status,
-    #     pipeline=submission.pipeline
-    # )
+    # Generate submission metadata for redis
+    metadata = redis.MetaModel(
+        id=id,
+        name=submission.name,
+        inputs=submission.inputs,
+        store=store,
+        status=status,
+        pipeline=submission.pipeline
+    )
     
-    # update_metadata.s(sub_id=sub_id, metadata=metadata)()
+    update_metadata.s(sub_id=sub_id, metadata=metadata)()
 
-    # # Initiate pipeline monitor
-    # status_check.s(sub_id=sub_id).delay()
+    # Initiate pipeline monitor
+    status_check.s(sub_id=sub_id).delay()
 
     # Return a submission id for tracking
     return {"sub_id": sub_id}

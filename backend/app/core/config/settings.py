@@ -33,7 +33,7 @@ class AppSettings(BaseSettings):
     TMP_FOLDER = DATA_FOLDER + '/tmp' 
 
     #  -- API Created Directories -- 
-    DIRS = [DATA_FOLDER, UPLOAD_FOLDER, RESULTS_FOLDER, TMP_FOLDER]
+    DIRS = [DATA_FOLDER, DOWNLOADS_PATH, PIPELINES_PATH, UPLOAD_FOLDER, RESULTS_FOLDER, TMP_FOLDER]
 
     # Notification settings
 
