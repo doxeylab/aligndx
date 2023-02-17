@@ -6,9 +6,6 @@ import nbformat as nbf
 from nbconvert import HTMLExporter
 import papermill as pm
 
-from ...models import redis
-from ..pipelines import get_pipeline
-
 TEMPLATE_PATH = Path(__file__).parent / 'template.html'
 
 REPORT_CONFIG = {
@@ -101,16 +98,15 @@ def create_parameters(inputs, pipeline_schema):
 
     return parameters
 
-
-def create_report(metadata : redis.MetaModel):
+def draft_report(logs_path, metadata, schema, pipeline_path):
     """
     Generates a report for the pipeline
     """
-    pipeline_schema, pipeline_assets = get_pipeline(metadata.pipeline)
+    # pattern = schema.get("logs_pattern")
+    pattern = '/Caused by:/,${p;/Command executed/q}'
 
-    logs_path = "{}/{}".format(metadata.store['results'],"logs.txt")
-    pattern = '/Caused by:/,/Command executed:/{/Command executed:/!p};/Command exit status:/,/Work dir:/{/Work dir:/!p}'
-    error = error_md.format(error=get_errors(logs_path, pattern=pattern)) if metadata.status == 'error' else ''
+    if pattern:
+        error = error_md.format(error=get_errors(logs_path, pattern=pattern)) if metadata.status == 'error' else ''
 
     meta_nb = nbf.v4.new_notebook()
     metadata_layout = metadata_layout_md.format(
@@ -124,15 +120,15 @@ def create_report(metadata : redis.MetaModel):
         nbf.v4.new_code_cell(code)]
     
     results = metadata.store['results']
-    inputs = {inp.id: inp.values for inp in metadata.inputs}
-    parameters = create_parameters(inputs, pipeline_schema)
+    inputs = {inp.id: inp.values for inp in metadata.inputs if inp.input_type != "output"}
+    parameters = create_parameters(inputs, schema)
 
-    pipeline_nb = nbf.read(pipeline_assets / 'report.ipynb', as_version=4)
+    pipeline_nb = nbf.read(pipeline_path + "/" + 'report.ipynb', as_version=4)
 
     book = book_combiner([meta_nb,pipeline_nb])
     cell_combiner(book,condition=(lambda x: True if x['metadata'].get('tags') and 'parameters' in x['metadata'].get('tags') else False))
     
-    report_assets = pipeline_assets / 'assets'
+    report_assets = pipeline_path + "/" 'assets'
     if os.path.exists(report_assets):
         shutil.copytree(src=report_assets, dst="{}/assets".format(results))
 

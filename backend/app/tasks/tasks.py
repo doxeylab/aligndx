@@ -2,9 +2,7 @@ import requests
 import shutil, os
 from app.models.redis import MetaModel
 from .redis.functions import Handler
-from app.services.containers import client
-from app.services.reports import create_report
-
+from app.services import factory
 from celery import shared_task
 
 CELERY_API_KEY = os.getenv("CELERY_API_KEY")
@@ -40,9 +38,7 @@ def cleanup(sub_id: str, metadata : MetaModel):
     Cleans up container and storage
     :param metadata: unique Metadata Model class
     """
-    container = client.containers.get(metadata.container_id)
-    container.remove(v=True)
-
+    factory.destroy(metadata.id)
     for store, path in metadata.store.items():
         if store == 'uploads' or store =='temp':
             shutil.rmtree(path)
@@ -66,33 +62,22 @@ class StatusException(Exception):
 @shared_task(name="Status Check", bind=True, autoretry_for=(StatusException,), max_retries=None, retry_kwargs={'max_retries': None, 'countdown': 10})
 def status_check(self, sub_id: str):
     metadata = retrieve.s(sub_id)()
-    container = client.containers.get(metadata.container_id)
     status = metadata.status
+    container_status = factory.get_status(metadata.id)
 
     if status == 'setup':
         if all([inp.status == 'ready' for inp in metadata.inputs]):
-            container = client.containers.get(metadata.container_id)
-            container.start()
+            factory.start(metadata.id)
             metadata.status = 'processing'
             update_metadata.s(sub_id, metadata)()
 
             raise StatusException(status)
 
-    if container.status == 'exited':
-        # check exit code 
-        successful_containers = client.containers.list(all=True,filters={'exited':0})
- 
-        if any(x.id == container.id for x in successful_containers):
-            status = 'completed'
-            metadata.status = status 
-
-        else:
-            status = 'error'
-            metadata.status = status
-        
+    if container_status == 'completed' or container_status == 'error':
+        metadata.status = container_status 
         update_metadata.s(sub_id, metadata).delay()
         status_update.s(sub_id, status).delay()
-        create_report(metadata)
+        factory.create_report(metadata)
         cleanup.s(sub_id, metadata).delay()
         return True
 

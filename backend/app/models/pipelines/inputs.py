@@ -9,7 +9,7 @@ class Base(BaseModel):
     title: str = Field(description='Title for input')
     description: str = Field(description='Description for input field')
     count: Literal['single', 'multiple']
-    optional: bool = Field(description='Boolean flag to describe input as optional or not')
+    optional: bool = Field(default=False,description='Boolean flag to describe input as optional or not')
 
 class FileMeta(BaseModel):
     size: Optional[int] = Field(None, description='Size of file in bytes')
@@ -33,5 +33,12 @@ class Text(Base):
 
 class PreDefined(Base):
     input_type : Literal['predefined']
+
+class Output(BaseModel):
+    input_type : Literal['output']
+    id : str = Field(description='A unique command identifier')
+    title: str = Field(description='Title for input')
+    status: Literal['ready', 'pending'] = Field(None)
+    description: str = Field(description='Description for input field')
  
-InputSchema = Annotated[Union[File, Select, Text, PreDefined], Field(..., discriminator='input_type',description='A dynamic schema consisting of the inputs users can submit for the pipeline')]
+InputSchema = Annotated[Union[File, Select, Text, PreDefined, Output], Field(..., discriminator='input_type',description='A dynamic schema consisting of the inputs users can submit for the pipeline')]

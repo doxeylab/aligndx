@@ -1,8 +1,5 @@
-import pandas as pd 
 from fastapi import APIRouter 
-
-from app.core.config.settings import settings
-from app.services.pipelines import get_available_pipelines
+from app.services.factory import get_available_pipelines
 
 router = APIRouter()
 
