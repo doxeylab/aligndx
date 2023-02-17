@@ -121,7 +121,7 @@ services:
 
   tusd:
     image: tusproject/tusd
-    command: -upload-dir=/data/uploads --hooks-http http://backend:8080/uploads/tus/ -hooks-http-forward-headers Authorization
+    command: -upload-dir=/data/uploads --hooks-http http://backend:8080/webhooks/tus/ -hooks-http-forward-headers Authorization
     tty: true
     user: 0:0
     expose:
