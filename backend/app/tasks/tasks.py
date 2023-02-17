@@ -75,8 +75,6 @@ def status_check(self, sub_id: str):
 
     if container_status == 'completed' or container_status == 'error':
         metadata.status = container_status 
-        print(container_status)
-        print(metadata.status)
         update_metadata.s(sub_id, metadata).delay()
         status_update.s(sub_id, status).delay()
         factory.create_report(metadata)
