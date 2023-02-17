@@ -35,43 +35,42 @@ def initialize():
 
     Note: Should be run on startup, but can be used to update the service as well
     """
-
-    output = "{}/{}".format(settings.DOWNLOADS_PATH,"pipelines.zip")
     
-    # download pipelines
-    download(
-        repo=settings.PIPELINES_REPO,
-        token=settings.PIPELINES_REPO_TOKEN,
-        output=output
-        )
-
-    # extract then delete zip 
-    with zipfile.ZipFile(output, 'r') as zip_ref:
-        zip_ref.extractall(settings.DOWNLOADS_PATH)
-    os.remove(output)
+    if os.path.exists(AVAILABLE) is False:
     
-    # find pipelines subdirectory and move contents to pipelines directory
-    tree = glob(settings.DOWNLOADS_PATH + "/**", recursive=True)
-    repo_pipelines = [x for x in tree if x.endswith("pipelines")][0]
+        output = "{}/{}".format(settings.DOWNLOADS_PATH,"pipelines.zip")
+        # download pipelines
+        download(
+            repo=settings.PIPELINES_REPO,
+            token=settings.PIPELINES_REPO_TOKEN,
+            output=output
+            )
+
+        # extract then delete zip 
+        with zipfile.ZipFile(output, 'r') as zip_ref:
+            zip_ref.extractall(settings.DOWNLOADS_PATH)
+        os.remove(output)
         
-    if os.path.exists(PIPELINES_PATH):
-        shutil.rmtree(PIPELINES_PATH)
+        # find pipelines subdirectory and move contents to pipelines directory
+        tree = glob(settings.DOWNLOADS_PATH + "/**", recursive=True)
+        repo_pipelines = [x for x in tree if x.endswith("pipelines")][0]
+        
         shutil.copytree(repo_pipelines, PIPELINES_PATH)
 
-    # Read pipelines, validate them and create the available json file
-    available = {}
-    pipelines = glob(PIPELINES_PATH + "/**/schema.yml")
-    for pipeline in pipelines:
-        with open(pipeline, 'r') as p:
-            data = yaml.safe_load(p)
-            try:
-                Schema.parse_obj(data)
-                available[data['id']] = data
-                client.images.pull(data["image"])
-            except:
-                continue
-    with open(AVAILABLE, 'w') as ap:
-        json.dump(available, ap, indent=2)
+        # Read pipelines, validate them and create the available json file
+        available = {}
+        pipelines = glob(PIPELINES_PATH + "/**/schema.yml")
+        for pipeline in pipelines:
+            with open(pipeline, 'r') as p:
+                data = yaml.safe_load(p)
+                try:
+                    Schema.parse_obj(data)
+                    available[data['id']] = data
+                    client.images.pull(data["image"])
+                except:
+                    continue
+        with open(AVAILABLE, 'w') as ap:
+            json.dump(available, ap, indent=2)
 
 def get_available_pipelines():
     """
