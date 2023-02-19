@@ -9,7 +9,7 @@ export default function DefaultRoute() {
     return (
         <>
             {context?.authenticated ?
-                <Analyze />
+                <Dashboard />
                 :
                 <Landing />
             }
