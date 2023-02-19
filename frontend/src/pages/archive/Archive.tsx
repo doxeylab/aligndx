@@ -10,7 +10,7 @@ import Report from '../../components/Report';
 import { useSubmissions } from '../../api/Submissions'
 
 
-export default function Results() {
+export default function Archive() {
     const [rows, setRows] = useState<any[]>([])
     const submissions = useSubmissions();
     
