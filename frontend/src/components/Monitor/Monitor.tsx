@@ -13,10 +13,11 @@ import { StatusBar } from '@uppy/react'
 
 interface IMonitor {
     subId: string;
-    uploader: any;
+    uploaders: any;
+    selectedPipeline: any;
 }
 
-export default function Monitor({ subId, uploader }: IMonitor) {
+export default function Monitor({ subId, uploaders, selectedPipeline }: IMonitor) {
     const [data, setData] = useState({} as any);
     const [success, setSuccess] = useState(false);
 
@@ -74,13 +75,23 @@ export default function Monitor({ subId, uploader }: IMonitor) {
                                             Uploads
                                         </Typography>
                                         <Divider />
-                                        <StatusBar
-                                            uppy={uploader}
-                                            hideAfterFinish={false}
-                                            showProgressDetails={true}
-                                            hideRetryButton={true}
-                                            hidePauseResumeButton={false}
-                                        />
+                                        {Object.entries(uploaders[selectedPipeline?.id]).map(([inp, uploader]) => {
+                                            const currInp = selectedPipeline?.inputs.find(e => e.id === inp)
+                                            return (
+                                                <Grid py={2} key={`${selectedPipeline.id}-${inp}-uploadprogress`}>
+                                                    <Typography > {currInp.title} </Typography>
+                                                    <StatusBar
+                                                        uppy={uploader}
+                                                        hideUploadButton
+                                                        hideAfterFinish={false}
+                                                        showProgressDetails={true}
+                                                        hideRetryButton={true}
+                                                        hidePauseResumeButton={false}
+                                                        hideCancelButton={true}
+                                                    />
+                                                </Grid>
+                                            )
+                                        })}
                                         <Typography variant="h5" pb={1}>
                                             Analysis
                                         </Typography>

@@ -1,5 +1,5 @@
 import { Form } from "../Form";
-import { useState, useEffect } from "react";
+import { useState} from "react";
 
 import Paper from '@mui/material/Paper'
 import Grid from '@mui/material/Grid'
@@ -7,15 +7,15 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
 import SchemaGenerator from "./SchemaGenerator";
-import isEmpty from "../../utils/isEmpty";
 
+import { Uploader } from "../Uploader";
 import PipelineSelectMenu from "./PipelineSelectMenu";
 import DynamicInputs from "./DynamicInputs";
-import { Uploader } from "../Uploader";
+import Monitor from "../Monitor";
+import CrossFade from "../CrossFade";
 import useRefresh from "../../api/useRefresh";
-import { ProgressView } from "./Views";
-import { CrossFade } from "./CrossFade";
 import useSubmissionStarter from "./useSubmissionStarter";
+
 
 export default function PipelineForm() {
     const [selectedPipeline, SetSelectedPipeline] = useState({} as any)
@@ -28,9 +28,10 @@ export default function PipelineForm() {
     const refresh = useRefresh();
 
     const onSuccess = (data) => {
-        setSubId(data?.data['sub_id'])
+        const submissionID = data?.data['sub_id']
+        setSubId(submissionID)
         for (const [inp, uploader] of Object.entries(uploaders[selectedPipeline.id])) {
-            uploader.setMeta({ 'sub_id': data?.data['sub_id'], 'input_id': inp })
+            uploader.setMeta({ 'sub_id': submissionID, 'input_id': inp })
             uploader.upload()
         }
         setSuccess(true);
@@ -89,7 +90,7 @@ export default function PipelineForm() {
         <CrossFade
             components={[{
                 in: success,
-                component: <ProgressView selectedPipeline={selectedPipeline} subId={subId} setSuccess={setSuccess} uploaders={uploaders} />,
+                component: <Monitor selectedPipeline={selectedPipeline} subId={subId} uploaders={uploaders} />,
             }, {
                 in: success == false,
                 component: <>
