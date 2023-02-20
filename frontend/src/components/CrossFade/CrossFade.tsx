@@ -1,16 +1,15 @@
-import * as React from 'react';
-
+import { ReactNode, FC } from 'react'
 import Box from '@mui/material/Box';
 import Fade from '@mui/material/Fade';
 
 type CrossFadeProps = {
   components: {
     in: boolean;
-    component: React.ReactNode;
+    component: ReactNode;
   }[];
 };
 
-const CrossFade: React.FC<CrossFadeProps> = ({ components }) => {
+const CrossFade: FC<CrossFadeProps> = ({ components }) => {
   return (
     <Box
       sx={{
@@ -39,4 +38,4 @@ const CrossFade: React.FC<CrossFadeProps> = ({ components }) => {
   );
 };
 
-export { CrossFade };
+export default CrossFade;

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useSubmissions } from '../../../api/Submissions'
+import { useSubmissions } from '../../api/Submissions'
 
 export default function useSubmissionStarter(subId: any, onSuccess?: any, onError?:any){
     const submissions = useSubmissions();

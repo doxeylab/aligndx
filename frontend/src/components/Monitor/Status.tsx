@@ -1,6 +1,6 @@
 import Button from '@mui/material/Button'
 
-export default function StatusButton({status}: any) {
+export default function Status({status}: any) {
     if (status == 'setup') {
         return (
             <Button

@@ -10,6 +10,7 @@ export default function DefaultRoute() {
         <>
             {context?.authenticated ?
                 <Analyze />
+                // <Dashboard />
                 :
                 <Landing />
             }

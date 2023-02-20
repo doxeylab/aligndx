@@ -2,10 +2,8 @@ import { Fragment } from 'react';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import BarChartIcon from '@mui/icons-material/BarChart';
 import ScienceIcon from '@mui/icons-material/Science';
-import ListSubheader from '@mui/material/ListSubheader';
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { Divider, Tooltip } from '@mui/material';
 import { useRouter } from 'next/router';
@@ -20,7 +18,7 @@ export default function SideBarItems() {
     const icons = {
         // 'Dashboard': <DashboardIcon />,
         'Analyze': <ScienceIcon />,
-        'Results': <BarChartIcon />,
+        'Archive': <InventoryIcon />,
     }
     return (
         <>
@@ -39,27 +37,6 @@ export default function SideBarItems() {
                     )
                 })}
                 <Divider sx={{ my: 1 }} />
-                {/* <ListSubheader component="div" inset sx={{bgcolor:'inherit'}}>
-                    Saved reports
-                </ListSubheader>
-                <ListItemButton>
-                    <ListItemIcon>
-                        <AssignmentIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Sample1" />
-                </ListItemButton>
-                <ListItemButton>
-                    <ListItemIcon>
-                        <AssignmentIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Sample2" />
-                </ListItemButton>
-                <ListItemButton>
-                    <ListItemIcon>
-                        <AssignmentIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Sample3" />
-                </ListItemButton> */}
             </Fragment>
         </>
     )

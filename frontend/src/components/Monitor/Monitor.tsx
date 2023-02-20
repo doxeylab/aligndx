@@ -1,18 +1,25 @@
-import { Box, Button, Divider, Grid, Paper, Typography } from "@mui/material";
-import { StatusBar } from '@uppy/react'
+import { Box, Divider, Button, Grid, Paper, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
-import useWebSocket from "../../../api/Socket";
-import StatusButton from "./StatusButton";
-import useSubmissionStatus from './useSubmissionStatus'
 import CircularProgress from '@mui/material/CircularProgress';
-import { CrossFade } from "../CrossFade";
 
-import Download from '../../../components/Download';
-import Report from '../../../components/Report';
+import CrossFade from "../CrossFade";
+import Download from '../../components/Download';
+import Report from '../../components/Report';
 
-export default function ProgressView({ subId, setSuccess, selectedPipeline, uploaders }) {
-    const [complete, setComplete] = useState(false);
+import useSubmissionStatus from './useSubmissionStatus'
+import useWebSocket from "../../api/Socket";
+import Status from "./Status";
+import { StatusBar } from '@uppy/react'
+
+interface IMonitor {
+    subId: string;
+    uploaders: any;
+    selectedPipeline: any;
+}
+
+export default function Monitor({ subId, uploaders, selectedPipeline }: IMonitor) {
     const [data, setData] = useState({} as any);
+    const [completed, setCompleted] = useState(false);
 
     const { connectWebsocket } = useWebSocket();
 
@@ -30,28 +37,17 @@ export default function ProgressView({ subId, setSuccess, selectedPipeline, uplo
         }
         else {
             setData(data?.data)
+            setCompleted(true)
         }
     }
 
     const status = useSubmissionStatus(subId, onSuccess)
 
-    const handleNewSubmission = () => {
-        Object.entries(uploaders[selectedPipeline.id]).map(([inp, uploader]) => {
-            uploader.cancelAll()
-        })
-        setSuccess(false)
-    }
-
     useEffect(() => {
-        if (data) {
-            if (data['status'] == 'completed') {
-                setComplete(true)
-            }
-            if (data['status'] == 'error') {
-                setComplete(true)
-            }
+        if (data['status'] == 'completed' || data['status'] == 'error') {
+            setCompleted(true)
         }
-    }, [data])
+    },[data])
 
     return (
         <>
@@ -74,12 +70,12 @@ export default function ProgressView({ subId, setSuccess, selectedPipeline, uplo
                                     Run | {data?.name}
                                 </Typography>
                             </Paper>
-                            <StatusButton status={data['status']} />
+                            <Status status={data['status']} />
                         </Box>
                         <CrossFade
                             components={[
                                 {
-                                    in: complete == false,
+                                    in: completed == false,
                                     component: <>
                                         <Typography variant="h5" pb={1}>
                                             Uploads
@@ -96,7 +92,7 @@ export default function ProgressView({ subId, setSuccess, selectedPipeline, uplo
                                                         hideAfterFinish={false}
                                                         showProgressDetails={true}
                                                         hideRetryButton={true}
-                                                        hidePauseResumeButton={true}
+                                                        hidePauseResumeButton={false}
                                                         hideCancelButton={true}
                                                     />
                                                 </Grid>
@@ -116,7 +112,7 @@ export default function ProgressView({ subId, setSuccess, selectedPipeline, uplo
                                     </>
                                 },
                                 {
-                                    in: complete,
+                                    in: completed,
                                     component: <>
                                         <Typography variant="h5" pb={1}>
                                             Results
@@ -134,11 +130,6 @@ export default function ProgressView({ subId, setSuccess, selectedPipeline, uplo
                                                     <Download subId={subId} />
                                                 </Grid>
                                             </Grid>
-                                            <Button
-                                                variant={'contained'}
-                                                onClick={handleNewSubmission}>
-                                                New
-                                            </Button>
 
                                         </Grid>
                                     </>

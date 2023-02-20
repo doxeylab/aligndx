@@ -15,7 +15,7 @@ const Dashboard = () => {
                                 flexDirection: 'column',
                             }}
                         >
-                            Analyses in progress
+                            Recent Submissions
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={4} lg={6}>
@@ -28,20 +28,22 @@ const Dashboard = () => {
                                 width: "100%"
                             }}
                         >
-                            Uploads in progress
+                            Stats
                         </Paper>
-                    </Grid>
+                    </Grid> 
                     <Grid item xs={12}>
                         <Paper
                             sx={{
                                 p: 2,
                                 display: 'flex',
                                 flexDirection: 'column',
+                                height: "100%",
+                                width: "100%"
                             }}
                         >
-                            Re-use the last pipeline you used
+                            Submission in progress
                         </Paper>
-                    </Grid>
+                    </Grid> 
 
                 </Grid>
             </Container>
