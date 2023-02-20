@@ -63,15 +63,22 @@ export default function PipelineForm() {
         submissionStarter.mutate(submissionData)
     };
 
+    const createUploaders = (pipeline: any) => {
+        const createUploader = (val: any) => {
+            return Uploader({ id: `${pipeline.id}-${val.id}`, fileTypes: val.file_types, refresh: refresh })
+        }
+    
+        const fileInputs = pipeline.inputs.filter((obj: any) => obj.input_type === 'file')
+        const pipelineUploaders = fileInputs.reduce((o, key) => ({ ...o, [key.id]: createUploader(key) }), {})
+        return pipelineUploaders
+        
+    }
+
     const onPipelineChange = (value: any) => {
         if (value) {
             SetSelectedPipeline(value)
             setSchema(SchemaGenerator(value.inputs))
-            const createUploader = (val: any) => {
-                return Uploader({ id: `${value.id}-${val.id}`, fileTypes: val.file_types, refresh: refresh })
-            }
-            const fileInputs = value.inputs.filter((obj: any) => obj.input_type === 'file')
-            const pipelineUploaders = fileInputs.reduce((o, key) => ({ ...o, [key.id]: createUploader(key) }), {})
+            const pipelineUploaders = createUploaders(value)
             setUploaders({ ...uploaders, [value.id]: { ...pipelineUploaders } })
             setShowInputs(true)
         }
