@@ -38,4 +38,4 @@ const CrossFade: FC<CrossFadeProps> = ({ components }) => {
   );
 };
 
-export { CrossFade };
+export default CrossFade;

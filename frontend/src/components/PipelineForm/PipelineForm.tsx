@@ -1,5 +1,5 @@
 import { Form } from "../Form";
-import { useState} from "react";
+import { useState } from "react";
 
 import Paper from '@mui/material/Paper'
 import Grid from '@mui/material/Grid'
@@ -86,83 +86,86 @@ export default function PipelineForm() {
     }
 
     return (
-
-        <CrossFade
-            components={[{
-                in: success,
-                component: <Monitor selectedPipeline={selectedPipeline} subId={subId} uploaders={uploaders} />,
-            }, {
-                in: success == false,
-                component: <>
-                    <Grid container mb={3} spacing={3}>
-                        <Grid item xs={10} sm={6} md={4}>
-                            <Paper
-                                sx={{
-                                    p: 4,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                }}
-                            >
-                                <PipelineSelectMenu
-                                    onChange={onPipelineChange}
-                                />
-                            </Paper>
-                        </Grid>
-                        {showInputs ?
-                            <Grid item xs={12} md={8}>
+        <>
+            <CrossFade
+                components={[{
+                    in: success,
+                    component: <Monitor selectedPipeline={selectedPipeline} subId={subId} uploaders={uploaders} />,
+                },
+                {
+                    in: success == false,
+                    component: <>
+                        <Grid container mb={3} spacing={3}>
+                            <Grid item xs={10} sm={6} md={4}>
                                 <Paper
                                     sx={{
                                         p: 4,
+                                        display: 'flex',
+                                        flexDirection: 'column',
                                     }}
                                 >
-                                    <Typography>Description</Typography>
-                                    {selectedPipeline?.description}
+                                    <PipelineSelectMenu
+                                        onChange={onPipelineChange}
+                                    />
                                 </Paper>
                             </Grid>
+                            {showInputs ?
+                                <Grid item xs={12} md={8}>
+                                    <Paper
+                                        sx={{
+                                            p: 4,
+                                        }}
+                                    >
+                                        <Typography>Description</Typography>
+                                        {selectedPipeline?.description}
+                                    </Paper>
+                                </Grid>
+                                :
+                                null
+                            }
+                        </Grid>
+                        {showInputs ?
+                            <Form
+                                key={selectedPipeline?.id}
+                                schema={schema}
+                                onSubmit={onSubmit}
+                            >
+                                <Grid container width={'100%'}>
+
+                                    <Grid item xs={12}
+                                        alignItems="center"
+                                        justifyContent={'center'}
+                                    >
+                                        <Paper sx={{
+                                            p: 2
+                                        }}>
+
+                                            <DynamicInputs
+                                                selectedPipeline={selectedPipeline}
+                                                uploaders={uploaders}
+                                            />
+                                            <Grid
+                                                container
+                                                alignContent={'center'}
+                                                justifyContent={'center'}
+                                                pt={5}
+                                            >
+                                                <Button
+                                                    type='submit'
+                                                    variant="contained"
+                                                >Submit</Button>
+                                            </Grid>
+                                        </Paper>
+                                    </Grid>
+                                </Grid>
+                            </Form>
                             :
                             null
                         }
-                    </Grid>
-                    {showInputs ?
-                        <Form
-                            key={selectedPipeline?.id}
-                            schema={schema}
-                            onSubmit={onSubmit}
-                        >
-                            <Grid container width={'100%'}>
-
-                                <Grid item xs={12}
-                                    alignItems="center"
-                                    justifyContent={'center'}
-                                >
-                                    <Paper sx={{
-                                        p: 2
-                                    }}>
-
-                                        <DynamicInputs
-                                            selectedPipeline={selectedPipeline}
-                                            uploaders={uploaders}
-                                        />
-                                        <Grid
-                                            container
-                                            alignContent={'center'}
-                                            justifyContent={'center'}
-                                            pt={5}
-                                        >
-                                            <Button
-                                                type='submit'
-                                                variant="contained"
-                                            >Submit</Button>
-                                        </Grid>
-                                    </Paper>
-                                </Grid>
-                            </Grid>
-                        </Form>
-                        :
-                        null
-                    }
-                </>,
-            }]}
-        />
+                    </>
+                },
+            ]}
+            />
+        </>
     );
 }
