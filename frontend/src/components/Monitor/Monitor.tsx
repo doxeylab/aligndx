@@ -1,5 +1,5 @@
 import { Box, Divider, Button, Grid, Paper, Typography } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CircularProgress from '@mui/material/CircularProgress';
 
 import CrossFade from "../CrossFade";
@@ -19,7 +19,7 @@ interface IMonitor {
 
 export default function Monitor({ subId, uploaders, selectedPipeline }: IMonitor) {
     const [data, setData] = useState({} as any);
-    const [success, setSuccess] = useState(false);
+    const [completed, setCompleted] = useState(false);
 
     const { connectWebsocket } = useWebSocket();
 
@@ -34,14 +34,20 @@ export default function Monitor({ subId, uploaders, selectedPipeline }: IMonitor
         const status = data?.data['status']
         if (status && status != 'completed' || status != 'error') {
             connectWebsocket(subId, dataHandler)
-            setSuccess(true)
         }
         else {
             setData(data?.data)
+            setCompleted(true)
         }
     }
 
     const status = useSubmissionStatus(subId, onSuccess)
+
+    useEffect(() => {
+        if (data['status'] == 'completed' || data['status'] == 'error') {
+            setCompleted(true)
+        }
+    },[data])
 
     return (
         <>
@@ -69,7 +75,7 @@ export default function Monitor({ subId, uploaders, selectedPipeline }: IMonitor
                         <CrossFade
                             components={[
                                 {
-                                    in: success == false,
+                                    in: completed == false,
                                     component: <>
                                         <Typography variant="h5" pb={1}>
                                             Uploads
@@ -106,7 +112,7 @@ export default function Monitor({ subId, uploaders, selectedPipeline }: IMonitor
                                     </>
                                 },
                                 {
-                                    in: success,
+                                    in: completed,
                                     component: <>
                                         <Typography variant="h5" pb={1}>
                                             Results

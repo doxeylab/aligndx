@@ -63,6 +63,7 @@ services:
     environment:
       BASE_URL: ${BASE_URL}
       ORIGINS: ${ORIGINS}
+      API_URL: ${INTERNAL_API_URL}
       SECRET_KEY: ${SECRET_KEY}
       DATABASE_URL: ${DATABASE_URL}
       CELERY_API_KEY: ${CELERY_API_KEY}
