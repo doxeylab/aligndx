@@ -16,7 +16,7 @@ export default function SideBarItems() {
     })
 
     const icons = {
-        'Dashboard': <DashboardIcon />,
+        // 'Dashboard': <DashboardIcon />,
         'Analyze': <ScienceIcon />,
         'Archive': <InventoryIcon />,
     }
