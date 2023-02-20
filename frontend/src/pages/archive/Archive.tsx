@@ -120,7 +120,7 @@ export default function Archive() {
 
     const tools = (row: any) => {
         let disabled = true
-        if (row.status == 'completed') {
+        if (row.status == 'completed' || row.status == 'error') {
             disabled = false
         }
         return (

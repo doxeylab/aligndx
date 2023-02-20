@@ -32,7 +32,8 @@ export default function Monitor({ subId, uploaders, selectedPipeline }: IMonitor
 
     const onSuccess = (data: any) => {
         const status = data?.data['status']
-        if (status && status != 'completed' || status != 'error') {
+        const connect_reasons = ['completed', 'error']
+        if (connect_reasons.includes(status) == false) {
             connectWebsocket(subId, dataHandler)
         }
         else {
