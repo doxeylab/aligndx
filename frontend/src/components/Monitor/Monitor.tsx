@@ -13,7 +13,7 @@ import { StatusBar } from '@uppy/react'
 
 interface IMonitor {
     handleNew: any;
-    subId: string;
+    subId: any;
     uploaders: any;
     selectedPipeline: any;
 }
@@ -61,19 +61,27 @@ export default function Monitor({ handleNew, subId, uploaders, selectedPipeline 
                             display: 'flex',
                             flexDirection: 'column',
                         }}>
-                        <Box
-                            display={'flex'}
+                        <Grid
+                            container
+                            direction="row"
                             alignItems="center"
-                            justifyContent={"space-between"}
                             pb={2}
+                            spacing={2}
+                            sx={{
+                                justifyContent: { xs: "center", sm: "space-between" }
+                            }}
                         >
-                            <Paper sx={{ backgroundColor: 'black', padding: 1 }} elevation={2}>
-                                <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
-                                    Run | {data?.name}
-                                </Typography>
-                            </Paper>
-                            <Status status={data['status']} />
-                        </Box>
+                            <Grid item>
+                                <Paper sx={{ backgroundColor: 'black', padding: 1 }} elevation={2}>
+                                    <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
+                                        Run | {data?.name}
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                            <Grid item>
+                                <Status status={data['status']} />
+                            </Grid>
+                        </Grid>
                         <CrossFade
                             components={[
                                 {
@@ -132,18 +140,20 @@ export default function Monitor({ handleNew, subId, uploaders, selectedPipeline 
                                                     <Download subId={subId} />
                                                 </Grid>
                                             </Grid>
-                                           
+                                            <Grid container justifyContent={'center'}>
+                                                <Button
+                                                    variant={'contained'}
+                                                    onClick={handleNew}>
+                                                    New Submission
+                                                </Button>
+                                            </Grid>
 
                                         </Grid>
                                     </>
                                 },
                             ]}
                         />
-                         <Button
-                                                variant={'contained'}
-                                                onClick={handleNew}>
-                                                New
-                                            </Button>
+
                     </Paper>
                 </Grid>
             </Grid>

@@ -37,80 +37,74 @@ export default function DynamicInputs({ selectedPipeline, uploaders }: DynamicIn
         })
     }
 
-    if (isEmpty(selectedPipeline) == false) {
-        return (
-            <>
-                <Grid container py={2} justifyContent='space-between'>
-                    <Grid item xs>
-                        <SubmissionNameField name="name" />
-                    </Grid>
-                    {selectedPipeline?.inputs.map((input: any) => {
-                        if (input.input_type === 'file') {
-                            // can be files, folders or both
-                            let selectionType = 'files'
-                            if (input.count == 'single'){
-                                selectionType = 'both'
-                            }
-
-                            let plugins = [""]
-                            const imageTypes = ["image/jpeg	", "image/png"]
-                            const needsCam = input.file_types.some(r=> imageTypes.includes(r))
-
-                            if (needsCam) {
-                                plugins = ['MyWebCam','GoogleDrive', 'Url']
-                            }
-                            else {
-                                plugins = ['GoogleDrive', 'Url']
-                            }
-
-                            if (isEmpty(uploaders)) {
-                                return (null)
-                            }
-                            else {
-                                return (
-                                    <Grid item xs={12} mb={1} key={input.id}>
-                                        <FileSelectorField
-                                            width={'100%'}
-                                            name={input.id}
-                                            uploader={uploaders[selectedPipeline.id][input.id]}
-                                            plugins={plugins} 
-                                            fileManagerSelectionType={selectionType}
-                                            />
-                                    </Grid>
-                                )
-                            }
-                        }
-                        if (input.input_type == 'select') {
-                            return (
-                                <Grid item xs={12} sm={6} md={6} lg={3} pb={2} key={input.id} >
-                                    <FormSelect
-                                        name={input.id}
-                                        label={input.title}
-                                        options={input.options}
-                                        getOptionLabel={(option) => option || ""}
-                                        isOptionEqualToValue={(option: any, value: any) => option === value}
-                                    />
-                                </Grid>
-                            )
-                        }
-                        if (input.input_type == 'text') {
-                            return (
-                                <Grid item xs={12} sm={6} md={6} lg={3} pb={2} key={input.id} >
-                                    <Typography>{input.title}</Typography>
-                                    <FormTextField name={input.id} label={input.title} type={""} />
-                                </Grid>
-                            )
-                        }
-                    })
-                    }
-
+    return (
+        <>
+            <Grid container py={2} justifyContent='space-between'>
+                <Grid item xs>
+                    <SubmissionNameField name="name" />
                 </Grid>
+                {selectedPipeline?.inputs.map((input: any) => {
+                    if (input.input_type === 'file') {
+                        // can be files, folders or both
+                        let selectionType = 'files'
+                        if (input.count == 'single') {
+                            selectionType = 'both'
+                        }
 
-            </>
-        )
-    }
-    else {
-        return null
-    }
+                        let plugins = [""]
+                        const imageTypes = ["image/jpeg	", "image/png"]
+                        const needsCam = input.file_types.some(r => imageTypes.includes(r))
 
+                        if (needsCam) {
+                            plugins = ['MyWebCam', 'GoogleDrive', 'Url']
+                        }
+                        else {
+                            plugins = ['GoogleDrive', 'Url']
+                        }
+
+                        const uploader = uploaders?.[selectedPipeline.id]?.[input.id]
+
+                        return (
+                            <Grid item xs={12} mb={1} key={input.id}>
+                                {isEmpty(uploader) ?
+                                    null
+                                    :
+                                    <FileSelectorField
+                                        width={'100%'}
+                                        name={input.id}
+                                        uploader={uploader}
+                                        plugins={plugins}
+                                        fileManagerSelectionType={selectionType}
+                                    />}
+                            </Grid>
+                        )
+                    }
+                    if (input.input_type == 'select') {
+                        return (
+                            <Grid item xs={12} sm={6} md={6} lg={3} pb={2} key={input.id} >
+                                <FormSelect
+                                    name={input.id}
+                                    label={input.title}
+                                    options={input.options}
+                                    getOptionLabel={(option) => option || ""}
+                                    isOptionEqualToValue={(option: any, value: any) => option === value}
+                                />
+                            </Grid>
+                        )
+                    }
+                    if (input.input_type == 'text') {
+                        return (
+                            <Grid item xs={12} sm={6} md={6} lg={3} pb={2} key={input.id} >
+                                <Typography>{input.title}</Typography>
+                                <FormTextField name={input.id} label={input.title} type={""} />
+                            </Grid>
+                        )
+                    }
+                })
+                }
+
+            </Grid>
+
+        </>
+    )
 }
