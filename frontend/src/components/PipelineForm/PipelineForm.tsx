@@ -1,5 +1,5 @@
 import { Form } from "../Form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Paper from '@mui/material/Paper'
 import Grid from '@mui/material/Grid'
@@ -15,14 +15,14 @@ import Monitor from "../Monitor";
 import CrossFade from "../CrossFade";
 import useRefresh from "../../api/useRefresh";
 import useSubmissionStarter from "./useSubmissionStarter";
-
+import useLocalStorage from "../../hooks/useLocalStorage";
 
 export default function PipelineForm() {
     const [selectedPipeline, SetSelectedPipeline] = useState({} as any)
     const [uploaders, setUploaders] = useState({} as any)
     const [schema, setSchema] = useState(null);
-    const [success, setSuccess] = useState(false);
-    const [subId, setSubId] = useState(null);
+    const [success, setSuccess] = useLocalStorage('success', null);
+    const [subId, setSubId] = useLocalStorage('subId', null);
     const [showInputs, setShowInputs] = useState(false);
 
     const refresh = useRefresh();
@@ -67,11 +67,11 @@ export default function PipelineForm() {
         const createUploader = (val: any) => {
             return Uploader({ id: `${pipeline.id}-${val.id}`, fileTypes: val.file_types, refresh: refresh })
         }
-    
+
         const fileInputs = pipeline.inputs.filter((obj: any) => obj.input_type === 'file')
         const pipelineUploaders = fileInputs.reduce((o, key) => ({ ...o, [key.id]: createUploader(key) }), {})
         return pipelineUploaders
-        
+
     }
 
     const onPipelineChange = (value: any) => {
@@ -92,87 +92,103 @@ export default function PipelineForm() {
         }
     }
 
+    const handleNew = () =>{
+        setSuccess(false)
+        for (const [inp, uploader] of Object.entries(uploaders[selectedPipeline.id])) {
+            uploader.cancelAll()
+        }
+    }
+
+
     return (
         <>
-            <CrossFade
-                components={[{
-                    in: success,
-                    component: <Monitor selectedPipeline={selectedPipeline} subId={subId} uploaders={uploaders} />,
-                },
-                {
-                    in: success == false,
-                    component: <>
-                        <Grid container mb={3} spacing={3}>
-                            <Grid item xs={10} sm={6} md={4}>
-                                <Paper
-                                    sx={{
-                                        p: 4,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                    }}
-                                >
-                                    <PipelineSelectMenu
-                                        onChange={onPipelineChange}
-                                    />
-                                </Paper>
-                            </Grid>
-                            {showInputs ?
-                                <Grid item xs={12} md={8}>
-                                    <Paper
-                                        sx={{
-                                            p: 4,
-                                        }}
+            <Grid container mb={3} spacing={3}>
+                <Grid item xs={10} sm={6} md={4}>
+                    <Paper
+                        sx={{
+                            p: 4,
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}
+                    >
+                        <PipelineSelectMenu
+                            onChange={onPipelineChange}
+                        />
+                    </Paper>
+                </Grid>
+                {showInputs ?
+                    <Grid item xs={12} md={8}>
+                        <Paper
+                            sx={{
+                                p: 4,
+                            }}
+                        >
+                            <Typography>Description</Typography>
+                            {selectedPipeline?.description}
+                        </Paper>
+                    </Grid>
+                    :
+                    null
+                }
+                <Grid item xs={12}>
+                    <CrossFade
+                        components={[{
+                            in: success,
+                            component: <>
+                                {showInputs ?
+                                    <Monitor handleNew={handleNew} selectedPipeline={selectedPipeline} subId={subId} uploaders={uploaders} />
+                                    :
+                                    null
+                                }
+                            </>
+                        },
+                        {
+                            in: success == false,
+                            component: <>
+                                {showInputs ?
+                                    <Form
+                                        key={selectedPipeline?.id}
+                                        schema={schema}
+                                        onSubmit={onSubmit}
                                     >
-                                        <Typography>Description</Typography>
-                                        {selectedPipeline?.description}
-                                    </Paper>
-                                </Grid>
-                                :
-                                null
-                            }
-                        </Grid>
-                        {showInputs ?
-                            <Form
-                                key={selectedPipeline?.id}
-                                schema={schema}
-                                onSubmit={onSubmit}
-                            >
-                                <Grid container width={'100%'}>
+                                        <Grid container width={'100%'}>
 
-                                    <Grid item xs={12}
-                                        alignItems="center"
-                                        justifyContent={'center'}
-                                    >
-                                        <Paper sx={{
-                                            p: 2
-                                        }}>
-
-                                            <DynamicInputs
-                                                selectedPipeline={selectedPipeline}
-                                                uploaders={uploaders}
-                                            />
-                                            <Grid
-                                                container
-                                                alignContent={'center'}
+                                            <Grid item xs={12}
+                                                alignItems="center"
                                                 justifyContent={'center'}
-                                                pt={5}
                                             >
-                                                <Button
-                                                    type='submit'
-                                                    variant="contained"
-                                                >Submit</Button>
+                                                <Paper sx={{
+                                                    p: 2
+                                                }}>
+
+                                                    <DynamicInputs
+                                                        selectedPipeline={selectedPipeline}
+                                                        uploaders={uploaders}
+                                                    />
+                                                    <Grid
+                                                        container
+                                                        alignContent={'center'}
+                                                        justifyContent={'center'}
+                                                        pt={5}
+                                                    >
+                                                        <Button
+                                                            type='submit'
+                                                            variant="contained"
+                                                        >Submit</Button>
+                                                    </Grid>
+                                                </Paper>
                                             </Grid>
-                                        </Paper>
-                                    </Grid>
-                                </Grid>
-                            </Form>
-                            :
-                            null
-                        }
-                    </>
-                },
-            ]}
-            />
+                                        </Grid>
+                                    </Form>
+                                    :
+                                    null
+                                }
+                            </>
+                        },
+                        ]}
+                    />
+                </Grid>
+            </Grid>
         </>
     );
 }

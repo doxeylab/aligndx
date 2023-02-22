@@ -39,6 +39,7 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
 
     # Generate submission storage
     store = {
+        'raw_uploads': "{}".format(settings.UPLOAD_FOLDER),
         'uploads': "{}/{}".format(settings.UPLOAD_FOLDER, sub_id),
         'results': "{}/{}".format(settings.RESULTS_FOLDER, sub_id),
         'temp': "{}/{}".format(settings.TMP_FOLDER, sub_id),

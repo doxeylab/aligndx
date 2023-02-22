@@ -70,21 +70,8 @@ async def tusd(
         for inp in metadata.inputs:
             if inp.id == input_id:
                 inp.file_meta[fname].status = 'finished'
+                inp.file_meta[fname].name = file_id
                 
-                ready = [meta.status == 'finished' for filename, meta in  inp.file_meta.items()] 
-                if all(ready):
-                    inp.status = 'ready'
-        
-        # Move and rename file to appropriate location
-        src = "{}/{}".format(settings.UPLOAD_FOLDER, file_id)
-        dst = "{}/{}".format(metadata.store[input_id], fname)
-        shutil.move(src=src, dst=dst)
-
-        info_id = file_id + '.info'
-        info_src = "{}/{}".format(settings.UPLOAD_FOLDER, info_id)
-        info_dst = "{}/{}".format(metadata.store['temp'], info_id)
-        shutil.move(src=info_src, dst=info_dst)
-
 
     update_metadata.s(sub_id=sub_id, metadata=metadata)()
 

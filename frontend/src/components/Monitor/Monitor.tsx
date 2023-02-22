@@ -12,12 +12,13 @@ import Status from "./Status";
 import { StatusBar } from '@uppy/react'
 
 interface IMonitor {
+    handleNew: any;
     subId: string;
     uploaders: any;
     selectedPipeline: any;
 }
 
-export default function Monitor({ subId, uploaders, selectedPipeline }: IMonitor) {
+export default function Monitor({ handleNew, subId, uploaders, selectedPipeline }: IMonitor) {
     const [data, setData] = useState({} as any);
     const [completed, setCompleted] = useState(false);
 
@@ -48,7 +49,7 @@ export default function Monitor({ subId, uploaders, selectedPipeline }: IMonitor
         if (data['status'] == 'completed' || data['status'] == 'error') {
             setCompleted(true)
         }
-    },[data])
+    }, [data])
 
     return (
         <>
@@ -131,12 +132,18 @@ export default function Monitor({ subId, uploaders, selectedPipeline }: IMonitor
                                                     <Download subId={subId} />
                                                 </Grid>
                                             </Grid>
+                                           
 
                                         </Grid>
                                     </>
                                 },
                             ]}
                         />
+                         <Button
+                                                variant={'contained'}
+                                                onClick={handleNew}>
+                                                New
+                                            </Button>
                     </Paper>
                 </Grid>
             </Grid>
