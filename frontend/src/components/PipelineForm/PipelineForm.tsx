@@ -1,5 +1,5 @@
 import { Form } from "../Form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Paper from '@mui/material/Paper'
 import Grid from '@mui/material/Grid'
@@ -15,14 +15,17 @@ import Monitor from "../Monitor";
 import CrossFade from "../CrossFade";
 import useRefresh from "../../api/useRefresh";
 import useSubmissionStarter from "./useSubmissionStarter";
+import useLocalStorage from "../../hooks/useLocalStorage";
+import isEmpty from "../../utils/isEmpty";
+import { CircularProgress } from "@mui/material";
 
 
 export default function PipelineForm() {
-    const [selectedPipeline, SetSelectedPipeline] = useState({} as any)
+    const [selectedPipeline, SetSelectedPipeline] = useLocalStorage('selectedPipeline', {} as any)
     const [uploaders, setUploaders] = useState({} as any)
     const [schema, setSchema] = useState(null);
-    const [success, setSuccess] = useState(false);
-    const [subId, setSubId] = useState(null);
+    const [success, setSuccess] = useLocalStorage('success', null);
+    const [subId, setSubId] = useLocalStorage('subId', null);
     const [showInputs, setShowInputs] = useState(false);
 
     const refresh = useRefresh();
@@ -63,34 +66,58 @@ export default function PipelineForm() {
         submissionStarter.mutate(submissionData)
     };
 
+    const createUploaders = (pipeline: any) => {
+        const createUploader = (val: any) => {
+            return Uploader({ id: `${pipeline.id}-${val.id}`, fileTypes: val.file_types, refresh: refresh })
+        }
+
+        const fileInputs = pipeline.inputs.filter((obj: any) => obj.input_type === 'file')
+        const pipelineUploaders = fileInputs.reduce((o, key) => ({ ...o, [key.id]: createUploader(key) }), {})
+        return pipelineUploaders
+
+    }
+
     const onPipelineChange = (value: any) => {
         if (value) {
             SetSelectedPipeline(value)
             setSchema(SchemaGenerator(value.inputs))
-            const createUploader = (val: any) => {
-                return Uploader({ id: `${value.id}-${val.id}`, fileTypes: val.file_types, refresh: refresh })
-            }
-            const fileInputs = value.inputs.filter((obj: any) => obj.input_type === 'file')
-            const pipelineUploaders = fileInputs.reduce((o, key) => ({ ...o, [key.id]: createUploader(key) }), {})
-            setUploaders({ ...uploaders, [value.id]: { ...pipelineUploaders } })
+        }
+        else {
+            SetSelectedPipeline(null)
+        }
+    }
+
+    const handleNew = () => {
+        setSuccess(false)
+        for (const [inp, uploader] of Object.entries(uploaders[selectedPipeline.id])) {
+            uploader.cancelAll()
+        }
+    }
+
+    useEffect(() => {
+        if (isEmpty(selectedPipeline) == false) {
+            const pipelineUploaders = createUploaders(selectedPipeline)
+            setUploaders({ ...uploaders, [selectedPipeline.id]: { ...pipelineUploaders } })
             setShowInputs(true)
         }
         else {
-            for (const [inp, uploader] of Object.entries(uploaders[selectedPipeline.id])) {
-                uploader.close()
-                uploader.cancelAll()
-            }
             setUploaders({})
             setShowInputs(false)
         }
-    }
+
+    }, [selectedPipeline])
 
     return (
         <>
             <CrossFade
                 components={[{
                     in: success,
-                    component: <Monitor selectedPipeline={selectedPipeline} subId={subId} uploaders={uploaders} />,
+                    component: <>
+                        {showInputs ?
+                            <Monitor handleNew={handleNew} selectedPipeline={selectedPipeline} subId={subId} uploaders={uploaders} />
+                            :
+                            null}
+                    </>,
                 },
                 {
                     in: success == false,
@@ -139,7 +166,6 @@ export default function PipelineForm() {
                                         <Paper sx={{
                                             p: 2
                                         }}>
-
                                             <DynamicInputs
                                                 selectedPipeline={selectedPipeline}
                                                 uploaders={uploaders}
@@ -153,7 +179,10 @@ export default function PipelineForm() {
                                                 <Button
                                                     type='submit'
                                                     variant="contained"
-                                                >Submit</Button>
+                                                >
+                                                    {submissionStarter.isLoading ? <CircularProgress size={25} /> : 'Submit'}
+
+                                                </Button>
                                             </Grid>
                                         </Paper>
                                     </Grid>
@@ -164,7 +193,7 @@ export default function PipelineForm() {
                         }
                     </>
                 },
-            ]}
+                ]}
             />
         </>
     );

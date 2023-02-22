@@ -9,7 +9,7 @@ interface PipelineSelectProps {
 
 export default function PipelineSelect({onChange} : PipelineSelectProps) {
     const [options, setOptions] = useState([] as any)
-    // const [value, setValue] = useLocalStorage('selectedPipeline',null)
+    const [value, setValue] = useLocalStorage('selectedPipeline',null)
 
 
     const onSuccess = (data: any) => {
@@ -24,8 +24,10 @@ export default function PipelineSelect({onChange} : PipelineSelectProps) {
         <SelectMenu
             label="Select a pipeline"
             options={options}
+            value={value}
             onChange={(event : any, newInputValue :any) => {
                 onChange(newInputValue);
+                setValue(newInputValue)
             }}
             getOptionLabel={(option: any) => {
                 if (option.length != 0) {
