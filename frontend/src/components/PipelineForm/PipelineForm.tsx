@@ -24,7 +24,7 @@ export default function PipelineForm() {
     const [selectedPipeline, SetSelectedPipeline] = useLocalStorage('selectedPipeline', {} as any)
     const [uploaders, setUploaders] = useState({} as any)
     const [schema, setSchema] = useState(null as any);
-    const [success, setSuccess] = useLocalStorage<boolean | null>('success', null);
+    const [success, setSuccess] = useLocalStorage<any>('success', null);
     const [subId, setSubId] = useLocalStorage('subId', null);
     const [showInputs, setShowInputs] = useState(false);
 
@@ -120,7 +120,7 @@ export default function PipelineForm() {
                     </>,
                 },
                 {
-                    in: success == false,
+                    in: success != true,
                     component: <>
                         <Grid container mb={3} spacing={3}>
                             <Grid item xs={10} sm={6} md={4}>
