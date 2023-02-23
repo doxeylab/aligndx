@@ -21,7 +21,7 @@ const Form = ({ schema, onSubmit, children, ...formProps }: IForm) => {
         try {
             onSubmit(data);
             setIsSafeToReset(true);
-            methods.reset(methods.defaultValues); // asynchronously reset your form values
+            methods.reset(); // asynchronously reset your form values
 
         }
         catch (e) {

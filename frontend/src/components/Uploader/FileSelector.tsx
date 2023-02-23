@@ -13,12 +13,12 @@ export default function FileSelectorProps({ uploader, plugins, ...dashProps }: F
     return (
         <Dashboard
             uppy={uploader}
-            plugins={plugins ? plugins : null}
+            plugins={plugins}
             theme={'dark'}
             proudlyDisplayPoweredByUppy={false}
             hideUploadButton={true}
             hideRetryButton={true}
-            doneButtonHandler={null}
+            doneButtonHandler={undefined}
             {...dashProps}
 
         />

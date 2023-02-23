@@ -3,7 +3,7 @@ import UppyFactory from "./UppyFactory";
 interface UppyFactoryProps {
     id: string;
     meta?: Record<string, unknown>;
-    fileTypes?: string[];
+    fileTypes: string[];
     refresh: any;
 }
 

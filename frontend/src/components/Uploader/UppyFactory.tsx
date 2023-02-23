@@ -12,7 +12,7 @@ import { TUS_ENDPOINT } from '../../config/Settings'
 interface UppyFactoryProps {
     id: string;
     meta?: Record<string, unknown>;
-    fileTypes?: string[];
+    fileTypes: string[];
     refresh: any;
 }
 
@@ -33,7 +33,7 @@ export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactor
             return element
         }
     })
-    const allowed_extensions = [...new Set(temp.flat())]
+    const allowed_extensions = Array.from(new Set(temp.flat()))
     const doubledots = fileTypes.filter(e => e.includes('.'))
     
     const uppy = new Uppy({
