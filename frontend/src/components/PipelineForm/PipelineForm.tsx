@@ -23,17 +23,17 @@ import { CircularProgress } from "@mui/material";
 export default function PipelineForm() {
     const [selectedPipeline, SetSelectedPipeline] = useLocalStorage('selectedPipeline', {} as any)
     const [uploaders, setUploaders] = useState({} as any)
-    const [schema, setSchema] = useState(null);
-    const [success, setSuccess] = useLocalStorage('success', null);
+    const [schema, setSchema] = useState(null as any);
+    const [success, setSuccess] = useLocalStorage('success', false);
     const [subId, setSubId] = useLocalStorage('subId', null);
     const [showInputs, setShowInputs] = useState(false);
 
     const refresh = useRefresh();
 
-    const onSuccess = (data) => {
+    const onSuccess = (data : any) => {
         const submissionID = data?.data['sub_id']
         setSubId(submissionID)
-        for (const [inp, uploader] of Object.entries(uploaders[selectedPipeline.id])) {
+        for (const [inp, uploader] of Object.entries<any>(uploaders[selectedPipeline.id])) {
             uploader.setMeta({ 'sub_id': submissionID, 'input_id': inp })
             uploader.upload()
         }
@@ -43,8 +43,8 @@ export default function PipelineForm() {
 
     const onSubmit = (data: any) => {
         const inputs = [] as any
-        selectedPipeline.inputs.forEach((inp: object) => {
-            if (inp.input_type == 'select') {
+        selectedPipeline.inputs.forEach((inp: any) => {
+            if (inp['input_type'] == 'select') {
                 if (typeof (data[inp.id]) != 'object') {
                     inp['values'] = [data[inp.id]]
                 }
@@ -58,7 +58,7 @@ export default function PipelineForm() {
             inputs.push(inp)
         })
 
-        let submissionData = {
+        const submissionData = {
             name: data['name'],
             pipeline: selectedPipeline.id,
             inputs: inputs
@@ -72,7 +72,7 @@ export default function PipelineForm() {
         }
 
         const fileInputs = pipeline.inputs.filter((obj: any) => obj.input_type === 'file')
-        const pipelineUploaders = fileInputs.reduce((o, key) => ({ ...o, [key.id]: createUploader(key) }), {})
+        const pipelineUploaders = fileInputs.reduce((o: any, key: any) => ({ ...o, [key.id]: createUploader(key) }), {})
         return pipelineUploaders
 
     }
@@ -89,7 +89,7 @@ export default function PipelineForm() {
 
     const handleNew = () => {
         setSuccess(false)
-        for (const [inp, uploader] of Object.entries(uploaders[selectedPipeline.id])) {
+        for (const [inp, uploader] of Object.entries<any>(uploaders[selectedPipeline.id])) {
             uploader.cancelAll()
         }
     }

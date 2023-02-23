@@ -91,8 +91,8 @@ export default function Monitor({ handleNew, subId, uploaders, selectedPipeline 
                                             Uploads
                                         </Typography>
                                         <Divider />
-                                        {Object.entries(uploaders[selectedPipeline?.id]).map(([inp, uploader]) => {
-                                            const currInp = selectedPipeline?.inputs.find(e => e.id === inp)
+                                        {Object.entries(uploaders[selectedPipeline?.id]).map(([inp, uploader] : any) => {
+                                            const currInp = selectedPipeline?.inputs.find((e : any) => e.id === inp)
                                             return (
                                                 <Grid py={2} key={`${selectedPipeline.id}-${inp}-uploadprogress`}>
                                                     <Typography > {currInp.title} </Typography>

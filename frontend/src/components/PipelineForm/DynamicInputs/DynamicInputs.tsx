@@ -53,7 +53,7 @@ export default function DynamicInputs({ selectedPipeline, uploaders }: DynamicIn
 
                         let plugins = [""]
                         const imageTypes = ["image/jpeg	", "image/png"]
-                        const needsCam = input.file_types.some(r => imageTypes.includes(r))
+                        const needsCam = input.file_types.some((r : any) => imageTypes.includes(r))
 
                         if (needsCam) {
                             plugins = ['MyWebCam', 'GoogleDrive', 'Url']
@@ -86,7 +86,7 @@ export default function DynamicInputs({ selectedPipeline, uploaders }: DynamicIn
                                     name={input.id}
                                     label={input.title}
                                     options={input.options}
-                                    getOptionLabel={(option) => option || ""}
+                                    getOptionLabel={(option : any) => option || ""}
                                     isOptionEqualToValue={(option: any, value: any) => option === value}
                                 />
                             </Grid>

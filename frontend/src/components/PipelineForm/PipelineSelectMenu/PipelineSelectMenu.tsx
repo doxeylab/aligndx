@@ -30,14 +30,14 @@ export default function PipelineSelect({onChange} : PipelineSelectProps) {
                 setValue(newInputValue)
             }}
             getOptionLabel={(option: any) => {
-                if (option.length != 0) {
+                if (Object.keys(option).length != 0) {
                     return option.title
                 }
                 else {
-                    return ''
+                    return ""
                 }
             }}
-            isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
+            isOptionEqualToValue={(option: any, value: any) => option?.id === value?.id}
         />
     )
 }

@@ -6,7 +6,7 @@ export default function useSubmissionStarter(onSuccess?: any, onError?:any){
 
     return useMutation({
         retry: 1,
-        mutationFn: (data) => submissions.start(data),
+        mutationFn: (data : any) => submissions.start(data),
         onSuccess,
         onError
     })

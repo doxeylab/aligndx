@@ -22,7 +22,7 @@ const FormSelect = ({ name, options, getOptionLabel, label, groupBy, ...selMenuP
                 <>
                     <SelectMenu
                         options={options}
-                        onChange={(event, item) => {
+                        onChange={(event: any, item : any) => {
                             onChange(item);
                         }}
                         value={value || null}
@@ -30,7 +30,7 @@ const FormSelect = ({ name, options, getOptionLabel, label, groupBy, ...selMenuP
                         label={label}
                         groupBy={groupBy ? groupBy : null}
                         {...selMenuProps}
-                        renderInput={(params) => (
+                        renderInput={(params : any) => (
                             < TextField
                                 {...params}
                                 error={!!methods?.formState.errors[name]}

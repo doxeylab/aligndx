@@ -4,7 +4,7 @@ import getValidationSchema from "./getValidationSchema";
 export default function SchemaGenerator(selectedPipelineInputs: any) {
     const validations = []
     for (const inp of selectedPipelineInputs) {
-        let base = {
+        const base = {
             name: inp.id,
             label: inp.title,
             validationType: 'array',
@@ -34,6 +34,6 @@ export default function SchemaGenerator(selectedPipelineInputs: any) {
         }
     }
     const combined = defaultValidationFields.concat(validations)
-    const schema = getValidationSchema(combined)
+    const schema = getValidationSchema(combined as any)
     return schema
 }

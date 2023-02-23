@@ -13,14 +13,10 @@ interface FileSelectorProps {
 }
 
 export default function FileSelectorField({ name, defaultValue, uploader, plugins, ...fileSelectorProps }: FileSelectorProps) {
-    const [files, setFiles] = useState([])
-    const { register, setValue, formState } = useFormContext({
-        defaultValues: {
-            [name]: []
-        }
-    });
+    const [files, setFiles] = useState<any>([])
+    const { register, setValue, formState } = useFormContext();
 
-    uploader.off('files-added', null).on('files-added', (uppy_files) => {
+    uploader.off('files-added', null).on('files-added', (uppy_files: any) => {
         const new_files = uppy_files.map((a: any) => a.data.name)
         setFiles([...files, ...new_files])
     })
@@ -29,13 +25,13 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
         const new_files = Object.values(filesState).map((a: any) => a.name)
         setFiles([...files, ...new_files])
     })
-    uploader.off('file-removed', null).on('file-removed', (file, reason) => {
+    uploader.off('file-removed', null).on('file-removed', (file: any, reason: any) => {
         if (reason === 'cancel-all') {
             setFiles([])
         }
         else {
             if (files.length) {
-                setFiles(files.filter(e => e != file.name))
+                setFiles(files.filter((e: any) => e != file.name))
             }
             else {
                 setFiles([])
@@ -45,10 +41,10 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
     uploader.off('cancel-all', null).on('cancel-all', () => {
         setFiles([])
     })
-    uploader.off('error', null).on('error', (error) => {
+    uploader.off('error', null).on('error', (error: any) => {
         setFiles([])
     })
-    uploader.off('complete', null).on('complete', (result) => {
+    uploader.off('complete', null).on('complete', (result: any) => {
         setFiles([])
     })
 
@@ -75,7 +71,12 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
                     {...fileSelectorProps}
                 />
             </Box>
-            {formState.errors[name] ? <FormHelperText error>{formState.errors[name].message}</FormHelperText> : " "}
+            {formState.errors[name] ?
+                <FormHelperText error>
+                    <>
+                        {formState?.errors?.[name]?.message}
+                    </>
+                </FormHelperText> : " "}
         </>
     )
 }
