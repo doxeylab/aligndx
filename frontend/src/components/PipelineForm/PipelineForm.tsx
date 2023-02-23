@@ -80,7 +80,6 @@ export default function PipelineForm() {
     const onPipelineChange = (value: any) => {
         if (value) {
             SetSelectedPipeline(value)
-            setSchema(SchemaGenerator(value.inputs))
         }
         else {
             SetSelectedPipeline(null)
@@ -96,6 +95,7 @@ export default function PipelineForm() {
 
     useEffect(() => {
         if (isEmpty(selectedPipeline) == false) {
+            setSchema(SchemaGenerator(selectedPipeline.inputs))
             const pipelineUploaders = createUploaders(selectedPipeline)
             setUploaders({ ...uploaders, [selectedPipeline.id]: { ...pipelineUploaders } })
             setShowInputs(true)
