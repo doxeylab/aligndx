@@ -9,7 +9,9 @@ const useLocalStorage = <S>(key: string, initialState?: S | (() => S)): [S, Reac
   }, [])
 
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value))
+    if (value !== initialState) {
+      localStorage.setItem(key, JSON.stringify(value))
+    }
   }, [value])
 
   return [value, setValue]
