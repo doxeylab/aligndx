@@ -24,7 +24,7 @@ export default function PipelineForm() {
     const [selectedPipeline, SetSelectedPipeline] = useLocalStorage('selectedPipeline', {} as any)
     const [uploaders, setUploaders] = useState({} as any)
     const [schema, setSchema] = useState(null as any);
-    const [success, setSuccess] = useLocalStorage('success', false);
+    const [success, setSuccess] = useLocalStorage<boolean | null>('success', null);
     const [subId, setSubId] = useLocalStorage('subId', null);
     const [showInputs, setShowInputs] = useState(false);
 
@@ -111,7 +111,7 @@ export default function PipelineForm() {
         <>
             <CrossFade
                 components={[{
-                    in: success,
+                    in: success == true,
                     component: <>
                         {showInputs ?
                             <Monitor handleNew={handleNew} selectedPipeline={selectedPipeline} subId={subId} uploaders={uploaders} />
