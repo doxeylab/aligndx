@@ -35,7 +35,27 @@ export default function Report(props: IReport) {
         retry: false,
         enabled: false,
         onSuccess(data : any) {
-            setResult(data?.data)
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data?.data, "text/html");
+            
+            const script = doc.createElement("script");
+            script.textContent = `
+                const fixAnchors = () => {
+                    const anchorTags = Array.from(document.querySelectorAll("a"));
+                    anchorTags.forEach((anchor) => {
+                        const id = anchor.getAttribute("href");
+                        anchor.setAttribute("href", "about:srcdoc" + id);
+                    });
+                };
+
+                window.onload = function () {
+                    fixAnchors()
+                }
+            `
+
+            doc.body.appendChild(script)
+            const modifiedHtmlContent = doc.documentElement.outerHTML;
+            setResult(modifiedHtmlContent)
             handleClickOpen(setOpen)
         }
     })
