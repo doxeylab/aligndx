@@ -16,7 +16,7 @@ interface IReport {
 
 export default function Report(props: IReport) {
     const { subId, disabled } = props
-    const [result, setResult] = useState(null);
+    const [result, setResult] = useState<string | null>(null);
     const [open, setOpen] = useState(false);
 
     const submissions = useSubmissions();
