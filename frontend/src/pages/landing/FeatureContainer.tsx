@@ -18,10 +18,10 @@ export default function FeatureContainer() {
           <Grid item container direction='row' justifyContent={'center'} alignItems="center" spacing={2}>
             <Grid item container direction={'column'} justifyContent="center" alignItems="center" spacing={2} sm={11} md={6}>
               <Grid item xs>
-                <Typography variant="h2" align='center'> Rapid Bioinformatic Clinical Analyses</Typography>
+                <Typography variant="h2" align='center'> Automated, user-friendly bioinformatic data analyses</Typography>
               </Grid>
               <Grid item xs >
-                <Typography align='center'> Analyze your data with rapid, simple bioinformatic pipelines! </Typography>
+                <Typography align='center'> Analyze your data using common workflows for metagenomics, pathogen detection and other applications </Typography>
               </Grid>
               <Grid item xs >
                 <Button variant="outlined" onClick={handleClick}> Register Now</Button>
