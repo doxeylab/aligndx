@@ -10,6 +10,7 @@ const useLogout = () => {
     const logout = () => {
         users.logout()
         setAuth({})
+        localStorage.clear();
         router.push('/')
     }
 
