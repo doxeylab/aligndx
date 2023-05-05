@@ -44,7 +44,9 @@ export default function Report(props: IReport) {
                     const anchorTags = Array.from(document.querySelectorAll("a"));
                     anchorTags.forEach((anchor) => {
                         const id = anchor.getAttribute("href");
-                        anchor.setAttribute("href", "about:srcdoc" + id);
+                        if (id != null) {
+                            anchor.setAttribute("href", "about:srcdoc" + id);
+                        }
                     });
                 };
 
