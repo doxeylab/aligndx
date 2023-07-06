@@ -1,83 +1,167 @@
-# Sequence Analysis Project
-RNA-sequence analysis workflows in the cloud, delivered to you in an intuitive and easy to use manner.
+<a id="readme-top"></a>
 
-- [Sequence Analysis Project](#sequence-analysis-project)
-- [Introduction](#introduction)
-  * [**Setup and Installation**](#--setup-and-installation--)
-    + [**With Docker (Recommended)**](#--with-docker--recommended---)
-    + [**Without Docker**](#--without-docker--)
-    + [**Technologies**](#--technologies--)
-- [Project Status](#project-status)
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/doxeylab/aligndx">
+    <img src="frontend/public/assets/logo.svg" alt="Logo" width="1000" height="80">
+  </a>
+
+  <!-- <h3 align="center">AlignDx</h3> -->
+
+  <p align="center">
+    The Bioinformatics Surveillance Platform
+    <br />
+    <br />
+    <a href="https://github.com/doxeylab/aligndx/issues">Report Bug</a>
+    |
+    <a href="https://github.com/doxeylab/aligndx/issues">Request Feature</a>
+  </p>
+</div>
+
+
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
+
+
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+AlignDx is a web-first platform for running bioinformatic workflows. The core of the platform is a dynamic workflow system, that generates pipelines and their respective web-forms based on a collection of schemas. Supporting this is authentication, archiving and task queueing, to deliver a seamless experience.
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+### Built With
+
+* [![FastAPI][FastAPI]][FastAPI-url] [![Celery][Celery]][Celery-url]
+* [![React.js][React]][React-url] [![Next.js][Next js]][Next js-url]
+* [![Postgres][Postgres]][Postgres-url] [![Redis][Redis]][Next js-url]
+* [![Docker][Docker]][Docker-url]
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- GETTING STARTED -->
+## Getting Started
+
+
+### Prerequisites
+
+1. Install [docker](https://docs.docker.com/get-docker/) and [docker compose](https://docs.docker.com/compose/). 
+3. Install [git](https://git-scm.com/) if you don't have it already.
+
+### Installation
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/doxeylab/aligndx.git
+   ```
+2. Setup the project environmental variables in an .env file, located in the root directory. For details, see [this section](docs/environment.MD).
+3. Install the app using the build script. Scripts are provided for both production and local usage respectively.
+    
+    ```sh
+    ./build.sh 
+    ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+1. Users can register on the platform by accessing the appropriate URL (as setup in the environment file)
+2. The following is a diagram outlining the typical workflow a user might follow using the platform UI.
+
+    <img src="docs/images/Lookout-surveillance%20diagram.svg" alt="Logo">
+
+    *Stepwise utilization of Lookout in the AlignDx Platform. (A) Workflow/pipeline selection menu and (B) available workflow options. (C) Surveillance specific form components. (D) Filled out surveillance form, with input dataset, and chosen options. (E) Status card for monitoring submissions. (F)  Workflow output report. (G) Archive entry for submission.*
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
  
-# Introduction
 
-AlignDx is a framework for implementing Bioinformatic pipelines, with our main focus being RNA-sequencing. With the goal of reaching the masses, we strive to implement a modern Frontend, with a robust Backend. Below are the setup instructions for 1st time users.
-  
-## **Setup and Installation** 
+<!-- LICENSE -->
+## License
 
-### **With Docker (Recommended)** 
-**1.** Clone this repo into whatever directory you want using `git clone https://github.com/doxeylab/aligndx.git`   
+To be determined ...
 
-**2.** Change directories into /path/aligdnx/app and create an .env file.
-
-> **_Note:_** Please contact Manjot for the environment variables.
-
-**3.** Add this folder https://drive.google.com/drive/folders/1UjjzFRjntQQs1ugaGORrAej7W-d1rWji?usp=sharing  to the backend/indexes folder.
-
-**_Note:_** Please contact Manjot for the environment variables.
-
-**4.** In /path/aligdnx/app, run `./scripts/build.sh`
-
-> **_Note:_** If you are running an m1 mac, please run `./scripts/m1_mac_build.sh` instead
-
-**5.** Watch logs via Docker Desktop, or utilize optional logs.sh script `./scripts/logs.sh` 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-### **Without Docker** 
-**1.** A unix system is preferred, but others are okay too: 
-  - One of the major linux distros (ubuntu, debian, etc.) is recommended 
 
-**2.** Install python. First check if you already have it.  
-  - `python3 --v`
-  - If you don't have it:
-    - `sudo apt-get update`
-    - `sudo apt-get install python3.8` 
+<!-- CONTACT -->
+## Contact
 
-**3.** Install npm (and check for nodejs). First check if you have it:
-  - `npm --v`
-  - If you don't have it:
-    - `sudo apt install npm` 
-      - also check if nodejs was installed along as a dependency via `node --v`
-      - if it wasn't, install via `sudo apt install nodejs` 
+Manjot Hunjan - manjothunjan@gmail.com
 
-**4.** Clone this repo into whatever directory you want using `git clone https://github.com/doxeylab/aligndx.git`  
+Project Link: [https://github.com/doxeylab/aligndx](https://github.com/doxeylab/aligndx)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+Thanks to our many collaborators!
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+
+[FastAPI]: https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi
+[FastAPI-url]: https://fastapi.tiangolo.com/
+
+[Next JS]: https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white
+[Next JS-url]: https://nextjs.org/
+
+[React]: https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB
+[React-url]: https://react.dev/
+
+[Celery]: https://img.shields.io/badge/-Celery-37814A?style=for-the-badge&logo=celery
+[Celery-url]: https://docs.celeryq.dev/en/stable/getting-started/introduction.html
+
+[Redis]: https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white
+[Redis-url]: https://redis.io/
+
+
+[Postgres]: https://img.shields.io/badge/Postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=white
+[Postgres-url]: https://www.postgresql.org/
+
+[Docker]: https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white
+[Docker-url]: https://www.docker.com/
  
-**5.** Install the frontend dependencies:
-  - `cd path/aligndx/app`
-  - `npm install`
-
-**6.** Install the backend dependencies:  
-  - `cd path/aligndx/app/backend`
-  - `python3 -m venv venv`
-  - `source venv/bin/activate`
-    - Your console should now have the prefix "venv"
-  - `pip install -r requirements.txt` 
-  - Next deactivate the virtual environment (venv): `deactivate`
-  - There are 2 more things you need to enable backend functionality. These are large files, thus they can't be push to github. 
-  - Access them using this google drive link: https://drive.google.com/drive/folders/1XUYFlie-Enl7AiW3C2HMH-t8Kjba3R-x?usp=sharing
-  - Note that the salmon folder contains the binaries for linux. It won't work on Windows or Mac OS
-    - Download them into the path/aligndx/app/ folder
-    - Create a folder called indexes
-    - Move the 'sars_with_human_decoys' folder into path/aligndx/app/backend/indexes
-
-**Congrats! You are done setting up your development environment**
-
-
-
-### **Technologies**
-Javascript + React.js 
-Python + Flask 
-
-# Project Status
-**Ongoing** 
-- [] web app
+ 
