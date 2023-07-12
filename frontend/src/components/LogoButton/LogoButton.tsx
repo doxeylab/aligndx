@@ -9,8 +9,7 @@ export default function LogoButton() {
                 onClick={() => { router.push('/') }}
                 sx={{ display: { xs: 'flex', md: 'flex' }, mr: 1 }}
             >
-                <img src='assets/icon.png' alt='logo-icon' width="50px" height="auto" />
-                <img src='assets/logo.svg' alt='logo-icon' width="200px" height="auto" style={{ color: 'red' }} />
+                <img src='assets/aligndx_logo.svg' alt='logo-icon' width="200px" height="auto" />
             </Button>
         </>
     )
