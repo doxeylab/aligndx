@@ -15,7 +15,7 @@ from app.services import factory
 from app.core.utils import dir_generator
 from app.core.db.dals.submissions import SubmissionsDal
 from app.core.config.settings import settings
-from app.tasks import update_metadata, status_check
+from app.tasks import update_metadata
 
 router = APIRouter()
 
@@ -74,9 +74,6 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
     )
     
     update_metadata.s(sub_id=sub_id, metadata=metadata)()
-
-    # Initiate pipeline monitor
-    status_check.s(sub_id=sub_id).delay()
 
     # Return a submission id for tracking
     return {"sub_id": sub_id}
