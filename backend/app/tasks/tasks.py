@@ -1,6 +1,6 @@
 import requests
 import shutil, os
-from app.models.redis import MetaModel
+from app.models.jobs import Metadata
 from app.models.enums import JobStatus
 
 from .redis.functions import Handler
@@ -12,7 +12,7 @@ API_URL = os.getenv("API_URL")
 
 
 @shared_task(name="Update metadata")
-def update_metadata(sub_id: str, metadata: MetaModel):
+def update_metadata(sub_id: str, metadata: Metadata):
     """
     Create/Update metadata entry in redis for a new submission
 
@@ -24,7 +24,7 @@ def update_metadata(sub_id: str, metadata: MetaModel):
 
 
 @shared_task(name="Retrive metadata")
-def retrieve_metadata(sub_id: str) -> MetaModel:
+def retrieve_metadata(sub_id: str) -> Metadata:
     """
     Retrieve metadata entry in redis for submission
 
@@ -32,13 +32,13 @@ def retrieve_metadata(sub_id: str) -> MetaModel:
     """
     meta_dict = Handler.retrieve(sub_id)
     if meta_dict != None:
-        return MetaModel(**meta_dict)
+        return Metadata(**meta_dict)
     else:
         return None
 
 
 @shared_task(name="Cleanup")
-def cleanup(sub_id: str, metadata: MetaModel):
+def cleanup(sub_id: str, metadata: Metadata):
     """
     Cleans up container and storage
     :param metadata: unique Metadata Model class

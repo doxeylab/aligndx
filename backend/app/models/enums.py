@@ -8,3 +8,10 @@ class JobStatus(Enum):
     ERROR = "error"
     CLEANING_UP = "cleaning_up"
     FINISHED = "finished"
+
+class FileStatus(Enum):
+    REQUESTED = "requested"
+    UPLOADING = "uploading"
+    FINISHED = "finished"
+    PAUSED = "paused"
+    TERMINATED = "terminated"

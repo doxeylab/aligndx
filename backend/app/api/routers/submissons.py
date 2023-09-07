@@ -1,13 +1,12 @@
 import uuid, datetime, os, zipfile
 from io import BytesIO 
 from typing import List 
-import pandas as pd 
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse, HTMLResponse
 
-from app.models import auth, submissions, redis
+from app.models import auth, submissions
 from app.models.pipelines import inputs
 from app.services.db import get_db 
 from app.services.auth import get_current_user
@@ -16,6 +15,7 @@ from app.core.utils import dir_generator
 from app.core.db.dals.submissions import SubmissionsDal
 from app.core.config.settings import settings
 from app.tasks import update_metadata
+from app.models.jobs import Metadata
 
 router = APIRouter()
 
@@ -64,7 +64,7 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
     ) 
 
     # Generate submission metadata for redis
-    metadata = redis.MetaModel(
+    metadata = Metadata(
         id=id,
         name=submission.name,
         inputs=submission.inputs,

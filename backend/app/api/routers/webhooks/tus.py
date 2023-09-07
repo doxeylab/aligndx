@@ -8,11 +8,8 @@ from app.services.auth import get_current_user
 from app.models import submissions, auth
 from app.models.pipelines import inputs
 
-from app.core.db.dals.submissions import SubmissionsDal  
 from app.services.db import get_db 
 from app.tasks import retrieve, update_metadata 
-from app.core.config.settings import settings
-import shutil 
 
 router = APIRouter() 
 
@@ -34,7 +31,7 @@ async def tusd(
         raise HTTPException(status_code=405, detail="Missing required metadata")
     metadata = retrieve.s(sub_id)()
 
-    if hook_name == 'pre-finish':
+    if hook_name == 'post-finish':
         # Enqueue the Celery task to update metadata asynchronously
         file_id = tus_data.get('ID')
         update_metadata.apply_async(args=[sub_id])
