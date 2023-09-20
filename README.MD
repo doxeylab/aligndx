@@ -115,7 +115,7 @@ The raw data uploaded by users are removed following analysis, but the analysis 
 <!-- LICENSE -->
 ## License
 
-To be determined ...
+Distributed under the GPLv3 License. See `License.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
