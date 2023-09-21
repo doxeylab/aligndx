@@ -7,7 +7,7 @@ from .tasks import (
     start_job,
     monitor_docker_status,
     complete_job,
-    job_workflow,
+    run_job,
 )
 
 app = Celery("Tasks")

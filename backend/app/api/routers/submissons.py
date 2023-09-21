@@ -3,25 +3,24 @@ from io import BytesIO
 from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.responses import StreamingResponse, HTMLResponse
 
 from app.models import auth, submissions
 from app.models.pipelines import inputs
 from app.services.db import get_db
 from app.services.auth import get_current_user
-from app.services import factory
 from app.core.utils import dir_generator
 from app.core.db.dals.submissions import SubmissionsDal
 from app.core.config.settings import settings
-from app.tasks import create_job
-from app.models.jobs import Metadata
+from app.tasks import create_job, run_job
+from app.models.enums import JobStatus
 
 router = APIRouter()
 
 
-@router.post("/start")
-async def start_submission(
+@router.post("/create")
+async def create(
     submission: submissions.Request,
     current_user: auth.UserDTO = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -30,12 +29,11 @@ async def start_submission(
     Generates submission and returns a submission id
     """
     # Create db submission entry
-    status = "setup"
     submission_entry = submissions.Entry(
         **{
             **submission.dict(),
             "user_id": current_user.id,
-            "status": status,
+            "status": JobStatus.CREATED,
             "created_date": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         }
     )
@@ -62,6 +60,8 @@ async def start_submission(
 
     dir_generator(store.values())
 
+    needed_resources = 1
+
     create_job.apply_async(
         args=[
             sub_id,
@@ -69,11 +69,33 @@ async def start_submission(
             submission.pipeline,
             submission.inputs,
             submission.store,
+            needed_resources,
         ]
     )
 
     # Return a submission id for tracking
     return {"sub_id": sub_id}
+
+
+@router.post("/start/{sub_id}")
+async def start(
+    sub_id: str,
+    current_user: auth.UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Generates submission and returns a submission id
+    """
+    sub_dal = SubmissionsDal(db)
+    query = await sub_dal.get_submission(current_user.id, sub_id)
+
+    if query is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Submission does not exist"
+        )
+
+    run_job(sub_id=sub_id)
+    return Response(status_code=status.HTTP_200_OK)
 
 
 @router.get("/{sub_id}")
