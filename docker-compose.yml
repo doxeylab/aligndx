@@ -2,7 +2,6 @@ version: "3.7"
 name: aligndx
 
 services:
-
   # API Server
   backend:
     build:
@@ -47,10 +46,10 @@ services:
     depends_on:
       - backend
       - redis
-    command: sh -c "celery -A app.tasks worker -l info -E"
+    command: sh -c "celery -A app.tasks worker -l info -E -c 1"
     tty: true
     volumes:
-      - ./backend/app:${PROJECT_PATH}/app 
+      - ./backend/app:${PROJECT_PATH}/app
       - /var/run/docker.sock:/var/run/docker.sock
       - ./backend/data:${PROJECT_PATH}/data
     environment:
@@ -99,11 +98,11 @@ services:
       - "3020:3020"
     environment:
       COMPANION_CLIENT_ORIGINS: ${ORIGINS}
-      # COMPANION_HIDE_WELCOME: true 
-      # COMPANION_HIDE_METRICS: true 
+      # COMPANION_HIDE_WELCOME: true
+      # COMPANION_HIDE_METRICS: true
       COMPANION_ALLOW_LOCAL_URLS: true
       COMPANION_STREAMING_UPLOAD: true
-      COMPANION_DOMAIN: 'localhost:3020'
+      COMPANION_DOMAIN: "localhost:3020"
       COMPANION_SECRET: ${COMPANION_SECRET}
       COMPANION_DATADIR: ${COMPANION_DATADIR}
       COMPANION_GOOGLE_KEY: ${COMPANION_GOOGLE_KEY}
@@ -149,7 +148,7 @@ services:
   pgadmin:
     tty: true
     image: dpage/pgadmin4
-    profiles: [ "monitoring" ]
+    profiles: ["monitoring"]
     restart: unless-stopped
     depends_on:
       - postgres
@@ -167,7 +166,7 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
-    profiles: [ "monitoring" ]
+    profiles: ["monitoring"]
     depends_on:
       - backend
       - redis
@@ -185,4 +184,4 @@ services:
 volumes:
   db-data:
   pgadmin-data:
-  redis-data: 
+  redis-data:
