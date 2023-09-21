@@ -58,12 +58,28 @@ def status_update(sub_id: str, status: str):
         headers={"Authorization": f"Bearer {CELERY_API_KEY}"},
     )
 
+
+@shared_task(name="Create Job")
+def create_job(sub_id: str, name: str, pipeline: str, inputs: dict, store: dict):
+    id = factory.create(pipeline=pipeline, inputs=inputs, store=store)
+    metadata = Metadata(
+        id=id,
+        name=name,
+        inputs=inputs,
+        store=store,
+        status=JobStatus.CREATED,
+        pipeline=pipeline,
+    )
+    update_metadata(sub_id, metadata)
+
+
 @shared_task(name="Start Job")
 def start_job(sub_id: str):
-    metadata = retrieve_metadata(sub_id) 
+    metadata = retrieve_metadata(sub_id)
     factory.start(metadata.id)
     metadata.status = JobStatus.QUEUED
-    update_metadata(sub_id, metadata) 
+    update_metadata(sub_id, metadata)
+
 
 @shared_task(bind=True, name="Monitor Docker Status")
 def monitor_docker_status(self, sub_id: str):
@@ -78,16 +94,13 @@ def monitor_docker_status(self, sub_id: str):
     else:
         self.apply_async((sub_id,), countdown=10)
 
+
 @shared_task(name="Complete Job")
 def complete_job(sub_id: str):
     metadata = retrieve_metadata(sub_id)
     factory.create_report(metadata=metadata)
     cleanup(sub_id, metadata)
 
+
 def job_workflow(sub_id):
-    return chain(
-        start_job.s(sub_id),
-        monitor_docker_status.s(
-            sub_id
-        )
-    )
+    return chain(start_job.s(sub_id), monitor_docker_status.s(sub_id))
