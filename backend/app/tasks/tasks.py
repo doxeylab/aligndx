@@ -39,6 +39,15 @@ def task_failure_handler(sender=None, task_id=None, exception=None, **kwargs):
     TaskResponse(False, f"Task {sender.name} failed - {str(exception)}", {})
 
 
+@shared_task(name="Status Update")
+def status_update(sub_id: str, status: str):
+    requests.post(
+        f"{API_URL}/webhooks/celery/status_update",
+        params={"sub_id": sub_id, "status": status},
+        headers={"Authorization": f"Bearer {CELERY_API_KEY}"},
+    )
+
+
 @shared_task(name="Update metadata")
 def update_metadata(sub_id: str, metadata: Metadata):
     Handler.create(sub_id, metadata.dict())
