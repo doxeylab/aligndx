@@ -23,9 +23,9 @@ class FileStatus(Enum):
 
 
 class SubmissionRequest(BaseSchema):
+    workflow_id: str
     name: str
     inputs: Dict[str, str]
-    status: SubmissionStatus
 
 
 class SubmissionResponse(BaseSchema):
