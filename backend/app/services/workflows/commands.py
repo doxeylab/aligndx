@@ -18,7 +18,7 @@ class ParamType(Enum):
     OUTPUT = "output"
 
 
-class Workflow:
+class CommandGenerator:
     def __init__(self, workflow):
         schema_file_path = os.path.join(os.path.dirname(__file__), "schema.json")
 
@@ -49,7 +49,7 @@ class Workflow:
             return [command_flag, param_value]
         return []
 
-    def generate_command(self, user_inputs):
+    def generate_command(self, user_inputs: dict):
         command_parts = [
             self.config.get("launch_command", "").replace("{{params}}", "")
         ]

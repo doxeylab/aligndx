@@ -1,6 +1,6 @@
 from enum import Enum
-from .localstorage import LocalStorage
-from .objectstorage import ObjectStorage
+from .local_storage import LocalStorage
+from .object_storage import ObjectStorage
 from app.core.config.settings import settings
 
 
