@@ -1,48 +1,46 @@
-from pydantic import Field
-from typing import List
+from typing import Dict
 from uuid import UUID
 from datetime import datetime
 from app.models.base_schema import BaseSchema
-from app.models.pipelines.inputs import InputSchema
-from app.models.shared import status
+from enum import Enum
 
-class Base(BaseSchema):
-    """
-    Base submissions model
-    """
-    name : str = Field(description='A name for the submission')
-    pipeline : str 
-    inputs: List[InputSchema]
 
-class Request(Base):
-    """
-    Request Model
-    """
-    pass
+class SubmissionStatus(Enum):
+    QUEUED = "queued"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    ERROR = "error"
+    CLEANING_UP = "cleaning_up"
+    FINISHED = "finished"
 
-class Entry(Base):
-    """
-    Submission DB entry Model
-    id is defaulted to none as it will be created automatically
-    """
+
+class FileStatus(Enum):
+    REQUESTED = "requested"
+    UPLOADING = "uploading"
+    FINISHED = "finished"
+    PAUSED = "paused"
+    TERMINATED = "terminated"
+
+
+class SubmissionRequest(BaseSchema):
+    name: str
+    inputs: Dict[str, str]
+    status: SubmissionStatus
+
+
+class SubmissionResponse(BaseSchema):
+    submission_id: str
+    workflow_id: str
+    name: str
+    inputs: Dict[str, str]
+    status: SubmissionStatus
+    created_date: datetime
+    finished_date: datetime = None
+
+
+class SubmissionEntry(BaseSchema):
     id: UUID = None
-    user_id : UUID
-    status: status
-    created_date : datetime
-    finished_date : datetime = None
-
-class Response(Base):
-    """
-    Response Model
-    """
-    id: UUID
-    status: status
-    created_date : datetime
-    finished_date : datetime = None
-
-class UpdateDateAndStatus(BaseSchema):
-    finished_date: datetime
-    status: str
-
-class UpdateStatus(BaseSchema):
-    status: str
+    user_id: UUID
+    status: SubmissionStatus
+    created_date: datetime
+    finished_date: datetime = None
