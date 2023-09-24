@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from app.models.auth import UserDTO
 from app.models.submissions import (
@@ -21,7 +21,7 @@ async def get_submissions(
     """
     Get all submissions:
     """
-    return Response(status_code=status.HTTP_200_OK)
+    pass
 
 
 @router.get("/{submission_id}", response_model=SubmissionResponse)
@@ -60,6 +60,32 @@ async def delete_submission(
 ):
     """
     Delete a submission:
+    - **submission_id**: The unique submission id
+    """
+    pass
+
+
+@router.patch("/{submission_id}/run", response_model=SubmissionResponse)
+async def run_submission(
+    submission_id: str,
+    current_user: UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Runs a submission:
+    - **submission_id**: A name for the submission
+    """
+    pass
+
+
+@router.get("/{submission_id}/report")
+async def get_submission(
+    submission_id: str,
+    current_user: UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get the submission report:
     - **submission_id**: The unique submission id
     """
     pass
