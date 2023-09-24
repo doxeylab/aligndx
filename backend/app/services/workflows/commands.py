@@ -1,6 +1,8 @@
 from enum import Enum
 import re, os, json
 from jsonschema import validate, ValidationError
+from app.services.storages import StorageManager
+from app.models.stores import BaseStores
 
 
 def sanitize_text_input(text):
@@ -19,7 +21,7 @@ class ParamType(Enum):
 
 
 class CommandGenerator:
-    def __init__(self, workflow):
+    def __init__(self, workflow: dict, submission_id: str):
         schema_file_path = os.path.join(os.path.dirname(__file__), "schema.json")
 
         with open(schema_file_path, "r") as f:
@@ -33,12 +35,14 @@ class CommandGenerator:
         self.metadata = workflow.get("metadata", {})
         self.config = workflow.get("config", {})
         self.params = workflow.get("params", [])
+        self.storage = StorageManager(submission_id)
 
     def generate_command_part(self, param, param_value, command_flag):
         if param == ParamType.SELECT and isinstance(param_value, list):
             return [command_flag, ",".join(param_value)]
         if param in {ParamType.FILE, ParamType.URL} and isinstance(param_value, list):
-            return [command_flag, " ".join(param_value)]
+            path = self.storage.get_path(store=BaseStores.UPLOADS, filename=param_value)
+            return [command_flag, " ".join(path)]
         if param == ParamType.TEXT:
             return [command_flag, sanitize_text_input(param_value)]
         if param == ParamType.NUMBER:
@@ -46,7 +50,8 @@ class CommandGenerator:
         if param == ParamType.BOOLEAN and param_value:
             return [command_flag]
         if param == ParamType.OUTPUT:
-            return [command_flag, param_value]
+            path = self.storage.get_path(store=BaseStores.RESULTS, filename=param_value)
+            return [command_flag, " ".join(path)]
         return []
 
     def generate_command(self, user_inputs: dict):

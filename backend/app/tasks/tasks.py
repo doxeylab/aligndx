@@ -1,11 +1,9 @@
 import os
 import requests
-import shutil
 import logging
 from celery import shared_task, chain, signals
-from app.models.jobs import Metadata
-from app.models.enums import JobStatus
-from app.services import factory
+from app.models.submissions import SubmissionMetadata, SubmissionStatus
+from app.services.workflows import WorkflowOrchestrator
 from .redis.functions import Handler
 
 logger = logging.getLogger(__name__)
@@ -49,13 +47,14 @@ def status_update(sub_id: str, status: str):
 
 
 @shared_task(name="Update metadata")
-def update_metadata(sub_id: str, metadata: Metadata):
+def update_metadata(sub_id: str, metadata: SubmissionMetadata):
     Handler.create(sub_id, metadata.dict())
+    status_update(sub_id, metadata.status)
     return metadata.dict()
 
 
 @shared_task(name="Retrieve metadata")
-def retrieve_metadata(sub_id: str) -> Metadata:
+def retrieve_metadata(sub_id: str) -> SubmissionMetadata:
     meta_dict = Handler.retrieve(sub_id)
     if meta_dict is not None:
         return meta_dict  # Returning actual data
@@ -64,68 +63,69 @@ def retrieve_metadata(sub_id: str) -> Metadata:
 
 
 @shared_task(name="Create Job")
-def create_job(sub_id: str, name: str, pipeline: str, inputs: dict, store: dict):
-    id = factory.create(pipeline=pipeline, inputs=inputs, store=store)
-    metadata = Metadata(
-        id=id,
-        name=name,
-        inputs=inputs,
-        store=store,
-        status=JobStatus.QUEUED,
-        pipeline=pipeline,
+def create_job(submission_id: str, workflow_id: str, name: str, user_inputs: dict):
+    job_id = WorkflowOrchestrator.create_job(
+        workflow_id=workflow_id,
+        user_inputs=user_inputs,
     )
-    Handler.enqueue_job(sub_id, metadata.dict())
-    Handler.create(sub_id, metadata.dict())
+    metadata = SubmissionMetadata(
+        submission_id=submission_id,
+        workflow_id=workflow_id,
+        job_id=job_id,
+        name=name,
+        inputs=user_inputs,
+        status=SubmissionStatus.QUEUED,
+    )
+    Handler.enqueue_job(submission_id, metadata.dict())
+    Handler.create(submission_id, metadata.dict())
     return metadata.dict()
 
 
 @shared_task(name="Start Job")
-def start_job(sub_id: str):
-    metadata_dict = retrieve_metadata(sub_id)
-    metadata = Metadata(**metadata_dict)
-    factory.start(metadata.id)
-    metadata.status = JobStatus.PROCESSING
-    update_metadata(sub_id, metadata)
+def start_job(submission_id: str):
+    workflow_orchestrator = WorkflowOrchestrator
+
+    metadata_dict = retrieve_metadata(submission_id)
+    metadata = SubmissionMetadata(**metadata_dict)
+    metadata.status = SubmissionStatus.PROCESSING
+
+    workflow_orchestrator.run_job(metadata.job_id)
+    update_metadata(submission_id, metadata)
+
     return metadata.dict()
 
 
-@shared_task(bind=True, name="Monitor Docker Status")
-def monitor_docker_status(self, sub_id: str):
-    container_status = factory.get_status(sub_id)
-    metadata_dict = retrieve_metadata(sub_id)
-    metadata = Metadata(**metadata_dict)
+@shared_task(bind=True, name="Monitor Job Status")
+def monitor_job_status(self, submission_id: str):
+    workflow_orchestrator = WorkflowOrchestrator
 
-    if container_status in ("completed", "error"):
-        metadata.status = container_status
-        update_metadata(sub_id, metadata)
+    metadata_dict = retrieve_metadata(submission_id)
+    metadata = SubmissionMetadata(**metadata_dict)
+
+    status = workflow_orchestrator.get_job_status(job_id=metadata.job_id)
+
+    if status in ("completed", "error"):
+        metadata.status = status
+        update_metadata(submission_id, metadata)
         return metadata.dict()
     else:
-        self.apply_async((sub_id,), countdown=10)
+        self.apply_async((submission_id,), countdown=10)
 
 
 @shared_task(name="Complete Job")
 def complete_job(sub_id: str):
-    metadata_dict = retrieve_metadata(sub_id)
-    metadata = Metadata(**metadata_dict)
-    factory.create_report(metadata=metadata)
-    cleanup(sub_id, metadata)  # Directly calling cleanup
-    return metadata.dict()
+    workflow_orchestrator = WorkflowOrchestrator
 
-
-@shared_task(name="Cleanup")
-def cleanup(sub_id: str):
     metadata_dict = retrieve_metadata(sub_id)
-    metadata = Metadata(**metadata_dict)
-    factory.destroy(metadata.id)
+    metadata = SubmissionMetadata(**metadata_dict)
+
+    workflow_orchestrator.complete_job(metadata.job_id)
     Handler.dequeue_job(sub_id)
-    for store, path in metadata.store.items():
-        if store in ("uploads", "temp"):
-            shutil.rmtree(path)
     Handler.delete(sub_id)
     return metadata.dict()
 
 
 def run_job(sub_id):
-    task_chain = chain(start_job.s(sub_id), monitor_docker_status.s(sub_id))
+    task_chain = chain(start_job.s(sub_id), monitor_job_status.s(sub_id))
     callback = complete_job.s(sub_id)
     task_chain.link(callback).delay()

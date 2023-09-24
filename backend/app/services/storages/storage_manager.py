@@ -2,6 +2,7 @@ from enum import Enum
 from .local_storage import LocalStorage
 from .object_storage import ObjectStorage
 from app.core.config.settings import settings
+from app.models.stores import BaseStores
 
 
 class StorageType(Enum):
@@ -13,19 +14,23 @@ class StorageManager:
     def __init__(self, sub_id):
         self.sub_id = sub_id
         self.stores = {}
-        self.base_stores = settings.BASE_STORES
 
         storage_type = StorageType(settings.STORAGE_TYPE.lower())
 
-        for store, base_store in self.base_stores.items():
+        for base_store in BaseStores:
             if storage_type == StorageType.LOCAL:
-                self.stores[store] = LocalStorage(directory=f"{base_store}/{sub_id}")
+                self.stores[base_store.value] = LocalStorage(
+                    directory=settings.BASE_STORES[base_store], sub_id=sub_id
+                )
             elif storage_type == StorageType.OBJECT:
-                self.stores[store] = ObjectStorage(
-                    bucket=f"{base_store}", sub_id=sub_id
+                self.stores[base_store.value] = ObjectStorage(
+                    bucket=settings.BASE_STORES[base_store], sub_id=sub_id
                 )
             else:
                 raise ValueError(f"Invalid STORAGE_TYPE in settings: {storage_type}")
+
+    def get_path(self, store, filename):
+        return self.stores[store].get_path(filename)
 
     def read(self, store, filename):
         return self.stores[store].read(filename)

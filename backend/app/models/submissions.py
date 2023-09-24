@@ -6,6 +6,7 @@ from enum import Enum
 
 
 class SubmissionStatus(Enum):
+    CREATED = "created"
     QUEUED = "queued"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -28,12 +29,16 @@ class SubmissionRequest(BaseSchema):
     inputs: Dict[str, str]
 
 
-class SubmissionResponse(BaseSchema):
+class SubmissionMetadata(BaseSchema):
     submission_id: str
     workflow_id: str
+    job_id: str
     name: str
     inputs: Dict[str, str]
     status: SubmissionStatus
+
+
+class SubmissionResponse(SubmissionMetadata):
     created_date: datetime
     finished_date: datetime = None
 

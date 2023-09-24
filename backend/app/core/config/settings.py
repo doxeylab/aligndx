@@ -1,15 +1,15 @@
+import os
 from pydantic import BaseSettings
-from fastapi.security import OAuth2PasswordBearer 
+from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
-
 from functools import lru_cache
 from typing import Optional
+from app.models.stores import BaseStore
 
-import os
+
 class AppSettings(BaseSettings):
+    #  -- Auth --
 
-    #  -- Auth -- 
-    
     oauth2_scheme_auto_error = OAuth2PasswordBearer(tokenUrl="users/token")
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/token", auto_error=False)
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -18,31 +18,31 @@ class AppSettings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
     REFRESH_TOKEN_EXPIRE_MINUTES = 30 * 24 * 14
 
-    #  -- App Data -- 
+    #  -- App Data --
     PROJECT_PATH = os.getenv("PROJECT_PATH")
-    DATA_FOLDER =  PROJECT_PATH + '/data'
-    DOWNLOADS_PATH =  DATA_FOLDER + '/downloads'
-    PIPELINES_PATH =  DATA_FOLDER + '/pipelines'
-    PIPELINES_REPO =  os.getenv("PIPELINES_REPO")
-    PIPELINES_REPO_TOKEN =  os.getenv("PIPELINES_REPO_TOKEN")
+    DATA_FOLDER = PROJECT_PATH + "/data"
+    DOWNLOADS_PATH = DATA_FOLDER + "/downloads"
+    PIPELINES_PATH = DATA_FOLDER + "/pipelines"
+    PIPELINES_REPO = os.getenv("PIPELINES_REPO")
+    PIPELINES_REPO_TOKEN = os.getenv("PIPELINES_REPO_TOKEN")
 
-    #  -- User Data -- 
+    #  -- User Data --
 
-    UPLOAD_FOLDER = DATA_FOLDER + '/uploads' 
-    RESULTS_FOLDER = DATA_FOLDER + '/results'
-    TMP_FOLDER = DATA_FOLDER + '/tmp' 
+    UPLOAD_FOLDER = DATA_FOLDER + "/uploads"
+    RESULTS_FOLDER = DATA_FOLDER + "/results"
+    TMP_FOLDER = DATA_FOLDER + "/tmp"
 
-    #  -- API Created Directories -- 
+    #  -- API Created Directories --
     DIRS = [DATA_FOLDER, DOWNLOADS_PATH, UPLOAD_FOLDER, RESULTS_FOLDER, TMP_FOLDER]
 
     # Notification settings
 
-    sender_email: str = os.getenv("NOTIFICATION_EMAIL") 
+    sender_email: str = os.getenv("NOTIFICATION_EMAIL")
     password: str = os.getenv("NOTIFICATION_EMAIL_PASSWORD")
     base_url: str = os.getenv("BASE_URL")
 
     # Payments Stripe settings
-    stripe_secret_key: str = os.getenv("STRIPE_SECRET_KEY") 
+    stripe_secret_key: str = os.getenv("STRIPE_SECRET_KEY")
     stripe_publishable_key: str = os.getenv("STRIPE_PUBLISHABLE_KEY")
     stripe_webhook_secret: str = os.getenv("STRIPE_WEBHOOK_SECRET")
 
@@ -53,14 +53,13 @@ class AppSettings(BaseSettings):
 
     # Service settings
     CELERY_API_KEY: str = os.getenv("CELERY_API_KEY")
-    SERVICES = {
-        "celery": CELERY_API_KEY
-    }
+    SERVICES = {"celery": CELERY_API_KEY}
 
     #  -- Db settings --
-    
+
     DATABASE_URL: str = os.getenv("DATABASE_URL")
     DB_LOGS = False
+
     @property
     def async_database_url(self) -> Optional[str]:
         return (
@@ -68,11 +67,18 @@ class AppSettings(BaseSettings):
             if self.DATABASE_URL
             else self.DATABASE_URL
         )
-    
+
+    #  -- Storage settings --
+
+    BASE_STORES = {
+        BaseStore.UPLOADS: "uploads",
+        BaseStore.RESULTS: "results",
+    }
 
 
 @lru_cache()
-def get_settings() -> AppSettings: 
+def get_settings() -> AppSettings:
     return AppSettings()
+
 
 settings = get_settings()

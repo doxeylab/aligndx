@@ -2,11 +2,15 @@ from .commands import CommandGenerator
 from .executors import DockerExecutor
 
 
-class Orchestrator:
+class WorkflowOrchestrator:
     def __init__(self):
         self.executor = DockerExecutor()
 
-    def create_job(self, workflow: dict, user_inputs: dict):
+    def get_workflow(self, workflow_id: str):
+        pass
+
+    def create_job(self, workflow_id: str, user_inputs: dict):
+        workflow = self.get_workflow(workflow_id)
         command_generator = CommandGenerator(workflow)
         image = workflow["config"]["image"]
         launch_command = command_generator.generate_command(user_inputs)

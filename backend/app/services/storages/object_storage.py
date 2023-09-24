@@ -15,6 +15,9 @@ class ObjectStorage:
         self.bucket = bucket
         self.sub_id = sub_id
 
+    def get_path(self, key):
+        return f"s3://{self.bucket}/{self.sub_id}/{key}"
+
     def get_key(self, key):
         return f"{self.sub_id}/{key}"
 
