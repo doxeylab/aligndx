@@ -1,13 +1,7 @@
-from enum import Enum
 from .local_storage import LocalStorage
 from .object_storage import ObjectStorage
 from app.core.config.settings import settings
-from app.models.stores import BaseStores
-
-
-class StorageType(Enum):
-    LOCAL = "local"
-    OBJECT = "object"
+from app.models.stores import BaseStores, StorageType
 
 
 class StorageManager:
