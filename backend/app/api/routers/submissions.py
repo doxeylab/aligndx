@@ -9,9 +9,11 @@ from app.models.submissions import (
     SubmissionEntry,
     SubmissionStatus,
 )
+from app.models.stores import BaseStores
 from app.core.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db
 from app.services.auth import get_current_user
+from app.services.storages import StorageManager
 from app.tasks import create_job, run_job
 
 router = APIRouter()
@@ -122,7 +124,7 @@ async def run_submission(
 
 
 @router.get("/{submission_id}/report")
-async def get_submission(
+async def get_report(
     submission_id: str,
     current_user: UserDTO = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -131,4 +133,14 @@ async def get_submission(
     Get the submission report:
     - **submission_id**: The unique submission id
     """
-    pass
+    sub_dal = SubmissionsDal(db)
+    query = await sub_dal.get_submission(current_user.id, submission_id)
+
+    if query is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Submission does not exist"
+        )
+
+    storage = StorageManager(sub_id=submission_id)
+    report = storage.read(store=BaseStores.RESULTS, filename="report.html")
+    return report
