@@ -64,7 +64,7 @@ def retrieve_metadata(sub_id: str):
         raise Exception(f"No metadata available for {sub_id}")  # Raising exception
 
 
-@shared_task(name="Create Job")
+@shared_task(name="Move data")
 def move_data(submission_id: str, source_filename: str, destination_filename: str):
     storage_manager = StorageManager(prefix=submission_id)
 
