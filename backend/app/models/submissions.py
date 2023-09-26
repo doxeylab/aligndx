@@ -45,7 +45,7 @@ class SubmissionResponse(SubmissionMetadata):
 
 class SubmissionEntry(BaseSchema):
     id: UUID = None
-    user_id: UUID
-    status: SubmissionStatus
-    created_date: datetime
+    user_id: UUID = None
+    status: SubmissionStatus = None
+    created_date: datetime = None
     finished_date: datetime = None

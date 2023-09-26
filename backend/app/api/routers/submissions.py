@@ -1,4 +1,4 @@
-import datetime, uuid
+from curses.ascii import HT
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
@@ -15,6 +15,8 @@ from app.services.db import get_db
 from app.services.auth import get_current_user
 from app.services.storages import StorageManager
 from app.celery.tasks import create_job, run_job
+import datetime
+import uuid
 
 router = APIRouter()
 
@@ -59,6 +61,8 @@ async def create_submission(
     - **name**: A name for the submission
     - **inputs**: The inputs for the submission
     """
+    sub_dal = SubmissionsDal(db)
+
     query = await sub_dal.create(
         SubmissionEntry(
             user_id=current_user.id,
@@ -67,10 +71,9 @@ async def create_submission(
             **submission.dict()
         )
     )
-    sub_dal = SubmissionsDal(db)
     submission_id = str(query)
 
-    create_job.apply_async(
+    create_job.apply_async(  # type: ignore
         args=[
             submission_id,
             submission.workflow_id,
@@ -95,7 +98,7 @@ async def delete_submission(
     try:
         query = await sub_dal.delete_by_id(uuid.UUID(submission_id))
         return str(query)
-    except:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Could not delete the item"
         )
