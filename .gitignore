@@ -21,7 +21,7 @@ venv
 /app/certbot/
 
 # secrets
-.env*
+*.env*
 config.ps1
 
 # misc

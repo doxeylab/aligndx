@@ -1,23 +1,24 @@
 import os
-import logging, threading
+import logging
 
 from fastapi import FastAPI, Depends, status
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 
-from app.api.routers import users, submissons, sockets, metadata, payments, webhooks
+from app.api.routers import users, submissions, sockets, payments, webhooks
 
 from app.services.auth import get_current_user
 from app.services.factory import initialize
 from app.core import utils
 
 from app.core.config.settings import get_settings
+from app.core.db.session import engine
 
 
 app = FastAPI(
     title="AlignDX",
-    description="This is the restful API for the AlignDX application. Here you will find the auto docs genereated for the API endpoints",
+    description="This is the restful API for the AlignDX application. Here you will find the auto docs generated for the API endpoints",
     version="1.0",
 )
 
@@ -43,7 +44,7 @@ async def validation_exception_handler(request, exc):
 
 
 lst_origins = os.getenv("ORIGINS")
-origins = lst_origins.replace(" ", "").split(",")
+origins = lst_origins.replace(" ", "").split(",") if lst_origins is not None else None
 
 app.add_middleware(
     CORSMiddleware,
@@ -62,7 +63,7 @@ app.include_router(
 )
 
 app.include_router(
-    submissons.router,
+    submissions.router,
     prefix="/submissions",
     tags=["Submissions"],
     dependencies=[Depends(get_current_user)],
@@ -74,12 +75,6 @@ app.include_router(
     tags=["Payments"],
     # include_in_schema=False,
     dependencies=[Depends(get_current_user)],
-)
-
-app.include_router(
-    metadata.router,
-    prefix="/metadata",
-    tags=["Metadata"],
 )
 
 app.include_router(sockets.router)
@@ -95,9 +90,6 @@ app.include_router(
 @app.get("/")
 async def root():
     return RedirectResponse(url="/docs")
-
-
-from app.core.db.session import engine
 
 
 @app.on_event("shutdown")
