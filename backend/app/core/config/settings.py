@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from functools import lru_cache
 from typing import Optional
-from app.models.stores import BaseStore
+from app.models.stores import BaseStores, StorageTypes
 
 
 class AppSettings(BaseSettings):
@@ -70,9 +70,17 @@ class AppSettings(BaseSettings):
 
     #  -- Storage settings --
 
+    STORAGE_TYPE = StorageTypes.OBJECT
+
+    STORAGE_ACCESS_KEY_ID = os.getenv("STORAGE_ACCESS_KEY_ID")
+    STORAGE_SECRET_ACCESS_KEY = os.getenv("STORAGE_SECRET_ACCESS_KEY")
+    STORAGE_REGION_NAME = os.getenv("STORAGE_REGION_NAME")
+    STORAGE_ENDPOINT_URL = os.getenv("STORAGE_ENDPOINT_URL")
+
     BASE_STORES = {
-        BaseStore.UPLOADS: "uploads",
-        BaseStore.RESULTS: "results",
+        BaseStores.UPLOADS: "uploads",
+        BaseStores.SUBMISSIONS: "submissions",
+        BaseStores.RESULTS: "results",
     }
 
 

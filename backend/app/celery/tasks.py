@@ -5,6 +5,8 @@ from celery import shared_task, chain, signals
 from app.models.submissions import SubmissionMetadata, SubmissionStatus
 from app.services.workflows import WorkflowOrchestrator
 from .redis.functions import Handler
+from app.models.stores import BaseStores
+from app.services.storages import StorageManager
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +56,7 @@ def update_metadata(sub_id: str, metadata: SubmissionMetadata):
 
 
 @shared_task(name="Retrieve metadata")
-def retrieve_metadata(sub_id: str) -> SubmissionMetadata:
+def retrieve_metadata(sub_id: str):
     meta_dict = Handler.retrieve(sub_id)
     if meta_dict is not None:
         return meta_dict  # Returning actual data
@@ -63,8 +65,25 @@ def retrieve_metadata(sub_id: str) -> SubmissionMetadata:
 
 
 @shared_task(name="Create Job")
+def move_data(submission_id: str, source_filename: str, destination_filename: str):
+    storage_manager = StorageManager(prefix=submission_id)
+
+    storage_manager.move(
+        src_store=BaseStores.UPLOADS,
+        src_filename=source_filename,
+        dest_filename=destination_filename,
+        dest_store=BaseStores.SUBMISSIONS,
+    )
+
+    tus_meta = f"{source_filename}.info"
+    storage_manager.delete(store=BaseStores.UPLOADS, filename=tus_meta)
+
+
+@shared_task(name="Create Job")
 def create_job(submission_id: str, workflow_id: str, name: str, user_inputs: dict):
-    job_id = WorkflowOrchestrator.create_job(
+    workflow_orchestrator = WorkflowOrchestrator()
+
+    job_id = workflow_orchestrator.create_job(
         workflow_id=workflow_id,
         user_inputs=user_inputs,
     )
@@ -83,7 +102,7 @@ def create_job(submission_id: str, workflow_id: str, name: str, user_inputs: dic
 
 @shared_task(name="Start Job")
 def start_job(submission_id: str):
-    workflow_orchestrator = WorkflowOrchestrator
+    workflow_orchestrator = WorkflowOrchestrator()
 
     metadata_dict = retrieve_metadata(submission_id)
     metadata = SubmissionMetadata(**metadata_dict)
@@ -97,7 +116,7 @@ def start_job(submission_id: str):
 
 @shared_task(bind=True, name="Monitor Job Status")
 def monitor_job_status(self, submission_id: str):
-    workflow_orchestrator = WorkflowOrchestrator
+    workflow_orchestrator = WorkflowOrchestrator()
 
     metadata_dict = retrieve_metadata(submission_id)
     metadata = SubmissionMetadata(**metadata_dict)
@@ -114,18 +133,18 @@ def monitor_job_status(self, submission_id: str):
 
 @shared_task(name="Complete Job")
 def complete_job(sub_id: str):
-    workflow_orchestrator = WorkflowOrchestrator
+    workflow_orchestrator = WorkflowOrchestrator()
 
     metadata_dict = retrieve_metadata(sub_id)
     metadata = SubmissionMetadata(**metadata_dict)
 
     workflow_orchestrator.complete_job(metadata.job_id)
-    Handler.dequeue_job(sub_id)
+    Handler.dequeue_job()
     Handler.delete(sub_id)
     return metadata.dict()
 
 
 def run_job(sub_id):
-    task_chain = chain(start_job.s(sub_id), monitor_job_status.s(sub_id))
-    callback = complete_job.s(sub_id)
+    task_chain = chain(start_job.s(sub_id), monitor_job_status.s(sub_id))  # type: ignore
+    callback = complete_job.s(sub_id)  # type: ignore
     task_chain.link(callback).delay()

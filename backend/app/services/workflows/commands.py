@@ -41,7 +41,9 @@ class CommandGenerator:
         if param == ParamType.SELECT and isinstance(param_value, list):
             return [command_flag, ",".join(param_value)]
         if param in {ParamType.FILE, ParamType.URL} and isinstance(param_value, list):
-            path = self.storage.get_path(store=BaseStores.UPLOADS, filename=param_value)
+            path = self.storage.get_path(
+                store=BaseStores.SUBMISSIONS, filename=param_value
+            )
             return [command_flag, " ".join(path)]
         if param == ParamType.TEXT:
             return [command_flag, sanitize_text_input(param_value)]

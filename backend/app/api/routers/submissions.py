@@ -14,7 +14,7 @@ from app.core.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db
 from app.services.auth import get_current_user
 from app.services.storages import StorageManager
-from app.tasks import create_job, run_job
+from app.celery.tasks import create_job, run_job
 
 router = APIRouter()
 
@@ -141,6 +141,6 @@ async def get_report(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Submission does not exist"
         )
 
-    storage = StorageManager(sub_id=submission_id)
+    storage = StorageManager(prefix=submission_id)
     report = storage.read(store=BaseStores.RESULTS, filename="report.html")
     return report

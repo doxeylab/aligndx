@@ -1,24 +1,24 @@
 from .local_storage import LocalStorage
 from .object_storage import ObjectStorage
 from app.core.config.settings import settings
-from app.models.stores import BaseStores, StorageType
+from app.models.stores import BaseStores, StorageTypes
 
 
 class StorageManager:
-    def __init__(self, sub_id):
-        self.sub_id = sub_id
+    def __init__(self, prefix=None):
         self.stores = {}
+        self.prefix = prefix
 
-        storage_type = StorageType(settings.STORAGE_TYPE.lower())
+        storage_type = settings.STORAGE_TYPE
 
         for base_store in BaseStores:
-            if storage_type == StorageType.LOCAL:
+            if storage_type == StorageTypes.LOCAL:
                 self.stores[base_store.value] = LocalStorage(
-                    directory=settings.BASE_STORES[base_store], sub_id=sub_id
+                    store=settings.BASE_STORES[base_store], prefix=self.prefix
                 )
-            elif storage_type == StorageType.OBJECT:
+            elif storage_type == StorageTypes.OBJECT:
                 self.stores[base_store.value] = ObjectStorage(
-                    bucket=settings.BASE_STORES[base_store], sub_id=sub_id
+                    store=settings.BASE_STORES[base_store], prefix=self.prefix
                 )
             else:
                 raise ValueError(f"Invalid STORAGE_TYPE in settings: {storage_type}")
@@ -32,16 +32,17 @@ class StorageManager:
     def write(self, store, filename, content):
         self.stores[store].write(filename, content)
 
-    def move(self, source_store, destination_store, filename):
-        source = self.stores[source_store]
-        destination = self.stores[destination_store]
-
-        content = source.read(filename)
-        destination.write(filename, content)
-        source.delete(filename)
-
     def delete(self, store, filename):
         self.stores[store].delete(filename)
 
     def delete_all(self, store):
         self.stores[store].delete_all()
+
+    def move(self, src_store, src_filename, dest_filename, dest_store=None):
+        if dest_store is None:
+            self.stores[src_store].move_within_store(src_filename, dest_filename)
+        else:
+            src_storage = self.stores[src_store]
+            dest_storage = self.stores[dest_store]
+
+            src_storage.move_between_stores(dest_storage, src_filename, dest_filename)
