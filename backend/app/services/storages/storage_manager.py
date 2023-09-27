@@ -46,3 +46,6 @@ class StorageManager:
             dest_storage = self.stores[dest_store]
 
             src_storage.move_between_stores(dest_storage, src_filename, dest_filename)
+
+    def list_folders(self, store):
+        return self.stores[store].list_folders()

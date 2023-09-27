@@ -1,4 +1,3 @@
-from curses.ascii import HT
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List

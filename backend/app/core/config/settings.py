@@ -18,29 +18,6 @@ class AppSettings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
     REFRESH_TOKEN_EXPIRE_MINUTES = 30 * 24 * 14
 
-    #  -- App Data --
-    PROJECT_PATH = os.getenv("PROJECT_PATH")
-    DATA_FOLDER = PROJECT_PATH + "/data"
-    DOWNLOADS_PATH = DATA_FOLDER + "/downloads"
-    PIPELINES_PATH = DATA_FOLDER + "/pipelines"
-    PIPELINES_REPO = os.getenv("PIPELINES_REPO")
-    PIPELINES_REPO_TOKEN = os.getenv("PIPELINES_REPO_TOKEN")
-
-    #  -- User Data --
-
-    UPLOAD_FOLDER = DATA_FOLDER + "/uploads"
-    RESULTS_FOLDER = DATA_FOLDER + "/results"
-    TMP_FOLDER = DATA_FOLDER + "/tmp"
-
-    #  -- API Created Directories --
-    DIRS = [DATA_FOLDER, DOWNLOADS_PATH, UPLOAD_FOLDER, RESULTS_FOLDER, TMP_FOLDER]
-
-    # Notification settings
-
-    sender_email: str = os.getenv("NOTIFICATION_EMAIL")
-    password: str = os.getenv("NOTIFICATION_EMAIL_PASSWORD")
-    base_url: str = os.getenv("BASE_URL")
-
     # Payments Stripe settings
     stripe_secret_key: str = os.getenv("STRIPE_SECRET_KEY")
     stripe_publishable_key: str = os.getenv("STRIPE_PUBLISHABLE_KEY")
@@ -81,6 +58,7 @@ class AppSettings(BaseSettings):
         BaseStores.UPLOADS: "uploads",
         BaseStores.SUBMISSIONS: "submissions",
         BaseStores.RESULTS: "results",
+        BaseStores.WORFKLOWS: "workflows",
     }
 
 

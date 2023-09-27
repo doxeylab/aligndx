@@ -5,6 +5,7 @@ class BaseStores(Enum):
     UPLOADS = "uploads"
     SUBMISSIONS = "submissions"
     RESULTS = "results"
+    WORFKLOWS = "workflows"
 
 
 class StorageTypes(Enum):

@@ -50,3 +50,14 @@ class LocalStorage:
                 shutil.copyfileobj(src_file, dest_file)
 
         os.remove(src_path)
+
+    def list_folders(self):
+        path = self.store if not self.prefix else os.path.join(self.store, self.prefix)
+        if not os.path.exists(path):
+            return []
+
+        return [
+            folder
+            for folder in os.listdir(path)
+            if os.path.isdir(os.path.join(path, folder))
+        ]

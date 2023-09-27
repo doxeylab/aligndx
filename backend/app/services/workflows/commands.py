@@ -1,8 +1,8 @@
-from enum import Enum
-import re, os, json
-from jsonschema import validate, ValidationError
+import re
+from jsonschema import ValidationError
 from app.services.storages import StorageManager
 from app.models.stores import BaseStores
+from app.models.workflows import ParamTypes, WorkflowSchema
 
 
 def sanitize_text_input(text):
@@ -10,25 +10,17 @@ def sanitize_text_input(text):
     return re.sub(r"[^a-zA-Z0-9\-_.]", "", text)
 
 
-class ParamType(Enum):
-    SELECT = "select"
-    FILE = "file"
-    URL = "url"
-    NUMBER = "number"
-    BOOLEAN = "boolean"
-    TEXT = "text"
-    OUTPUT = "output"
+setattr(
+    ParamTypes,
+    "has_value",
+    classmethod(lambda cls, value: any(value == item.value for item in cls)),
+)
 
 
 class CommandGenerator:
     def __init__(self, workflow: dict, submission_id: str):
-        schema_file_path = os.path.join(os.path.dirname(__file__), "schema.json")
-
-        with open(schema_file_path, "r") as f:
-            schema = json.load(f)
-
         try:
-            validate(instance=workflow, schema=schema)
+            WorkflowSchema.parse_obj(workflow)
         except ValidationError as e:
             raise ValueError(f"Invalid Workflow JSON: {e.message}")
 
@@ -38,20 +30,20 @@ class CommandGenerator:
         self.storage = StorageManager(submission_id)
 
     def generate_command_part(self, param, param_value, command_flag):
-        if param == ParamType.SELECT and isinstance(param_value, list):
+        if param == ParamTypes.SELECT and isinstance(param_value, list):
             return [command_flag, ",".join(param_value)]
-        if param in {ParamType.FILE, ParamType.URL} and isinstance(param_value, list):
+        if param in {ParamTypes.FILE, ParamTypes.URL} and isinstance(param_value, list):
             path = self.storage.get_path(
                 store=BaseStores.SUBMISSIONS, filename=param_value
             )
             return [command_flag, " ".join(path)]
-        if param == ParamType.TEXT:
+        if param == ParamTypes.TEXT:
             return [command_flag, sanitize_text_input(param_value)]
-        if param == ParamType.NUMBER:
+        if param == ParamTypes.NUMBER:
             return [command_flag, str(param_value)]
-        if param == ParamType.BOOLEAN and param_value:
+        if param == ParamTypes.BOOLEAN and param_value:
             return [command_flag]
-        if param == ParamType.OUTPUT:
+        if param == ParamTypes.OUTPUT:
             path = self.storage.get_path(store=BaseStores.RESULTS, filename=param_value)
             return [command_flag, " ".join(path)]
         return []
@@ -69,14 +61,14 @@ class CommandGenerator:
             is_required = param.get("required", False)
             param_value = user_inputs.get(param_id, "")
 
-            if not param_id or not ParamType.has_value(param_type_str):
+            if not param_id or not ParamTypes.has_value(param_type_str):
                 continue
 
             if is_required and not param_value:
                 missing_required_params.append(param_id)
                 continue
 
-            param_type = ParamType(param_type_str)
+            param_type = ParamTypes(param_type_str)
             command_parts.extend(
                 self.generate_command_part(param_type, param_value, command_flag)
             )
@@ -87,10 +79,3 @@ class CommandGenerator:
             )
 
         return " ".join(command_parts)
-
-
-setattr(
-    ParamType,
-    "has_value",
-    classmethod(lambda cls, value: any(value == item.value for item in cls)),
-)

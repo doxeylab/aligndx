@@ -75,3 +75,17 @@ class ObjectStorage:
             self.delete(src_key)
         except Exception as e:
             print(f"An error occurred while moving {src_key} to {dest_key}: {e}")
+
+    def list_folders(self):
+        try:
+            prefix = f"{self.prefix}/" if self.prefix else ""
+            response = self.s3.list_objects_v2(
+                Bucket=self.store, Prefix=prefix, Delimiter="/"
+            )
+            if "CommonPrefixes" not in response:
+                return []
+
+            return [item["Prefix"] for item in response["CommonPrefixes"]]
+        except Exception as e:
+            print(f"Error listing folders in {self.store}/{self.prefix}: {e}")
+            return []
