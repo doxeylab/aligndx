@@ -19,7 +19,6 @@ class WorkflowOrchestrator:
         data = self.storage.read(store=BaseStores.WORKFLOWS, filename=workflow_schema)
         try:
             schema_dict = json.loads(data)
-            print(schema_dict)
             schema = WorkflowSchema(**schema_dict)
             return schema
         except json.JSONDecodeError:

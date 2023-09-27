@@ -2,6 +2,7 @@ import re
 from app.services.storages import StorageManager
 from app.models.stores import BaseStores
 from app.models.workflows import Param, ParamTypes, ParamValue, WorkflowSchema
+from app.services.workflows.configs import ConfigGenerator
 import urllib.parse
 
 
@@ -13,6 +14,7 @@ def sanitize_text_input(text):
 class CommandGenerator:
     def __init__(self, workflow: WorkflowSchema, submission_id: str):
         self.validate_workflow(workflow)
+        self.workflow = workflow
         self.metadata = workflow.metadata
         self.config = workflow.config
         self.params = workflow.params
@@ -88,10 +90,12 @@ class CommandGenerator:
             command_parts.extend(
                 self.generate_command_part(param, param_value, command_flag)
             )
+        
+        configured_command_parts = ConfigGenerator(self.workflow,command_parts)
 
         if missing_required_params:
             raise ValueError(
                 f"Missing required parameters: {', '.join(missing_required_params)}"
             )
 
-        return " ".join(command_parts)
+        return " ".join(configured_command_parts)
