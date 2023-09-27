@@ -8,6 +8,11 @@ SHELL := /bin/bash
 .PHONY: all
 all: install_dependencies build_up migrate setup_minio sync_workflows
 
+
+.PHONY: setup-env
+setup-env:
+	@./scripts/setup_env.sh
+
 .PHONY: install_dependencies
 install_dependencies:
 	@echo "Checking and installing dependencies if needed..."
@@ -24,7 +29,7 @@ build_up: install_dependencies
 .PHONY: migrate
 migrate: build_up
 	@echo "Running migrations..."
-	# Wait for PostgreSQL to be up before running migrations
+	@# Wait for PostgreSQL to be up before running migrations
 	@while ! docker-compose exec -T postgres pg_isready; do sleep 5; done
 	@docker-compose exec backend sh -c "cd app && alembic upgrade head" || (echo "Migration failed!" && exit 1)
 
@@ -32,12 +37,12 @@ migrate: build_up
 .PHONY: setup_minio
 setup_minio: build_up
 	@echo "Setting up Minio buckets..."
-	# Wait for Minio to be ready
+	@# Wait for Minio to be ready
 	@while ! curl -s http://localhost:9000/minio/health/live; do echo 'Waiting for Minio...'; sleep 5; done
-	# Configuring mc with the Minio service
+	@# Configuring mc with the Minio service
 	@echo "Configuring mc with Minio service..."
 	@docker-compose exec -T minio mc alias set local http://localhost:9000 "${STORAGE_ACCESS_KEY_ID}" "${STORAGE_SECRET_ACCESS_KEY}" || (echo 'MC Configuration failed!' && exit 1)
-	# Creating the buckets
+	@# Creating the buckets
 	@echo "Creating the buckets..."
 	@docker-compose exec -T minio sh -c "mc mb local/uploads || true"
 	@docker-compose exec -T minio sh -c "mc mb local/submissions || true"

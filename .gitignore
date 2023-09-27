@@ -22,6 +22,7 @@ venv
 
 # secrets
 *.env*
+!.env.template
 config.ps1
 
 # misc
