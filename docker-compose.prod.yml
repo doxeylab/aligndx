@@ -111,7 +111,6 @@ services:
         NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
         NEXT_PUBLIC_BACKEND_ACCESS_URL: ${NEXT_PUBLIC_BACKEND_ACCESS_URL}
         NEXT_PUBLIC_TUS_ENDPOINT: ${NEXT_PUBLIC_TUS_ENDPOINT}
-        NEXT_PUBLIC_COMPANION_URL: ${NEXT_PUBLIC_COMPANION_URL}
     tty: true
     expose:
       - 3000
@@ -128,27 +127,6 @@ services:
       - 1080
     volumes:
       - ./backend/data:/data
-
-  companion:
-    build:
-      context: companion
-    tty: true
-    command: sh -c "npx companion"
-    expose:
-      - 3020
-    environment:
-      COMPANION_CLIENT_ORIGINS: ${ORIGINS}
-      COMPANION_HIDE_WELCOME: true
-      COMPANION_HIDE_METRICS: true
-      COMPANION_STREAMING_UPLOAD: true
-      COMPANION_PROTOCOL: ${COMPANION_PROTOCOL}
-      COMPANION_IMPLICIT_PATH: ${COMPANION_IMPLICIT_PATH}
-      COMPANION_DOMAIN: ${COMPANION_DOMAIN}
-      COMPANION_SECRET: ${COMPANION_SECRET}
-      COMPANION_DATADIR: ${COMPANION_DATADIR}
-      COMPANION_GOOGLE_KEY: ${COMPANION_GOOGLE_KEY}
-      COMPANION_GOOGLE_SECRET: ${COMPANION_GOOGLE_SECRET}
-      COMPANION_UPLOAD_URLS: ${TUS_ENDPOINT}
 
   # Databases
 

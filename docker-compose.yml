@@ -2,27 +2,28 @@ version: "3.7"
 name: aligndx
 
 services:
-
   nginx:
     build:
       context: proxy/nginx
       dockerfile: Dockerfile
     ports:
       - "80:80"
-    restart: unless-stopped
+    tty: true
+    # restart: unless-stopped
 
   # API Server
   backend:
     build:
       context: backend
       dockerfile: Dockerfile
-    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8080 --root-path /api
     tty: true
     depends_on:
       - postgres
     ports:
       - "8080:8080"
     volumes:
+      - ./backend:/app
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       BASE_URL: ${BASE_URL}
@@ -47,7 +48,7 @@ services:
     depends_on:
       - backend
       - redis
-    command: sh -c "celery -A app.tasks worker -l info -E -c 1"
+    command: sh -c "celery -A app.celery worker -l info -E -c 1"
     tty: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -70,7 +71,7 @@ services:
     tty: true
     command: sh -c "npm run dev"
     ports:
-      - "80:3000"
+      - "3000:3000"
     volumes:
       - ./frontend/:/opt/app
       - /opt/app/node_modules
@@ -78,7 +79,6 @@ services:
       NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
       NEXT_PUBLIC_BACKEND_ACCESS_URL: ${NEXT_PUBLIC_BACKEND_ACCESS_URL}
       NEXT_PUBLIC_TUS_ENDPOINT: ${NEXT_PUBLIC_TUS_ENDPOINT}
-      NEXT_PUBLIC_COMPANION_URL: ${NEXT_PUBLIC_COMPANION_URL}
 
   tusd:
     image: tusproject/tusd

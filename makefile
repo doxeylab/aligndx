@@ -52,21 +52,31 @@ setup_minio: build_up
 
 .PHONY: sync_workflows
 sync_workflows: setup_minio
+ifeq ($(SKIP_SYNC_WORKFLOWS),true)
+	@echo "Skipping sync_workflows..."
+else
 	@echo "Downloading and syncing the git repo..."
 	@git clone $(WORKFLOW_REPO_URL) || (echo "Git clone failed!" && exit 1)
-	@AWS_ACCESS_KEY_ID=$(STORAGE_ACCESS_KEY_ID) AWS_SECRET_ACCESS_KEY=$(STORAGE_SECRET_ACCESS_KEY) AWS_DEFAULT_REGION=$(STORAGE_REGION_NAME) aws s3 sync $(WORKFLOWS_LOCATION) s3://workflows --endpoint-url http://localhost:9000 || (echo "AWS S3 Sync failed!" && exit 1)
+	@AWS_ACCESS_KEY_ID=$(STORAGE_ACCESS_KEY_ID) AWS_SECRET_ACCESS_KEY=$(STORAGE_SECRET_ACCESS_KEY) AWS_DEFAULT_REGION=$(STORAGE_REGION_NAME) aws s3 sync $(WORKFLOWS_SUBPATH) s3://workflows --endpoint-url http://localhost:9000 || (echo "AWS S3 Sync failed!" && exit 1)
 	@rm -rf $(WORKFLOWS_LOCATION)
+endif
 
 
-.PHONY: start_services
-start_services:
+
+.PHONY: start
+start:
 	@echo "Starting services..."
 	@docker-compose start
 
-.PHONY: stop_services
-stop_services:
+.PHONY: stop
+stop:
 	@echo "Stopping services..."
 	@docker-compose down
+
+.PHONY: reload
+reload:
+	@echo "Reloading services..."
+	@docker-compose up -d 
 
 .PHONY: prune_all
 prune_all:
