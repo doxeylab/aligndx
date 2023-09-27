@@ -1,21 +1,13 @@
 import re
-from jsonschema import ValidationError
 from app.services.storages import StorageManager
 from app.models.stores import BaseStores
-from app.models.workflows import ParamTypes, WorkflowSchema
+from app.models.workflows import Param, ParamTypes, ParamValue, WorkflowSchema
 import urllib.parse
 
 
 def sanitize_text_input(text):
     # Only allow alphanumeric and some safe special characters like -_.
     return re.sub(r"[^a-zA-Z0-9\-_.]", "", text)
-
-
-setattr(
-    ParamTypes,
-    "has_value",
-    classmethod(lambda cls, value: any(value == item.value for item in cls)),
-)
 
 
 class CommandGenerator:
@@ -31,7 +23,9 @@ class CommandGenerator:
         if not workflow:
             raise ValueError("Invalid Workflow JSON")
 
-    def generate_command_part(self, param, param_value, command_flag):
+    def generate_command_part(
+        self, param: Param, param_value: ParamValue, command_flag: str
+    ):
         if param.type == ParamTypes.FILE and param_value is None and param.default:
             parsed_url = urllib.parse.urlparse(param.default)
             if not (parsed_url.scheme and parsed_url.netloc):
@@ -69,7 +63,9 @@ class CommandGenerator:
             return [command_flag]
 
         if param.type == ParamTypes.OUTPUT:
-            path = self.storage.get_path(store=BaseStores.RESULTS, filename=param_value)
+            path = self.storage.get_path(
+                store=BaseStores.RESULTS, filename=str(param_value)
+            )
             return [command_flag, " ".join(path)]
 
         return []
@@ -79,22 +75,18 @@ class CommandGenerator:
         missing_required_params = []
 
         for param in self.params:
-            param_id = param.id
-            command_flag = param.flag if param.flag else f"--{param_id}"
-            param_type_str = param.type
-            is_required = param.required
-            param_value = user_inputs.get(param_id, "")
+            command_flag = param.flag or f"--{param.id}"
+            param_value = user_inputs.get(param.id, "")
 
-            if not param_id or not ParamTypes.has_value(param_type_str):
+            if param.required and not param_value:
+                missing_required_params.append(param.id)
                 continue
 
-            if is_required and not param_value:
-                missing_required_params.append(param_id)
+            if param.report_only:
                 continue
 
-            param_type = ParamTypes(param_type_str)
             command_parts.extend(
-                self.generate_command_part(param_type, param_value, command_flag)
+                self.generate_command_part(param, param_value, command_flag)
             )
 
         if missing_required_params:

@@ -1,6 +1,8 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel, constr, validator
 from enum import Enum
+
+ParamValue = Union[str, int, float, bool, List[str]]
 
 
 class ParamTypes(str, Enum):
@@ -29,7 +31,8 @@ class Param(BaseModel):
     flag: Optional[constr(regex="--[a-zA-Z0-9]+")]
     accepted_formats: Optional[List[str]]
     range: Optional[Range]
-    default: Optional[str]
+    default: Optional[str] = None
+    report_only: Optional[bool] = False
 
     @validator("range", pre=True, always=True)
     def check_range(cls, v, values):
