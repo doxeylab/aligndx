@@ -23,13 +23,14 @@ class Param(BaseModel):
     title: str
     type: ParamTypes
     description: str
-    multiple: Optional[bool]
-    required: bool
+    multiple: Optional[bool] = False
+    required: Optional[bool] = True
     options: Optional[List[str]]
     flag: Optional[constr(regex="--[a-zA-Z0-9]+")]
     accepted_formats: Optional[List[str]]
     range: Optional[Range]
     default: Optional[str]
+    cacheabe: Optional[bool] = False
 
     @validator("range", pre=True, always=True)
     def check_range(cls, v, values):
@@ -48,6 +49,7 @@ class Metadata(BaseModel):
     id: str
     title: str
     description: str
+    tags: List[str]
 
 
 class WorkflowSchema(BaseModel):
