@@ -52,6 +52,7 @@ services:
     tty: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./backend:/app
     environment:
       API_URL: ${INTERNAL_API_URL}
       CELERY_API_KEY: ${CELERY_API_KEY}

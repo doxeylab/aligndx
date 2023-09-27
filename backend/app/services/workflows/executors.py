@@ -5,6 +5,8 @@ client = docker.from_env()
 
 class DockerExecutor:
     def create(self, image, launch_command):
+        client.images.pull(image)
+
         container = client.containers.create(
             image=image,
             command=launch_command,

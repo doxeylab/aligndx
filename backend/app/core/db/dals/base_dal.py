@@ -44,7 +44,7 @@ class BaseDal(Generic[TABLE], metaclass=abc.ABCMeta):
         data = entry.dict()
         data.pop("id", None)
         entry = self._table(id=uuid4(), **data)
-        await self._db_session.add(entry)
+        self._db_session.add(entry)
         await self._db_session.commit()
         return entry.id
 

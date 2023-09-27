@@ -80,7 +80,7 @@ class CommandGenerator:
             command_flag = param.flag or f"--{param.id}"
             param_value = user_inputs.get(param.id, "")
 
-            if param.required and not param_value:
+            if param.required and not param_value and not param.type == ParamTypes.OUTPUT:
                 missing_required_params.append(param.id)
                 continue
 
@@ -91,8 +91,9 @@ class CommandGenerator:
                 self.generate_command_part(param, param_value, command_flag)
             )
         
-        configured_command_parts = ConfigGenerator(self.workflow,command_parts)
-
+        config_generator = ConfigGenerator(self.workflow,command_parts)
+        configured_command_parts = config_generator.configured_command
+        
         if missing_required_params:
             raise ValueError(
                 f"Missing required parameters: {', '.join(missing_required_params)}"

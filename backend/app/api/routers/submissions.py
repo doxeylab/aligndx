@@ -29,9 +29,11 @@ async def get_submissions(
     Get all submissions:
     """
     sub_dal = SubmissionsDal(db)
-    all_submissions = await sub_dal.get_all_submissions(current_user.id)
-    return all_submissions
-
+    try:
+        all_submissions = await sub_dal.get_all_submissions(current_user.id)
+        return all_submissions
+    except:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No submissions available in record")
 
 @router.get("/{submission_id}", response_model=SubmissionResponse)
 async def get_submission(
@@ -44,11 +46,14 @@ async def get_submission(
     - **submission_id**: The unique submission id
     """
     sub_dal = SubmissionsDal(db)
-    submission = await sub_dal.get_submission(current_user.id, submission_id)
-    return submission
+    try:
+        submission = await sub_dal.get_submission(current_user.id, submission_id)
+        return submission
+    except:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Requested submission record does not exist")
+    
 
-
-@router.post("/", response_model=SubmissionResponse)
+@router.post("/", response_model=str)
 async def create_submission(
     submission: SubmissionRequest,
     current_user: UserDTO = Depends(get_current_user),

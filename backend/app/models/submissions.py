@@ -46,6 +46,7 @@ class SubmissionResponse(SubmissionMetadata):
 class SubmissionEntry(BaseSchema):
     id: UUID = None
     user_id: UUID = None
+    workflow_id: str = None
     status: SubmissionStatus = None
     created_date: datetime = None
     finished_date: datetime = None

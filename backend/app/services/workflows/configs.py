@@ -57,7 +57,7 @@ class ConfigGenerator:
         
         config_type = self.workflow.config.type.lower()
         if config_type in config_generators:
-            config_generator = config_generators[config_type](self.workflow, self.user_inputs)
+            config_generator = config_generators[config_type](self.workflow)
             command_parts.extend(config_generator.generate_command_parts())
         
         return " ".join(command_parts)

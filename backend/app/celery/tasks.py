@@ -86,6 +86,7 @@ def create_job(submission_id: str, workflow_id: str, name: str, user_inputs: dic
     job_id = workflow_orchestrator.create_job(
         workflow_id=workflow_id,
         user_inputs=user_inputs,
+        submission_id=submission_id
     )
     metadata = SubmissionMetadata(
         submission_id=submission_id,
