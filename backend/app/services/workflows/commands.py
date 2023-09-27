@@ -3,6 +3,7 @@ from jsonschema import ValidationError
 from app.services.storages import StorageManager
 from app.models.stores import BaseStores
 from app.models.workflows import ParamTypes, WorkflowSchema
+import urllib.parse
 
 
 def sanitize_text_input(text):
@@ -19,23 +20,29 @@ setattr(
 
 class CommandGenerator:
     def __init__(self, workflow: dict, submission_id: str):
-        try:
-            WorkflowSchema.parse_obj(workflow)
-        except ValidationError as e:
-            raise ValueError(f"Invalid Workflow JSON: {e.message}")
-
+        self.validate_workflow(workflow)
         self.metadata = workflow.get("metadata", {})
         self.config = workflow.get("config", {})
         self.params = workflow.get("params", [])
         self.storage = StorageManager(submission_id)
 
+    @staticmethod
+    def validate_workflow(workflow):
+        try:
+            WorkflowSchema.parse_obj(workflow)
+        except ValidationError as e:
+            raise ValueError(f"Invalid Workflow JSON: {e.message}")
+
     def generate_command_part(self, param, param_value, command_flag):
         if param == ParamTypes.FILE and param.get("cacheable", False):
+            parsed_url = urllib.parse.urlparse(param_value)
+            key = urllib.parse.unquote(parsed_url.path.split("/")[-1])
+
             path = (
                 self.storage.get_cache_path(
                     store=BaseStores.CACHE,
                     url=param_value,
-                    key=f"{self.metadata['id']}-{param}",
+                    key=key,
                 ),
             )
             return [command_flag, " ".join(path)]
