@@ -73,12 +73,16 @@ services:
 
   tusd:
     image: tusproject/tusd
-    command: -upload-dir=/data/uploads --hooks-http http://backend:8080/webhooks/tus/ --hooks-enabled-events=post-finish -hooks-http-forward-headers Authorization
+    command: tusd -s3-bucket uploads -s3-endpoint http://minio:9000 -hooks-http http://backend:8080/webhooks/tus/ -hooks-enabled-events post-finish -hooks-http-forward-headers Authorization
     tty: true
     ports:
       - "1080:1080"
     volumes:
       - ./backend/data:/data
+    environment:
+      AWS_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY}
+      AWS_REGION: ${STORAGE_REGION_NAME}
 
   minio:
     image: minio/minio
