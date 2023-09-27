@@ -19,64 +19,69 @@ setattr(
 
 
 class CommandGenerator:
-    def __init__(self, workflow: dict, submission_id: str):
+    def __init__(self, workflow: WorkflowSchema, submission_id: str):
         self.validate_workflow(workflow)
-        self.metadata = workflow.get("metadata", {})
-        self.config = workflow.get("config", {})
-        self.params = workflow.get("params", [])
+        self.metadata = workflow.metadata
+        self.config = workflow.config
+        self.params = workflow.params
         self.storage = StorageManager(submission_id)
 
     @staticmethod
-    def validate_workflow(workflow):
-        try:
-            WorkflowSchema.parse_obj(workflow)
-        except ValidationError as e:
-            raise ValueError(f"Invalid Workflow JSON: {e.message}")
+    def validate_workflow(workflow: WorkflowSchema):
+        if not workflow:
+            raise ValueError("Invalid Workflow JSON")
 
     def generate_command_part(self, param, param_value, command_flag):
-        if param == ParamTypes.FILE and param.get("cacheable", False):
-            parsed_url = urllib.parse.urlparse(param_value)
+        if param.type == ParamTypes.FILE and param_value is None and param.default:
+            parsed_url = urllib.parse.urlparse(param.default)
             key = urllib.parse.unquote(parsed_url.path.split("/")[-1])
 
             path = (
                 self.storage.get_cache_path(
                     store=BaseStores.CACHE,
-                    url=param_value,
+                    url=param.default,
                     key=key,
                 ),
             )
             return [command_flag, " ".join(path)]
 
-        if param == ParamTypes.SELECT and isinstance(param_value, list):
+        if param.type == ParamTypes.SELECT and isinstance(param_value, list):
             return [command_flag, ",".join(param_value)]
-        if param in {ParamTypes.FILE, ParamTypes.URL} and isinstance(param_value, list):
+
+        if param.type in {ParamTypes.FILE, ParamTypes.URL} and isinstance(
+            param_value, list
+        ):
             path = self.storage.get_path(
-                store=BaseStores.SUBMISSIONS, filename=param_value
+                store=BaseStores.SUBMISSIONS,
+                filename=param_value[0] if param_value else "",
             )
             return [command_flag, " ".join(path)]
-        if param == ParamTypes.TEXT:
+
+        if param.type == ParamTypes.TEXT:
             return [command_flag, sanitize_text_input(param_value)]
-        if param == ParamTypes.NUMBER:
+
+        if param.type == ParamTypes.NUMBER:
             return [command_flag, str(param_value)]
-        if param == ParamTypes.BOOLEAN and param_value:
+
+        if param.type == ParamTypes.BOOLEAN and param_value:
             return [command_flag]
-        if param == ParamTypes.OUTPUT:
+
+        if param.type == ParamTypes.OUTPUT:
             path = self.storage.get_path(store=BaseStores.RESULTS, filename=param_value)
             return [command_flag, " ".join(path)]
+
         return []
 
     def generate_command(self, user_inputs: dict):
-        command_parts = [
-            self.config.get("launch_command", "").replace("{{params}}", "")
-        ]
+        command_parts = [self.config.launch_command.replace("{{params}}", "")]
         missing_required_params = []
 
         for param in self.params:
-            param_id = param.get("id", "")
-            command_flag = param.get("flag", f"--{param_id}")
-            param_type_str = param.get("type", "")
-            is_required = param.get("required", False)
-            param_value = user_inputs.get(param_id, param.get("default", ""))
+            param_id = param.id
+            command_flag = param.flag if param.flag else f"--{param_id}"
+            param_type_str = param.type
+            is_required = param.required
+            param_value = user_inputs.get(param_id, "")
 
             if not param_id or not ParamTypes.has_value(param_type_str):
                 continue
