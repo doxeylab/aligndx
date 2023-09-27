@@ -9,20 +9,20 @@ class StorageManager:
     def __init__(self, prefix=None):
         self.stores = {}
         self.prefix = prefix
-
         storage_type = settings.STORAGE_TYPE
 
         for base_store in BaseStores:
             if storage_type == StorageTypes.LOCAL:
-                self.stores[base_store.value] = LocalStorage(
+                self.stores[base_store] = LocalStorage(
                     store=settings.BASE_STORES[base_store], prefix=self.prefix
                 )
             elif storage_type == StorageTypes.OBJECT:
-                self.stores[base_store.value] = ObjectStorage(
+                self.stores[base_store] = ObjectStorage(
                     store=settings.BASE_STORES[base_store], prefix=self.prefix
                 )
             else:
                 raise ValueError(f"Invalid STORAGE_TYPE in settings: {storage_type}")
+
 
     def get_path(self, store: BaseStores, filename: str):
         return self.stores[store].get_path(filename)

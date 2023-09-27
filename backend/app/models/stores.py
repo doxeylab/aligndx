@@ -5,7 +5,7 @@ class BaseStores(Enum):
     UPLOADS = "uploads"
     SUBMISSIONS = "submissions"
     RESULTS = "results"
-    WORFKLOWS = "workflows"
+    WORKFLOWS = "workflows"
     CACHE = "cache"
 
 

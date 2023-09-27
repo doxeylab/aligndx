@@ -3,7 +3,8 @@ from .executors import DockerExecutor
 from app.services.storages import StorageManager
 from app.models.stores import BaseStores
 from app.models.workflows import WorkflowSchema
-
+from pydantic import ValidationError
+import json
 
 class WorkflowOrchestrator:
     def __init__(self):
@@ -11,12 +12,22 @@ class WorkflowOrchestrator:
         self.storage = StorageManager()
 
     def get_workflows(self):
-        return self.storage.list_folders(store=BaseStores.WORFKLOWS)
+        return self.storage.list_folders(store=BaseStores.WORKFLOWS)
 
     def get_workflow(self, workflow_id: str):
-        workflow_schema = f"{workflow_id}/schema.yml"
-        data = self.storage.read(store=BaseStores.WORFKLOWS, filename=workflow_schema)
-        return WorkflowSchema(**data)
+        workflow_schema = f"{workflow_id}/schema.json"
+        data = self.storage.read(store=BaseStores.WORKFLOWS, filename=workflow_schema)
+        try:
+            schema_dict = json.loads(data)
+            print(schema_dict)
+            schema = WorkflowSchema(**schema_dict)
+            return schema
+        except json.JSONDecodeError:
+            print("Error: Invalid JSON format")
+            return None
+        except ValidationError as ve:
+            print(f"Error: Validation error while parsing to WorkflowSchema: {ve}")
+            return None
 
     def create_job(self, workflow_id: str, user_inputs: dict, submission_id):
         workflow = self.get_workflow(workflow_id)

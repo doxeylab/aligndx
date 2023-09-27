@@ -1,18 +1,17 @@
 import os
 import logging
 
-from fastapi import FastAPI, Depends, status
+from fastapi import FastAPI, Depends, status, Request
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 
-from app.api.routers import users, submissions, sockets, payments, webhooks
+from app.api.routers import users, submissions, sockets, payments, webhooks, workflows
 
 from app.services.auth import get_current_user
 
 from app.core.config.settings import get_settings
 from app.core.db.session import engine
-
 
 app = FastAPI(
     title="AlignDX",
@@ -66,12 +65,19 @@ app.include_router(
 )
 
 app.include_router(
-    payments.router,
-    prefix="/payments",
-    tags=["Payments"],
-    # include_in_schema=False,
-    dependencies=[Depends(get_current_user)],
+    workflows.router,
+    prefix="/workflows",
+    tags=["Workflows"],
+    # dependencies=[Depends(get_current_user)],
 )
+
+# app.include_router(
+#     payments.router,
+#     prefix="/payments",
+#     tags=["Payments"],
+#     # include_in_schema=False,
+#     dependencies=[Depends(get_current_user)],
+# )
 
 app.include_router(sockets.router)
 
@@ -84,8 +90,8 @@ app.include_router(
 
 
 @app.get("/")
-async def root():
-    return RedirectResponse(url="/docs")
+def read_main(request: Request):
+    return {"message": "Hello World", "root_path": request.scope.get("root_path")}
 
 
 @app.on_event("shutdown")

@@ -58,7 +58,7 @@ class AppSettings(BaseSettings):
         BaseStores.UPLOADS: "uploads",
         BaseStores.SUBMISSIONS: "submissions",
         BaseStores.RESULTS: "results",
-        BaseStores.WORFKLOWS: "workflows",
+        BaseStores.WORKFLOWS: "workflows",
         BaseStores.CACHE: "cache",
     }
 
