@@ -1,0 +1,40 @@
+# ================================================
+# STAGE 1: Python Base
+# ================================================
+FROM tiangolo/uvicorn-gunicorn:python3.8-slim as python-base
+
+ENV PYTHONUNBUFFERED=true
+
+RUN apt update && apt install -y \
+    postgresql-client \
+    gcc \
+    python3-dev \
+    libpq-dev 
+
+# ================================================
+# STAGE 2: Poetry for Python Dependencies
+# ================================================
+FROM python-base as poetry-stage
+
+ENV POETRY_HOME=/opt/poetry
+ENV POETRY_VIRTUALENVS_IN_PROJECT=true
+ENV PATH="$POETRY_HOME/bin:$PATH"
+
+RUN python -c 'from urllib.request import urlopen; print(urlopen("https://install.python-poetry.org").read().decode())' | python -
+
+COPY pyproject.toml poetry.lock ./
+
+RUN poetry install --no-interaction --no-ansi -vvv --with prod
+
+# ================================================
+# STAGE 3: Runtime
+# ================================================
+FROM python-base as runtime
+
+COPY --from=poetry-stage .venv .venv
+COPY --from=docker:dind /usr/local/bin/docker /usr/local/bin/
+
+ENV PATH="/.venv/bin:$PATH"
+WORKDIR /app
+
+COPY . .
