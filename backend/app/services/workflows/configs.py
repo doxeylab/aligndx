@@ -1,11 +1,13 @@
 from typing import List
 from app.models.workflows import WorkflowSchema
+from app.services.storages import StorageManager
 from app.core.config.settings import settings
+from app.models.stores import BaseStores
 
 class NextflowConfigGenerator:
-    def __init__(self, workflow: WorkflowSchema, user_inputs: dict):
+    def __init__(self, workflow: WorkflowSchema):
         self.workflow = workflow
-        self.user_inputs = user_inputs
+        self.storage = StorageManager()
 
     def generate_config(self, access_key: str, secret_key: str, endpoint: str):
         config = f"""
@@ -35,9 +37,9 @@ class NextflowConfigGenerator:
         config_content = self.generate_config(access_key=settings.STORAGE_ACCESS_KEY_ID, secret_key=settings.STORAGE_SECRET_ACCESS_KEY, endpoint=settings.STORAGE_ENDPOINT_URL)
         if config_content:
             config_file_name = "nextflow.config"
-            with open(config_file_name, "w") as config_file:
-                config_file.write(config_content)
-            command_parts.extend(["-c", config_file_name])
+            self.storage.write(BaseStores.CACHE,config_file_name, config_content)
+            config_path = self.storage.get_path(BaseStores.CACHE,config_file_name)
+            command_parts.extend(["-c", config_path])
         
         return command_parts
 
