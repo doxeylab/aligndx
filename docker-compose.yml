@@ -2,6 +2,15 @@ version: "3.7"
 name: aligndx
 
 services:
+
+  nginx:
+    build:
+      context: proxy/nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
   # API Server
   backend:
     build:
