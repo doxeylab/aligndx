@@ -1,6 +1,8 @@
 import boto3
 from app.core.config.settings import settings
 from botocore.client import Config
+from urllib.request import urlretrieve
+import os
 
 
 class ObjectStorage:
@@ -89,3 +91,22 @@ class ObjectStorage:
         except Exception as e:
             print(f"Error listing folders in {self.store}/{self.prefix}: {e}")
             return []
+
+    def exists(self, key):
+        try:
+            self.s3.head_object(Bucket=self.store, Key=self.get_key(key))
+            return True
+        except:
+            return False
+
+    def download_and_store(self, url, key):
+        try:
+            local_file_path = "/tmp/temp_file"  # Or some other temporary location
+            urlretrieve(url, local_file_path)
+            with open(local_file_path, "rb") as data:
+                self.write(key, data)
+            os.remove(local_file_path)
+        except Exception as e:
+            print(
+                f"An error occurred while downloading and storing {url} to {key}: {e}"
+            )

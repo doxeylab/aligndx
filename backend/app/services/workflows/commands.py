@@ -30,6 +30,16 @@ class CommandGenerator:
         self.storage = StorageManager(submission_id)
 
     def generate_command_part(self, param, param_value, command_flag):
+        if param == ParamTypes.FILE and param.get("cacheable", False):
+            path = (
+                self.storage.get_cache_path(
+                    store=BaseStores.CACHE,
+                    url=param_value,
+                    key=f"{self.metadata['id']}-{param}",
+                ),
+            )
+            return [command_flag, " ".join(path)]
+
         if param == ParamTypes.SELECT and isinstance(param_value, list):
             return [command_flag, ",".join(param_value)]
         if param in {ParamTypes.FILE, ParamTypes.URL} and isinstance(param_value, list):
@@ -59,7 +69,7 @@ class CommandGenerator:
             command_flag = param.get("flag", f"--{param_id}")
             param_type_str = param.get("type", "")
             is_required = param.get("required", False)
-            param_value = user_inputs.get(param_id, "")
+            param_value = user_inputs.get(param_id, param.get("default", ""))
 
             if not param_id or not ParamTypes.has_value(param_type_str):
                 continue

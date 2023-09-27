@@ -59,6 +59,7 @@ class AppSettings(BaseSettings):
         BaseStores.SUBMISSIONS: "submissions",
         BaseStores.RESULTS: "results",
         BaseStores.WORFKLOWS: "workflows",
+        BaseStores.CACHE: "cache",
     }
 
 

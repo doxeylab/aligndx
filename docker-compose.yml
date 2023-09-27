@@ -92,8 +92,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID}
-      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY}
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY_ID}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_ACCESS_KEY}
     command: server --console-address ":9001" /data
 
   # Databases
@@ -153,7 +153,7 @@ services:
     depends_on:
       - backend
       - redis
-      - celery_worker
+      - worker
     command: sh -c "celery flower --port=5555 --broker=$${CELERY_BROKER_URL}"
     tty: true
     volumes:
@@ -168,3 +168,4 @@ volumes:
   db-data:
   pgadmin-data:
   redis-data:
+  minio-data:

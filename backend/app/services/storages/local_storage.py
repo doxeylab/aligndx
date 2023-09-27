@@ -1,5 +1,6 @@
 import os
 import shutil
+from urllib.request import urlretrieve
 
 
 class LocalStorage:
@@ -61,3 +62,15 @@ class LocalStorage:
             for folder in os.listdir(path)
             if os.path.isdir(os.path.join(path, folder))
         ]
+
+    def exists(self, key):
+        return os.path.exists(self.get_path(key))
+
+    def download_and_store(self, url, key):
+        try:
+            local_file_path = self.get_path(key)
+            urlretrieve(url, local_file_path)
+        except Exception as e:
+            print(
+                f"An error occurred while downloading and storing {url} to {key}: {e}"
+            )

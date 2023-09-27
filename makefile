@@ -1,11 +1,12 @@
--include .env
-export $(shell sed 's/=.*//' .env)
-
+ifneq (,$(wildcard ./.env))
+    include .env
+    export
+endif
 
 SHELL := /bin/bash
 
 .PHONY: all
-all: install_dependencies build_up migrate setup_minio sync_repo
+all: install_dependencies build_up migrate setup_minio sync_workflows
 
 .PHONY: install_dependencies
 install_dependencies:
@@ -23,29 +24,29 @@ build_up: install_dependencies
 .PHONY: migrate
 migrate: build_up
 	@echo "Running migrations..."
-	# Ensure that services are up before running migrations
-	@docker-compose up -d --build || (echo "Docker Compose Up failed!" && exit 1)
 	# Wait for PostgreSQL to be up before running migrations
 	@while ! docker-compose exec -T postgres pg_isready; do sleep 5; done
-	@docker-compose exec backend alembic upgrade head || (echo "Migration failed!" && exit 1)
+	@docker-compose exec backend sh -c "cd app && alembic upgrade head" || (echo "Migration failed!" && exit 1)
 
 
 .PHONY: setup_minio
 setup_minio: build_up
 	@echo "Setting up Minio buckets..."
-	@# Wait for Minio to be ready
-	@while ! docker-compose exec -T minio curl -s http://localhost:9000/minio/health/live; do echo 'Waiting for Minio...'; sleep 5; done
-	@# Configuring mc with the Minio service
-	@docker-compose exec -T minio sh -c "mc alias set local http://localhost:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD"
-	@# Creating the buckets
+	# Wait for Minio to be ready
+	@while ! curl -s http://localhost:9000/minio/health/live; do echo 'Waiting for Minio...'; sleep 5; done
+	# Configuring mc with the Minio service
+	@echo "Configuring mc with Minio service..."
+	@docker-compose exec -T minio mc alias set local http://localhost:9000 "${STORAGE_ACCESS_KEY_ID}" "${STORAGE_SECRET_ACCESS_KEY}" || (echo 'MC Configuration failed!' && exit 1)
+	# Creating the buckets
+	@echo "Creating the buckets..."
 	@docker-compose exec -T minio sh -c "mc mb local/uploads || true"
 	@docker-compose exec -T minio sh -c "mc mb local/submissions || true"
 	@docker-compose exec -T minio sh -c "mc mb local/results || true"
 	@docker-compose exec -T minio sh -c "mc mb local/workflows || true"
+	@docker-compose exec -T minio sh -c "mc mb local/cache || true"
 
-
-.PHONY: sync_repo
-sync_repo: setup_minio
+.PHONY: sync_workflows
+sync_workflows: setup_minio
 	@echo "Downloading and syncing the git repo..."
 	@git clone $(WORKFLOW_REPO_URL) || (echo "Git clone failed!" && exit 1)
 	@AWS_ACCESS_KEY_ID=$(STORAGE_ACCESS_KEY_ID) AWS_SECRET_ACCESS_KEY=$(STORAGE_SECRET_ACCESS_KEY) AWS_DEFAULT_REGION=$(STORAGE_REGION_NAME) aws s3 sync $(WORKFLOWS_LOCATION) s3://workflows --endpoint-url http://localhost:9000 || (echo "AWS S3 Sync failed!" && exit 1)
