@@ -34,6 +34,8 @@ class CommandGenerator:
     def generate_command_part(self, param, param_value, command_flag):
         if param.type == ParamTypes.FILE and param_value is None and param.default:
             parsed_url = urllib.parse.urlparse(param.default)
+            if not (parsed_url.scheme and parsed_url.netloc):
+                return [command_flag, " ".join(param.default)]
             key = urllib.parse.unquote(parsed_url.path.split("/")[-1])
 
             path = (
