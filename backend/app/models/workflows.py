@@ -30,7 +30,6 @@ class Param(BaseModel):
     accepted_formats: Optional[List[str]]
     range: Optional[Range]
     default: Optional[str]
-    cacheabe: Optional[bool] = False
 
     @validator("range", pre=True, always=True)
     def check_range(cls, v, values):
