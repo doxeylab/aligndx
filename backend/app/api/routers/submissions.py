@@ -13,7 +13,7 @@ from app.core.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db
 from app.services.auth import get_current_user
 from app.services.storages import StorageManager
-from app.celery.tasks import create_job, run_job
+from app.celery.tasks import create_job, get_job_position, run_job
 import datetime
 import uuid
 
@@ -89,7 +89,7 @@ async def create_submission(
     return submission_id
 
 
-@router.delete("/{submission_id}", response_model=SubmissionResponse)
+@router.delete("/{submission_id}", response_model=str)
 async def delete_submission(
     submission_id: str,
     db: AsyncSession = Depends(get_db),
@@ -108,7 +108,7 @@ async def delete_submission(
         )
 
 
-@router.patch("/{submission_id}/run", response_model=SubmissionResponse)
+@router.patch("/{submission_id}/run", response_model=str)
 async def run_submission(
     submission_id: str,
     current_user: UserDTO = Depends(get_current_user),
@@ -128,7 +128,6 @@ async def run_submission(
 
     run_job(submission_id)
     return str(query)
-
 
 @router.get("/{submission_id}/report")
 async def get_report(
@@ -151,3 +150,24 @@ async def get_report(
     storage = StorageManager(prefix=submission_id)
     report = storage.read(store=BaseStores.RESULTS, filename="report.html")
     return report
+
+
+@router.get("/{submission_id}/position",response_model=int)
+async def get_submission_position(
+    submission_id: str,
+    current_user: UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get the submission position:
+    - **submission_id**: The unique submission id
+    """
+    sub_dal = SubmissionsDal(db)
+    query = await sub_dal.get_submission(current_user.id, submission_id)
+
+    if query is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Submission does not exist"
+        )
+    position = get_job_position(submission_id=submission_id)
+    return position

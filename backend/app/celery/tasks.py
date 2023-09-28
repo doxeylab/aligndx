@@ -53,6 +53,10 @@ def move_data(submission_id: str, source_filename: str, destination_filename: st
     tus_meta = f"{source_filename}.info"
     storage_manager.delete(store=BaseStores.UPLOADS, filename=tus_meta)
 
+@shared_task(name="Get Job Position")
+def get_job_position(submission_id: str):
+    return Handler.get_job_position(submission_id)
+
 
 @shared_task(name="Create Job")
 def create_job(submission_id: str, workflow_id: str, name: str, user_inputs: dict):
