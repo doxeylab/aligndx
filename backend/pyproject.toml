@@ -7,7 +7,6 @@ authors = ["Manjot <manjothunjan@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 alembic = "1.9.2"
-asyncpg = "0.25.0"
 celery = {extras = ["redis"], version = "^5.2.7"}
 fastapi = "0.85.0"
 numpy = "1.22.3"
@@ -28,6 +27,7 @@ nbformat = "^5.7.3"
 papermill = "^2.4.0"
 notebook = "^6.5.2"
 boto3 = "^1.28.53"
+asyncpg = "^0.28.0"
 
 [tool.poetry.group.test]
 optional = true

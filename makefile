@@ -15,11 +15,8 @@ setup_env:
 
 .PHONY: install_dependencies
 install_dependencies:
-	@echo "Checking and installing dependencies if needed..."
-	@which aws || (echo "Installing AWS CLI..." && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install && rm -rf awscliv2.zip ./aws)
-	@which git || (echo "Installing Git..." && sudo apt-get update && sudo apt-get install -y git)
-	@which docker || (echo "Installing Docker..." && curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh && rm get-docker.sh)
-	@which docker-compose || (echo "Installing Docker Compose..." && sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose)
+	@echo "Running install_dependencies.sh..."
+	@./scripts/install_dependencies.sh
 
 .PHONY: build_up
 build_up: install_dependencies

@@ -11,7 +11,7 @@ generate_random_string() {
 }
 
 # Process each line in .env.template to replace placeholders with random strings
-while IFS= read -r line; do
+while IFS= read -r line || [[ -n "$line" ]]; do
     if [[ "$line" == *"replace_with_your_api_key"* ]]; then
         line="${line//replace_with_your_api_key/$(generate_random_string)}"
     fi
