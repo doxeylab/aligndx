@@ -8,7 +8,9 @@ class LocalStorage:
         self.store = store
         self.prefix = prefix
 
-    def get_path(self, key):
+    def get_path(self, key, prefix_path=False):
+        if prefix_path:
+            return os.path.join(self.store, self.prefix)
         if self.prefix:
             return os.path.join(self.store, self.prefix, key)
         else:

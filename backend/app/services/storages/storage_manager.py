@@ -24,8 +24,8 @@ class StorageManager:
                 raise ValueError(f"Invalid STORAGE_TYPE in settings: {storage_type}")
 
 
-    def get_path(self, store: BaseStores, filename: str):
-        return self.stores[store].get_path(filename)
+    def get_path(self, store: BaseStores, filename: str, prefix_path=False):
+        return self.stores[store].get_path(filename, prefix_path)
 
     def read(self, store: BaseStores, filename: str):
         return self.stores[store].read(filename)

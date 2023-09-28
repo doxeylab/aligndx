@@ -1,10 +1,8 @@
-from typing import Dict
+from typing import Any, Dict
 from uuid import UUID
 from datetime import datetime
 from app.models.base_schema import BaseSchema
 from enum import Enum
-
-
 class SubmissionStatus(Enum):
     CREATED = "created"
     QUEUED = "queued"
@@ -26,15 +24,14 @@ class FileStatus(Enum):
 class SubmissionRequest(BaseSchema):
     workflow_id: str
     name: str
-    inputs: Dict[str, str]
-
+    inputs: Dict[str, Any] 
 
 class SubmissionMetadata(BaseSchema):
     submission_id: str
     workflow_id: str
     job_id: str
     name: str
-    inputs: Dict[str, str]
+    inputs: Dict[str, Any]
     status: SubmissionStatus
 
 

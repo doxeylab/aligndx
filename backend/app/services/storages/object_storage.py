@@ -18,7 +18,9 @@ class ObjectStorage:
         self.store = store
         self.prefix = prefix
 
-    def get_path(self, key):
+    def get_path(self, key, prefix_path=False):
+        if prefix_path:
+            return f"s3://{self.store}/{self.prefix}/"
         if self.prefix:
             return f"s3://{self.store}/{self.prefix}/{key}"
         else:

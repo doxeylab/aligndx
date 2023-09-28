@@ -1,19 +1,27 @@
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Union, Type, Tuple
 from pydantic import BaseModel, constr, validator
 from enum import Enum
 
-ParamValue = Union[str, int, float, bool, List[str]]
-
-
+ParamValue = Union[str, int, float, bool, List[str], List[float], List[int]]
 class ParamTypes(str, Enum):
-    SELECT = "select"
-    FILE = "file"
-    URL = "url"
-    NUMBER = "number"
-    BOOLEAN = "boolean"
-    TEXT = "text"
-    OUTPUT = "output"
+    SELECT = "select",
+    FILE = "file", 
+    NUMBER = "number", 
+    BOOLEAN = "boolean",
+    TEXT = "text",
+    OUTPUT = "output",
 
+ALLOWED_TYPES_MAPPING = {
+    ParamTypes.SELECT: (str, List[str]),
+    ParamTypes.FILE: (str, List[str]),
+    ParamTypes.NUMBER: (int, float, List[int], List[float]),
+    ParamTypes.BOOLEAN: (bool,),
+    ParamTypes.TEXT: (str,),
+    ParamTypes.OUTPUT: (str,)
+}
+
+def get_allowed_types(param_type: ParamTypes) -> Union[Type, Tuple[Type, ...]]:
+    return ALLOWED_TYPES_MAPPING.get(param_type, ())
 
 class Range(BaseModel):
     min: float
