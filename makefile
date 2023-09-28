@@ -9,8 +9,8 @@ SHELL := /bin/bash
 all: install_dependencies build_up migrate setup_minio sync_workflows
 
 
-.PHONY: setup-env
-setup-env:
+.PHONY: setup_env
+setup_env:
 	@./scripts/setup_env.sh
 
 .PHONY: install_dependencies
