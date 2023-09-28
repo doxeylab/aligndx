@@ -108,6 +108,27 @@ async def delete_submission(
         )
 
 
+@router.delete("/", response_model=List[str])
+async def delete_submissions(
+    submission_ids: List[str],
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Delete a submission:
+    - **submission_id**: The unique submission id
+    """
+    sub_dal = SubmissionsDal(db)
+    try:
+        succesful_deletes = []
+        for id in submission_ids:
+            query = await sub_dal.delete_by_id(uuid.UUID(id))
+            succesful_deletes.append(str(query))
+        return succesful_deletes    
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Could not delete the item"
+        )
+
 @router.patch("/{submission_id}/run", response_model=str)
 async def run_submission(
     submission_id: str,
@@ -128,6 +149,26 @@ async def run_submission(
 
     run_job(submission_id)
     return str(query)
+
+@router.get("/{submission_id}/position",response_model=int)
+async def get_submission_position(
+    submission_id: str,
+    current_user: UserDTO = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get the submission position:
+    - **submission_id**: The unique submission id
+    """
+    sub_dal = SubmissionsDal(db)
+    query = await sub_dal.get_submission(current_user.id, submission_id)
+
+    if query is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Submission does not exist"
+        )
+    position = get_job_position(submission_id=submission_id)
+    return position
 
 @router.get("/{submission_id}/report")
 async def get_report(
@@ -150,24 +191,3 @@ async def get_report(
     storage = StorageManager(prefix=submission_id)
     report = storage.read(store=BaseStores.RESULTS, filename="report.html")
     return report
-
-
-@router.get("/{submission_id}/position",response_model=int)
-async def get_submission_position(
-    submission_id: str,
-    current_user: UserDTO = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    """
-    Get the submission position:
-    - **submission_id**: The unique submission id
-    """
-    sub_dal = SubmissionsDal(db)
-    query = await sub_dal.get_submission(current_user.id, submission_id)
-
-    if query is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Submission does not exist"
-        )
-    position = get_job_position(submission_id=submission_id)
-    return position

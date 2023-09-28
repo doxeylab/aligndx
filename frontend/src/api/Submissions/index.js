@@ -1,28 +1,18 @@
 import useAxios from '../useAxios'
 
-const submissions_endpoint = "submissions"
+const endpoint = 'submissions'
 
 export const useSubmissions = () => {
-    const { get, post, put, destroy } = useAxios();
+    const { get, post, patch, destroy } = useAxios()
 
     return {
-        start: (params) =>
-            post(`${submissions_endpoint}/start`, params),
-        get_submission: (sub_id) =>
-            get(`${submissions_endpoint}/${sub_id}`),
-        index_submissions: () =>
-            get(`${submissions_endpoint}/all/`),
-        index_incomplete_submissions: () =>
-            get(`${submissions_endpoint}/incomplete/`),
-        del_record: (params) =>
-            post(`${submissions_endpoint}/delete`, params, {
-                withCredentials: true
-            }),
-        get_report: (sub_id) =>
-            get(`${submissions_endpoint}/report/${sub_id}`),
-        download: (sub_id) =>
-            get(`${submissions_endpoint}/download/${sub_id}`, {
-                responseType: 'arraybuffer'
-            }),
+        get_submissions: () => get(`${endpoint}/`),
+        get_submission: (sub_id) => get(`${endpoint}/${sub_id}`),
+        create_submission: (params) => post(`${endpoint}/`, params),
+        delete_submissions: (params) => destroy(`${endpoint}/`, params),
+        delete_submission: (params) => destroy(`${endpoint}/`, params),
+        run_submission: (sub_id, params) =>
+            patch(`${endpoint}/${sub_id}/run`, params),
+        get_report: (sub_id) => get(`${endpoint}/${sub_id}/report`),
     }
 }
