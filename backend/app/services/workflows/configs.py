@@ -54,10 +54,10 @@ class ConfigGenerator:
         config_generators = {
             "nextflow": NextflowConfigGenerator
         }
-        
+        to_extend = command_parts
         config_type = self.workflow.config.type.lower()
         if config_type in config_generators:
             config_generator = config_generators[config_type](self.workflow)
-            command_parts.extend(config_generator.generate_command_parts())
+            to_extend.extend(config_generator.generate_command_parts())
         
-        return " ".join(command_parts)
+        return " ".join(to_extend)

@@ -91,7 +91,7 @@ class CommandGenerator:
                 self.generate_command_part(param, param_value, command_flag)
             )
         
-        config_generator = ConfigGenerator(self.workflow,command_parts)
+        config_generator = ConfigGenerator(self.workflow, command_parts)
         configured_command_parts = config_generator.configured_command
         
         if missing_required_params:

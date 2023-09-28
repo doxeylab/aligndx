@@ -6,14 +6,11 @@ class Handler:
     QUEUE_KEY = "job_queue"
 
     @classmethod
-    def enqueue_job(cls, id: str, data: dict):
-        data_json = json.dumps(data)
-        r.set(id, data_json)
+    def enqueue_job(cls, id: str, data_json: str):
+        r.set(id, data_json)  # Store the received JSON string directly
 
         score = time.time()  # Use the current timestamp as the score
-        r.zadd(
-            cls.QUEUE_KEY, {id: score}
-        )  # Add job to the sorted set with the given score
+        r.zadd(cls.QUEUE_KEY, {id: score})  # Add job to the sorted set with the given score
 
     @classmethod
     def dequeue_job(cls):
@@ -28,7 +25,7 @@ class Handler:
         if data_json is None:
             return None
 
-        data = json.loads(data_json)
+        data = json.loads(data_json) 
         return id, data
 
     @classmethod
@@ -38,18 +35,14 @@ class Handler:
             return -1  # Job is not in the queue
         return rank + 1
 
-    # Metadata Methods
     @classmethod
-    def create(cls, key: str, data: dict):
-        data_json = json.dumps(data)
+    def create(cls, key: str, data_json: str):
         r.set(key, data_json)
 
     @classmethod
     def retrieve(cls, key: str) -> dict:
         data_json = r.get(key)
-        return (
-            json.loads(data_json) if data_json else None
-        )  # Converts JSON string to dict if not None
+        return json.loads(data_json) if data_json else None 
 
     @classmethod
     def delete(cls, key: str):

@@ -14,31 +14,6 @@ CELERY_API_KEY = os.getenv("CELERY_API_KEY")
 API_URL = os.getenv("API_URL")
 
 
-class TaskResponse:
-    def __init__(self, success: bool, message: str, data: dict = None):
-        self.success = success
-        self.message = message
-        self.data = data
-        self.log_message()
-
-    def to_dict(self):
-        return {"success": self.success, "message": self.message, "data": self.data}
-
-    def log_message(self):
-        log_func = logger.error if not self.success else logger.info
-        log_func(f"TaskResponse created - {self.to_dict()}")
-
-
-@signals.task_success.connect
-def task_success_handler(sender=None, result=None, **kwargs):
-    TaskResponse(True, f"Task {sender.name} succeeded", result)
-
-
-@signals.task_failure.connect
-def task_failure_handler(sender=None, task_id=None, exception=None, **kwargs):
-    TaskResponse(False, f"Task {sender.name} failed - {str(exception)}", {})
-
-
 @shared_task(name="Status Update")
 def status_update(sub_id: str, status: str):
     requests.post(
@@ -50,9 +25,9 @@ def status_update(sub_id: str, status: str):
 
 @shared_task(name="Update metadata")
 def update_metadata(sub_id: str, metadata: SubmissionMetadata):
-    Handler.create(sub_id, metadata.dict())
+    Handler.create(sub_id, metadata.json())
     status_update(sub_id, metadata.status)
-    return metadata.dict()
+    return metadata.json()
 
 
 @shared_task(name="Retrieve metadata")
@@ -96,9 +71,11 @@ def create_job(submission_id: str, workflow_id: str, name: str, user_inputs: dic
         inputs=user_inputs,
         status=SubmissionStatus.QUEUED,
     )
-    Handler.enqueue_job(submission_id, metadata.dict())
-    Handler.create(submission_id, metadata.dict())
-    return metadata.dict()
+
+    metadata_json = metadata.json()
+    Handler.enqueue_job(submission_id, metadata_json)
+    Handler.create(submission_id, metadata_json)
+    return metadata_json
 
 
 @shared_task(name="Start Job")
@@ -112,7 +89,7 @@ def start_job(submission_id: str):
     workflow_orchestrator.run_job(metadata.job_id)
     update_metadata(submission_id, metadata)
 
-    return metadata.dict()
+    return metadata.json()
 
 
 @shared_task(bind=True, name="Monitor Job Status")
@@ -127,7 +104,7 @@ def monitor_job_status(self, submission_id: str):
     if status in ("completed", "error"):
         metadata.status = status
         update_metadata(submission_id, metadata)
-        return metadata.dict()
+        return metadata.json()
     else:
         self.apply_async((submission_id,), countdown=10)
 
@@ -142,7 +119,7 @@ def complete_job(sub_id: str):
     workflow_orchestrator.complete_job(metadata.job_id)
     Handler.dequeue_job()
     Handler.delete(sub_id)
-    return metadata.dict()
+    return metadata.json()
 
 
 def run_job(sub_id):
