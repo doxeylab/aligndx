@@ -1,1 +1,1 @@
-export { default as NotFoundView } from './not-found-view'
+export { default as NotFoundView } from './views/not-found-view'

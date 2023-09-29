@@ -1,21 +1,22 @@
-import { useAuthContext } from "../context/AuthProvider"
-import useLogout from "./useLogoutCustom"
+import { useAuthContext } from '@/context/auth-context'
+import useLogout from './useLogoutCustom'
 
-import { BACKEND_URL } from "../config/Settings"
-import axios from "axios"
+import { BACKEND_URL } from '../config/Settings'
+import axios from 'axios'
 
 const useRefresh = () => {
-    const { setAuth } = useAuthContext();
-    const {logout} = useLogout();
+    const { setAuth } = useAuthContext()
+    const { logout } = useLogout()
     const refresh = async () => {
         try {
-            const response = await axios.get(`${BACKEND_URL}users/refresh`,{withCredentials: true})
-            setAuth(prev => {
+            const response = await axios.get(`${BACKEND_URL}users/refresh`, {
+                withCredentials: true,
+            })
+            setAuth((prev) => {
                 return { ...prev, accessToken: response.data.access_token }
             })
             return response.data.access_token
-        }
-        catch (err) {
+        } catch (err) {
             logout()
             return err
         }
@@ -24,4 +25,4 @@ const useRefresh = () => {
     return { refresh }
 }
 
-export default useRefresh;
+export default useRefresh

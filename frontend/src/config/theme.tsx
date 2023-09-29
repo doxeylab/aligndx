@@ -1,8 +1,10 @@
+'use client'
 import {
     createTheme,
     ThemeProvider as MuiThemeProvider,
 } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
+import { typography } from './typography'
 
 type Props = {
     children: React.ReactNode
@@ -12,30 +14,30 @@ export default function ThemeProvider({ children }: Props) {
     const theme = createTheme({
         palette: {
             mode: 'dark',
-            // palette values for dark mode
             primary: {
-                main: '#5893df',
+                main: '#4A90E2',
             },
             secondary: {
-                main: '#2ec5d3',
+                main: '#50E3C2',
+            },
+            error: {
+                main: '#E94E77',
+            },
+            warning: {
+                main: '#F5A623',
+            },
+            info: {
+                main: '#4A90E2',
+            },
+            success: {
+                main: '#7ED321',
             },
             background: {
-                default: '#13223a',
-                paper: '#1c3963',
+                default: '#1A2331',
+                paper: '#243447',
             },
         },
-        components: {
-            // Name of the component
-            MuiTableCell: {
-                styleOverrides: {
-                    // Name of the slot
-                    root: {
-                        // Some CSS
-                        borderColor: '#5893df',
-                    },
-                },
-            },
-        },
+        typography: typography,
     })
 
     return (
