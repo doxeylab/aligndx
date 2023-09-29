@@ -2,7 +2,7 @@ import useAxios from '../useAxios'
 
 const endpoint = 'workflows'
 
-export const useMeta = () => {
+export const useWorkflows = () => {
     const { get, post, put, destroy } = useAxios()
 
     return {
