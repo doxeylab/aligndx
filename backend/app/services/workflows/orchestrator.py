@@ -12,7 +12,9 @@ class WorkflowOrchestrator:
         self.storage = StorageManager()
 
     def get_workflows(self):
-        return self.storage.list_folders(store=BaseStores.WORKFLOWS)
+        data = self.storage.read(store=BaseStores.WORKFLOWS, filename="registery.json")
+        registery = json.loads(data)
+        return registery
 
     def get_workflow(self, workflow_id: str):
         workflow_schema = f"{workflow_id}/schema.json"
