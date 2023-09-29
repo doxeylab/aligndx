@@ -61,7 +61,7 @@ export default function LoginPage({ children }: LoginLayoutProps) {
                             Hi, Welcome Back
                         </Typography>
                         <Image
-                            src="/assets/login-img.svg"
+                            src="/assets/auth/login-img.svg"
                             alt="login-img"
                             width={'600'}
                             height={'600'}
