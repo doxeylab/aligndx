@@ -1,7 +1,7 @@
 import { SOCKET_URL } from "../../config/Settings"
 import { useAuthContext } from "../../context/AuthProvider"
 
-const WEBSOCKET_URL = SOCKET_URL + "livestatus"
+const WEBSOCKET_URL = SOCKET_URL + "/livestatus"
 
 const useWebSocket = () => {
     const context = useAuthContext()

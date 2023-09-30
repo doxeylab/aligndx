@@ -24,7 +24,9 @@ def retrieve_metadata(sub_id: str) -> str:
 
 
 @shared_task(name="Cleanup")
-def cleanup(sub_id: str, metadata: MetaModel):
+def cleanup(sub_id: str):
+    meta = retrieve_metadata(sub_id)
+    metadata = MetaModel(**json.loads(meta))
     factory.destroy(metadata.id)
     for store, path in metadata.store.items():
         if store == 'uploads' or store == 'temp':
@@ -37,12 +39,13 @@ def cleanup(sub_id: str, metadata: MetaModel):
 @shared_task(name="Status Update")
 def status_update(sub_id: str, status: str):
     requests.post(f"{API_URL}/webhooks/celery/status_update",
-                  params={"sub_id": sub_id, "status": status},
-                  headers={"Authorization": f'Bearer {CELERY_API_KEY}'})
+        params={"sub_id": sub_id, "status": status},
+        headers={"Authorization": f'Bearer {CELERY_API_KEY}'})
 
 @shared_task(name="Status Check", bind=True, max_retries=None)
 def status_check(self, sub_id: str):
-    metadata = retrieve_metadata.s(sub_id)()
+    meta = retrieve_metadata(sub_id)
+    metadata = MetaModel(**meta)
     container_status = factory.get_status(metadata.id)
     
     if container_status in ['completed', 'error']:
@@ -69,9 +72,15 @@ def process_ready_inputs(self, sub_id, metadata):
     metadata.position = position
     update_metadata.s(sub_id, metadata)()
 
+    print(f"Position: {position}")  # Debugging print statement
+
     if position is not None and position == 1:
+        print("Processing ready inputs...")  # Debugging print statement
+
         for inp in metadata.inputs:
             if inp.input_type == 'file':
+                print(f"Processing file input: {inp}")  # Debugging print statement
+
                 process_file_input(metadata, inp)
 
         factory.start(metadata.id)
@@ -112,4 +121,4 @@ def finalize_task(sub_id, metadata, container_status):
     status_update.s(sub_id, container_status).delay()
     factory.create_report(metadata)
     Handler.dequeue_job()
-    cleanup.s(sub_id, metadata).delay()
+    cleanup.s(sub_id).delay()

@@ -24,8 +24,8 @@ export default function PipelineForm() {
     const [selectedPipeline, SetSelectedPipeline] = useLocalStorage('selectedPipeline', {} as any)
     const [uploaders, setUploaders] = useState({} as any)
     const [schema, setSchema] = useState(null as any);
-    const [success, setSuccess] = useLocalStorage<any>('success', null);
-    const [subId, setSubId] = useLocalStorage('subId', null);
+    const [success, setSuccess] = useState<any>('success', null);
+    const [subId, setSubId] = useState('subId', null);
     const [showInputs, setShowInputs] = useState(false);
 
     const refresh = useRefresh();

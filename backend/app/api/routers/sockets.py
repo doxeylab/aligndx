@@ -9,7 +9,7 @@ from starlette.websockets import WebSocketDisconnect
 from app.services.auth import get_current_user_ws
 from app.services import web_socket
 from app.models import submissions
-
+from app.models.redis import MetaModel
 from app.core.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db 
 from app.celery.tasks import retrieve_metadata
@@ -41,7 +41,9 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
     if current_user and submission != None:
         try:
             while True:
-                metadata = retrieve_metadata.s(sub_id)()
+                meta = retrieve_metadata.s(sub_id)()
+                metadata = MetaModel(**meta)
+
 
                 if metadata == None:
                     manager.disconnect(id=sub_id)
@@ -54,11 +56,11 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
                     return 
 
                 if metadata.status == 'uploading' or metadata.status == 'setup':
-                    await asyncio.sleep(1) 
+                    await asyncio.sleep(10) 
                     continue
 
                 if metadata.status == 'analyzing':
-                    await asyncio.sleep(1) 
+                    await asyncio.sleep(20) 
                     continue
 
         except WebSocketDisconnect:

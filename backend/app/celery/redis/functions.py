@@ -5,6 +5,7 @@ import logging
 
 class Handler:
     QUEUE_KEY = "job_queue"
+    COUNTER_KEY = "job_position_increment"
 
     @classmethod
     def enqueue_job(cls, id: str):
