@@ -23,7 +23,6 @@ services:
     environment:
       PRE_START_PATH: "./app/prestart.sh"
       PORT: 8080
-      APP_MODULE: "main:app"
       LOG_LEVEL: "debug"
       BASE_URL: ${BASE_URL}
       ORIGINS: ${ORIGINS}

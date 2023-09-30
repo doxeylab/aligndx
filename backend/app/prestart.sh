@@ -8,5 +8,3 @@ sleep 10;
 cd ./app || exit 1;
 alembic upgrade head
 )
-
-cd $PROJECT_PATH/app
