@@ -79,6 +79,13 @@ export default function Monitor({ handleNew, subId, uploaders, selectedPipeline 
                                 </Paper>
                             </Grid>
                             <Grid item>
+                                <Paper sx={{ backgroundColor: 'black', padding: 1 }} elevation={2}>
+                                    <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
+                                        Job in position {data?.position} of queue
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                            <Grid item>
                                 <Status status={data['status']} />
                             </Grid>
                         </Grid>
