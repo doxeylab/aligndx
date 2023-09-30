@@ -55,8 +55,11 @@ def initialize():
         tree = glob(settings.DOWNLOADS_PATH + "/**", recursive=True)
         repo_pipelines = [x for x in tree if x.endswith("pipelines")][0]
         
-        shutil.copytree(repo_pipelines, PIPELINES_PATH)
-
+        try:
+            shutil.copytree(repo_pipelines, PIPELINES_PATH)
+        except:
+            pass 
+        
         # Read pipelines, validate them and create the available json file
         available = {}
         pipelines = glob(PIPELINES_PATH + "/**/schema.yml")

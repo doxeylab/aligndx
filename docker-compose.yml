@@ -21,7 +21,9 @@ services:
       - ./backend/data:${PROJECT_PATH}/data
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
+      PRE_START_PATH: "./app/prestart.sh"
       PORT: 8080
+      LOG_LEVEL: "debug"
       BASE_URL: ${BASE_URL}
       ORIGINS: ${ORIGINS}
       API_URL: ${INTERNAL_API_URL}
@@ -48,7 +50,7 @@ services:
     depends_on:
       - backend
       - redis
-    command: sh -c "celery -A app.tasks worker -l info -E -c 1"
+    command: sh -c "celery -A app.celery worker -l info -E -c 1"
     tty: true
     volumes:
       - ./backend/app:${PROJECT_PATH}/app 

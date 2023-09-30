@@ -15,8 +15,8 @@ from app.services import factory
 from app.core.utils import dir_generator
 from app.core.db.dals.submissions import SubmissionsDal
 from app.core.config.settings import settings
-from app.tasks import update_metadata, status_check
-from app.tasks.redis.functions import Handler
+from app.celery.tasks import update_metadata, status_check
+from app.celery.redis.functions import Handler
 import json 
 
 router = APIRouter()

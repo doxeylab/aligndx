@@ -50,7 +50,6 @@ services:
       dockerfile: Dockerfile
       args:
         PROJECT_PATH: ${PROJECT_PATH}
-    # command: uvicorn app.main:app --root-path /api --host 0.0.0.0 --port 8080
     tty: true
     depends_on:
       - postgres
@@ -87,7 +86,7 @@ services:
     depends_on:
       - backend
       - redis
-    command: sh -c "celery -A app.tasks worker -l info -E -c 1"
+    command: sh -c "celery -A app.celery worker -l info -E -c 1"
     tty: true
     volumes:
       - ./backend/app:${PROJECT_PATH}/app

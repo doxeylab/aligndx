@@ -12,7 +12,7 @@ from app.models import submissions
 
 from app.core.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db 
-from app.tasks import retrieve
+from app.celery.tasks import retrieve_metadata
 
 router = APIRouter() 
 
@@ -41,7 +41,7 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
     if current_user and submission != None:
         try:
             while True:
-                metadata = retrieve.s(sub_id)()
+                metadata = retrieve_metadata.s(sub_id)()
 
                 if metadata == None:
                     manager.disconnect(id=sub_id)

@@ -38,7 +38,6 @@ async def validation_exception_handler(request, exc):
 
 lst_origins = os.getenv("ORIGINS")
 origins = lst_origins.replace(" ", "").split(",")  
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

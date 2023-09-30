@@ -10,9 +10,7 @@ from app.models.pipelines import inputs
 
 from app.core.db.dals.submissions import SubmissionsDal  
 from app.services.db import get_db 
-from app.tasks import retrieve, update_metadata 
-from app.core.config.settings import settings
-import shutil 
+from app.celery.tasks import retrieve_metadata, update_metadata 
 
 router = APIRouter() 
 
@@ -32,7 +30,7 @@ async def tusd(
     # Check to see if submission Id exists on metadata
     if sub_id == None or input_id == None:
         raise HTTPException(status_code=405, detail="Missing required metadata")
-    metadata = retrieve.s(sub_id)()
+    metadata = retrieve_metadata.s(sub_id)()
     
     # Instantiate logger for this submission
 
