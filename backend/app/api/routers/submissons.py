@@ -16,6 +16,8 @@ from app.core.utils import dir_generator
 from app.core.db.dals.submissions import SubmissionsDal
 from app.core.config.settings import settings
 from app.tasks import update_metadata, status_check
+from app.tasks.redis.functions import Handler
+import json 
 
 router = APIRouter()
 
@@ -63,6 +65,8 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
         store=store
     ) 
 
+    position = Handler.enqueue_job(sub_id)
+
     # Generate submission metadata for redis
     metadata = redis.MetaModel(
         id=id,
@@ -70,7 +74,8 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
         inputs=submission.inputs,
         store=store,
         status=status,
-        pipeline=submission.pipeline
+        pipeline=submission.pipeline,
+        position = position
     )
     
     update_metadata.s(sub_id=sub_id, metadata=metadata)()

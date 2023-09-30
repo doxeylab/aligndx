@@ -1,16 +1,24 @@
 from .base import r
 import json, time
 from typing import Optional
+import logging
 
 class Handler:
     QUEUE_KEY = "job_queue"
 
     @classmethod
-    def enqueue_job(cls, id: str, data_json: str):
-        r.set(id, data_json) 
-
+    def enqueue_job(cls, id: str):
         score = time.time()  
         r.zadd(cls.QUEUE_KEY, {id: score}) 
+        position = cls.get_next_position()
+        if position is None:
+            logging.error(f"Failed to get position for job {id} after enqueuing")
+            return -1
+        return position
+
+    @classmethod
+    def get_next_position(cls) -> int:
+        return r.incr(cls.COUNTER_KEY)
 
     @classmethod
     def dequeue_job(cls):

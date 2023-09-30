@@ -13,5 +13,6 @@ class MetaModel(BaseModel):
     status: status
     processes: Dict[str,str] = None
     pipeline: str
+    position : int
 
 
