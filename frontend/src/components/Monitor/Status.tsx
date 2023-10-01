@@ -1,7 +1,16 @@
 import Button from '@mui/material/Button'
 
 export default function Status({status}: any) {
-    if (status == 'setup') {
+    if (status == 'created') {
+        return (
+            <Button
+                color="warning"
+                variant={'contained'}>
+                Status | {status}
+            </Button>
+        )
+    }
+    else if (status == 'queued') {
         return (
             <Button
                 color="warning"

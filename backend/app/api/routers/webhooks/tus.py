@@ -11,9 +11,9 @@ async def tusd(
 ):
     request_body = await request.json()
     hook_name = request_body.get("Type", "") 
+    print(hook_name)
     event = request_body.get("Event",{})
     upload_info = event.get("Upload",{})
-    print(event)
 
     metadata = upload_info.get("MetaData")
     sub_id, fname = (*(metadata.get(i) for i in ["sub_id", "filename"]),)

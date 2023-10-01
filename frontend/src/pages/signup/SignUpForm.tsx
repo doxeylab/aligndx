@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 
 import { Form, FormTextField } from "../../components/Form";
-import { FormContainer, StyledButton } from "../../components/Form/StyledForm";
-import { CircularProgress, Typography } from "@mui/material";
-import { FormControlLabel, FormGroup, Grid, Link, Alert } from '@mui/material';
+import { FormContainer } from "../../components/Form/StyledForm";
+import { FormControlLabel, FormGroup, Grid, Link, Alert, CircularProgress, Typography, InputAdornment, IconButton, Stack, Button } from "@mui/material";
 
 import * as yup from "yup";
 import { useAuthContext } from "../../context/AuthProvider";
 import { useRouter } from "next/router";
+
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
+import { useBoolean } from '../../hooks/useBoolean'
 
 
 const SignUpForm = () => {
@@ -18,6 +21,7 @@ const SignUpForm = () => {
 
     const { signUp, login, loading } = useAuthContext();
     const [invalid, setInvalid] = useState(false);
+    const showPassword = useBoolean(false)
 
     // validation object for form validation
     const schema = yup.object({
@@ -71,52 +75,101 @@ const SignUpForm = () => {
             onSubmit={signUpFormHandler}
         >
             <FormContainer>
-                <Typography variant="h4">Sign Up</Typography>
-                <Grid container direction={"row"} justifyContent={"center"} columnSpacing={2}>
-                    <Grid item xs={6} container justifyContent={"flex-start"} alignItems={"center"}>
+                <Stack direction={'column'} spacing={4} >
+
+                    <Typography variant="h4">Sign Up</Typography>
+                    {!!invalid && (
+                        <Alert
+                            severity="error"
+                            variant="outlined"
+                            sx={{ mb: 4 }}
+                        >
+                            Invalid credentials!
+                        </Alert>
+                    )}
+                    <Stack direction={'row'} spacing={4}>
                         <FormTextField
                             name={"name"}
                             label={"Name"}
                             type={"name"}
+                            autoComplete={"name"}
+                            fullWidth
                         />
-                    </Grid>
-                    <Grid item xs={6} container justifyContent={"flex-end"} alignItems={"center"}>
                         <FormTextField
                             name={"email"}
                             label={"Email"}
                             type={"email"}
-                            autoComplete={"email"} />
-                    </Grid>
-                </Grid>
-                <FormTextField
-                    name={"password"}
-                    label={"Password"}
-                    type={"password"}
-                    autoComplete={"new-password"}
-                />
-                <FormTextField
-                    name={"confirmpassword"}
-                    label={"Confirm Password"}
-                    type={"password"}
-                    autoComplete={"new-password"}
-                />
+                            autoComplete={"email"}
+                            fullWidth />
+                    </Stack>
 
-                {invalid ? <Grid container justifyContent={"center"}>
-                    <Alert severity="error" variant="outlined">Invalid credentials!</Alert>
-                </Grid> :
-                    null}
-                <Grid container direction={"row"} justifyContent={"center"} padding={2}>
-                    <FormGroup>
-                        <FormControlLabel label={''} control={<Link href="/login"> Already have an account? Login</Link>} />
-                    </FormGroup>
-                </Grid>
-                <StyledButton
-                    size='large'
-                    variant="contained"
-                    type="submit"
-                >
-                    {loading ? <CircularProgress size={25} /> : 'Register'}
-                </StyledButton>
+                    <FormTextField
+                        name={"password"}
+                        label={"Password"}
+                        type={showPassword.value ? 'text' : 'password'}
+                        autoComplete={"new-password"}
+                        fullWidth
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={showPassword.onToggle}
+                                        edge="end"
+                                    >
+                                        {showPassword.value ? (
+                                            <VisibilityIcon />
+                                        ) : (
+                                            <VisibilityOffIcon />
+                                        )}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <FormTextField
+                        name={"confirmpassword"}
+                        label={"Confirm Password"}
+                        type={showPassword.value ? 'text' : 'password'}
+                        autoComplete={"new-password"}
+                        fullWidth
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={showPassword.onToggle}
+                                        edge="end"
+                                    >
+                                        {showPassword.value ? (
+                                            <VisibilityIcon />
+                                        ) : (
+                                            <VisibilityOffIcon />
+                                        )}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+
+                    <Grid container direction={"row"} justifyContent={"center"} padding={2}>
+                        <FormGroup>
+                            <FormControlLabel label={''} control={<Link href="/signin"> Already have an account? Login</Link>} />
+                        </FormGroup>
+                    </Grid>
+                    <Grid container direction={'row'} justifyContent={'center'}>
+                        <Button
+                            variant="contained"
+                            type="submit"
+                            sx={{ width: '30%' }}
+                        >
+                            {loading ? (
+                                <CircularProgress size={25} />
+                            ) : (
+                                'Sign Up'
+                            )}
+                        </Button>
+                    </Grid>
+                </Stack>
+
             </FormContainer>
         </Form>
     );

@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { Form, FormTextField } from "../../components/Form";
-import { Switch, FormControlLabel, FormGroup, Grid, Link, Alert } from '@mui/material';
 import * as yup from "yup";
 import { useAuthContext } from "../../context/AuthProvider";
 import { useRouter } from "next/router";
-import { FormContainer, StyledButton } from "../../components/Form/StyledForm";
-import { CircularProgress, Typography } from "@mui/material";
+import { FormContainer } from "../../components/Form/StyledForm";
+import { CircularProgress, Typography, InputAdornment, IconButton, Switch, FormControlLabel, FormGroup, Grid, Link, Stack, Alert, Button } from '@mui/material';
+
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
+import { useBoolean } from '../../hooks/useBoolean'
 
 const SignInForm = () => {
     /**
@@ -15,7 +18,8 @@ const SignInForm = () => {
     const router = useRouter();
     const { login, loading } = useAuthContext();
     const [invalid, setInvalid] = useState(false);
-    const [checked, setChecked] = useState(true);
+    const showPassword = useBoolean(false)
+    const checked = useBoolean(false)
 
     // validation object for form validation
     const schema = yup.object({
@@ -39,10 +43,6 @@ const SignInForm = () => {
             )
             .matches(/^(?=.{6,20}$)\D*\d/, "Must Contain One Number"),
     })
- 
-    const switchHandler = (event: any) => {
-        setChecked(event.target.checked)
-    }
 
     const loginFormHandler = (async (data: any) => {
         try {
@@ -63,32 +63,53 @@ const SignInForm = () => {
             onSubmit={loginFormHandler}
         >
             <FormContainer>
-                <Typography variant="h4">Sign In</Typography>
-                <FormTextField
-                    name={"email"}
-                    label={"Email"}
-                    type={"email"}
-                    autoComplete={"email"}
+                <Stack direction={'column'} spacing={4} >
+                    <Typography variant="h4">Sign In</Typography>
+                    {!!invalid && (
+                        <Alert
+                            severity="error"
+                            variant="outlined"
+                            sx={{ mb: 4 }}
+                        >
+                            Invalid credentials!
+                        </Alert>
+                    )}
 
-                />
-                <FormTextField
-                    name={"password"}
-                    label={"Password"}
-                    type={"password"}
-                    autoComplete={"current-password"}
-                />
-
-                {invalid ? <Grid container justifyContent={"center"}>
-                    <Alert
-                        severity="error"
-                        variant="outlined">Invalid credentials!</Alert>
-                </Grid> :
-                    null}
-                <Grid container direction={"row"} justifyContent={"center"}>
+                    <FormTextField
+                        name={"email"}
+                        label={"Email"}
+                        type={"email"}
+                        autoComplete={"email"}
+                        fullWidth
+                    />
+                    <FormTextField
+                        name={"password"}
+                        label={"Password"}
+                        type={showPassword.value ? 'text' : 'password'}
+                        autoComplete={"current-password"}
+                        fullWidth
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={showPassword.onToggle}
+                                        edge="end"
+                                    >
+                                        {showPassword.value ? (
+                                            <VisibilityIcon />
+                                        ) : (
+                                            <VisibilityOffIcon />
+                                        )}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    {/* <Grid container direction={"row"} justifyContent={"center"}>
                     <Grid item xs container justifyContent={"flex-start"} alignItems={"center"}>
                         <FormGroup>
                             <FormControlLabel
-                                control={<Switch checked={checked} onChange={switchHandler} />}
+                                control={<Switch checked={checked.value} onChange={checked.onToggle} />}
                                 label="Remember Me"
                             />
                         </FormGroup>
@@ -96,15 +117,24 @@ const SignInForm = () => {
                     <Grid item xs container justifyContent={"flex-end"} alignItems={"center"}>
                         <Link href="/404">Forgot Password</Link>
                     </Grid>
-                </Grid>
-                <StyledButton
-                    size='large'
-                    variant="contained"
-                    type="submit"
-                >
-                    {loading ? <CircularProgress size={25} /> : 'Log In'}
-                </StyledButton>
+                </Grid> */}
+                    <Grid container direction={'row'} justifyContent={'center'}>
+                        <Button
+                            variant="contained"
+                            type="submit"
+                            sx={{ width: '30%' }}
+                        >
+                            {loading ? (
+                                <CircularProgress size={25} />
+                            ) : (
+                                'Sign In'
+                            )}
+                        </Button>
+                    </Grid>
+
+                </Stack>
             </FormContainer>
+
         </Form>
     );
 }

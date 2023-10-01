@@ -1,34 +1,31 @@
 import { Controller, useFormContext } from "react-hook-form";
-import { StyledTextField } from "./StyledForm";
+import TextField, { TextFieldProps } from '@mui/material/TextField'
 
-interface FormTextFieldProps {
+type FormTextFieldProps = TextFieldProps & {
     name: string;
-    label: string;
-    type: string;
-    autoComplete?: string;
-    hint?: string;
 }
 
-const FormTextField = ({name, label, type, autoComplete, hint } : FormTextFieldProps) => {
+const FormTextField = ({ name, type, hint, ...rest }: FormTextFieldProps) => {
     const methods = useFormContext();
     return (
         <Controller
             name={name}
             control={methods?.control}
             defaultValue=""
-            render={({ field } : any) =>
+            render={({ field, fieldState: { error } }) => (
                 <>
-                    <StyledTextField
-                        {...field} 
-                        autoComplete={autoComplete? autoComplete : undefined}
+                    <TextField
+                        {...field}
+                        InputLabelProps={{ shrink: true }}
                         id="filled-basic"
                         type={type}
-                        label={label}
                         variant="filled"
-                        error={!!methods?.formState.errors[name]}
-                        helperText={methods?.formState.errors[name] ? methods?.formState.errors[name]?.message : (hint ? hint : " ")} />
+                        error={!!error}
+                        helperText={error ? error?.message : hint}
+                        {...rest}
+                    />
                 </>
-            }
+            )}
         />
     )
 }

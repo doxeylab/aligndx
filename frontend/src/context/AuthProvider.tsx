@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo, createContext, useContext, ReactNode } from 'react';
 import { setSession, getToken, ACCESS_STORAGE_KEY, refreshAccessToken, clearToken, isValidToken } from './utils';
-import { fetcher, poster, endpoints } from './requests';
+import { fetcher, poster, endpoints, posterForm } from './requests';
 
 type AuthUserType = null | Record<string, any>;
 
@@ -58,22 +58,24 @@ export function AuthProvider({ children }: Props) {
   const login = useCallback(async ({ username, password }: { username: string, password: string }) => {
     try {
       const data = { username, password };
-      const { access_token } = await poster(endpoints.auth.login, data, {withCredentials : true});
+      const { access_token } = await posterForm(endpoints.auth.login, data, {withCredentials : true});
       setSession(ACCESS_STORAGE_KEY, access_token);
 
       const fetchedUser = await fetcher(endpoints.auth.me);
       setUser(fetchedUser);
     } catch (error) {
       console.error('Login error:', error);
+      throw error;
     }
   }, []);
 
   const signUp = useCallback(async ({ name, email, password }: { name: string, email: string, password: string }) => {
     try {
       const data = { name, email, password };
-      await poster(endpoints.auth.login, data);
+      await poster(endpoints.auth.signup, data);
     } catch (error) {
       console.error('Login error:', error);
+      throw error;
     }
   }, []);
 

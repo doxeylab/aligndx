@@ -124,7 +124,7 @@ export default function Monitor({ handleNew, subId, uploaders, selectedPipeline 
                                                 <CircularProgress />
 
                                             </Grid>
-                                            Tinkering ...
+                                            Analyzing your data ...
                                         </Grid>
                                     </>
                                 },

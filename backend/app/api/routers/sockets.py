@@ -13,6 +13,7 @@ from app.models.redis import MetaModel
 from app.core.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db 
 from app.celery.tasks import retrieve_metadata
+from app.models.status import SubmissionStatus
 
 router = APIRouter() 
 
@@ -49,18 +50,22 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
                     manager.disconnect(id=sub_id)
                     return
                 
-                await manager.send_data(data=metadata.dict(), id=sub_id) 
+                await manager.send_data(data=meta, id=sub_id) 
 
-                if metadata.status == 'completed' or metadata.status =='error':
+                if metadata.status == SubmissionStatus.COMPLETED or metadata.status == SubmissionStatus.ERROR:
                     manager.disconnect(id=sub_id)
                     return 
 
-                if metadata.status == 'uploading' or metadata.status == 'setup':
+                if metadata.status == SubmissionStatus.PROCESSING:
                     await asyncio.sleep(10) 
                     continue
 
-                if metadata.status == 'analyzing':
+                if metadata.status == SubmissionStatus.QUEUED:
                     await asyncio.sleep(20) 
+                    continue
+                
+                if metadata.status == SubmissionStatus.CREATED:
+                    await asyncio.sleep(30) 
                     continue
 
         except WebSocketDisconnect:

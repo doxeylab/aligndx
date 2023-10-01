@@ -20,6 +20,11 @@ export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
 };
 
 export const poster = async (url: string, data?: any, config?: AxiosRequestConfig) => {
+  const res = await axiosInstance.post(url, data, config);
+  return res.data;
+};
+
+export const posterForm = async (url: string, data?: any, config?: AxiosRequestConfig) => {
     const formParams = new URLSearchParams();
     for(const key in data) {
       formParams.append(key, data[key]);

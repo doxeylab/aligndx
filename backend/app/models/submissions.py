@@ -33,7 +33,7 @@ class Entry(Base):
     """
     id: UUID = None
     user_id : UUID
-    status: SubmissionStatus
+    status: str
     created_date : datetime
     finished_date : datetime = None
 
@@ -42,7 +42,7 @@ class Response(Base):
     Response Model
     """
     id: UUID
-    status: SubmissionStatus
+    status: str
     created_date : datetime
     finished_date : datetime = None
 

@@ -71,7 +71,7 @@ def create_job(submission_id: str, name: str, pipeline_id: str, user_inputs: dic
     )
     metadata = MetaModel(
         id=job_id,
-        status=SubmissionStatus.CREATED,
+        status=SubmissionStatus.QUEUED,
         inputs=user_inputs,
         name=name,
         pipeline_id=pipeline_id,
@@ -104,7 +104,10 @@ def monitor_job_status(self, submission_id: str):
     status = factory.get_status(metadata.id)
 
     if status in ("completed", "error"):
-        metadata.status = status
+        if status == 'completed':
+            metadata.status = SubmissionStatus.COMPLETED
+        else:
+            metadata.status = SubmissionStatus.ERROR
         update_metadata(submission_id, metadata)
         complete_job.delay(submission_id)
 
@@ -118,6 +121,7 @@ def monitor_job_status(self, submission_id: str):
 def complete_job(sub_id: str):
     metadata_dict = retrieve_metadata(sub_id)
     metadata = MetaModel(**metadata_dict)
+
     factory.create_report(metadata)
     cleanup.delay(sub_id)
     metadata_json = metadata.json()

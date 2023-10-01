@@ -1,6 +1,6 @@
 from enum import Enum
 
-class SubmissionStatus(Enum):
+class SubmissionStatus(str, Enum):
     CREATED = "created"
     QUEUED = "queued"
     PROCESSING = "processing"

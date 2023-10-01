@@ -3,7 +3,10 @@ import datetime
 import os
 import zipfile
 from io import BytesIO 
-from typing import List 
+from typing import List
+from backend.app.models.stores import BaseStores
+from backend.app.storages import storage_manager
+from backend.app.storages.storage_manager import StorageManager
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
@@ -15,6 +18,7 @@ from app.services.auth import get_current_user
 from app.core.db.dals.submissions import SubmissionsDal
 from app.core.config.settings import settings
 from app.celery.tasks import create_job, monitor_job_status, start_job, cleanup
+from app.models.status import SubmissionStatus 
 
 router = APIRouter()
 
@@ -23,15 +27,15 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
     """
     Generates submission and returns a submission id
     """
-    # Create db submission entry
-    status='setup'
     submission_entry = submissions.Entry(
-        **{**submission.dict(),
-            'user_id': current_user.id,
-            'status': status,
-            'created_date': datetime.datetime.now(datetime.timezone.utc).isoformat()
-        }
+        user_id=current_user.id,
+        name=submission.name,
+        pipeline=submission.pipeline,
+        inputs=submission.inputs,
+        status=SubmissionStatus.CREATED,
+        created_date=datetime.datetime.now(datetime.timezone.utc).isoformat()
     )
+
     sub_dal = SubmissionsDal(db)
     query = await sub_dal.create(submission_entry)
     sub_id = str(query)
@@ -114,18 +118,13 @@ async def get_report(sub_id: str, current_user: auth.UserDTO = Depends(get_curre
     if query is None:
         raise HTTPException(status_code=404, detail="Submission not found")
 
-    submission = submissions.Entry.from_orm(query)
+    storage_manager = StorageManager(prefix=sub_id)
+    report_name = "report.html"
 
-    report_path = os.path.join(settings.RESULTS_FOLDER, sub_id, 'report.html')
-
-    if os.path.exists(report_path) != True:
+    if not storage_manager.exists(BaseStores.RESULTS,report_name):
         raise HTTPException(status_code=404, detail="Report not found")
 
-    html = ""
-
-    with open(report_path, 'r') as f:
-        html = f.read()
-
+    html = storage_manager.read(BaseStores.RESULTS,report_name)
     return html
 
 def zip_dir(zip_subdir, name): 

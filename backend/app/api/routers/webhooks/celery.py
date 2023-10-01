@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db.dals.submissions import SubmissionsDal
 from app.services.db import get_db 
 from app.models import submissions
+from app.models.status import SubmissionStatus
 
 router = APIRouter()
 
@@ -17,12 +18,13 @@ async def celery(sub_id: str, status: str, db: AsyncSession = Depends(get_db)):
     submission = submissions.Entry.from_orm(query)
 
     if submission is not None:
-        if status == 'completed':
+        if status == SubmissionStatus.COMPLETED or status == SubmissionStatus.ERROR :
             finished_date = datetime.datetime.now(datetime.timezone.utc).isoformat()
             await sub_dal.update(sub_id, submissions.UpdateDateAndStatus(finished_date=finished_date, status=status))
             return 200
         else:
-            await sub_dal.update(sub_id, submissions.UpdateStatus(status=status))
+            newStatus = SubmissionStatus(status)
+            await sub_dal.update(sub_id, submissions.UpdateStatus(status=newStatus))
         
     else:
         raise HTTPException(status_code=404, detail="Item not found")

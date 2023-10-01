@@ -52,21 +52,23 @@ def initialize():
             token=settings.PIPELINES_REPO_TOKEN,
             output=output
             )
-
         # extract then delete zip 
         with zipfile.ZipFile(output, 'r') as zip_ref:
             zip_ref.extractall(DOWNLOADS_PATH)
         os.remove(output)
-        
+
         # find pipelines subdirectory and move contents to pipelines directory
         tree = glob(DOWNLOADS_PATH + "/**", recursive=True)
         repo_pipelines = [x for x in tree if x.endswith("pipelines")][0]
-        
+
+        if os.path.exists(PIPELINES_PATH):
+            shutil.rmtree(PIPELINES_PATH)
+
         try:
             shutil.copytree(repo_pipelines, PIPELINES_PATH)
-        except:
-            pass 
-        
+        except Exception as e:
+            print(e) 
+
         # Read pipelines, validate them and create the available json file
         available = {}
         pipelines = glob(PIPELINES_PATH + "/**/schema.yml")
@@ -76,7 +78,6 @@ def initialize():
                 try:
                     Schema.parse_obj(data)
                     available[data['id']] = data
-                    client.images.pull(data["image"])
                 except:
                     continue
         with open(AVAILABLE, 'w') as ap:
