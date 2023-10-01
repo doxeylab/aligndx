@@ -33,7 +33,7 @@ export default function MyApp(props: MyAppProps) {
   const router = useRouter();
   const [queryClient] = useState(() => new QueryClient())
 
-  const privatePages = ['/dashboard', '/analyze', '/results', '/submissions', '/settings']
+  const privatePages = ['/dashboard', '/analyze', '/archive', '/results', '/submissions', '/settings']
 
   useEffect(() => {
     const handleRouteChangeStart = () => {

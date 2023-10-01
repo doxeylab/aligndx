@@ -1,23 +1,20 @@
-import uuid, datetime, os, zipfile
+import uuid
+import datetime
+import os
+import zipfile
 from io import BytesIO 
 from typing import List 
-import pandas as pd 
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse, HTMLResponse
 
-from app.models import auth, submissions, redis
-from app.models.pipelines import inputs
+from app.models import auth, submissions
 from app.services.db import get_db 
 from app.services.auth import get_current_user
-from app.services import factory
-from app.core.utils import dir_generator
 from app.core.db.dals.submissions import SubmissionsDal
 from app.core.config.settings import settings
-from app.celery.tasks import update_metadata, status_check
-from app.celery.redis.functions import Handler
-import json 
+from app.celery.tasks import create_job, monitor_job_status, start_job, cleanup
 
 router = APIRouter()
 
@@ -32,58 +29,28 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
         **{**submission.dict(),
             'user_id': current_user.id,
             'status': status,
-            'created_date': datetime.datetime.now(datetime.timezone.utc).isoformat()         
+            'created_date': datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
     )
     sub_dal = SubmissionsDal(db)
     query = await sub_dal.create(submission_entry)
     sub_id = str(query)
 
-    # Generate submission storage
-    store = {
-        'raw_uploads': "{}".format(settings.UPLOAD_FOLDER),
-        'uploads': "{}/{}".format(settings.UPLOAD_FOLDER, sub_id),
-        'results': "{}/{}".format(settings.RESULTS_FOLDER, sub_id),
-        'temp': "{}/{}".format(settings.TMP_FOLDER, sub_id),
-    }
-
-    # Parse inputs and apply necessary transformations on inputs
-    for inp in submission.inputs:
-        if inp.input_type in ['predefined','text','select','output']:
-            inp.status = 'ready'
-        if inp.input_type == 'file':
-            inp.file_meta = {v : inputs.FileMeta(status='requested') for v in inp.values}
-            path = "{}/{}/{}".format(settings.UPLOAD_FOLDER, sub_id, inp.id)
-            store[inp.id] = path
-
-    dir_generator(store.values())
-
-    # Create a container for the submissions, configured to the pipeline chosen
-    id = factory.create(
-        pipeline=submission.pipeline,
-        inputs=submission.inputs,
-        store=store
-    ) 
-
-    position = Handler.enqueue_job(sub_id)
-
-    # Generate submission metadata for redis
-    metadata = redis.MetaModel(
-        id=id,
-        name=submission.name,
-        inputs=submission.inputs,
-        store=store,
-        status=status,
-        pipeline=submission.pipeline,
-        position = position
-    )
+    create_job.apply_async(args=[ #type: ignore
+        sub_id, submission.name, submission.pipeline, submission.inputs
+    ])
     
-    update_metadata.s(sub_id=sub_id, metadata=metadata)()
-
-    # Initiate pipeline monitor
-    status_check.s(sub_id=sub_id).delay()
-
     # Return a submission id for tracking
+    return {"sub_id": sub_id}
+
+@router.post('/run')
+async def run_submission(runRequest: submissions.Run):
+    """
+    Runs submissions
+    """
+    sub_id = runRequest.sub_id
+    start_job.apply_async(args=(sub_id,), link=monitor_job_status.s(sub_id))
+
     return {"sub_id": sub_id}
 
 @router.get('/{sub_id}')
@@ -133,6 +100,7 @@ async def del_result(ids: List[str], current_user: auth.UserDTO = Depends(get_cu
         uid = uuid.UUID(id)
         try: 
             query = await sub_dal.delete_by_id(uid)
+            cleanup.delay(id)
         except:
             raise HTTPException(status_code=404, detail="Item not found")
     return 200 

@@ -10,7 +10,7 @@ services:
       dockerfile: Dockerfile
       args:
         PROJECT_PATH: ${PROJECT_PATH}
-    # command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
     tty: true
     depends_on:
       - postgres
@@ -21,7 +21,6 @@ services:
       - ./backend/data:${PROJECT_PATH}/data
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      PRE_START_PATH: "./app/prestart.sh"
       PORT: 8080
       LOG_LEVEL: "debug"
       BASE_URL: ${BASE_URL}
@@ -78,12 +77,9 @@ services:
     volumes:
       - ./frontend/:/opt/app
       - /opt/app/node_modules
-    environment:
-      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
-      NEXT_PUBLIC_BACKEND_ACCESS_URL: ${NEXT_PUBLIC_BACKEND_ACCESS_URL}
-      NEXT_PUBLIC_TUS_ENDPOINT: ${NEXT_PUBLIC_TUS_ENDPOINT}
-      NEXT_PUBLIC_COMPANION_URL: ${NEXT_PUBLIC_COMPANION_URL}
-
+    env_file:
+      - .env
+  
   tusd:
     image: tusproject/tusd
     command: -upload-dir=/data/uploads -port=1080 --hooks-http http://backend:8080/webhooks/tus/ -hooks-http-forward-headers Authorization

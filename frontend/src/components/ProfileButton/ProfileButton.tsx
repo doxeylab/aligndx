@@ -5,7 +5,8 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { Fragment, MouseEvent, useState } from 'react';
-import useLogout from '../../hooks/useLogout';
+import { useAuthContext } from '../../context/AuthProvider';
+import { useRouter } from 'next/router';
 
 interface MenuObject {
     item: string;
@@ -18,6 +19,9 @@ interface ProfileButtonProps {
 
 export default function ProfileButton() {
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+    
+    const { logout } = useAuthContext();
+    const { router } = useRouter();
     const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
     };
@@ -26,7 +30,12 @@ export default function ProfileButton() {
         setAnchorElUser(null);
     };
 
-    const { logout } = useLogout()
+    const handleLogout = (async () => {
+        handleCloseUserMenu();
+        await logout();
+        router.push('/')
+    })
+
     return (
         <>
             <Fragment>
@@ -65,10 +74,7 @@ export default function ProfileButton() {
                     </MenuItem> */}
                     <MenuItem
                         key={'logout'}
-                        onClick={() => {
-                            handleCloseUserMenu()
-                            logout()
-                        }}>
+                        onClick={handleLogout}>
                         <Typography textAlign="center">Logout</Typography>
                     </MenuItem>
                 </Menu>

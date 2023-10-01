@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import { useMutation } from '@tanstack/react-query'
 
 import { Form, FormTextField } from "../../components/Form";
 import { FormContainer, StyledButton } from "../../components/Form/StyledForm";
 import { CircularProgress, Typography } from "@mui/material";
 import { FormControlLabel, FormGroup, Grid, Link, Alert } from '@mui/material';
-import { useUsers } from "../../api/Users"
 
 import * as yup from "yup";
 import { useAuthContext } from "../../context/AuthProvider";
@@ -18,8 +16,7 @@ const SignUpForm = () => {
      */
     const router = useRouter();
 
-    const context = useAuthContext();
-    const users = useUsers()
+    const { signUp, login, loading } = useAuthContext();
     const [invalid, setInvalid] = useState(false);
 
     // validation object for form validation
@@ -54,55 +51,24 @@ const SignUpForm = () => {
             .oneOf([yup.ref('password'), null], "Passwords must match")
     })
 
-    // mutation functions used to update auth serverstate
-    // for signup
-    const sendSignUp = (signup: any) => {
-        return users.signup(signup)
-    }
-
-    // for auth
-    const sendLogin = (login: any) => {
-        const payload = new URLSearchParams(login)
-        return users.login(payload)
-    }
-
-    const login = useMutation(sendLogin, {
-        onSuccess: (data) => {
+    const signUpFormHandler = (async (data: any) => {
+        try {
+            await signUp?.(data)
+            data['username'] = data['email']
+            delete data['email']
+            await login?.(data);
             setInvalid(false)
-            context?.setupUser(data.data)
             router.push('/')
-
-        },
-        onError: (error: any) => {
-            if (error?.response?.status === 401) {
-                setInvalid(true)
-            }
+        } catch (error) {
+            console.error(error);
+            setInvalid(true)
         }
-    })
-
-    const signUp = useMutation(sendSignUp, {
-        onSuccess: (data, variables, context) => {
-            setInvalid(false)
-            const loginpayload = {
-                "username": variables.email,
-                "password": variables.password
-            }
-            login.mutate(loginpayload)
-        },
-        onError: (error) => {
-            console.log(error)
-        }
-    })
-
-    // Form handling for calling mutation function
-    const signupFormHandler = (data: any) => {
-        signUp.mutate(data)
-    }
+    });
 
     return (
         <Form
             schema={schema}
-            onSubmit={signupFormHandler}
+            onSubmit={signUpFormHandler}
         >
             <FormContainer>
                 <Typography variant="h4">Sign Up</Typography>
@@ -149,7 +115,7 @@ const SignUpForm = () => {
                     variant="contained"
                     type="submit"
                 >
-                    {signUp.isLoading ? <CircularProgress size={25} /> : 'Register'}
+                    {loading ? <CircularProgress size={25} /> : 'Register'}
                 </StyledButton>
             </FormContainer>
         </Form>

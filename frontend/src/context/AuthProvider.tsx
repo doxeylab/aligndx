@@ -1,74 +1,107 @@
-import { createContext, useContext, FC, ReactNode } from 'react';
-import useLocalStorage from '../hooks/useLocalStorage'
+import React, { useEffect, useState, useCallback, useMemo, createContext, useContext, ReactNode } from 'react';
+import { setSession, getToken, ACCESS_STORAGE_KEY, refreshAccessToken, clearToken, isValidToken } from './utils';
+import { fetcher, poster, endpoints } from './requests';
 
-interface AuthObject {
-    accessToken: string;
-    user: string;
-    role: string;
-}
+type AuthUserType = null | Record<string, any>;
 
 interface AuthInterface {
-    auth: AuthObject;
-    setAuth: any;
-    authenticated: boolean;
-    setupUser: (response: any) => boolean | null;
+  user: AuthUserType | null;
+  loading: boolean;
+  authenticated: boolean;
+  unauthenticated: boolean;
+  login: ({ username, password }: { username: string, password: string }) => Promise<void>;
+  signUp: ({ name, email, password }: { name: string, email: string, password: string }) => Promise<void>;
+  logout: () => void;
 }
 
-interface AuthProps {
-    children: ReactNode;
+interface Props {
+  children: ReactNode
 }
 
 export const AuthContext = createContext<AuthInterface | null>(null);
 
-export const AuthProvider: FC<AuthProps> = ({ children }) => {
-    const [auth, setAuth] = useLocalStorage('auth', {} as AuthObject);
+export function AuthProvider({ children }: Props) {
+  const [user, setUser] = useState<AuthUserType | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
-    const _decodeToken = (token: string) => {
+  const setupUser = useCallback(async () => {
+    try {
+      let accessToken = getToken(ACCESS_STORAGE_KEY);
+      
+      if (!accessToken || !isValidToken(accessToken)) {
         try {
-            return JSON.parse(atob(token));
+          accessToken = await refreshAccessToken();
+          setSession(ACCESS_STORAGE_KEY, accessToken);
+        } catch (error) {
+          console.error("Failed to refresh access token: ", error);
+          // Optionally, set some state variable or redirect user to login
+          return; // Early return to avoid further execution if refresh fails
         }
-        catch {
-            return;
-        }
+      }
+  
+      if (accessToken && isValidToken(accessToken)) {
+        const fetchedUser = await fetcher(endpoints.auth.me);
+        setUser(fetchedUser);
+      }
+    } catch (error) {
+      console.error("Initialization error:", error);
+    } finally {
+      setLoading(false);
     }
-    const decodeToken = (token: string) => {
-        return token
-            .split(".")
-            .map(token => _decodeToken(token))
-            .reduce((acc, curr) => {
-                if (!!curr) acc = { ...acc, ...curr };
-                return acc;
-            }, Object.create(null));
-    }
+  }, []); // Consider any dependencies that might be needed here
+  
+  useEffect(() => {
+    setupUser();
+  }, [setupUser]); // Ensure that setupUser does not change too often
+  
 
-    const setupUser = (response: any) => {
-        const payload = decodeToken(response.access_token)
-        setAuth({
-            accessToken: response.access_token,
-            user: payload.usr,
-            role: payload.rol,
-        })
-        return true;
-    }
+  const login = useCallback(async ({ username, password }: { username: string, password: string }) => {
+    try {
+      const data = { username, password };
+      const { access_token } = await poster(endpoints.auth.login, data, {withCredentials : true});
+      setSession(ACCESS_STORAGE_KEY, access_token);
 
-    const isEmpty = (obj: object) => {
-        return Object.keys(obj).length === 0;
+      const fetchedUser = await fetcher(endpoints.auth.me);
+      setUser(fetchedUser);
+    } catch (error) {
+      console.error('Login error:', error);
     }
+  }, []);
 
-    return (
-        <AuthContext.Provider
-            value={{
-                auth: auth,
-                authenticated: !isEmpty(auth),
-                setAuth: setAuth,
-                setupUser: setupUser,
-            }}
-        >
-            {children}
-        </AuthContext.Provider>
-    );
+  const signUp = useCallback(async ({ name, email, password }: { name: string, email: string, password: string }) => {
+    try {
+      const data = { name, email, password };
+      await poster(endpoints.auth.login, data);
+    } catch (error) {
+      console.error('Login error:', error);
+    }
+  }, []);
+
+
+  const logout = useCallback(async () => {
+    clearToken(ACCESS_STORAGE_KEY);
+    setUser(null);
+    await fetcher([endpoints.auth.logout, { withCredentials: true }]);
+  }, []);
+
+  const authenticated = !!user && !loading;
+  const unauthenticated = !user && !loading;
+
+  const contextValue = useMemo(() => ({
+    user,
+    loading: loading,
+    authenticated: authenticated,
+    unauthenticated: unauthenticated,
+    login,
+    logout,
+    signUp,
+  }), [user, loading, authenticated, unauthenticated, login, logout, signUp]);
+
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
+}
+
+export const useAuthContext = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuthContext must be used within an AuthProvider');
+  return context;
 };
-
-export default AuthContext;
-
-export const useAuthContext = () => useContext(AuthContext)

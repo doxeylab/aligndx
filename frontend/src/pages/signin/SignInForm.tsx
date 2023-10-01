@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-import { useMutation } from '@tanstack/react-query'
 import { Form, FormTextField } from "../../components/Form";
 import { Switch, FormControlLabel, FormGroup, Grid, Link, Alert } from '@mui/material';
 import * as yup from "yup";
 import { useAuthContext } from "../../context/AuthProvider";
-import { useUsers } from "../../api/Users"
 import { useRouter } from "next/router";
 import { FormContainer, StyledButton } from "../../components/Form/StyledForm";
 import { CircularProgress, Typography } from "@mui/material";
@@ -15,8 +13,7 @@ const SignInForm = () => {
      */
 
     const router = useRouter();
-    const context = useAuthContext();
-    const users = useUsers()
+    const { login, loading } = useAuthContext();
     const [invalid, setInvalid] = useState(false);
     const [checked, setChecked] = useState(true);
 
@@ -42,36 +39,23 @@ const SignInForm = () => {
             )
             .matches(/^(?=.{6,20}$)\D*\d/, "Must Contain One Number"),
     })
-
-    // mutation function used to update auth serverstate
-    const sendLogin = (login: any) => {
-        const payload = new URLSearchParams(login)
-        return users.login(payload)
-    }
-
-    const login = useMutation(sendLogin, {
-        onSuccess: (data) => {
-            setInvalid(false)
-            context?.setupUser(data.data)
-            router.push('/')
-        },
-        onError: (error: any) => {
-            if (error?.response?.status === 401) {
-                setInvalid(true)
-            }
-        }
-    })
-
-    // Form handling for calling mutation function
-    const loginFormHandler = (data: any) => {
-        data['username'] = data['email']
-        delete data['email']
-        login.mutate(data)
-    }
-
+ 
     const switchHandler = (event: any) => {
         setChecked(event.target.checked)
     }
+
+    const loginFormHandler = (async (data: any) => {
+        try {
+            data['username'] = data['email']
+            delete data['email']
+            await login?.(data);
+            setInvalid(false)
+            router.push('/')
+        } catch (error) {
+            console.error(error);
+            setInvalid(true)
+        }
+    });
 
     return (
         <Form
@@ -118,7 +102,7 @@ const SignInForm = () => {
                     variant="contained"
                     type="submit"
                 >
-                    {login.isLoading ? <CircularProgress size={25} /> : 'Log In'}
+                    {loading ? <CircularProgress size={25} /> : 'Log In'}
                 </StyledButton>
             </FormContainer>
         </Form>

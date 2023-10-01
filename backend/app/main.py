@@ -9,10 +9,9 @@ from fastapi.exceptions import RequestValidationError
 from app.api.routers import users, submissons, sockets, metadata, payments, webhooks
 
 from app.services.auth import get_current_user
-from app.services.factory import initialize
-from app.core import utils
-
+from app.services import factory
 from app.core.config.settings import get_settings
+from app.core.utils import dir_generator
 
 app = FastAPI(
     title="AlignDX",
@@ -26,8 +25,8 @@ async def setup_configs():
     Initializes settings for app
     '''
     settings = get_settings()
-    utils.dir_generator(settings.DIRS)
-    initialize()
+    dir_generator(settings.BASE_STORES)
+    factory.initialize()
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):

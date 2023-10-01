@@ -1,10 +1,9 @@
 from pydantic import Field
-from typing import List
 from uuid import UUID
 from datetime import datetime
 from app.models.base_schema import BaseSchema
-from app.models.pipelines.inputs import InputSchema
 from app.models.shared import status
+from typing import Any, Dict
 
 class Base(BaseSchema):
     """
@@ -12,13 +11,20 @@ class Base(BaseSchema):
     """
     name : str = Field(description='A name for the submission')
     pipeline : str 
-    inputs: List[InputSchema]
+    inputs: Dict[str, Any]
 
 class Request(Base):
     """
     Request Model
     """
     pass
+
+class Run(BaseSchema):
+    """
+    Request Model
+    """
+    sub_id : str
+
 
 class Entry(Base):
     """

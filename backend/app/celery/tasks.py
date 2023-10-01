@@ -1,124 +1,132 @@
+from distutils.command import clean
+import os
+from re import sub
 import requests
-import shutil, os, json
-from app.models.redis import MetaModel
-from .redis.functions import Handler
-from app.services import factory
+import logging
 from celery import shared_task
+
+from app.models.status import SubmissionStatus
+from .redis.functions import Handler
+from app.models.stores import BaseStores
+from app.storages import StorageManager
+from app.models.redis import MetaModel
+from app.services import factory
+
+logger = logging.getLogger(__name__)
 
 CELERY_API_KEY = os.getenv("CELERY_API_KEY")
 API_URL = os.getenv("API_URL")
 
-@shared_task(name="Update Metadata")
-def update_metadata(sub_id: str, metadata: MetaModel):
-    Handler.create(sub_id, json.dumps(metadata.dict()))
-    return json.dumps({'Success': True})  
-
-
-@shared_task(name="Retrieve Metadata")
-def retrieve_metadata(sub_id: str) -> str:
-    meta_dict = Handler.retrieve(sub_id)
-    if meta_dict is not None:
-        return meta_dict
-    else:
-        return json.dumps(None)
-
-
-@shared_task(name="Cleanup")
-def cleanup(sub_id: str):
-    meta = retrieve_metadata(sub_id)
-    metadata = MetaModel(**json.loads(meta))
-    factory.destroy(metadata.id)
-    for store, path in metadata.store.items():
-        if store == 'uploads' or store == 'temp':
-            shutil.rmtree(path)
-    try:
-        Handler.delete(sub_id)
-    except:
-        return 
 
 @shared_task(name="Status Update")
 def status_update(sub_id: str, status: str):
-    requests.post(f"{API_URL}/webhooks/celery/status_update",
+    requests.post(
+        f"{API_URL}/webhooks/celery/status_update",
         params={"sub_id": sub_id, "status": status},
-        headers={"Authorization": f'Bearer {CELERY_API_KEY}'})
+        headers={"Authorization": f"Bearer {CELERY_API_KEY}"},
+    )
 
-@shared_task(name="Status Check", bind=True, max_retries=None)
-def status_check(self, sub_id: str):
-    meta = retrieve_metadata(sub_id)
-    metadata = MetaModel(**meta)
-    container_status = factory.get_status(metadata.id)
-    
-    if container_status in ['completed', 'error']:
-        finalize_task(sub_id, metadata, container_status)
-        return True
 
-    if metadata.status == 'setup':
-        process_setup_status(self, sub_id, metadata)
-    
+@shared_task(name="Update metadata")
+def update_metadata(sub_id: str, metadata: MetaModel):
+    Handler.create(sub_id, metadata.json())
+    status_update(sub_id, metadata.status)
+    return metadata.json()
+
+
+@shared_task(name="Retrieve metadata")
+def retrieve_metadata(sub_id: str):
+    meta_dict = Handler.retrieve(sub_id)
+    if meta_dict is not None:
+        return meta_dict  # Returning actual data
     else:
-        self.apply_async((sub_id,), countdown=10) 
+        raise Exception(f"No metadata available for {sub_id}")  # Raising exception
 
 
-def process_setup_status(self, sub_id, metadata):
-    if all(inp.status == 'ready' for inp in metadata.inputs):
-        process_ready_inputs(self, sub_id, metadata)
+@shared_task(name="Move data")
+def move_data(submission_id: str, source_filename: str, destination_filename: str):
+    storage_manager = StorageManager()
+    storage_manager.move(
+        src_store=BaseStores.UPLOADS,
+        src_filename=source_filename,
+        dest_filename=f"{submission_id}/{destination_filename}",
+        dest_store=BaseStores.SUBMISSION_DATA,
+    )
+
+    tus_meta = f"{source_filename}.info"
+    storage_manager.delete(store=BaseStores.UPLOADS, filename=tus_meta)
+
+@shared_task(name="Get Job Position")
+def get_job_position(submission_id: str):
+    return Handler.get_job_position(submission_id)
+
+
+@shared_task(name="Create Job")
+def create_job(submission_id: str, name: str, pipeline_id: str, user_inputs: dict):
+    position = Handler.enqueue_job(submission_id)
+    job_id = factory.create(
+        pipeline=pipeline_id,
+        inputs=user_inputs,
+        submission_id=submission_id
+    )
+    metadata = MetaModel(
+        id=job_id,
+        status=SubmissionStatus.CREATED,
+        inputs=user_inputs,
+        name=name,
+        pipeline_id=pipeline_id,
+        position=position,
+        submission_id=submission_id,
+    )
+
+    metadata_json = metadata.json()
+    Handler.create(submission_id, metadata_json)
+    return metadata_json
+
+
+@shared_task(name="Start Job")
+def start_job(submission_id: str):
+    metadata_dict = retrieve_metadata(submission_id)
+    metadata = MetaModel(**metadata_dict)
+    metadata.status = SubmissionStatus.PROCESSING
+
+    factory.start(metadata.id)
+    update_metadata(submission_id, metadata)
+    metadata_json = metadata.json()
+    return metadata_json
+
+
+@shared_task(bind=True, name="Monitor Job Status")
+def monitor_job_status(self, submission_id: str):
+    metadata_dict = retrieve_metadata(submission_id)
+    metadata = MetaModel(**metadata_dict)
+
+    status = factory.get_status(metadata.id)
+
+    if status in ("completed", "error"):
+        metadata.status = status
+        update_metadata(submission_id, metadata)
+        complete_job.delay(submission_id)
+
+        metadata_json = metadata.json()
+        return metadata_json
     else:
-        update_input_statuses(sub_id, metadata)
-        self.apply_async((sub_id,), countdown=10) 
+        self.apply_async((submission_id,), countdown=10)
 
 
-def process_ready_inputs(self, sub_id, metadata):    
-    position = Handler.get_job_position(sub_id)
-    metadata.position = position
-    update_metadata.s(sub_id, metadata)()
-
-    print(f"Position: {position}")  # Debugging print statement
-
-    if position is not None and position == 1:
-        print("Processing ready inputs...")  # Debugging print statement
-
-        for inp in metadata.inputs:
-            if inp.input_type == 'file':
-                print(f"Processing file input: {inp}")  # Debugging print statement
-
-                process_file_input(metadata, inp)
-
-        factory.start(metadata.id)
-        metadata.status = 'processing'
-        update_metadata.s(sub_id, metadata)()
-        self.apply_async((sub_id,), countdown=10)
-    else:
-        self.apply_async((sub_id,), countdown=100)
-
-
-def process_file_input(metadata, inp):
-    for filename, meta in inp.file_meta.items():
-        move_file(
-            src="{}/{}".format(metadata.store['raw_uploads'], meta.name),
-            dst="{}/{}".format(metadata.store[inp.id], filename)
-        )
-
-        move_file(
-            src="{}/{}.info".format(metadata.store['raw_uploads'], meta.name),
-            dst="{}/{}.info".format(metadata.store['temp'], meta.name)
-        )
-
-
-def move_file(src, dst):
-    shutil.move(src=src, dst=dst)
-
-
-def update_input_statuses(sub_id, metadata):
-    for inp in metadata.inputs:
-        if inp.input_type == 'file' and all(meta.status == 'finished' for filename, meta in inp.file_meta.items()):
-            inp.status = 'ready'
-    update_metadata.s(sub_id, metadata)()
-
-
-def finalize_task(sub_id, metadata, container_status):
-    metadata.status = container_status
-    update_metadata.s(sub_id, metadata).delay()
-    status_update.s(sub_id, container_status).delay()
+@shared_task(name="Complete Job")
+def complete_job(sub_id: str):
+    metadata_dict = retrieve_metadata(sub_id)
+    metadata = MetaModel(**metadata_dict)
     factory.create_report(metadata)
-    Handler.dequeue_job()
-    cleanup.s(sub_id).delay()
+    cleanup.delay(sub_id)
+    metadata_json = metadata.json()
+    return metadata_json
+
+@shared_task(name="Clean Up")
+def cleanup(sub_id: str):
+    metadata_dict = retrieve_metadata(sub_id)
+    metadata = MetaModel(**metadata_dict)
+    
+    Handler.dequeue_job(sub_id)
+    factory.destroy(metadata.id)

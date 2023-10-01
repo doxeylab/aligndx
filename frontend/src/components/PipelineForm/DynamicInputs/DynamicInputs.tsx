@@ -1,15 +1,7 @@
-import { useFormContext } from 'react-hook-form';
-import { Fragment, useEffect, useState } from 'react';
 import { FormSelect, FormTextField, } from '../../Form';
 import isEmpty from '../../../utils/isEmpty';
 
-import Typography from '@mui/material/Typography'
-import Dialog from '@mui/material/Dialog';
-import IconButton from '@mui/material/IconButton';
-import Button from '@mui/material/Button'
-import CloseIcon from '@mui/icons-material/Close';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
+import Typography from '@mui/material/Typography' 
 import Grid from '@mui/material/Grid'
 
 import SubmissionNameField from './SubmissionNameField';
@@ -18,24 +10,11 @@ import FileSelectorField from './FileSelectorField';
 interface DynamicInputsProps {
     selectedPipeline: any;
     uploaders?: any;
+    readyStatus?: any;
+    setReadyStatus?: any;
 }
 
-export default function DynamicInputs({ selectedPipeline, uploaders }: DynamicInputsProps) {
-    const [open, setOpen] = useState({})
-    const methods = useFormContext();
-    const handleOpen = (id: string) => {
-        setOpen({
-            ...open,
-            [id]: true
-        })
-    }
-
-    const handleClose = (id: string) => {
-        setOpen({
-            ...open,
-            [id]: false
-        })
-    }
+export default function DynamicInputs({ selectedPipeline, uploaders, readyStatus, setReadyStatus}: DynamicInputsProps) {
 
     return (
         <>
@@ -75,6 +54,8 @@ export default function DynamicInputs({ selectedPipeline, uploaders }: DynamicIn
                                         uploader={uploader}
                                         plugins={plugins}
                                         fileManagerSelectionType={selectionType}
+                                        readyStatus={readyStatus}
+                                        setReadyStatus={setReadyStatus}
                                     />}
                             </Grid>
                         )

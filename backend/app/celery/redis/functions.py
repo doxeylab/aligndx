@@ -22,12 +22,10 @@ class Handler:
         return r.incr(cls.COUNTER_KEY)
 
     @classmethod
-    def dequeue_job(cls):
-        jobs = r.zrange(cls.QUEUE_KEY, 0, 0, withscores=True)
-        if not jobs:
+    def dequeue_job(cls, id : str):
+        if not r.zscore(cls.QUEUE_KEY, id): 
             return None
 
-        id, _ = jobs[0]
         r.zrem(cls.QUEUE_KEY, id)
 
         data_json = r.get(id)

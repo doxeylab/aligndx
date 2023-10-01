@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request, status
-from fastapi.response import JSONResponse
+from fastapi.responses import JSONResponse
 from app.celery.tasks import move_data
 
 router = APIRouter()
@@ -9,12 +9,14 @@ router = APIRouter()
 async def tusd(
     request: Request,
 ):
-    hook_name = request.headers.get("hook-name")
     request_body = await request.json()
+    hook_name = request_body.get("Type", "") 
+    event = request_body.get("Event",{})
+    upload_info = event.get("Upload",{})
+    print(event)
 
-    tus_data = request_body.get("Upload", {})
-    tus_meta = tus_data.get("MetaData")
-    sub_id, fname = (*(tus_meta.get(i) for i in ["sub_id", "filename"]),)
+    metadata = upload_info.get("MetaData")
+    sub_id, fname = (*(metadata.get(i) for i in ["sub_id", "filename"]),)
 
     if sub_id is None:
         raise HTTPException(
@@ -23,7 +25,7 @@ async def tusd(
         )
 
     if hook_name == "post-finish":
-        file_id = tus_data.get("ID")
+        file_id = upload_info.get("ID")
         move_data.delay(sub_id, file_id, fname)
 
     return JSONResponse(content={"detail": "Success"}, status_code=200)

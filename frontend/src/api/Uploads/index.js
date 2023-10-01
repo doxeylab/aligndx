@@ -1,10 +1,11 @@
-import useAxios from '../useAxios'
+import getAxiosInstance from "../axiosSingleton";
 
 const uploads_endpoint = "uploads"
 
 export const useUploads = () => {
-    const { get, post, put, destroy } = useAxios();
-
+    const axiosInstance = getAxiosInstance()
+    const { post } = axiosInstance
+    
     return {
         start: (params) =>
             post(`${uploads_endpoint}/start`, params),

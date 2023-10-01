@@ -41,7 +41,7 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
     if current_user and submission != None:
         try:
             while True:
-                meta = retrieve_metadata.s(sub_id)()
+                meta = retrieve_metadata(sub_id)
                 metadata = MetaModel(**meta)
 
 

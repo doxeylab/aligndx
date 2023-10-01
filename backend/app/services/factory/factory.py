@@ -1,16 +1,23 @@
 import yaml
 import requests
-import zipfile, shutil, os, json
+import zipfile
+import shutil
+import os
+import json
 from glob import glob
 from app.core.config.settings import settings
 from app.models.pipelines.pipeline import Schema
+from app.models.stores import BaseStores
+from app.storages.storage_manager import StorageManager
 from .config import Config
 from .reports import draft_report
 
 import docker
 client = docker.from_env()
 
-PIPELINES_PATH = settings.PIPELINES_PATH
+PIPELINES_PATH = settings.BASE_STORES[BaseStores.PIPELINES]
+DOWNLOADS_PATH = settings.BASE_STORES[BaseStores.DOWNLOADS]
+
 AVAILABLE = PIPELINES_PATH + "/available.json"
 
 def download(repo,token, output):
@@ -38,7 +45,7 @@ def initialize():
     
     if os.path.exists(AVAILABLE) is False:
     
-        output = "{}/{}".format(settings.DOWNLOADS_PATH,"pipelines.zip")
+        output = "{}/{}".format(DOWNLOADS_PATH,"pipelines.zip")
         # download pipelines
         download(
             repo=settings.PIPELINES_REPO,
@@ -48,11 +55,11 @@ def initialize():
 
         # extract then delete zip 
         with zipfile.ZipFile(output, 'r') as zip_ref:
-            zip_ref.extractall(settings.DOWNLOADS_PATH)
+            zip_ref.extractall(DOWNLOADS_PATH)
         os.remove(output)
         
         # find pipelines subdirectory and move contents to pipelines directory
-        tree = glob(settings.DOWNLOADS_PATH + "/**", recursive=True)
+        tree = glob(DOWNLOADS_PATH + "/**", recursive=True)
         repo_pipelines = [x for x in tree if x.endswith("pipelines")][0]
         
         try:
@@ -90,12 +97,13 @@ def get_pipeline(pipeline: str):
     pipelines = get_available_pipelines()
     return pipelines[pipeline]
  
-def create(pipeline, inputs, store):
+def create(pipeline, inputs, submission_id):
     """
     Initialization point for running a pipeline
     """
     schema = get_pipeline(pipeline)
-    config = Config(schema=schema, inputs=inputs, store=store)
+    storage = StorageManager(submission_id)
+    config = Config(schema=schema, inputs=inputs, storage=storage)
     return config.container.id
     
 def start(id):
@@ -132,7 +140,7 @@ def create_report(metadata):
     with open(logs_path, 'wb') as f:
         f.write(get_logs(metadata.id))
     
-    pipeline_path = settings.PIPELINES_PATH + "/" + metadata.pipeline
+    pipeline_path = PIPELINES_PATH + "/" + metadata.pipeline
     schema = get_pipeline(metadata.pipeline)
 
     draft_report(

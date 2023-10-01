@@ -1,13 +1,15 @@
-import useAxios from '../useAxios'
+import getAxiosInstance from "../axiosSingleton";
 
 const submissions_endpoint = "submissions"
 
 export const useSubmissions = () => {
-    const { get, post, put, destroy } = useAxios();
-
+    const axiosInstance = getAxiosInstance()
+    const { get, post } = axiosInstance
     return {
         start: (params) =>
             post(`${submissions_endpoint}/start`, params),
+        run: (params) =>
+            post(`${submissions_endpoint}/run`, params),
         get_submission: (sub_id) =>
             get(`${submissions_endpoint}/${sub_id}`),
         index_submissions: () =>

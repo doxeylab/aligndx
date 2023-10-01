@@ -1,9 +1,10 @@
-import useAxios from '../useAxios'
+import getAxiosInstance from "../axiosSingleton";
 
 const meta_endpoint = "metadata"
 
 export const useMeta = () => {
-    const { get, post, put, destroy } = useAxios();
+    const axiosInstance = getAxiosInstance()
+    const { get } = axiosInstance
 
     return {
         get_pipelines: () =>

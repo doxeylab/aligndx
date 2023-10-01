@@ -1,7 +1,7 @@
 import os, time
 
-def dir_generator(dirs):
-    for dir in dirs:
+def dir_generator(dirs_dict):
+    for dir in dirs_dict.values():
         if not os.path.isdir(dir):
             os.makedirs(dir)
 

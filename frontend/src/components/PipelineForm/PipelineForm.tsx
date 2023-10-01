@@ -1,77 +1,78 @@
-import { Form } from "../Form";
 import { useState, useEffect } from "react";
-
-import Paper from '@mui/material/Paper'
-import Grid from '@mui/material/Grid'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
+import { Form } from "../Form";
+import {
+    Paper, Grid, Button, Typography, CircularProgress
+} from '@mui/material'
 
 import SchemaGenerator from "./SchemaGenerator";
-
 import { Uploader } from "../Uploader";
 import PipelineSelectMenu from "./PipelineSelectMenu";
 import DynamicInputs from "./DynamicInputs";
 import Monitor from "../Monitor";
 import CrossFade from "../CrossFade";
-import useRefresh from "../../api/useRefresh";
-import useSubmissionStarter from "./useSubmissionStarter";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import isEmpty from "../../utils/isEmpty";
-import { CircularProgress } from "@mui/material";
-
+import useSubmission from "./useSubmission";
+import { refreshAccessToken } from "../../context/utils";
 
 export default function PipelineForm() {
-    const [selectedPipeline, SetSelectedPipeline] = useLocalStorage('selectedPipeline', {} as any)
-    const [uploaders, setUploaders] = useState({} as any)
-    const [schema, setSchema] = useState(null as any);
-    const [success, setSuccess] = useState<any>('success', null);
-    const [subId, setSubId] = useState('subId', null);
+    // Initialize states
+    const [selectedPipeline, setSelectedPipeline] = useLocalStorage('selectedPipeline', null)
+    const [uploaders, setUploaders] = useState({})
+    const [schema, setSchema] = useState(null);
+    const [success, setSuccess] = useState(false);
+    const [subId, setSubId] = useState(null);
     const [showInputs, setShowInputs] = useState(false);
+    const [readyStatus, setReadyStatus] = useState({});
 
-    const refresh = useRefresh();
+    // Initialize hooks
+    const submissionRunner = useSubmission('runner')
 
-    const onSuccess = (data : any) => {
+
+    const onSuccess = (data: any) => {
         const submissionID = data?.data['sub_id']
         setSubId(submissionID)
-        for (const [inp, uploader] of Object.entries<any>(uploaders[selectedPipeline.id])) {
+    
+        for (const [inp, uploader] of Object.entries<any>(uploaders[selectedPipeline?.id])) {
             uploader.setMeta({ 'sub_id': submissionID, 'input_id': inp })
             uploader.upload()
         }
-        setSuccess(true);
     }
-    const submissionStarter = useSubmissionStarter(onSuccess)
+
+    useEffect(() => {
+        console.log(readyStatus)
+        if (Object.keys(readyStatus).length > 0 && Object.values(readyStatus).every(status => status === true)) {
+            submissionRunner.mutate({
+                'sub_id': subId
+            })
+    
+            setSuccess(true);
+        }
+    },[readyStatus])
+
+    const submissionStarter = useSubmission('starter', onSuccess)
+
 
     const onSubmit = (data: any) => {
-        const inputs = [] as any
-        selectedPipeline.inputs.forEach((inp: any) => {
-            if (inp['input_type'] == 'select') {
-                if (typeof (data[inp.id]) != 'object') {
-                    inp['values'] = [data[inp.id]]
-                }
-                else {
-                    inp['values'] = data[inp.id]
-                }
-            }
-            else {
-                inp['values'] = data[inp.id]
-            }
-            inputs.push(inp)
-        })
-
         const submissionData = {
             name: data['name'],
-            pipeline: selectedPipeline.id,
-            inputs: inputs
+            pipeline: selectedPipeline?.id,
+            inputs: data
         }
         submissionStarter.mutate(submissionData)
     };
 
     const createUploaders = (pipeline: any) => {
         const createUploader = (val: any) => {
-            return Uploader({ id: `${pipeline.id}-${val.id}`, fileTypes: val.file_types, refresh: refresh })
+            return Uploader({ id: `${pipeline.id}-${val.id}`, fileTypes: val.file_types, refresh: refreshAccessToken })
         }
 
         const fileInputs = pipeline.inputs.filter((obj: any) => obj.input_type === 'file')
+        const inputsStatus = fileInputs.reduce((acc: any, obj: any) => {
+            acc[obj.id] = false;
+            return acc;
+          }, {});
+        setReadyStatus(inputsStatus)
         const pipelineUploaders = fileInputs.reduce((o: any, key: any) => ({ ...o, [key.id]: createUploader(key) }), {})
         return pipelineUploaders
 
@@ -79,10 +80,10 @@ export default function PipelineForm() {
 
     const onPipelineChange = (value: any) => {
         if (value) {
-            SetSelectedPipeline(value)
+            setSelectedPipeline(value)
         }
         else {
-            SetSelectedPipeline(null)
+            setSelectedPipeline(null)
         }
     }
 
@@ -103,6 +104,7 @@ export default function PipelineForm() {
         else {
             setUploaders({})
             setShowInputs(false)
+            setReadyStatus({})
         }
 
     }, [selectedPipeline])
@@ -169,6 +171,8 @@ export default function PipelineForm() {
                                             <DynamicInputs
                                                 selectedPipeline={selectedPipeline}
                                                 uploaders={uploaders}
+                                                readyStatus={readyStatus}
+                                                setReadyStatus={setReadyStatus}
                                             />
                                             <Grid
                                                 container

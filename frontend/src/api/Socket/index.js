@@ -1,10 +1,9 @@
 import { SOCKET_URL } from "../../config/Settings"
-import { useAuthContext } from "../../context/AuthProvider"
+import { ACCESS_STORAGE_KEY, getToken } from "../../context/utils";
 
 const WEBSOCKET_URL = SOCKET_URL + "/livestatus"
 
 const useWebSocket = () => {
-    const context = useAuthContext()
     
     const connectWebsocket = async (sub_id, callback = console.log) => {
         try {
@@ -18,7 +17,7 @@ const useWebSocket = () => {
 
             ws.onopen = function (event) {
                 callback(event)
-                ws.send(context.auth.accessToken)
+                ws.send(getToken(ACCESS_STORAGE_KEY))
             }
 
             ws.onclose = function (event) {

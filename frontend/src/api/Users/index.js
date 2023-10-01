@@ -1,9 +1,10 @@
-import useAxios from '../useAxios'
+import getAxiosInstance from "../axiosSingleton";
 
 const users_endpoint = "users"
 
 export const useUsers = () => {
-    const { get, post, put, delete: destroy } = useAxios();
+    const axiosInstance = getAxiosInstance()
+    const { get, post } = axiosInstance
 
     return {
         login: (params) =>

@@ -1,18 +1,17 @@
 from pydantic import BaseModel
-from typing import List, Dict
-from app.models.shared import status
-from app.models.pipelines.inputs import InputSchema
+from typing import Any, Dict
+from app.models.status import SubmissionStatus
+
 class MetaModel(BaseModel):
     """
     MetaModel descriptor for rapid tracking of submissions
     """
-    id : str
+    id: str
+    submission_id : str
     name: str
-    inputs: List[InputSchema]
-    store: Dict[str,str]
-    status: status
-    processes: Dict[str,str] = None
-    pipeline: str
+    inputs: Dict[str, Any]
+    status: SubmissionStatus
+    pipeline_id: str
     position : int
 
 

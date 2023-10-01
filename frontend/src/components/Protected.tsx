@@ -10,12 +10,12 @@ interface ProtectedProps {
 
 const Protected = (props: ProtectedProps) => {
     const { children, pages } = props
-    const context = useAuthContext();
+    const { authenticated } = useAuthContext();
     const router = useRouter();
 
     return (
         <>
-            {context?.authenticated ?
+            {authenticated ?
                 children
                 :
                 pages.includes(router.pathname) ? 

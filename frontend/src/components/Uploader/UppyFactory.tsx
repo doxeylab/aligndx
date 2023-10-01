@@ -8,6 +8,7 @@ import ImageEditor from "@uppy/image-editor";
 import GoldenRetriever from '@uppy/golden-retriever'
 import { COMPANION_URL } from '../../config/Settings'
 import { TUS_ENDPOINT } from '../../config/Settings'
+import { ACCESS_STORAGE_KEY, getToken } from "../../context/utils";
 
 interface UppyFactoryProps {
     id: string;
@@ -78,8 +79,8 @@ export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactor
             endpoint: TUS_ENDPOINT,
             retryDelays: [1000],
             async onBeforeRequest(req: any) {
-                const token = JSON.parse(localStorage.getItem('auth') || '')['accessToken']
-                req.setHeader('Authorization', `Bearer ${token}`)
+                const accessToken = getToken(ACCESS_STORAGE_KEY)
+                req.setHeader('Authorization', `Bearer ${accessToken}`)
             },
             onShouldRetry(err: any, retryAttempt: any, options: any, next: any) {
                 const status = err?.originalResponse?.getStatus()
