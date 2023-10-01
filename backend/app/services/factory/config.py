@@ -47,8 +47,10 @@ class Config():
         )
 
     def create(self):
+        image = self.schema.get("image")
+        client.images.pull(image)
         container = client.containers.create(
-            image=self.schema.get("image"),
+            image=image,
             command=self.create_command(schema=self.schema, inputs=self.inputs),
             detach=True,
             volumes=[
