@@ -29,5 +29,6 @@ COPY --from=poetry $PROJECT_PATH $PROJECT_PATH
 COPY --from=docker:dind /usr/local/bin/docker /usr/local/bin/
 COPY . . 
 RUN chmod +x ./start.sh
+RUN chmod +x ./start-reload.sh
 
 CMD ["./start.sh"]
