@@ -2,7 +2,7 @@ from pydantic import Field
 from uuid import UUID
 from datetime import datetime
 from app.models.base_schema import BaseSchema
-from app.models.shared import status
+from app.models.status import SubmissionStatus
 from typing import Any, Dict
 
 class Base(BaseSchema):
@@ -33,7 +33,7 @@ class Entry(Base):
     """
     id: UUID = None
     user_id : UUID
-    status: status
+    status: SubmissionStatus
     created_date : datetime
     finished_date : datetime = None
 
@@ -42,7 +42,7 @@ class Response(Base):
     Response Model
     """
     id: UUID
-    status: status
+    status: SubmissionStatus
     created_date : datetime
     finished_date : datetime = None
 
