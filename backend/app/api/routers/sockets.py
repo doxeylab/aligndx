@@ -43,8 +43,11 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
         try:
             while True:
                 meta = retrieve_metadata(sub_id)
-                metadata = MetaModel(**meta)
-
+                if meta:
+                    metadata = MetaModel(**meta)
+                else:
+                    await asyncio.sleep(5) 
+                    continue
 
                 if metadata == None:
                     manager.disconnect(id=sub_id)

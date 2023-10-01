@@ -133,4 +133,4 @@ def cleanup(sub_id: str):
     metadata = MetaModel(**metadata_dict)
     
     Handler.dequeue_job(sub_id)
-    factory.destroy(metadata.id)
+    factory.destroy(metadata.id, sub_id)

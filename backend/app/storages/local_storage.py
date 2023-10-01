@@ -33,7 +33,7 @@ class LocalStorage:
             if os.path.exists(path):
                 shutil.rmtree(path)
         else:
-            raise ValueError("Store does not exist")
+            raise ValueError("Store prefix does not exist")
 
     def move_within_store(self, src_key, dest_key):
         src_path = self.get_path(src_key)
