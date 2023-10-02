@@ -10,7 +10,7 @@ services:
       dockerfile: Dockerfile
       args:
         PROJECT_PATH: ${PROJECT_PATH}
-    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+    command: ./start-reload.sh
     tty: true
     depends_on:
       - postgres
@@ -21,6 +21,8 @@ services:
       - ./backend/data:${PROJECT_PATH}/data
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
+      PORT: 8080
+      LOG_LEVEL: "debug"
       BASE_URL: ${BASE_URL}
       ORIGINS: ${ORIGINS}
       API_URL: ${INTERNAL_API_URL}
@@ -47,7 +49,7 @@ services:
     depends_on:
       - backend
       - redis
-    command: sh -c "celery -A app.tasks worker -l info -E"
+    command: sh -c "celery -A app.celery worker -l debug -E -c 1"
     tty: true
     volumes:
       - ./backend/app:${PROJECT_PATH}/app 
@@ -75,15 +77,12 @@ services:
     volumes:
       - ./frontend/:/opt/app
       - /opt/app/node_modules
-    environment:
-      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
-      NEXT_PUBLIC_BACKEND_ACCESS_URL: ${NEXT_PUBLIC_BACKEND_ACCESS_URL}
-      NEXT_PUBLIC_TUS_ENDPOINT: ${NEXT_PUBLIC_TUS_ENDPOINT}
-      NEXT_PUBLIC_COMPANION_URL: ${NEXT_PUBLIC_COMPANION_URL}
-
+    env_file:
+      - .env
+  
   tusd:
     image: tusproject/tusd
-    command: -upload-dir=/data/uploads --hooks-http http://backend:8080/webhooks/tus/ -hooks-http-forward-headers Authorization
+    command: -upload-dir=/data/uploads -port=1080 --hooks-http http://backend:8080/webhooks/tus/ -hooks-http-forward-headers Authorization
     tty: true
     ports:
       - "1080:1080"
@@ -98,21 +97,13 @@ services:
     ports:
       - "3020:3020"
     environment:
-      COMPANION_CLIENT_ORIGINS: ${ORIGINS}
-      # COMPANION_HIDE_WELCOME: true 
-      # COMPANION_HIDE_METRICS: true 
       COMPANION_ALLOW_LOCAL_URLS: true
+      COMPANION_DATADIR: "./data"
       COMPANION_STREAMING_UPLOAD: true
-      COMPANION_DOMAIN: 'localhost:3020'
+      COMPANION_PROTOCOL: ${COMPANION_PROTOCOL}
+      COMPANION_DOMAIN: ${COMPANION_DOMAIN}
       COMPANION_SECRET: ${COMPANION_SECRET}
-      COMPANION_DATADIR: ${COMPANION_DATADIR}
-      COMPANION_GOOGLE_KEY: ${COMPANION_GOOGLE_KEY}
-      COMPANION_GOOGLE_SECRET: ${COMPANION_GOOGLE_SECRET}
-      COMPANION_DROPBOX_KEY: ${COMPANION_DROPBOX_KEY}
-      COMPANION_DROPBOX_SECRET: ${COMPANION_DROPBOX_SECRET}
-      COMPANION_ONEDRIVE_KEY: ${COMPANION_ONEDRIVE_KEY}
-      COMPANION_ONEDRIVE_SECRET: ${COMPANION_ONEDRIVE_SECRET}
-      COMPANION_UPLOAD_URLS: ${TUS_ENDPOINT}
+      COMPANION_UPLOAD_URLS: ${COMPANION_UPLOAD_URLS}
 
   # Databases
 
@@ -128,7 +119,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-      PGDATA: ${PGDATA}
+      PGDATA: /var/lib/postgresql/data
 
   # In-Memory Story for transient data
   redis:
@@ -144,7 +135,17 @@ services:
       REDIS_PORT: ${REDIS_PORT}
 
   # Monitoring Services
-
+  # redisinsight:
+  #   image: redislabs/redisinsight:latest
+  #   ports:
+  #     - "8001:8001"
+  #   depends_on:
+  #     - redis
+  #   environment:
+  #     REDIS_HOST: redis # the service name of Redis container
+  #     REDIS_PORT: ${REDIS_PORT}
+  #     REDIS_PASSWORD: ${REDIS_PASSWORD}
+      
   # Postgres admin
   pgadmin:
     tty: true

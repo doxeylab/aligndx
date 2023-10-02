@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
+import Typography from '@mui/material/Typography'
 
 import EnhancedTable from '../../components/Table'
 import Download from '../../components/Download';
@@ -12,8 +13,12 @@ import { useSubmissions } from '../../api/Submissions'
 
 export default function Archive() {
     const [rows, setRows] = useState<any[]>([])
+    const [client, setClient] = useState<boolean>(false)
     const submissions = useSubmissions();
     
+    useEffect(() => {
+        setClient(true)
+    },[])
     function getTimezoneName() {
         const today = new Date();
         const short = today.toLocaleDateString(undefined);
@@ -95,7 +100,11 @@ export default function Archive() {
         onSuccess(data: any) {
             const temp_rows = [] as any
             data.data.forEach((data: any) => {
-                const row = createData(data.id, data.name, data.pipeline, data.created_date,data.finished_date, data.status)
+                let status = data.status;
+                if (status === 'queued' && data.position != null) {
+                    status = `${status} in position ${data.position}`;
+                }
+                const row = createData(data.id, data.name, data.pipeline, data.created_date,data.finished_date, status)
                 temp_rows.push(row)
             })
             setRows(temp_rows)
@@ -140,14 +149,16 @@ export default function Archive() {
             <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
+                        {client ? 
                         <EnhancedTable
-                            orderby={{ 'order': 'desc', 'id': 'created_date', 'key': 'key' }}
-                            tableName="Results"
-                            rows={rows}
-                            headCells={headCells}
-                            deletefn={deletefn}
-                            tools={tools}
-                        />
+                        orderby={{ 'order': 'desc', 'id': 'created_date', 'key': 'key' }}
+                        tableName="Results"
+                        rows={rows}
+                        headCells={headCells}
+                        deletefn={deletefn}
+                        tools={tools}
+                    /> :
+                    null}
                     </Grid>
                 </Grid>
             </Container>

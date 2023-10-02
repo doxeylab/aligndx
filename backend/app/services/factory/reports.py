@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import date
 import shutil, os, subprocess
+from app.storages.storage_manager import StorageManager
 
 import nbformat as nbf
 from nbconvert import HTMLExporter
@@ -98,7 +99,7 @@ def create_parameters(inputs, pipeline_schema):
 
     return parameters
 
-def draft_report(logs_path, metadata, schema, pipeline_path):
+def draft_report(logs_path, metadata, schema, pipeline_path, out_nb, results):
     """
     Generates a report for the pipeline
     """
@@ -118,10 +119,8 @@ def draft_report(logs_path, metadata, schema, pipeline_path):
     meta_nb['cells'] = [
         nbf.v4.new_markdown_cell(metadata_layout),
         nbf.v4.new_code_cell(code)]
-    
-    results = metadata.store['results']
-    inputs = {inp.id: inp.values for inp in metadata.inputs if inp.input_type != "output"}
-    parameters = create_parameters(inputs, schema)
+     
+    parameters = create_parameters(metadata.inputs, schema)
 
     pipeline_nb = nbf.read(pipeline_path + "/" + 'report.ipynb', as_version=4)
 
@@ -132,14 +131,13 @@ def draft_report(logs_path, metadata, schema, pipeline_path):
     if os.path.exists(report_assets):
         shutil.copytree(src=report_assets, dst="{}/assets".format(results))
 
-    out_nb = metadata.store['results'] + '/report.ipynb'
     try:
         final_nb = pm.execute.execute_notebook(book, out_nb, parameters=parameters, cwd=results, progress_bar=False)
         html_exporter = HTMLExporter(template_file=str(TEMPLATE_PATH))
         html_exporter.__dict__['_trait_values'].update(REPORT_CONFIG)
 
         (body, resources) = html_exporter.from_notebook_node(
-            final_nb, {"metadata": {"name": f"{metadata.pipeline.capitalize()} Report"}}
+            final_nb, {"metadata": {"name": f"{metadata.pipeline_id.capitalize()} Report"}}
         )
 
         with open(f'{results}/report.html', "w") as o:

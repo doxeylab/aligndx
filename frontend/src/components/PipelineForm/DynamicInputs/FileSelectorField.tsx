@@ -8,11 +8,13 @@ interface FileSelectorProps {
     name: string;
     defaultValue?: string;
     uploader: any;
+    readyStatus?: any;
+    setReadyStatus?: any;
     plugins: any;
     [fileSelectorProps: string]: any;
 }
 
-export default function FileSelectorField({ name, defaultValue, uploader, plugins, ...fileSelectorProps }: FileSelectorProps) {
+export default function FileSelectorField({ name, defaultValue, uploader, plugins, readyStatus, setReadyStatus, ...fileSelectorProps }: FileSelectorProps) {
     const [files, setFiles] = useState<any>([])
     const { register, setValue, formState } = useFormContext();
 
@@ -42,9 +44,16 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
         setFiles([])
     })
     uploader.off('error', null).on('error', (error: any) => {
+        console.log(error)
         setFiles([])
     })
     uploader.off('complete', null).on('complete', (result: any) => {
+        if (result.successful.length > 0) {
+            setReadyStatus({...readyStatus, [name] : true })
+        }
+        else {
+            setReadyStatus({...readyStatus, [name] : false })
+        }
         setFiles([])
     })
 

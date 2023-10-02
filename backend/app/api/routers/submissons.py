@@ -1,21 +1,20 @@
-import uuid, datetime, os, zipfile
-from io import BytesIO 
-from typing import List 
-import pandas as pd 
+import uuid
+import datetime
+from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse, HTMLResponse
 
-from app.models import auth, submissions, redis
-from app.models.pipelines import inputs
+from app.models import auth, submissions
 from app.services.db import get_db 
 from app.services.auth import get_current_user
-from app.services import factory
-from app.core.utils import dir_generator
 from app.core.db.dals.submissions import SubmissionsDal
-from app.core.config.settings import settings
-from app.tasks import update_metadata, status_check
+from app.celery.tasks import create_job, get_job_position, run_job, cleanup
+from app.models.status import SubmissionStatus 
+
+from app.models.stores import BaseStores
+from app.storages.storage_manager import StorageManager
 
 router = APIRouter()
 
@@ -24,61 +23,34 @@ async def start_submission(submission: submissions.Request, current_user: auth.U
     """
     Generates submission and returns a submission id
     """
-    # Create db submission entry
-    status='setup'
     submission_entry = submissions.Entry(
-        **{**submission.dict(),
-            'user_id': current_user.id,
-            'status': status,
-            'created_date': datetime.datetime.now(datetime.timezone.utc).isoformat()         
-        }
+        user_id=current_user.id,
+        name=submission.name,
+        pipeline=submission.pipeline,
+        inputs=submission.inputs,
+        status=SubmissionStatus.CREATED,
+        created_date=datetime.datetime.now(datetime.timezone.utc).isoformat()
     )
+
     sub_dal = SubmissionsDal(db)
     query = await sub_dal.create(submission_entry)
     sub_id = str(query)
 
-    # Generate submission storage
-    store = {
-        'raw_uploads': "{}".format(settings.UPLOAD_FOLDER),
-        'uploads': "{}/{}".format(settings.UPLOAD_FOLDER, sub_id),
-        'results': "{}/{}".format(settings.RESULTS_FOLDER, sub_id),
-        'temp': "{}/{}".format(settings.TMP_FOLDER, sub_id),
-    }
-
-    # Parse inputs and apply necessary transformations on inputs
-    for inp in submission.inputs:
-        if inp.input_type in ['predefined','text','select','output']:
-            inp.status = 'ready'
-        if inp.input_type == 'file':
-            inp.file_meta = {v : inputs.FileMeta(status='requested') for v in inp.values}
-            path = "{}/{}/{}".format(settings.UPLOAD_FOLDER, sub_id, inp.id)
-            store[inp.id] = path
-
-    dir_generator(store.values())
-
-    # Create a container for the submissions, configured to the pipeline chosen
-    id = factory.create(
-        pipeline=submission.pipeline,
-        inputs=submission.inputs,
-        store=store
-    ) 
-
-    # Generate submission metadata for redis
-    metadata = redis.MetaModel(
-        id=id,
-        name=submission.name,
-        inputs=submission.inputs,
-        store=store,
-        status=status,
-        pipeline=submission.pipeline
-    )
+    create_job.apply_async(args=[ #type: ignore
+        sub_id, submission.name, submission.pipeline, submission.inputs
+    ])
     
-    update_metadata.s(sub_id=sub_id, metadata=metadata)()
-
-    # Initiate pipeline monitor
-    status_check.s(sub_id=sub_id).delay()
-
     # Return a submission id for tracking
+    return {"sub_id": sub_id}
+
+@router.post('/run')
+async def run_submission(runRequest: submissions.Run):
+    """
+    Runs submissions
+    """
+    sub_id = runRequest.sub_id
+    run_job.apply_async(args=(sub_id,))
+
     return {"sub_id": sub_id}
 
 @router.get('/{sub_id}')
@@ -108,7 +80,11 @@ async def get_all_submissions(current_user: auth.UserDTO = Depends(get_current_u
     
     data = []
     for sub in all:
-        data.append(submissions.Response.from_orm(sub))
+        response = submissions.Response.from_orm(sub)
+        response_dict = response.dict()
+        position = get_job_position(str(sub.id))
+        response_dict['position'] = position
+        data.append(response_dict)
     return data
 
 @router.get('/incomplete/')
@@ -128,6 +104,9 @@ async def del_result(ids: List[str], current_user: auth.UserDTO = Depends(get_cu
         uid = uuid.UUID(id)
         try: 
             query = await sub_dal.delete_by_id(uid)
+            storage_manager = StorageManager(prefix=id)
+            storage_manager.delete_all(BaseStores.RESULTS)
+            cleanup.delay(id)
         except:
             raise HTTPException(status_code=404, detail="Item not found")
     return 200 
@@ -141,36 +120,19 @@ async def get_report(sub_id: str, current_user: auth.UserDTO = Depends(get_curre
     if query is None:
         raise HTTPException(status_code=404, detail="Submission not found")
 
-    submission = submissions.Entry.from_orm(query)
+    storage_manager = StorageManager(prefix=sub_id)
+    report_name = "report.html"
 
-    report_path = os.path.join(settings.RESULTS_FOLDER, sub_id, 'report.html')
-
-    if os.path.exists(report_path) != True:
+    if not storage_manager.exists(BaseStores.RESULTS,report_name):
         raise HTTPException(status_code=404, detail="Report not found")
 
-    html = ""
-
-    with open(report_path, 'r') as f:
-        html = f.read()
-
+    html = storage_manager.read(BaseStores.RESULTS,report_name)
     return html
-
-def zip_dir(zip_subdir, name): 
-    """
-    Compress a directory (ZIP file).
-    """
-    zip_io = BytesIO()
-    with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip: 
-            for dir, subdirs, fnames in os.walk(zip_subdir):
-                for fname in fnames:
-                    fpath= os.path.join(dir,fname)
-                    arcname = os.path.relpath(fpath, zip_subdir)
-                    temp_zip.write(fpath, arcname)
-    return StreamingResponse(
-            iter([zip_io.getvalue()]), 
-            media_type="application/x-zip-compressed", 
-            headers = { "Content-Disposition": f"attachment; filename={name}"}
-        )
+ 
+def file_streamer(file_path):
+    with open(file_path, mode="rb") as file:
+        while chunk := file.read(8192):
+            yield chunk
 
 @router.get('/download/{sub_id}', response_class=StreamingResponse) 
 async def download(sub_id: str, current_user: auth.UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
@@ -180,16 +142,14 @@ async def download(sub_id: str, current_user: auth.UserDTO = Depends(get_current
     if query is None:
         raise HTTPException(status_code=404, detail="Submission not found")
 
-    submission = submissions.Entry.from_orm(query)
+    storage_manager = StorageManager(prefix=sub_id)
+    report_name = "report.html"
 
-    zip_subdir = os.path.join(settings.RESULTS_FOLDER, str(submission.id))
-    name = f"{submission.name}_results.zip"
-    
-    if os.path.exists(zip_subdir) != True :
-        raise HTTPException(status_code=404, detail="No results available")
-
-    if len(os.listdir(zip_subdir)) == 0:
-        raise HTTPException(status_code=404, detail="No results available")
-
-    
-    return zip_dir(zip_subdir, name)
+    headers = {
+        "Content-Disposition": f"attachment; filename={report_name}",
+    }
+    if storage_manager.exists(BaseStores.RESULTS, report_name):
+        report_path = storage_manager.get_path(BaseStores.RESULTS, report_name)
+        return StreamingResponse(file_streamer(report_path), headers=headers, media_type='application/octet-stream')
+    else:
+        raise HTTPException(status_code=400)

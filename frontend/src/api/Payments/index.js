@@ -1,10 +1,11 @@
-import useAxios from '../useAxios'
+import getAxiosInstance from "../axiosSingleton";
 
 const payments_endpoint = "payments"
 
 export const usePayments = () => {
-    const {get, post, put, delete: destroy } = useAxios();
-
+    const axiosInstance = getAxiosInstance()
+    const { get, post, put, delete: destroy  } = axiosInstance
+    
     return {
     get_active_subscription: (params) => 
         get(`${payments_endpoint}/subscriptions`, params),

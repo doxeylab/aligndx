@@ -8,6 +8,7 @@ import ImageEditor from "@uppy/image-editor";
 import GoldenRetriever from '@uppy/golden-retriever'
 import { COMPANION_URL } from '../../config/Settings'
 import { TUS_ENDPOINT } from '../../config/Settings'
+import { ACCESS_STORAGE_KEY, getToken } from "../../context/utils";
 
 interface UppyFactoryProps {
     id: string;
@@ -35,6 +36,14 @@ export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactor
     })
     const allowed_extensions = Array.from(new Set(temp.flat()))
     const doubledots = fileTypes.filter(e => e.includes('.'))
+    function bytesToSize(bytes: number): string {
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    
+        if (bytes === 0) return '0 Byte';
+        const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)).toString());
+        return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
+    }
+    const size=5000000000
     
     const uppy = new Uppy({
         id: id,
@@ -42,9 +51,14 @@ export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactor
         allowMultipleUploadBatches: false,
         restrictions: {
             maxFileSize: null,
-            maxTotalFileSize: null,
+            maxTotalFileSize: size,
             maxNumberOfFiles: null,
             allowedFileTypes: (fileTypes ? allowed_extensions : null),
+        },
+        locale: {
+            strings: {
+                exceedsSize: `%{file} exceeds maximum allowed size of ${bytesToSize(size)}`,
+            }
         },
         meta: (meta ? meta : {}),
         infoTimeout: 6000,
@@ -65,8 +79,8 @@ export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactor
             endpoint: TUS_ENDPOINT,
             retryDelays: [1000],
             async onBeforeRequest(req: any) {
-                const token = JSON.parse(localStorage.getItem('auth') || '')['accessToken']
-                req.setHeader('Authorization', `Bearer ${token}`)
+                const accessToken = getToken(ACCESS_STORAGE_KEY)
+                req.setHeader('Authorization', `Bearer ${accessToken}`)
             },
             onShouldRetry(err: any, retryAttempt: any, options: any, next: any) {
                 const status = err?.originalResponse?.getStatus()
@@ -90,7 +104,7 @@ export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactor
             id: "MyImageEditor",
             quality: 0.8,
         })
-        .use(GoogleDrive, { companionUrl: `${COMPANION_URL}` })
+        // .use(GoogleDrive, { companionUrl: `${COMPANION_URL}` })
         .use(Url, { companionUrl: `${COMPANION_URL}` })
         .use(GoldenRetriever, { serviceWorker: true })
     return uppy

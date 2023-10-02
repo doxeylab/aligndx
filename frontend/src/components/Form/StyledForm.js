@@ -4,8 +4,6 @@ import { TextField, Paper} from '@mui/material';
 import Button from '@mui/material/Button';
 
 export const FormContainer = styled(Paper)`
-    display: flex;
-    flex-direction: column;
     box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.2);
     border-radius: 1.2rem;
     padding: 3.5rem;

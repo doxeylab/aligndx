@@ -7,7 +7,7 @@ export default function useSubmissionStarter(subId: any, onSuccess?: any, onErro
     return useQuery({
         queryKey: ['sub_status', subId],
         retry: false,
-        enabled: true,
+        enabled: subId != null, 
         queryFn: () => subId ? submissions.get_submission(subId) : null,
         onSuccess,
         onError
