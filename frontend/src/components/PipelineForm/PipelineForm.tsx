@@ -40,7 +40,6 @@ export default function PipelineForm() {
     }
 
     useEffect(() => {
-        console.log(readyStatus)
         if (Object.keys(readyStatus).length > 0 && Object.values(readyStatus).every(status => status === true)) {
             submissionRunner.mutate({
                 'sub_id': subId

@@ -21,8 +21,10 @@ class LocalStorage:
             return f.read()
 
     def write(self, key, content):
-        with open(self.get_path(key), "w") as f:
+        mode = "w" if isinstance(content, str) else "wb"
+        with open(self.get_path(key), mode) as f:
             f.write(content)
+
 
     def delete(self, key):
         os.remove(self.get_path(key))

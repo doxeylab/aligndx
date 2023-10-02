@@ -1,6 +1,4 @@
-from distutils.command import clean
 import os
-from re import sub
 import requests
 import logging
 from celery import shared_task
@@ -63,7 +61,8 @@ def get_job_position(submission_id: str):
 
 @shared_task(name="Create Job")
 def create_job(submission_id: str, name: str, pipeline_id: str, user_inputs: dict):
-    position = Handler.enqueue_job(submission_id)
+    Handler.enqueue_job(submission_id)
+    position = Handler.get_job_position(submission_id)
     job_id = factory.create(
         pipeline=pipeline_id,
         inputs=user_inputs,
@@ -79,8 +78,8 @@ def create_job(submission_id: str, name: str, pipeline_id: str, user_inputs: dic
         submission_id=submission_id,
     )
 
+    update_metadata(submission_id, metadata)
     metadata_json = metadata.json()
-    Handler.create(submission_id, metadata_json)
     return metadata_json
 
 
@@ -88,20 +87,8 @@ def create_job(submission_id: str, name: str, pipeline_id: str, user_inputs: dic
 def cleanup(sub_id: str):
     metadata_dict = retrieve_metadata(sub_id)
     metadata = MetaModel(**metadata_dict)
-    
-    Handler.dequeue_job(sub_id)
     factory.destroy(metadata.id, sub_id)
-
-@shared_task(name="Complete Job")
-def complete_job(sub_id: str):
-    metadata_dict = retrieve_metadata(sub_id)
-    metadata = MetaModel(**metadata_dict)
-
-    factory.create_report(metadata)
-    cleanup.delay(sub_id)
-    metadata_json = metadata.json()
-    return metadata_json
-
+    Handler.dequeue_job(sub_id)
 
 @shared_task(name="Start Job")
 def start_job(submission_id: str):
@@ -116,33 +103,49 @@ def start_job(submission_id: str):
 
 
 @shared_task(bind=True, name="Monitor Job Status")
-def monitor_job_status(self, submission_id: str, _):
+def monitor_job_status(self, submission_id: str):
     metadata_dict = retrieve_metadata(submission_id)
     metadata = MetaModel(**metadata_dict)
 
     status = factory.get_status(metadata.id)
+    print(status)
 
-    if status in ("completed", "error"):
-        if status == 'completed':
-            metadata.status = SubmissionStatus.COMPLETED
+    submission_status = SubmissionStatus.PROCESSING
+
+    if 'exited' == status['Status']:
+        exit_code = status['ExitCode']
+        if exit_code == 0:
+            submission_status = SubmissionStatus.COMPLETED
         else:
-            metadata.status = SubmissionStatus.ERROR
+            submission_status = SubmissionStatus.ERROR
+
+        metadata.status = submission_status
         update_metadata(submission_id, metadata)
         complete_job.delay(submission_id)
 
-        metadata_json = metadata.json()
-        return metadata_json
     else:
+        metadata.status = submission_status
+        update_metadata(submission_id, metadata)
+
         self.apply_async((submission_id,), countdown=10)
+        return 
+    
+@shared_task(name="Complete Job")
+def complete_job(sub_id: str):
+    metadata_dict = retrieve_metadata(sub_id)
+    metadata = MetaModel(**metadata_dict)
 
-
-from celery import shared_task
+    factory.create_report(metadata)
+    cleanup.delay(sub_id)
+    metadata_json = metadata.json()
+    return metadata_json
 
 @shared_task(bind=True, name="Run Job")
 def run_job(self, submission_id: str):
-    try:
-        start_job_result = start_job(submission_id)
-        monitor_job_status.apply_async(args=(submission_id,))
-        
-    except Exception as e:
-        cleanup.delay(submission_id)
+    job_position = get_job_position(submission_id)
+    if job_position is None or job_position != 1:
+        self.apply_async((submission_id,), countdown=60) 
+        return
+    
+    start_job_result = start_job(submission_id)
+    monitor_job_status.apply_async(args=(submission_id,))

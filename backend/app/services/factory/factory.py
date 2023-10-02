@@ -8,6 +8,7 @@ from glob import glob
 from app.core.config.settings import settings
 from app.models.pipelines.pipeline import Schema
 from app.models.stores import BaseStores
+from app.models.status import SubmissionStatus
 from app.storages.storage_manager import StorageManager
 from .config import Config
 from .reports import draft_report
@@ -114,14 +115,8 @@ def start(id):
 
 def get_status(id):
     container = client.containers.get(id)
-    status = container.status
-    if status == "exited":
-        successful_containers = client.containers.list(all=True,filters={'exited':0})
-        if any(x.id == id for x in successful_containers):
-            status = 'completed'
-        else:
-            status = 'error'
-
+    container.reload()
+    status = container.attrs['State']
     return status
 
 def get_logs(id):
@@ -133,24 +128,27 @@ def destroy(id, sub_id):
     storage = StorageManager(sub_id)
     container.remove()
     storage.delete_all(BaseStores.SUBMISSION_DATA) 
+    storage.delete_all(BaseStores.TEMP) 
     return
 
 def create_report(metadata):
     """
     Generates a report for the pipeline
     """
-    logs_path = "{}/{}".format(metadata.store['results'],"logs.txt")
-    with open(logs_path, 'wb') as f:
-        f.write(get_logs(metadata.id))
-    
-    pipeline_path = PIPELINES_PATH + "/" + metadata.pipeline
-    schema = get_pipeline(metadata.pipeline)
+    storage = StorageManager(metadata.submission_id)
+    logs = get_logs(metadata.id)
+    storage.write(BaseStores.RESULTS, "logs.txt", logs)
+
+    pipeline_path = PIPELINES_PATH + "/" + metadata.pipeline_id
+    schema = get_pipeline(metadata.pipeline_id)
 
     draft_report(
         metadata=metadata,
-        logs_path=logs_path,
+        logs_path=storage.get_path(BaseStores.RESULTS,"logs.txt"),
         schema=schema,
-        pipeline_path=pipeline_path
+        pipeline_path=pipeline_path,
+        out_nb=storage.get_path(BaseStores.RESULTS, "report.ipynb"),
+        results=storage.get_path(BaseStores.RESULTS, "dummy", prefix_path=True)
     )
     return 
     

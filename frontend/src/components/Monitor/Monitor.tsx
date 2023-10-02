@@ -1,5 +1,5 @@
 import { Box, Divider, Button, Grid, Paper, Typography } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import CircularProgress from '@mui/material/CircularProgress';
 
 import CrossFade from "../CrossFade";
@@ -21,6 +21,7 @@ interface IMonitor {
 export default function Monitor({ handleNew, subId, uploaders, selectedPipeline }: IMonitor) {
     const [data, setData] = useState({} as any);
     const [completed, setCompleted] = useState(false);
+    const wsRef = useRef<WebSocket | null>(null);
 
     const { connectWebsocket } = useWebSocket();
 
@@ -29,27 +30,39 @@ export default function Monitor({ handleNew, subId, uploaders, selectedPipeline 
             const resp = JSON.parse(event.data)
             setData(resp)
         }
+        else if (event.type === 'close') {
+            status.refetch()
+        }
     }
 
     const onSuccess = (data: any) => {
-        const status = data?.data['status']
-        const connect_reasons = ['completed', 'error']
-        if (connect_reasons.includes(status) == false) {
-            connectWebsocket(subId, dataHandler)
-        }
-        else {
-            setData(data?.data)
-            setCompleted(true)
+        const status = data?.data['status'];
+        const disconnect_reasons = ['completed', 'error'];
+
+        if (disconnect_reasons.includes(status)) {
+            setData(data?.data);
+            setCompleted(true);
+        } else if (!wsRef.current) {
+            wsRef.current = connectWebsocket(subId, dataHandler);
         }
     }
 
     const status = useSubmissionStatus(subId, onSuccess)
 
     useEffect(() => {
-        if (data['status'] == 'completed' || data['status'] == 'error') {
-            setCompleted(true)
-        }
+        return () => {
+            if (wsRef.current instanceof WebSocket && wsRef.current.readyState !== WebSocket.CLOSED) {
+                wsRef.current.close();
+                wsRef.current = null
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        console.log(data)
     }, [data])
+
+    const isObjectEmpty = (obj: any) => Object.keys(obj).length === 0;
 
     return (
         <>
@@ -71,23 +84,27 @@ export default function Monitor({ handleNew, subId, uploaders, selectedPipeline 
                                 justifyContent: { xs: "center", sm: "space-between" }
                             }}
                         >
-                            <Grid item>
-                                <Paper sx={{ backgroundColor: 'black', padding: 1 }} elevation={2}>
-                                    <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
-                                        Run | {data?.name}
-                                    </Typography>
-                                </Paper>
-                            </Grid>
-                            <Grid item>
-                                <Paper sx={{ backgroundColor: 'black', padding: 1 }} elevation={2}>
-                                    <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
-                                        Job in position {data?.position} of queue
-                                    </Typography>
-                                </Paper>
-                            </Grid>
-                            <Grid item>
-                                <Status status={data['status']} />
-                            </Grid>
+                            {isObjectEmpty(data) ?
+                                <Grid container direction={'column'} py={3} justifyContent={'center'} alignItems={'center'}>
+                                    <Grid item>
+                                        <CircularProgress />
+
+                                    </Grid>
+                                    Loading Metadata
+                                </Grid>
+                                :
+                                <>
+                                    <Grid item>
+                                        <Paper sx={{ backgroundColor: 'black', padding: 1 }} elevation={2}>
+                                            <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
+                                                Run | {data?.name}
+                                            </Typography>
+                                        </Paper>
+                                    </Grid>
+                                    <Grid item>
+                                        <Status data={data} />
+                                    </Grid>
+                                </>}
                         </Grid>
                         <CrossFade
                             components={[
@@ -98,8 +115,8 @@ export default function Monitor({ handleNew, subId, uploaders, selectedPipeline 
                                             Uploads
                                         </Typography>
                                         <Divider />
-                                        {Object.entries(uploaders[selectedPipeline?.id]).map(([inp, uploader] : any) => {
-                                            const currInp = selectedPipeline?.inputs.find((e : any) => e.id === inp)
+                                        {Object.entries(uploaders[selectedPipeline?.id]).map(([inp, uploader]: any) => {
+                                            const currInp = selectedPipeline?.inputs.find((e: any) => e.id === inp)
                                             return (
                                                 <Grid py={2} key={`${selectedPipeline.id}-${inp}-uploadprogress`}>
                                                     <Typography > {currInp.title} </Typography>
@@ -115,17 +132,16 @@ export default function Monitor({ handleNew, subId, uploaders, selectedPipeline 
                                                 </Grid>
                                             )
                                         })}
-                                        <Typography variant="h5" pb={1}>
-                                            Analysis
-                                        </Typography>
-                                        <Divider />
-                                        <Grid container direction={'column'} py={3} justifyContent={'center'} alignItems={'center'}>
-                                            <Grid item>
-                                                <CircularProgress />
+                                        {data?.status == 'processing' ?
+                                            <Grid container direction={'column'} py={3} justifyContent={'center'} alignItems={'center'}>
+                                                <Grid item>
+                                                    <CircularProgress />
 
+                                                </Grid>
+                                                Analyzing your data
                                             </Grid>
-                                            Analyzing your data ...
-                                        </Grid>
+                                            :
+                                            null}
                                     </>
                                 },
                                 {

@@ -1,6 +1,7 @@
 import Button from '@mui/material/Button'
 
-export default function Status({status}: any) {
+export default function Status({data}: any) {
+    const status = data?.status
     if (status == 'created') {
         return (
             <Button
@@ -15,7 +16,7 @@ export default function Status({status}: any) {
             <Button
                 color="warning"
                 variant={'contained'}>
-                Status | {status}
+                Status | {status} in positon {data?.position}
             </Button>
         )
     }

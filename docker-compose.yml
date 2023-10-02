@@ -119,7 +119,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-      PGDATA: ${PGDATA}
+      PGDATA: /var/lib/postgresql/data
 
   # In-Memory Story for transient data
   redis:
@@ -135,7 +135,17 @@ services:
       REDIS_PORT: ${REDIS_PORT}
 
   # Monitoring Services
-
+  # redisinsight:
+  #   image: redislabs/redisinsight:latest
+  #   ports:
+  #     - "8001:8001"
+  #   depends_on:
+  #     - redis
+  #   environment:
+  #     REDIS_HOST: redis # the service name of Redis container
+  #     REDIS_PORT: ${REDIS_PORT}
+  #     REDIS_PASSWORD: ${REDIS_PASSWORD}
+      
   # Postgres admin
   pgadmin:
     tty: true

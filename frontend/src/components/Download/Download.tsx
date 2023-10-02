@@ -51,7 +51,7 @@ export default function Download(props: IDownload) {
     }
 
     return (
-        <Tooltip title="Download Results">
+        <Tooltip title="Download Report">
             <IconButton
                 size="large"
                 aria-label="download"

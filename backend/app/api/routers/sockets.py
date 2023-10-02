@@ -22,7 +22,9 @@ router = APIRouter()
 manager = web_socket.manager.ConnectionManager()
 
 class Chunk_id(BaseModel):
-    account_id: str 
+    account_id: str
+    
+MAX_RETRIES=3
 
 @router.websocket('/livestatus/{sub_id}') 
 async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depends(get_db)):
@@ -41,35 +43,40 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
     
     if current_user and submission != None:
         try:
+            retries = 0
             while True:
-                meta = retrieve_metadata(sub_id)
-                if meta:
+                try:
+                    meta = retrieve_metadata(sub_id)
+                    if not meta:
+                        raise ValueError("Metadata is None")
+                    
                     metadata = MetaModel(**meta)
-                else:
-                    await asyncio.sleep(5) 
-                    continue
+                    await manager.send_data(data=meta, id=sub_id)
 
-                if metadata == None:
-                    manager.disconnect(id=sub_id)
-                    return
+                except Exception as e:
+                    retries += 1
+                    if retries > MAX_RETRIES:
+                        print(f"Max retries reached for client {current_user.id}. Disconnecting...")
+                        break
+                    
+                    # await manager.send_data(data={"status": "pending", "message": str(e)}, id=sub_id)
+                    await asyncio.sleep(5)
+                    continue
                 
                 await manager.send_data(data=meta, id=sub_id) 
 
+                sleep_time = {
+                    SubmissionStatus.PROCESSING: 10,
+                    SubmissionStatus.QUEUED: 20,
+                    SubmissionStatus.CREATED: 30,
+                    
+                }.get(metadata.status, 5)
+
                 if metadata.status == SubmissionStatus.COMPLETED or metadata.status == SubmissionStatus.ERROR:
                     manager.disconnect(id=sub_id)
-                    return 
+                    break
 
-                if metadata.status == SubmissionStatus.PROCESSING:
-                    await asyncio.sleep(10) 
-                    continue
-
-                if metadata.status == SubmissionStatus.QUEUED:
-                    await asyncio.sleep(20) 
-                    continue
-                
-                if metadata.status == SubmissionStatus.CREATED:
-                    await asyncio.sleep(30) 
-                    continue
+                await asyncio.sleep(sleep_time)
 
         except WebSocketDisconnect:
             manager.disconnect(id=sub_id)

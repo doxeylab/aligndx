@@ -1,8 +1,5 @@
 import uuid
 import datetime
-import os
-import zipfile
-from io import BytesIO 
 from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,8 +10,7 @@ from app.models import auth, submissions
 from app.services.db import get_db 
 from app.services.auth import get_current_user
 from app.core.db.dals.submissions import SubmissionsDal
-from app.core.config.settings import settings
-from app.celery.tasks import create_job, run_job, cleanup
+from app.celery.tasks import create_job, get_job_position, run_job, cleanup
 from app.models.status import SubmissionStatus 
 
 from app.models.stores import BaseStores
@@ -84,7 +80,11 @@ async def get_all_submissions(current_user: auth.UserDTO = Depends(get_current_u
     
     data = []
     for sub in all:
-        data.append(submissions.Response.from_orm(sub))
+        response = submissions.Response.from_orm(sub)
+        response_dict = response.dict()
+        position = get_job_position(str(sub.id))
+        response_dict['position'] = position
+        data.append(response_dict)
     return data
 
 @router.get('/incomplete/')
@@ -104,6 +104,8 @@ async def del_result(ids: List[str], current_user: auth.UserDTO = Depends(get_cu
         uid = uuid.UUID(id)
         try: 
             query = await sub_dal.delete_by_id(uid)
+            storage_manager = StorageManager(prefix=id)
+            storage_manager.delete_all(BaseStores.RESULTS)
             cleanup.delay(id)
         except:
             raise HTTPException(status_code=404, detail="Item not found")
@@ -126,23 +128,11 @@ async def get_report(sub_id: str, current_user: auth.UserDTO = Depends(get_curre
 
     html = storage_manager.read(BaseStores.RESULTS,report_name)
     return html
-
-def zip_dir(zip_subdir, name): 
-    """
-    Compress a directory (ZIP file).
-    """
-    zip_io = BytesIO()
-    with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip: 
-            for dir, subdirs, fnames in os.walk(zip_subdir):
-                for fname in fnames:
-                    fpath= os.path.join(dir,fname)
-                    arcname = os.path.relpath(fpath, zip_subdir)
-                    temp_zip.write(fpath, arcname)
-    return StreamingResponse(
-            iter([zip_io.getvalue()]), 
-            media_type="application/x-zip-compressed", 
-            headers = { "Content-Disposition": f"attachment; filename={name}"}
-        )
+ 
+def file_streamer(file_path):
+    with open(file_path, mode="rb") as file:
+        while chunk := file.read(8192):
+            yield chunk
 
 @router.get('/download/{sub_id}', response_class=StreamingResponse) 
 async def download(sub_id: str, current_user: auth.UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
@@ -152,16 +142,14 @@ async def download(sub_id: str, current_user: auth.UserDTO = Depends(get_current
     if query is None:
         raise HTTPException(status_code=404, detail="Submission not found")
 
-    submission = submissions.Entry.from_orm(query)
+    storage_manager = StorageManager(prefix=sub_id)
+    report_name = "report.html"
 
-    zip_subdir = os.path.join(settings.RESULTS_FOLDER, str(submission.id))
-    name = f"{submission.name}_results.zip"
-    
-    if os.path.exists(zip_subdir) != True :
-        raise HTTPException(status_code=404, detail="No results available")
-
-    if len(os.listdir(zip_subdir)) == 0:
-        raise HTTPException(status_code=404, detail="No results available")
-
-    
-    return zip_dir(zip_subdir, name)
+    headers = {
+        "Content-Disposition": f"attachment; filename={report_name}",
+    }
+    if storage_manager.exists(BaseStores.RESULTS, report_name):
+        report_path = storage_manager.get_path(BaseStores.RESULTS, report_name)
+        return StreamingResponse(file_streamer(report_path), headers=headers, media_type='application/octet-stream')
+    else:
+        raise HTTPException(status_code=400)

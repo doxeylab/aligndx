@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
+import Typography from '@mui/material/Typography'
 
 import EnhancedTable from '../../components/Table'
 import Download from '../../components/Download';
@@ -99,7 +100,11 @@ export default function Archive() {
         onSuccess(data: any) {
             const temp_rows = [] as any
             data.data.forEach((data: any) => {
-                const row = createData(data.id, data.name, data.pipeline, data.created_date,data.finished_date, data.status)
+                let status = data.status;
+                if (status === 'queued' && data.position != null) {
+                    status = `${status} in position ${data.position}`;
+                }
+                const row = createData(data.id, data.name, data.pipeline, data.created_date,data.finished_date, status)
                 temp_rows.push(row)
             })
             setRows(temp_rows)

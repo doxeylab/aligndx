@@ -10,16 +10,7 @@ class Handler:
     @classmethod
     def enqueue_job(cls, id: str):
         score = time.time()  
-        r.zadd(cls.QUEUE_KEY, {id: score}) 
-        position = cls.get_next_position()
-        if position is None:
-            logging.error(f"Failed to get position for job {id} after enqueuing")
-            return -1
-        return position
-
-    @classmethod
-    def get_next_position(cls) -> int:
-        return r.incr(cls.COUNTER_KEY)
+        r.zadd(cls.QUEUE_KEY, {id: score})  
 
     @classmethod
     def dequeue_job(cls, id : str):
