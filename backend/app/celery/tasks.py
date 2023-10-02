@@ -84,6 +84,25 @@ def create_job(submission_id: str, name: str, pipeline_id: str, user_inputs: dic
     return metadata_json
 
 
+@shared_task(name="Clean Up")
+def cleanup(sub_id: str):
+    metadata_dict = retrieve_metadata(sub_id)
+    metadata = MetaModel(**metadata_dict)
+    
+    Handler.dequeue_job(sub_id)
+    factory.destroy(metadata.id, sub_id)
+
+@shared_task(name="Complete Job")
+def complete_job(sub_id: str):
+    metadata_dict = retrieve_metadata(sub_id)
+    metadata = MetaModel(**metadata_dict)
+
+    factory.create_report(metadata)
+    cleanup.delay(sub_id)
+    metadata_json = metadata.json()
+    return metadata_json
+
+
 @shared_task(name="Start Job")
 def start_job(submission_id: str):
     metadata_dict = retrieve_metadata(submission_id)
@@ -97,7 +116,7 @@ def start_job(submission_id: str):
 
 
 @shared_task(bind=True, name="Monitor Job Status")
-def monitor_job_status(self, submission_id: str):
+def monitor_job_status(self, submission_id: str, _):
     metadata_dict = retrieve_metadata(submission_id)
     metadata = MetaModel(**metadata_dict)
 
@@ -117,20 +136,13 @@ def monitor_job_status(self, submission_id: str):
         self.apply_async((submission_id,), countdown=10)
 
 
-@shared_task(name="Complete Job")
-def complete_job(sub_id: str):
-    metadata_dict = retrieve_metadata(sub_id)
-    metadata = MetaModel(**metadata_dict)
+from celery import shared_task
 
-    factory.create_report(metadata)
-    cleanup.delay(sub_id)
-    metadata_json = metadata.json()
-    return metadata_json
-
-@shared_task(name="Clean Up")
-def cleanup(sub_id: str):
-    metadata_dict = retrieve_metadata(sub_id)
-    metadata = MetaModel(**metadata_dict)
-    
-    Handler.dequeue_job(sub_id)
-    factory.destroy(metadata.id, sub_id)
+@shared_task(bind=True, name="Run Job")
+def run_job(self, submission_id: str):
+    try:
+        start_job_result = start_job(submission_id)
+        monitor_job_status.apply_async(args=(submission_id,))
+        
+    except Exception as e:
+        cleanup.delay(submission_id)

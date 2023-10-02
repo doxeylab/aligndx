@@ -21,7 +21,7 @@ export default function ProfileButton() {
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
     
     const { logout } = useAuthContext();
-    const { router } = useRouter();
+    const router = useRouter();
     const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
     };

@@ -14,7 +14,7 @@ from app.services.db import get_db
 from app.services.auth import get_current_user
 from app.core.db.dals.submissions import SubmissionsDal
 from app.core.config.settings import settings
-from app.celery.tasks import create_job, monitor_job_status, start_job, cleanup
+from app.celery.tasks import create_job, run_job, cleanup
 from app.models.status import SubmissionStatus 
 
 from app.models.stores import BaseStores
@@ -53,7 +53,7 @@ async def run_submission(runRequest: submissions.Run):
     Runs submissions
     """
     sub_id = runRequest.sub_id
-    start_job.apply_async(args=(sub_id,), link=monitor_job_status.s(sub_id))
+    run_job.apply_async(args=(sub_id,))
 
     return {"sub_id": sub_id}
 
