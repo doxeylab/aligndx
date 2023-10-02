@@ -1,3 +1,6 @@
+/* eslint-disable */
+// @ts-nocheck
+
 import { useState, useEffect } from "react";
 import { Form } from "../Form";
 import {

@@ -5,7 +5,7 @@ type FormTextFieldProps = TextFieldProps & {
     name: string;
 }
 
-const FormTextField = ({ name, type, hint, ...rest }: FormTextFieldProps) => {
+const FormTextField = ({ name, type, helperText, ...rest }: FormTextFieldProps) => {
     const methods = useFormContext();
     return (
         <Controller
@@ -21,7 +21,7 @@ const FormTextField = ({ name, type, hint, ...rest }: FormTextFieldProps) => {
                         type={type}
                         variant="filled"
                         error={!!error}
-                        helperText={error ? error?.message : hint}
+                        helperText={error ? error?.message : helperText}
                         {...rest}
                     />
                 </>

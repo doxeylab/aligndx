@@ -11,6 +11,7 @@ function createAxiosInstance(): AxiosInstance {
     config => {
       const accessToken = getToken(ACCESS_STORAGE_KEY);
       if (accessToken) {
+        config.headers = config.headers || {}; // Ensuring headers object is defined.
         config.headers['Authorization'] = `Bearer ${accessToken}`;
       }
       return config;

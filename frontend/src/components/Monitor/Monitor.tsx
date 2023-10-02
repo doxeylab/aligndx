@@ -43,7 +43,8 @@ export default function Monitor({ handleNew, subId, uploaders, selectedPipeline 
             setData(data?.data);
             setCompleted(true);
         } else if (!wsRef.current) {
-            wsRef.current = connectWebsocket(subId, dataHandler);
+            const wsInstance = connectWebsocket(subId, dataHandler);
+            wsRef.current = wsInstance
         }
     }
 

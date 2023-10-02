@@ -38,6 +38,7 @@ const useWebSocket = () => {
 
             // Store the WebSocket instance in the ref
             wsRef.current = newWs;
+            return news 
 
         } catch (err) {
             console.error("Error in connecting websocket", err);
