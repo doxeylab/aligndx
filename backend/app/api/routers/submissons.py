@@ -104,10 +104,8 @@ async def del_result(ids: List[str], current_user: auth.UserDTO = Depends(get_cu
     for id in ids:
         uid = uuid.UUID(id)
         try: 
-            query = await sub_dal.delete_by_id(uid)
-            storage_manager = StorageManager(prefix=id)
-            storage_manager.delete_all(BaseStores.RESULTS)
-            cleanup.delay(id)
+            query = await sub_dal.delete_by_id(uid) 
+            cleanup.delay(id, wipe=True)
         except:
             raise HTTPException(status_code=404, detail="Item not found")
     return 200 

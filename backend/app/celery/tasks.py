@@ -77,11 +77,9 @@ def create_job(submission_id: str, name: str, pipeline_id: str, user_inputs: dic
 
 
 @shared_task(name="Clean Up")
-def cleanup(sub_id: str):
-    metadata_dict = retrieve_metadata(sub_id)
-    metadata = MetaModel(**metadata_dict)
-    factory.destroy(metadata.id, sub_id)
+def cleanup(sub_id: str, wipe : bool = False): 
     Handler.dequeue_job(sub_id)
+    factory.cleanup(sub_id, wipe)
 
 @shared_task(name="Queue Job")
 def queue_job(submission_id: str):
@@ -119,7 +117,6 @@ def monitor_job_status(self, submission_id: str):
     metadata = MetaModel(**metadata_dict)
 
     status = factory.get_status(metadata.id)
-    print(status)
 
     submission_status = SubmissionStatus.PROCESSING
 
@@ -147,6 +144,7 @@ def complete_job(sub_id: str):
     metadata = MetaModel(**metadata_dict)
 
     factory.create_report(metadata)
+    factory.destroy(metadata.id, sub_id)
     cleanup.delay(sub_id)
     metadata_json = metadata.json()
     return metadata_json

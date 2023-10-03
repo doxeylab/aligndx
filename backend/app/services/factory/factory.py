@@ -122,13 +122,18 @@ def get_status(id):
 def get_logs(id):
     container = client.containers.get(id)
     return container.logs() 
- 
-def destroy(id, sub_id):
-    container = client.containers.get(id)
+
+def cleanup(sub_id, wipe=False):
     storage = StorageManager(sub_id)
-    container.remove()
     storage.delete_all(BaseStores.SUBMISSION_DATA) 
-    storage.delete_all(BaseStores.TEMP) 
+    storage.delete_all(BaseStores.TEMP)
+    if wipe:
+        storage.delete_all(BaseStores.RESULTS) 
+    return
+
+def destroy(id):
+    container = client.containers.get(id)
+    container.remove() 
     return
 
 def create_report(metadata):
