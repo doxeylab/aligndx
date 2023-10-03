@@ -6,7 +6,7 @@ class MetaModel(BaseModel):
     """
     MetaModel descriptor for rapid tracking of submissions
     """
-    id: str
+    id: str = None
     submission_id : str
     name: str
     inputs: Dict[str, Any]

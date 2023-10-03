@@ -61,20 +61,13 @@ def get_job_position(submission_id: str):
 
 @shared_task(name="Create Job")
 def create_job(submission_id: str, name: str, pipeline_id: str, user_inputs: dict):
-    Handler.enqueue_job(submission_id)
-    position = Handler.get_job_position(submission_id)
-    job_id = factory.create(
-        pipeline=pipeline_id,
-        inputs=user_inputs,
-        submission_id=submission_id
-    )
     metadata = MetaModel(
-        id=job_id,
-        status=SubmissionStatus.QUEUED,
+        id=None,
+        status=SubmissionStatus.CREATED,
         inputs=user_inputs,
         name=name,
         pipeline_id=pipeline_id,
-        position=position,
+        position=None,
         submission_id=submission_id,
     )
 
@@ -90,12 +83,30 @@ def cleanup(sub_id: str):
     factory.destroy(metadata.id, sub_id)
     Handler.dequeue_job(sub_id)
 
+@shared_task(name="Queue Job")
+def queue_job(submission_id: str):
+    metadata_dict = retrieve_metadata(submission_id)
+    metadata = MetaModel(**metadata_dict)
+    Handler.enqueue_job(submission_id)
+    position = Handler.get_job_position(submission_id)
+    job_id = factory.create(
+        pipeline=metadata.pipeline_id,
+        inputs=metadata.inputs,
+        submission_id=submission_id
+    )
+
+    metadata.position = position
+    metadata.status = SubmissionStatus.QUEUED
+    metadata.id = job_id
+
+    update_metadata(submission_id, metadata)
+    metadata_json = metadata.json()
+    return metadata_json
+
 @shared_task(name="Start Job")
 def start_job(submission_id: str):
     metadata_dict = retrieve_metadata(submission_id)
     metadata = MetaModel(**metadata_dict)
-    metadata.status = SubmissionStatus.PROCESSING
-
     factory.start(metadata.id)
     update_metadata(submission_id, metadata)
     metadata_json = metadata.json()
