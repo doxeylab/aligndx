@@ -49,7 +49,6 @@ async def run_submission(runRequest: submissions.Run):
     Runs submissions
     """
     sub_id = runRequest.sub_id
-    queue_job(sub_id)
     run_job.apply_async(args=(sub_id,))
 
     return {"sub_id": sub_id}

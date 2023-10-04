@@ -1,16 +1,14 @@
 import os
 import requests
-import logging
 from celery import shared_task
 
-from app.models.status import SubmissionStatus
+
 from .redis.functions import Handler
-from app.models.stores import BaseStores
 from app.storages import StorageManager
+from app.models.status import SubmissionStatus
+from app.models.stores import BaseStores
 from app.models.redis import MetaModel
 from app.services import factory
-
-logger = logging.getLogger(__name__)
 
 CELERY_API_KEY = os.getenv("CELERY_API_KEY")
 API_URL = os.getenv("API_URL")
@@ -144,7 +142,7 @@ def complete_job(sub_id: str):
     metadata = MetaModel(**metadata_dict)
 
     factory.create_report(metadata)
-    factory.destroy(metadata.id, sub_id)
+    factory.destroy(metadata.id)
     cleanup.delay(sub_id)
     metadata_json = metadata.json()
     return metadata_json
@@ -152,7 +150,11 @@ def complete_job(sub_id: str):
 @shared_task(bind=True, name="Run Job")
 def run_job(self, submission_id: str):
     job_position = get_job_position(submission_id)
-    if job_position is None or job_position != 1:
+    if job_position is None:
+        queue_job(submission_id)
+        self.apply_async((submission_id,)) 
+        return
+    if job_position != 1:
         self.apply_async((submission_id,), countdown=60) 
         return
     
