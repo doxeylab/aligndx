@@ -42,6 +42,7 @@ export default function FileSelectorField({ name, defaultValue, uploader, plugin
     })
     uploader.off('cancel-all', null).on('cancel-all', () => {
         setFiles([])
+        setReadyStatus({...readyStatus, [name] : null })
     })
     uploader.off('error', null).on('error', (error: any) => {
         console.log(error)

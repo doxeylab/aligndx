@@ -17,6 +17,8 @@ import useLocalStorage from "../../hooks/useLocalStorage";
 import isEmpty from "../../utils/isEmpty";
 import useSubmission from "./useSubmission";
 import { refreshAccessToken } from "../../context/utils";
+import { useSubmissions } from "../../api/Submissions";
+import { useMutation } from "@tanstack/react-query";
 
 export default function PipelineForm() {
     // Initialize states
@@ -30,7 +32,7 @@ export default function PipelineForm() {
 
     // Initialize hooks
     const submissionRunner = useSubmission('runner')
-
+    const submissions = useSubmissions();
 
     const onSuccess = (data: any) => {
         const submissionID = data?.data['sub_id']
@@ -42,13 +44,26 @@ export default function PipelineForm() {
         }
     }
 
+    const deletefn = (data : any) => {
+        submissions.del_record([data])
+    }
+
+    const deleteMutation = useMutation(['cancel_submission'], deletefn, {
+        retry: false,
+    })
+
     useEffect(() => {
-        if (Object.keys(readyStatus).length > 0 && Object.values(readyStatus).every(status => status === true)) {
-            submissionRunner.mutate({
-                'sub_id': subId
-            })
-    
-            setSuccess(true);
+        if (Object.keys(readyStatus).length > 0) {
+            if (Object.values(readyStatus).every(status => status === true)) {
+                submissionRunner.mutate({
+                    'sub_id': subId
+                })
+        
+                setSuccess(true);
+            }
+            if (Object.values(readyStatus).includes(null)){
+                deleteMutation.mutate(subId)
+            }
         }
     },[readyStatus])
 

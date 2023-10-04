@@ -12,6 +12,6 @@ class MetaModel(BaseModel):
     inputs: Dict[str, Any]
     status: SubmissionStatus
     pipeline_id: str
-    position : int
+    position : int = None
 
 
