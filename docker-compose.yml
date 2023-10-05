@@ -82,7 +82,7 @@ services:
   
   tusd:
     image: tusproject/tusd
-    command: -upload-dir=/data/uploads -port=1080 --hooks-enabled-events post-finish,post-terminate --hooks-http http://backend:8080/webhooks/tus/ -hooks-http-forward-headers Authorization
+    command: -upload-dir=/data/uploads -port=1080 --hooks-enabled-events post-finish --hooks-http http://backend:8080/webhooks/tus/ -hooks-http-forward-headers Authorization
     tty: true
     ports:
       - "1080:1080"
