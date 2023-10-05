@@ -4,6 +4,7 @@ import Tooltip from '@mui/material/Tooltip';
 
 import { useSubmissions } from '../../api/Submissions'
 import { useQuery } from '@tanstack/react-query'
+import { CircularProgress } from '@mui/material';
 
 interface IDownload {
     subId: string;
@@ -56,7 +57,11 @@ export default function Download(props: IDownload) {
                 size="large"
                 aria-label="download"
                 onClick={() => download.refetch()}>
-                <DownloadIcon />
+                {download.isFetching? 
+                   <CircularProgress size={24}/>
+                   :
+                    <DownloadIcon />
+                }
             </IconButton>
         </Tooltip>
     )
