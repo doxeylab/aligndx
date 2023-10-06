@@ -205,9 +205,13 @@ export default function EnhancedTable({ orderby, tableName, rows, headCells, del
                                                         key={k}
                                                         align={'left'}
                                                     >
-                                                        {k === 'created_date' || k === 'finished_date' ? new Date(v).toLocaleString() : v}
+                                                        {(k === 'created_date' || k === 'finished_date') && v !== null
+                                                            ? new Date(v).toLocaleString()
+                                                            : v
+                                                        }
                                                     </TableCell>
                                                 ))}
+
                                                 {tools ?
                                                     <TableCell>
                                                         {tools(row)}
