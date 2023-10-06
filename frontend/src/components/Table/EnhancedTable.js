@@ -14,7 +14,6 @@ import { Snackbar, Alert } from '@mui/material';
 
 import EnhancedTableHead from './EnhancedTableHead'
 import EnhancedTableToolbar from './EnhancedTableToolbar'
-import CollapsibleRow from './CollapsibleRow';
 import ConfirmDialog from '../ConfirmDialog';
 
 function descendingComparator(a, b, orderBy) {
@@ -47,7 +46,7 @@ function stableSort(array, comparator) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-export default function EnhancedTable({ orderby, tableName, rows, headCells, contentgenerator=null, deletefn, tools }) {
+export default function EnhancedTable({ orderby, tableName, rows, headCells, deletefn, tools }) {
     const [order, setOrder] = React.useState(orderby.order);
     const [orderBy, setOrderBy] = React.useState(orderby.id);
     const [selected, setSelected] = React.useState([]);
@@ -160,7 +159,7 @@ export default function EnhancedTable({ orderby, tableName, rows, headCells, con
                                 onSelectAllClick={handleSelectAllClick}
                                 onRequestSort={handleRequestSort}
                                 rowCount={rows.length}
-                                emptycell={tools? true : false}
+                                emptycell={tools ? true : false}
                             />
                             <TableBody>
                                 {rows.length > 0 ? null
@@ -173,96 +172,51 @@ export default function EnhancedTable({ orderby, tableName, rows, headCells, con
                                 {stableSort(rows, getComparator(order, orderBy))
                                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                     .map((row, index) => {
-                                        let exclude = new Set([orderby.id, orderby.key])
-                                        const remaining_rows = Object.fromEntries(Object.entries(row).filter(e => !exclude.has(e[0])))
+                                        let exclude = new Set([orderby.key])
+                                        const remaining_cells = Object.fromEntries(Object.entries(row).filter(e => !exclude.has(e[0])))
                                         const isItemSelected = isSelected(row[orderby.key]);
                                         const labelId = `enhanced-table-checkbox-${index}`;
-                                        if (contentgenerator) {
-                                            return (
-                                                <CollapsibleRow
-                                                    hover={true}
-                                                    role="checkbox"
-                                                    aria_checked={isItemSelected}
-                                                    tabIndex={-1}
-                                                    id={index}
-                                                    key={`collapsible-${index}`}
-                                                    selected={isItemSelected}
-                                                    length={headCells.length + 2}
-                                                    content={
-                                                        <>
-                                                            {contentgenerator ? contentgenerator(row) : null}
-
-                                                        </>
-                                                    }
-                                                >
-                                                    <TableCell padding="checkbox">
-                                                        {row[orderby.id]}
-                                                        <Checkbox
-                                                            color="primary"
-                                                            checked={isItemSelected}
-                                                            inputProps={{
-                                                                'aria-labelledby': labelId,
-                                                            }}
-                                                            onClick={(event) => handleClick(event, row[orderby.key])}
-
-                                                        />
-                                                    </TableCell>
-                                                    {Object.entries(remaining_rows).map(([k, v]) => (
-                                                        <TableCell
-                                                            key={k}
-                                                            align={'left'}
-                                                            onClick={(event) => handleClick(event, row[orderby.key])}
-
-                                                        >{v}</TableCell>
-                                                    ))
-                                                    }
-                                                </CollapsibleRow>
-                                            )
-                                        }
-                                        else {
-                                            return (
-                                                <TableRow
-                                                    hover={true}
-                                                    role="checkbox"
-                                                    tabIndex={-1}
+                                        return (
+                                            <TableRow
+                                                hover={true}
+                                                role="checkbox"
+                                                tabIndex={-1}
+                                                key={row.key}
+                                            >
+                                                <TableCell
+                                                    padding="checkbox"
+                                                    component="th"
+                                                    id={labelId}
+                                                    scope="row"
                                                     key={row.key}
                                                 >
+                                                    <Checkbox
+                                                        color="primary"
+                                                        checked={isItemSelected}
+                                                        inputProps={{
+                                                            'aria-labelledby': labelId,
+                                                        }}
+                                                        onClick={(event) => handleClick(event, row[orderby.key])}
+
+                                                    />
+                                                </TableCell>
+                                                {Object.entries(remaining_cells).map(([k, v]) => (
                                                     <TableCell
-                                                        padding="checkbox"
-                                                        component="th"
-                                                        id={labelId}
-                                                        scope="row"
-                                                        key={row.key}
+                                                        key={k}
+                                                        align={'left'}
                                                     >
-                                                        <Checkbox
-                                                            color="primary"
-                                                            checked={isItemSelected}
-                                                            inputProps={{
-                                                                'aria-labelledby': labelId,
-                                                            }}
-                                                            onClick={(event) => handleClick(event, row[orderby.key])}
-
-                                                        />
+                                                        {k === 'created_date' || k === 'finished_date' ? new Date(v).toLocaleString() : v}
                                                     </TableCell>
-                                                    {Object.entries(remaining_rows).map(([k, v]) => (
-                                                        <TableCell
-                                                            key={k}
-                                                            align={'left'}
-                                                        // onClick={(event) => handleClick(event, row[orderby.key])}
-
-                                                        >{v}</TableCell>
-                                                    ))
-                                                    }
-                                                    {tools ?
-                                                        <TableCell>
-                                                            {tools(row)}
-                                                        </TableCell>
-                                                        :
-                                                        null
-                                                    }
-                                                </TableRow>
-                                            )
-                                        }
+                                                ))}
+                                                {tools ?
+                                                    <TableCell>
+                                                        {tools(row)}
+                                                    </TableCell>
+                                                    :
+                                                    null
+                                                }
+                                            </TableRow>
+                                        )
                                     })}
                                 {emptyRows > 0 && (
                                     <TableRow
