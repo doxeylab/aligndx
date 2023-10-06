@@ -5,6 +5,7 @@ import PageviewIcon from '@mui/icons-material/Pageview';
 import { useSubmissions } from '../../api/Submissions'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import CustomIframe from '../../components/CustomIframe';
 import FullScreenDialog from '../../components/FullScreenDialog';
@@ -34,10 +35,10 @@ export default function Report(props: IReport) {
         queryFn: () => submissions.get_report(subId),
         retry: false,
         enabled: false,
-        onSuccess(data : any) {
+        onSuccess(data: any) {
             const parser = new DOMParser();
             const doc = parser.parseFromString(data?.data, "text/html");
-            
+
             const script = doc.createElement("script");
             script.textContent = `
                 const fixAnchors = () => {
@@ -73,7 +74,11 @@ export default function Report(props: IReport) {
                     size="large"
                     aria-label="view-results"
                     onClick={() => report.refetch()}>
-                    <PageviewIcon />
+                    {report.isFetching ?
+                        <CircularProgress size={24}/>
+                        :
+                        <PageviewIcon />
+                    }
                 </IconButton>
             </Tooltip>
             {

@@ -72,23 +72,12 @@ export default function Archive() {
         finished_date: string,
         status: string
     ) {
-        const dateGenerator = (date : string) => {
-            if (date != null) {
-                const iso = new Date(date).toLocaleString()
-                return iso
-            }
-            else {
-                return null
-            }
-        }
-        const cdate = dateGenerator(created_date)
-        const fdate = dateGenerator(finished_date)
         return {
             key,
             name,
             pipeline,
-            cdate,
-            fdate,
+            created_date,
+            finished_date,
             status
         };
     }
@@ -104,7 +93,7 @@ export default function Archive() {
                 if (status === 'queued' && data.position != null) {
                     status = `${status} in position ${data.position}`;
                 }
-                const row = createData(data.id, data.name, data.pipeline, data.created_date,data.finished_date, status)
+                const row = createData(data.id, data.name, data.pipeline, data.created_date, data.finished_date, status)
                 temp_rows.push(row)
             })
             setRows(temp_rows)

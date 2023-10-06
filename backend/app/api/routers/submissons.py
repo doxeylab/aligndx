@@ -10,7 +10,7 @@ from app.models import auth, submissions
 from app.services.db import get_db 
 from app.services.auth import get_current_user
 from app.core.db.dals.submissions import SubmissionsDal
-from app.celery.tasks import create_job, get_job_position, run_job, cleanup
+from app.celery.tasks import create_job, get_job_position, queue_job, run_job, cleanup
 from app.models.status import SubmissionStatus 
 
 from app.models.stores import BaseStores
@@ -103,10 +103,8 @@ async def del_result(ids: List[str], current_user: auth.UserDTO = Depends(get_cu
     for id in ids:
         uid = uuid.UUID(id)
         try: 
-            query = await sub_dal.delete_by_id(uid)
-            storage_manager = StorageManager(prefix=id)
-            storage_manager.delete_all(BaseStores.RESULTS)
-            cleanup.delay(id)
+            query = await sub_dal.delete_by_id(uid) 
+            cleanup.delay(id, wipe=True)
         except:
             raise HTTPException(status_code=404, detail="Item not found")
     return 200 
@@ -143,10 +141,11 @@ async def download(sub_id: str, current_user: auth.UserDTO = Depends(get_current
         raise HTTPException(status_code=404, detail="Submission not found")
 
     storage_manager = StorageManager(prefix=sub_id)
-    report_name = "report.html"
+    report_name = "report.html" 
+    download_name = f"aligndx_{query.pipeline}_{query.name}_run_report.html" 
 
     headers = {
-        "Content-Disposition": f"attachment; filename={report_name}",
+        "Content-Disposition": f"attachment; filename={download_name}",
     }
     if storage_manager.exists(BaseStores.RESULTS, report_name):
         report_path = storage_manager.get_path(BaseStores.RESULTS, report_name)

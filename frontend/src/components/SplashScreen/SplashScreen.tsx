@@ -1,18 +1,24 @@
-import { useState, useEffect } from 'react'
-import Logo from '../Logo'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
+import { useState, useEffect } from 'react';
+import Logo from '../Logo';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function SplashScreen() {
-    const [mounted, setMounted] = useState(false)
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true)
-    }, [])
+        setMounted(true);
+    }, []);
 
     if (!mounted) {
-        return null
+        return null;
     }
+
+    const customThickness = 1;
+    const thickness = 3.6;
+    const logoSize = 100;
+    const extraOffset = 5;
+    const progressSize = logoSize + 2 * (thickness + extraOffset);
 
     return (
         <Box
@@ -31,12 +37,14 @@ export default function SplashScreen() {
         >
             <Box
                 sx={{
-                    position: 'relative', // to make Box a stacking context
-                    width: '100px',
-                    height: '100px',
+                    position: 'relative',
+                    width: `${progressSize}px`,
+                    height: `${progressSize}px`,
                 }}
             >
                 <CircularProgress
+                    thickness={customThickness}
+                    size={progressSize}
                     sx={{
                         position: 'absolute',
                         top: 0,
@@ -49,10 +57,10 @@ export default function SplashScreen() {
                 <Box
                     sx={{
                         position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
+                        top: thickness + extraOffset,
+                        left: thickness + extraOffset,
+                        width: `${logoSize}px`,
+                        height: `${logoSize}px`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -62,5 +70,5 @@ export default function SplashScreen() {
                 </Box>
             </Box>
         </Box>
-    )
+    );
 }

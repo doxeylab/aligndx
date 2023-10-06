@@ -66,9 +66,9 @@ async def live_status(websocket: WebSocket, sub_id: str, db: AsyncSession = Depe
                 await manager.send_data(data=meta, id=sub_id) 
 
                 sleep_time = {
-                    SubmissionStatus.PROCESSING: 10,
-                    SubmissionStatus.QUEUED: 20,
-                    SubmissionStatus.CREATED: 30,
+                    SubmissionStatus.PROCESSING: 20,
+                    SubmissionStatus.QUEUED: 10,
+                    SubmissionStatus.CREATED: 1,
                     
                 }.get(metadata.status, 5)
 

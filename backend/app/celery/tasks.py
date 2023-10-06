@@ -1,16 +1,14 @@
 import os
 import requests
-import logging
 from celery import shared_task
 
-from app.models.status import SubmissionStatus
+
 from .redis.functions import Handler
-from app.models.stores import BaseStores
 from app.storages import StorageManager
+from app.models.status import SubmissionStatus
+from app.models.stores import BaseStores
 from app.models.redis import MetaModel
 from app.services import factory
-
-logger = logging.getLogger(__name__)
 
 CELERY_API_KEY = os.getenv("CELERY_API_KEY")
 API_URL = os.getenv("API_URL")
@@ -61,20 +59,13 @@ def get_job_position(submission_id: str):
 
 @shared_task(name="Create Job")
 def create_job(submission_id: str, name: str, pipeline_id: str, user_inputs: dict):
-    Handler.enqueue_job(submission_id)
-    position = Handler.get_job_position(submission_id)
-    job_id = factory.create(
-        pipeline=pipeline_id,
-        inputs=user_inputs,
-        submission_id=submission_id
-    )
     metadata = MetaModel(
-        id=job_id,
-        status=SubmissionStatus.QUEUED,
+        id=None,
+        status=SubmissionStatus.CREATED,
         inputs=user_inputs,
         name=name,
         pipeline_id=pipeline_id,
-        position=position,
+        position=None,
         submission_id=submission_id,
     )
 
@@ -84,18 +75,34 @@ def create_job(submission_id: str, name: str, pipeline_id: str, user_inputs: dic
 
 
 @shared_task(name="Clean Up")
-def cleanup(sub_id: str):
-    metadata_dict = retrieve_metadata(sub_id)
-    metadata = MetaModel(**metadata_dict)
-    factory.destroy(metadata.id, sub_id)
+def cleanup(sub_id: str, wipe : bool = False): 
     Handler.dequeue_job(sub_id)
+    factory.cleanup(sub_id, wipe)
+
+@shared_task(name="Queue Job")
+def queue_job(submission_id: str):
+    metadata_dict = retrieve_metadata(submission_id)
+    metadata = MetaModel(**metadata_dict)
+    Handler.enqueue_job(submission_id)
+    position = Handler.get_job_position(submission_id)
+    job_id = factory.create(
+        pipeline=metadata.pipeline_id,
+        inputs=metadata.inputs,
+        submission_id=submission_id
+    )
+
+    metadata.position = position
+    metadata.status = SubmissionStatus.QUEUED
+    metadata.id = job_id
+
+    update_metadata(submission_id, metadata)
+    metadata_json = metadata.json()
+    return metadata_json
 
 @shared_task(name="Start Job")
 def start_job(submission_id: str):
     metadata_dict = retrieve_metadata(submission_id)
     metadata = MetaModel(**metadata_dict)
-    metadata.status = SubmissionStatus.PROCESSING
-
     factory.start(metadata.id)
     update_metadata(submission_id, metadata)
     metadata_json = metadata.json()
@@ -108,7 +115,6 @@ def monitor_job_status(self, submission_id: str):
     metadata = MetaModel(**metadata_dict)
 
     status = factory.get_status(metadata.id)
-    print(status)
 
     submission_status = SubmissionStatus.PROCESSING
 
@@ -136,6 +142,7 @@ def complete_job(sub_id: str):
     metadata = MetaModel(**metadata_dict)
 
     factory.create_report(metadata)
+    factory.destroy(metadata.id)
     cleanup.delay(sub_id)
     metadata_json = metadata.json()
     return metadata_json
@@ -143,7 +150,11 @@ def complete_job(sub_id: str):
 @shared_task(bind=True, name="Run Job")
 def run_job(self, submission_id: str):
     job_position = get_job_position(submission_id)
-    if job_position is None or job_position != 1:
+    if job_position is None:
+        queue_job(submission_id)
+        self.apply_async((submission_id,)) 
+        return
+    if job_position != 1:
         self.apply_async((submission_id,), countdown=60) 
         return
     

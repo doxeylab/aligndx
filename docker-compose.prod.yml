@@ -122,9 +122,8 @@ services:
 
   tusd:
     image: tusproject/tusd
-    command: -upload-dir=/data/uploads --hooks-http http://backend:8080/webhooks/tus/ -hooks-http-forward-headers Authorization
+    command: -upload-dir=/data/uploads -port=1080 --hooks-enabled-events post-finish,post-terminate --hooks-http http://backend:8080/webhooks/tus/ -hooks-http-forward-headers Authorization
     tty: true
-    user: 0:0
     expose:
       - 1080
     volumes:
@@ -138,12 +137,13 @@ services:
     expose:
       - 3020
     environment:
-      COMPANION_HIDE_WELCOME: true 
-      COMPANION_HIDE_METRICS: true 
+      BASE_URL: ${BASE_URL}
+      COMPANION_HIDE_WELCOME: true
+      COMPANION_HIDE_METRICS: true
       COMPANION_STREAMING_UPLOAD: true
       COMPANION_DATADIR: "./data"
       COMPANION_PROTOCOL: ${COMPANION_PROTOCOL}
-      COMPANION_IMPLICIT_PATH: ${COMPANION_IMPLICIT_PATH} 
+      COMPANION_IMPLICIT_PATH: ${COMPANION_IMPLICIT_PATH}
       COMPANION_DOMAIN: ${COMPANION_DOMAIN}
       COMPANION_SECRET: ${COMPANION_SECRET}
       COMPANION_UPLOAD_URLS: ${COMPANION_UPLOAD_URLS}
