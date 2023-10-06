@@ -114,6 +114,7 @@ services:
         NEXT_PUBLIC_TUS_ENDPOINT: ${NEXT_PUBLIC_TUS_ENDPOINT}
         NEXT_PUBLIC_COMPANION_URL: ${NEXT_PUBLIC_COMPANION_URL}
     tty: true
+    user: 0:0
     expose:
       - 3000
     volumes:
