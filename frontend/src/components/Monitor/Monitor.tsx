@@ -59,10 +59,6 @@ export default function Monitor({ handleNew, subId, uploaders, selectedPipeline 
         };
     }, []);
 
-    useEffect(() => {
-        console.log(data)
-    }, [data])
-
     const isObjectEmpty = (obj: any) => Object.keys(obj).length === 0;
 
     return (
@@ -133,16 +129,50 @@ export default function Monitor({ handleNew, subId, uploaders, selectedPipeline 
                                                 </Grid>
                                             )
                                         })}
-                                        {data?.status == 'processing' ?
+                                        {data?.status == 'queued' ?
                                             <Grid container direction={'column'} py={3} justifyContent={'center'} alignItems={'center'}>
-                                                <Grid item>
+                                                <Grid item pb={4}>
                                                     <CircularProgress />
 
                                                 </Grid>
-                                                Analyzing your data
+                                                <Grid item pb={4}>
+                                                    <Typography>
+                                                        Your job has been submitted. You can leave the page or 
+                                                    </Typography>
+                                                </Grid>
+                                                <Grid item justifyContent={'center'}>
+                                                    <Button
+                                                        variant={'contained'}
+                                                        onClick={handleNew}>
+                                                        Start a New Submission
+                                                    </Button>
+                                                </Grid>
                                             </Grid>
                                             :
-                                            null}
+                                            null
+                                        }
+                                        {data?.status == 'processing' ?
+                                            <Grid container direction={'column'} py={3} justifyContent={'center'} alignItems={'center'}>
+                                                <Grid item pb={4}>
+                                                    <CircularProgress />
+
+                                                </Grid>
+                                                <Grid item pb={4}>
+                                                    <Typography>
+                                                    Analyzing your data.
+                                                    </Typography>
+                                                </Grid>
+                                                <Grid item justifyContent={'center'}>
+                                                    <Button
+                                                        variant={'contained'}
+                                                        onClick={handleNew}>
+                                                        Start a New Submission
+                                                    </Button>
+                                                </Grid>
+                                            </Grid>
+                                            :
+                                            null
+                                        }
                                     </>
                                 },
                                 {

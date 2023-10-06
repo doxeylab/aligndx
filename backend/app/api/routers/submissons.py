@@ -141,10 +141,11 @@ async def download(sub_id: str, current_user: auth.UserDTO = Depends(get_current
         raise HTTPException(status_code=404, detail="Submission not found")
 
     storage_manager = StorageManager(prefix=sub_id)
-    report_name = "report.html"
+    report_name = "report.html" 
+    download_name = f"aligndx_{query.pipeline}_{query.name}_run_report.html" 
 
     headers = {
-        "Content-Disposition": f"attachment; filename={report_name}",
+        "Content-Disposition": f"attachment; filename={download_name}",
     }
     if storage_manager.exists(BaseStores.RESULTS, report_name):
         report_path = storage_manager.get_path(BaseStores.RESULTS, report_name)
