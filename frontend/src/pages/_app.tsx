@@ -17,6 +17,7 @@ import { useRouter } from 'next/router';
 import ProgressBar from '../components/ProgressBar';
 import { AuthProvider } from '../context/AuthProvider';
 import Protected from '../components/Protected';
+import { SplashScreen } from '../components/SplashScreen';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -29,6 +30,7 @@ export default function MyApp(props: MyAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const [loading, setLoading] = useState({
     isRouteChanging: false,
+    initialLoad: true
   })
   const router = useRouter();
   const [queryClient] = useState(() => new QueryClient())
@@ -72,7 +74,16 @@ export default function MyApp(props: MyAppProps) {
           console.log(`Registration failed with ${error}`)
         })
     }
-  },[])
+  }, [])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(prev => ({ ...prev, initialLoad: false }));
+    }, 1000); // 3 seconds or adjust as per your need
+
+    return () => clearTimeout(timer);
+  }, []);
+
 
   return (
     <>
@@ -87,11 +98,17 @@ export default function MyApp(props: MyAppProps) {
             <Hydrate state={pageProps.dehydratedState}>
               <ProgressBar isRouteChanging={loading.isRouteChanging} />
               <AuthProvider>
-                <Layout>
-                  <Protected pages={privatePages}>
-                    <Component {...pageProps} />
-                  </Protected>
-                </Layout>
+                {
+                  loading.initialLoad ?
+                    <SplashScreen />
+                    :
+                    <Layout>
+                      <Protected pages={privatePages}>
+                        <Component {...pageProps} />
+                      </Protected>
+                    </Layout>
+
+                }
               </AuthProvider>
             </Hydrate>
           </QueryClientProvider>
