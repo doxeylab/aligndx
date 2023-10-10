@@ -27,7 +27,12 @@ class Config():
                 continue
 
             elif inp_type == 'select' or inp_type == 'text': 
-                value = " ".join(inputs.get(inp_id, []))
+                user_input = inputs.get(inp_id, [])
+                value = ""
+                if type(user_input) == list:
+                    value = " ".join(user_input)
+                else:
+                    value = user_input
                 parameter = f"--{inp_id} {value}"
 
             elif inp_type == 'output':
