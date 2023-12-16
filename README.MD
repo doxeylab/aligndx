@@ -16,6 +16,8 @@
     <a href="https://github.com/doxeylab/aligndx/issues">Report Bug</a>
     |
     <a href="https://github.com/doxeylab/aligndx/issues">Request Feature</a>
+    <br />
+    <a href="https://aligndx.uwaterloo.ca/">DEMO SERVER</a>
   </p>
 </div>
 
