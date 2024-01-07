@@ -105,7 +105,7 @@ The raw data uploaded by users are removed following analysis, but the analysis 
 1. Users can register on the platform by accessing the appropriate URL (as setup in the environment file)
 2. The following is a diagram outlining the typical workflow a user might follow using the platform UI.
 
-    <img src="docs/images/Lookout-surveillance%20diagram.svg" alt="Logo">
+    <img src="docs/images/PathogenScreen diagram.svg" alt="Logo">
 
     *Stepwise utilization of Lookout in the AlignDx Platform. (A) Workflow/pipeline selection menu and (B) available workflow options. (C) Surveillance specific form components. (D) Filled out surveillance form, with input dataset, and chosen options. (E) Status card for monitoring submissions. (F)  Workflow output report. (G) Archive entry for submission.*
 
