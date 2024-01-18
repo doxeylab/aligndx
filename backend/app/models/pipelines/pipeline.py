@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Dict
+from typing import List, Dict, Optional
 from .inputs import InputSchema
 
 class Schema(BaseModel):
@@ -9,7 +9,7 @@ class Schema(BaseModel):
     image: str = Field(description='Image used to run pipeline')
     launch: str = Field(description='Pipeline launch command')
     inputs: List[InputSchema]
-    report_inputs: Dict[str,str] = Field(description='Keyword arguments for report construction')
+    report_inputs: Optional[Dict[str,str]] = Field(description='Keyword arguments for report construction')
  
 class Response(BaseModel):
     id : str = Field(description='A unique identifier for the pipeline')
