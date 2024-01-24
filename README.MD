@@ -80,7 +80,7 @@ The raw data uploaded by users are removed following analysis, but the analysis 
 ## Getting Started
 
 ### Usage
-For details on usage please see the [usage guidelines](docs/usage.MD).
+For details on usage, and testing of AlignDx using a demo server, please see the [usage guidelines](docs/usage.MD).
 
 ### Prerequisites
 
