@@ -3,8 +3,8 @@
 ## Usage 
 
 ### Instructions
-1. A test dataset is available [here](https://github.com/doxeylab/aligndx/releases/download/v.1.0.0/test_dataset.rar) as a compressed archive. Download and extract the contents of hte archive. For details on the dataset, please see [this documentation](test_datasets.MD)
-2. Register / sign-in to AligDx if you have not already
+1. A test dataset is available [here](https://github.com/doxeylab/aligndx/releases/download/v.1.0.0/test_dataset.rar) as a compressed archive. Download and extract the contents of the archive. For details on the dataset, please see [this documentation](test_datasets.MD)
+2. Register / sign-in to AlignDx if you have not already. A demo server is available [here](https://aligndx.uwaterloo.ca)
 3. Select the "PathogenScreen pipeline" with the "Human Pathogenic Viruses" panel
 4. Upload the above five files and click the submit button
 
