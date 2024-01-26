@@ -10,7 +10,7 @@
 
 The following is a diagram outlining the typical workflow a user might follow using the platform UI:
 
-<img src="images/PathogenScreen diagram.svg" alt="Logo">
+<img src="images/Figure-workflow.pdf" alt="Logo">
 
     *Stepwise utilization of Lookout in the AlignDx Platform. (A) Workflow/pipeline selection menu and (B) available workflow options. (C) Surveillance specific form components. (D) Filled out surveillance form, with input dataset, and chosen options. (E) Status card for monitoring submissions. (F)  Workflow output report. (G) Archive entry for submission.*
 
