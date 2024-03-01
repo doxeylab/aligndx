@@ -16,6 +16,9 @@
     <a href="https://github.com/doxeylab/aligndx/issues">Report Bug</a>
     |
     <a href="https://github.com/doxeylab/aligndx/issues">Request Feature</a>
+    <br />
+    <br />
+    <a href="https://aligndx.uwaterloo.ca/">DEMO SERVER</a>
   </p>
 </div>
 
@@ -34,11 +37,11 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
+        <li><a href="#usage">Usage</a></li>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
@@ -76,6 +79,8 @@ The raw data uploaded by users are removed following analysis, but the analysis 
 <!-- GETTING STARTED -->
 ## Getting Started
 
+### Usage
+For details on usage, and testing of AlignDx using a demo server, please see the [usage guidelines](docs/usage.MD).
 
 ### Prerequisites
 
@@ -96,21 +101,6 @@ The raw data uploaded by users are removed following analysis, but the analysis 
     ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-1. Users can register on the platform by accessing the appropriate URL (as setup in the environment file)
-2. The following is a diagram outlining the typical workflow a user might follow using the platform UI.
-
-    <img src="docs/images/Lookout-surveillance%20diagram.svg" alt="Logo">
-
-    *Stepwise utilization of Lookout in the AlignDx Platform. (A) Workflow/pipeline selection menu and (B) available workflow options. (C) Surveillance specific form components. (D) Filled out surveillance form, with input dataset, and chosen options. (E) Status card for monitoring submissions. (F)  Workflow output report. (G) Archive entry for submission.*
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
- 
 
 <!-- LICENSE -->
 ## License

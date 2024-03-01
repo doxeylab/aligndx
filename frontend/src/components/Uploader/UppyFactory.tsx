@@ -43,7 +43,7 @@ export default function UppyFactory({ id, meta, fileTypes, refresh }: UppyFactor
         const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)).toString());
         return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
     }
-    const size: number = 20 * Math.pow(1024, 3); // 20 GB in bytes
+    const size: number = 20 * Math.pow(1024, 3); // 20 GB in bytes 
     
     const uppy = new Uppy({
         id: id,
