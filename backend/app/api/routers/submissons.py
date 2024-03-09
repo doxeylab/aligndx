@@ -1,6 +1,7 @@
 import uuid
 import datetime
 from typing import List
+from io import BytesIO 
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
@@ -126,11 +127,24 @@ async def get_report(sub_id: str, current_user: auth.UserDTO = Depends(get_curre
 
     html = storage_manager.read(BaseStores.RESULTS,report_name)
     return html
- 
-def file_streamer(file_path):
-    with open(file_path, mode="rb") as file:
-        while chunk := file.read(8192):
-            yield chunk
+
+
+def zip_dir(zip_subdir, name): 
+    """
+    Compress a directory (ZIP file).
+    """
+    zip_io = BytesIO()
+    with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip: 
+            for dir, subdirs, fnames in os.walk(zip_subdir):
+                for fname in fnames:
+                    fpath= os.path.join(dir,fname)
+                    arcname = os.path.relpath(fpath, zip_subdir)
+                    temp_zip.write(fpath, arcname)
+    return StreamingResponse(
+            iter([zip_io.getvalue()]), 
+            media_type="application/x-zip-compressed", 
+            headers = { "Content-Disposition": f"attachment; filename={name}"}
+        )
 
 @router.get('/download/{sub_id}', response_class=StreamingResponse) 
 async def download(sub_id: str, current_user: auth.UserDTO = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
@@ -141,14 +155,11 @@ async def download(sub_id: str, current_user: auth.UserDTO = Depends(get_current
         raise HTTPException(status_code=404, detail="Submission not found")
 
     storage_manager = StorageManager(prefix=sub_id)
-    report_name = "report.html" 
-    download_name = f"aligndx_{query.pipeline}_{query.name}_run_report.html" 
 
-    headers = {
-        "Content-Disposition": f"attachment; filename={download_name}",
-    }
-    if storage_manager.exists(BaseStores.RESULTS, report_name):
-        report_path = storage_manager.get_path(BaseStores.RESULTS, report_name)
-        return StreamingResponse(file_streamer(report_path), headers=headers, media_type='application/octet-stream')
-    else:
-        raise HTTPException(status_code=400)
+    zip_subdir = storage_manager.get_path(BaseStores.RESULTS, "")
+    name = f"aligndx_{query.pipeline}_{query.name}_results.zip"
+    
+    if zip_subdir is False :
+        raise HTTPException(status_code=404, detail="No results available")
+    
+    return zip_dir(zip_subdir, name)
